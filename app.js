@@ -792,6 +792,7 @@ function renderMarketRisk(investor, marketView) {
   const market = investor.market_snapshot || {};
   const ownership = investor.ownership_snapshot || {};
   const derived = investor.derived || {};
+  const marketAlert = officialSignalsData?.providers?.kis?.market_alert || {};
   return `
     <section class="panel stats-panel validation-panel">
       <div class="panel-heading compact-heading">
@@ -813,7 +814,57 @@ function renderMarketRisk(investor, marketView) {
       <div class="market-action-list">
         ${(investor.market_actions || []).map((action) => `<div><span class="status-badge status-warn">시장조치</span><strong>${escapeHtml(action.date)}</strong><p>${escapeHtml(action.label)}</p></div>`).join("")}
       </div>
+      ${renderMarketAlertGuide(marketAlert)}
       <p class="section-note">가격 상승은 사업 성과의 증거가 아닙니다. 실적 개선과 기대 선반영·저유통 수급을 분리해 판단해야 합니다.</p>
+    </section>
+  `;
+}
+
+function renderMarketAlertGuide(marketAlert) {
+  const halt = marketAlert.trading_halt || {};
+  const release = marketAlert.warning_release || {};
+  const haltThreshold = Number(halt.trigger_price_raw || 0);
+  const observedClose = Number(halt.observed_close || 0);
+  const haltGap = haltThreshold ? observedClose - haltThreshold : null;
+  const release5 = Number(release.five_day_limit_raw || 0);
+  const release15 = Number(release.fifteen_day_limit_raw || 0);
+  const haltStatus = halt.condition_met === true ? "met" : halt.condition_met === false ? "clear" : "pending";
+  const haltLabel = halt.condition_met === true
+    ? `${formatDateShort(halt.halt_date)} 1일 정지 산식 충족`
+    : halt.condition_met === false
+      ? "현재 종가는 정지 산식 미충족"
+      : "기준 종가 수집 대기";
+  return `
+    <section class="market-alert-guide" aria-label="투자경고 및 거래정지 조건">
+      <div class="market-alert-heading">
+        <div><span>KRX 시장경보 해설</span><h3>얼마면 정지되고, 언제 경고가 풀리나?</h3></div>
+        <span class="alert-state alert-state-${haltStatus}">${escapeHtml(haltLabel)}</span>
+      </div>
+      <div class="alert-rule-grid">
+        <article class="alert-rule-card is-halt">
+          <span class="alert-rule-step">거래정지 판단</span>
+          <strong>${haltThreshold ? `${formatNumber(haltThreshold)}원 이상` : "계산 대기"}</strong>
+          <p>${escapeHtml(formatDateShort(halt.judgment_date))} 종가가 ${escapeHtml(formatDateShort(halt.reference_date))} 종가 ${halt.reference_close ? `${formatNumber(halt.reference_close)}원` : "확인값"}보다 40% 이상 높으면 다음 거래일 1일 정지</p>
+          ${haltGap != null ? `<div class="alert-meter"><span style="width:${Math.min(100, Math.max(0, (observedClose / haltThreshold) * 76))}%"></span><i style="left:76%"></i></div><small>관측 종가 ${formatNumber(observedClose)}원 · 기준보다 ${haltGap >= 0 ? "+" : "−"}${formatNumber(Math.abs(haltGap))}원</small>` : ""}
+        </article>
+        <article class="alert-rule-card is-release">
+          <span class="alert-rule-step">투자경고 해제</span>
+          <strong>${formatDateShort(release.earliest_judgment_date)} 최초 판단</strong>
+          <p>아래 3개 급등 조건에 어느 하나도 해당하지 않아야 다음 날 해제됩니다.</p>
+          <ul>
+            <li>${formatDateShort(release.five_day_reference_date)} 종가 대비 45% 미만 상승 ${release5 ? `· ${formatNumber(release5)}원 미만` : "· 기준일이 아직 오지 않아 금액 미정"}</li>
+            <li>${formatDateShort(release.fifteen_day_reference_date)} 종가${release.fifteen_day_reference_close ? ` ${formatNumber(release.fifteen_day_reference_close)}원` : ""} 대비 75% 미만 상승${release15 ? ` · ${formatNumber(release15)}원 미만` : ""}</li>
+            <li>최근 15거래일 종가 중 최고가가 아닐 것</li>
+          </ul>
+        </article>
+      </div>
+      <div class="alert-source-row">
+        <p><strong>중요:</strong> 해제 가격은 ${formatDateShort(release.five_day_reference_date)} 종가에 따라 달라져 지금 하나의 숫자로 확정할 수 없습니다. 위 계산은 KIS 종가에 KRX 공시 산식을 적용한 참고값입니다.</p>
+        <div>
+          ${halt.source_url ? `<a href="${escapeAttr(halt.source_url)}" target="_blank" rel="noopener noreferrer">KRX 거래정지 예고</a>` : ""}
+          ${release.source_url ? `<a href="${escapeAttr(release.source_url)}" target="_blank" rel="noopener noreferrer">KRX 투자경고 지정</a>` : ""}
+        </div>
+      </div>
     </section>
   `;
 }
@@ -1001,7 +1052,11 @@ function renderRevenuePanel() {
           label: item.month,
           value: item.avg_score,
           sub: "avg score"
-        })), (value) => formatNumber(Math.round(value)), "#62a8ff")}
+        })), (value) => `${formatNumber(Math.round(value))}점`, "#62a8ff", "", {
+          latestLabel: "최근 월평균",
+          highLabel: "최고 반응월",
+          contextNote: "특정 캐릭터 점수가 아니라 해당 월 전체 캐릭터의 평균값입니다."
+        })}
       </div>
     </section>
   `;
@@ -1083,19 +1138,62 @@ function renderGrowthPanel() {
       </div>
       <p class="section-note">신규 캐릭터가 총 대화량을 끌어올리는지 보는 성장 검증 지표입니다. 평평하면 기존 캐릭터 잠식 가능성이 커집니다.</p>
       <div class="chart-grid chart-grid-primary">
-        ${renderColumnChart("월별 신규 캐릭터", "실제 공개일 기준 · 명", (growth.monthly_new_characters || []).map((item) => ({
-          label: item.month,
-          value: item.count,
-          sub: "new"
-        })), (value) => `${formatNumber(value)}명`, "#f5a742")}
+        ${renderNewCharacterSupply(growth)}
         ${renderColumnChart("전체 대화수 일간 증가", "3개 연속 관측 · chats", (growth.daily_total_chat_delta || []).map((item) => ({
           label: item.date.slice(5),
           value: item.delta,
           sub: item.date
-        })), formatNumber, "#27c499")}
+        })), formatNumber, "#27c499", "", { latestLabel: "최근 증가", highLabel: "최대 증가일" })}
       </div>
       ${renderGenreBars(growth.genre_breakdown || [])}
     </section>
+  `;
+}
+
+function renderNewCharacterSupply(growth) {
+  const rows = (growth.monthly_new_characters || []).map((item) => ({ label: item.month, value: Number(item.count || 0) }));
+  const latest = rows.at(-1);
+  const previous = rows.at(-2);
+  const high = rows.reduce((best, row) => row.value > Number(best?.value ?? -Infinity) ? row : best, null);
+  const max = Math.max(...rows.map((row) => row.value), 1);
+  const deltaPct = previous?.value ? ((Number(latest?.value || 0) / previous.value) - 1) * 100 : 0;
+  const peakIds = new Set((growth.new_character_dates || [])
+    .filter((item) => String(item.date || "").startsWith(high?.label || ""))
+    .map((item) => Number(item.character_id)));
+  const peakCharacters = recordsForMarket("kr")
+    .filter((record) => peakIds.has(Number(record.character_id)))
+    .sort((a, b) => b.chatsNumber - a.chatsNumber || b.viewsNumber - a.viewsNumber)
+    .slice(0, 4);
+  return `
+    <article class="chart-card new-character-supply-card">
+      <div class="chart-heading"><div><h3>월별 신규 캐릭터</h3><p class="stat-help">실제 공개일 기준 · 월과 캐릭터를 함께 확인</p></div><span class="sample-badge">${rows.length}개월</span></div>
+      <div class="chart-readout">
+        <div><span>최근 · ${formatPeriodLabel(latest?.label)}</span><strong>${latest ? `${formatNumber(latest.value)}명` : "-"}</strong></div>
+        <div><span>직전 월 대비</span><strong class="${deltaPct >= 0 ? "is-up" : "is-down"}">${deltaPct >= 0 ? "+" : ""}${deltaPct.toFixed(1)}%</strong></div>
+        <div class="is-highlight"><span>최다 출시월</span><strong>${formatPeriodLabel(high?.label)} · ${formatNumber(high?.value)}명</strong></div>
+      </div>
+      <div class="column-chart" style="--columns:${Math.max(rows.length, 1)}">
+        ${rows.map((row) => {
+          const height = Math.max(4, (row.value / max) * 100);
+          return `<div class="column-item" title="${escapeAttr(`${formatPeriodLabel(row.label)} 신규 ${row.value}명`)}">
+            <strong>${formatNumber(row.value)}명</strong>
+            <span class="column-track"><i style="height:${height}%;background:#f5a742"></i></span>
+            <small>${escapeHtml(formatPeriodLabel(row.label))}</small>
+          </div>`;
+        }).join("")}
+      </div>
+      <div class="peak-character-block">
+        <div class="peak-character-heading"><div><strong>${formatPeriodLabel(high?.label)} 공개 캐릭터</strong><small>현재 누적 대화가 많은 4명 · 선택하면 전체 정보</small></div><span>${formatNumber(high?.value)}명 중 TOP 4</span></div>
+        <div class="peak-character-list">
+          ${peakCharacters.map((record) => `
+            <button type="button" class="peak-character-card" data-character-id="${record.character_id}">
+              ${record.imageSrc ? `<img class="thumb" src="${escapeAttr(record.imageSrc)}" alt="${escapeAttr(`${record.character_name} 이미지`)}" loading="lazy" data-fallback="${escapeAttr(record.character_name.slice(0, 1))}" />` : `<span class="thumb-fallback">${escapeHtml(record.character_name.slice(0, 1))}</span>`}
+              <span><strong>${escapeHtml(record.character_name)}</strong><small>${escapeHtml(record.workSafe)}</small><b>공개 대화 ${formatCompact(record.chatsNumber)}회</b></span>
+            </button>
+          `).join("")}
+        </div>
+      </div>
+    </article>
   `;
 }
 
@@ -1134,7 +1232,11 @@ function renderTotalsPanel() {
         label: item.month,
         value: item.avg_score,
         sub: `${formatNumber(item.ranked_chars)} chars`
-      })), (value) => formatNumber(Math.round(value)), "#d95926")}
+      })), (value) => `${formatNumber(Math.round(value))}점`, "#d95926", "", {
+        latestLabel: "최근 월평균",
+        highLabel: "최고 반응월",
+        contextNote: "7월은 캐릭터명이 아니라 월입니다. 해당 월 전체 캐릭터의 평균 반응 점수입니다."
+      })}
     </section>
   `;
 }
@@ -1641,7 +1743,7 @@ function renderSnapshotJourney(title, subtitle, rows, key, color) {
   `;
 }
 
-function renderPeriodComparison(title, subtitle, rows, formatter = formatNumber, color = "#3987e5", className = "") {
+function renderPeriodComparison(title, subtitle, rows, formatter = formatNumber, color = "#3987e5", className = "", options = {}) {
   const max = Math.max(...rows.map((row) => Number(row.value || 0)), 1);
   const latest = rows.at(-1);
   const previous = rows.at(-2);
@@ -1655,13 +1757,13 @@ function renderPeriodComparison(title, subtitle, rows, formatter = formatNumber,
         <span class="sample-badge">${rows.length}개 기간</span>
       </div>
       <div class="period-hero">
-        <div><span>현재 · ${escapeHtml(String(latest?.label || "-"))}</span><strong>${latest ? escapeHtml(formatter(latest.value)) : "-"}</strong></div>
+        <div><span>${escapeHtml(options.latestLabel || "현재")} · ${escapeHtml(formatPeriodLabel(latest?.label))}</span><strong>${latest ? escapeHtml(formatter(latest.value)) : "-"}</strong></div>
         <div class="period-change ${latestChange < 0 ? "is-lower" : "is-higher"}">
           <span>직전 기간 대비</span>
           <strong>${latestChange < 0 ? "▼" : "▲"} ${Math.abs(latestPct).toFixed(1)}%</strong>
           <small>${latestChange >= 0 ? "+" : "−"}${escapeHtml(formatter(Math.abs(latestChange)))}</small>
         </div>
-        <div><span>기간 최고</span><strong>${escapeHtml(String(high?.label || "-"))}</strong></div>
+        <div class="is-highlight"><span>${escapeHtml(options.highLabel || "최고 관측")}</span><strong>${high ? `${escapeHtml(formatPeriodLabel(high.label))} · ${escapeHtml(formatter(high.value))}` : "-"}</strong></div>
       </div>
       <div class="period-list">
         ${rows.map((row, index) => {
@@ -1670,13 +1772,14 @@ function renderPeriodComparison(title, subtitle, rows, formatter = formatNumber,
           const delta = index && prior ? ((value - prior) / prior) * 100 : null;
           const width = Math.max(4, (value / max) * 100);
           return `<div class="period-row">
-            <span class="period-label">${escapeHtml(String(row.label).replace(/^2026-/, ""))}</span>
+            <span class="period-label">${escapeHtml(formatPeriodLabel(row.label))}</span>
             <span class="period-track"><i style="width:${width}%"></i></span>
             <strong>${escapeHtml(formatter(value))}</strong>
             <small class="${delta == null ? "" : delta < 0 ? "is-lower" : "is-higher"}">${delta == null ? "기준" : `${delta < 0 ? "▼" : "▲"} ${Math.abs(delta).toFixed(1)}%`}</small>
           </div>`;
         }).join("")}
       </div>
+      ${options.contextNote ? `<p class="metric-context-note"><strong>읽는 법</strong>${escapeHtml(options.contextNote)}</p>` : ""}
     </article>
   `;
 }
@@ -1726,6 +1829,11 @@ function renderRevenueBand(revenue) {
           .join("")}
       </div>
       <div class="benchmark-key"><span></span><strong>현재 기준값은 IR 제시 ${formatWonBig(benchmark)}의 ${benchmarkRatio.toFixed(1)}%</strong><small>IR 수치는 외부 검증 전 비교 기준</small></div>
+      <div class="revenue-confidence-grid">
+        <div><span>관측 표본</span><strong>${rows.length}일</strong><small>최소 14일 권장</small></div>
+        <div><span>IR 대비</span><strong>${benchmarkRatio.toFixed(1)}%</strong><small>${formatWonBig(Number(benchmark || 0) - Number(latest.revenue_mid || 0))} 차이</small></div>
+        <div class="is-caution"><span>모델 신뢰도</span><strong>낮음</strong><small>결제율·ASP 미공시</small></div>
+      </div>
     </article>
   `;
 }
@@ -1809,7 +1917,7 @@ function renderBarChart(title, subtitle, rows, formatter = formatNumber, color =
   `;
 }
 
-function renderColumnChart(title, subtitle, rows, formatter = formatNumber, color = "#3987e5", className = "") {
+function renderColumnChart(title, subtitle, rows, formatter = formatNumber, color = "#3987e5", className = "", options = {}) {
   const max = Math.max(...rows.map((row) => Number(row.value || 0)), 1);
   const latest = rows.at(-1);
   const previous = rows.at(-2);
@@ -1819,9 +1927,9 @@ function renderColumnChart(title, subtitle, rows, formatter = formatNumber, colo
     <article class="chart-card ${escapeAttr(className)}">
       <div class="chart-heading"><div><h3>${escapeHtml(title)}</h3><p class="stat-help">${escapeHtml(subtitle || "")}</p></div><span class="sample-badge">${rows.length}개 기간</span></div>
       <div class="chart-readout">
-        <div><span>최근</span><strong>${latest ? escapeHtml(formatter(latest.value)) : "-"}</strong></div>
+        <div><span>${escapeHtml(options.latestLabel || "최근")} · ${escapeHtml(formatPeriodLabel(latest?.label))}</span><strong>${latest ? escapeHtml(formatter(latest.value)) : "-"}</strong></div>
         <div><span>직전 대비</span><strong class="${deltaPct >= 0 ? "is-up" : "is-down"}">${deltaPct >= 0 ? "+" : ""}${deltaPct.toFixed(1)}%</strong></div>
-        <div><span>기간 최고</span><strong>${high ? escapeHtml(String(high.label).replace(/^2026-/, "")) : "-"}</strong></div>
+        <div class="is-highlight"><span>${escapeHtml(options.highLabel || "최고 관측")}</span><strong>${high ? `${escapeHtml(formatPeriodLabel(high.label))} · ${escapeHtml(formatter(high.value))}` : "-"}</strong></div>
       </div>
       <div class="column-chart" style="--columns:${Math.max(rows.length, 1)}">
         ${rows.map((row) => {
@@ -1829,10 +1937,11 @@ function renderColumnChart(title, subtitle, rows, formatter = formatNumber, colo
           return `<div class="column-item" title="${escapeAttr(`${row.label} ${formatter(row.value)}`)}">
             <strong>${escapeHtml(formatter(row.value))}</strong>
             <span class="column-track"><i style="height:${height}%;background:${color}"></i></span>
-            <small>${escapeHtml(String(row.label).replace(/^2026-/, ""))}</small>
+            <small>${escapeHtml(formatPeriodLabel(row.label))}</small>
           </div>`;
         }).join("")}
       </div>
+      ${options.contextNote ? `<p class="metric-context-note"><strong>읽는 법</strong>${escapeHtml(options.contextNote)}</p>` : ""}
     </article>
   `;
 }
@@ -1985,6 +2094,27 @@ function formatDateTime(value) {
     dateStyle: "medium",
     timeStyle: "short"
   }).format(date);
+}
+
+function formatDateShort(value) {
+  if (!value) return "-";
+  const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (match) return `${Number(match[2])}월 ${Number(match[3])}일`;
+  return String(value);
+}
+
+function formatPeriodLabel(value) {
+  if (!value) return "-";
+  const label = String(value);
+  let match = label.match(/^\d{4}-(\d{2})-(\d{2})$/);
+  if (match) return `${Number(match[1])}월 ${Number(match[2])}일`;
+  match = label.match(/^\d{4}-(\d{2})$/);
+  if (match) return `${Number(match[1])}월`;
+  match = label.match(/^(\d{2})-(\d{2})$/);
+  if (match) return `${Number(match[1])}월 ${Number(match[2])}일`;
+  match = label.match(/^(\d{2})$/);
+  if (match) return `${Number(match[1])}월`;
+  return label;
 }
 
 function formatFreshnessAge(value) {

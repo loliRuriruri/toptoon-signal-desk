@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-24T12:11:49.579Z",
+  "generated_at": "2026-08-24T12:36:28.030Z",
   "mode": "live-crosscheck",
   "overall_status": "share-with-caveats",
   "summary": {
@@ -18,45 +18,45 @@
     "kr": {
       "label": "한국",
       "count": 87,
-      "chats": 1507841,
-      "views": 51314849,
+      "chats": 1508044,
+      "views": 51324365,
       "live": {
         "count": 87,
-        "chats": 1507844,
-        "views": 51314856
+        "chats": 1508044,
+        "views": 51324381
       }
     },
     "jp": {
       "label": "일본",
       "count": 77,
-      "chats": 220382,
-      "views": 15585355,
+      "chats": 220469,
+      "views": 15620785,
       "live": {
         "count": 77,
-        "chats": 220382,
-        "views": 15585412
+        "chats": 220469,
+        "views": 15620857
       }
     },
     "global": {
       "label": "글로벌",
       "count": 84,
-      "chats": 16370,
-      "views": 315335,
+      "chats": 16379,
+      "views": 315448,
       "live": {
         "count": 84,
-        "chats": 16370,
-        "views": 315335
+        "chats": 16379,
+        "views": 315448
       }
     },
     "tw": {
       "label": "대만",
       "count": 81,
-      "chats": 94884,
-      "views": 3175343,
+      "chats": 94903,
+      "views": 3176478,
       "live": {
         "count": 81,
-        "chats": 94884,
-        "views": 3175344
+        "chats": 94903,
+        "views": 3176480
       }
     }
   },
@@ -110,8 +110,8 @@
       "id": "live-chats-kr",
       "label": "한국 누적 채팅 시차",
       "status": "pass",
-      "observed": 1507841,
-      "expected": 1507844,
+      "observed": 1508044,
+      "expected": 1508044,
       "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
@@ -128,8 +128,8 @@
       "id": "live-chats-jp",
       "label": "일본 누적 채팅 시차",
       "status": "pass",
-      "observed": 220382,
-      "expected": 220382,
+      "observed": 220469,
+      "expected": 220469,
       "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
@@ -146,8 +146,8 @@
       "id": "live-chats-global",
       "label": "글로벌 누적 채팅 시차",
       "status": "pass",
-      "observed": 16370,
-      "expected": 16370,
+      "observed": 16379,
+      "expected": 16379,
       "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
@@ -164,8 +164,8 @@
       "id": "live-chats-tw",
       "label": "대만 누적 채팅 시차",
       "status": "pass",
-      "observed": 94884,
-      "expected": 94884,
+      "observed": 94903,
+      "expected": 94903,
       "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
@@ -174,8 +174,8 @@
       "label": "한국 Worker↔직접 관측",
       "status": "warn",
       "observed": 1503835,
-      "expected": 1507841,
-      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 0.266%",
+      "expected": 1508044,
+      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 0.279%",
       "severity": "medium"
     },
     {
@@ -183,8 +183,8 @@
       "label": "일본 Worker↔직접 관측",
       "status": "warn",
       "observed": 211305,
-      "expected": 220382,
-      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 4.119%",
+      "expected": 220469,
+      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 4.157%",
       "severity": "medium"
     },
     {
@@ -192,8 +192,8 @@
       "label": "글로벌 Worker↔직접 관측",
       "status": "warn",
       "observed": 15006,
-      "expected": 16370,
-      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 8.332%",
+      "expected": 16379,
+      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 8.383%",
       "severity": "medium"
     },
     {
@@ -201,8 +201,8 @@
       "label": "대만 Worker↔직접 관측",
       "status": "warn",
       "observed": 91371,
-      "expected": 94884,
-      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 3.702%",
+      "expected": 94903,
+      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 3.722%",
       "severity": "medium"
     },
     {
@@ -298,13 +298,13 @@
     "market_actions": [
       {
         "date": "2026-08-20",
-        "label": "투자경고종목 지정",
+        "label": "투자경고 공시 · 8월 21일 지정",
         "status": "confirmed",
         "source_id": "SRC-KRX-WARNING"
       },
       {
         "date": "2026-08-21",
-        "label": "매매거래정지 예고",
+        "label": "8월 24일 종가 기준 거래정지 조건 판정",
         "status": "confirmed",
         "source_id": "SRC-KRX-SUSPENSION-PRENOTICE"
       }
@@ -338,7 +338,7 @@
         "type": "KRX 시장조치",
         "label": "투자경고종목 지정",
         "as_of": "2026-08-20",
-        "url": "https://kind.krx.co.kr/common/disclsviewer.do?method=search&acptno=20260820000602"
+        "url": "https://kind.krx.co.kr/external/2026/08/20/000602/20260820001386/70804.htm"
       },
       {
         "id": "SRC-KRX-SUSPENSION-PRENOTICE",
@@ -346,7 +346,7 @@
         "type": "KRX 시장조치",
         "label": "매매거래정지 예고",
         "as_of": "2026-08-21",
-        "url": "https://kind.krx.co.kr/common/disclsviewer.do?method=search&acptno=20260821000686"
+        "url": "https://kind.krx.co.kr/external/2026/08/21/000686/20260821001992/70835.htm"
       },
       {
         "id": "SRC-PRICE-2026-08-24",

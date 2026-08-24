@@ -188,6 +188,68 @@ async function refreshKis() {
     };
   };
   const primaryQuote = await fetchQuote(ticker);
+  const historyStart = new Date();
+  historyStart.setUTCDate(historyStart.getUTCDate() - 45);
+  const historyParams = new URLSearchParams({
+    FID_COND_MRKT_DIV_CODE: "J",
+    FID_INPUT_ISCD: ticker,
+    FID_INPUT_DATE_1: dateCompact(historyStart),
+    FID_INPUT_DATE_2: dateCompact(new Date()),
+    FID_PERIOD_DIV_CODE: "D",
+    FID_ORG_ADJ_PRC: "0"
+  });
+  let priceHistory = [];
+  try {
+    const historyPayload = await fetchJson(`${base}/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice?${historyParams}`, {
+      headers: { ...headers, tr_id: "FHKST03010100" }
+    });
+    if (historyPayload.rt_cd !== "0") throw new Error(`KIS history status ${historyPayload.msg_cd || "unknown"}`);
+    priceHistory = (historyPayload.output2 || [])
+      .map((row) => ({
+        date: String(row.stck_bsop_date || ""),
+        close: Number(row.stck_clpr || 0),
+        high: Number(row.stck_hgpr || 0),
+        low: Number(row.stck_lwpr || 0)
+      }))
+      .filter((row) => /^\d{8}$/.test(row.date) && row.close > 0)
+      .sort((a, b) => a.date.localeCompare(b.date));
+  } catch (error) {
+    priceHistory = [];
+  }
+  const closeOn = (date) => priceHistory.find((row) => row.date === date)?.close || null;
+  const haltReferenceClose = closeOn("20260820");
+  const release15ReferenceClose = closeOn("20260812");
+  const release5ReferenceClose = closeOn("20260827");
+  const rawHaltThreshold = haltReferenceClose ? haltReferenceClose * 1.4 : null;
+  const marketAlert = {
+    status: haltReferenceClose ? "calculated" : "partial",
+    trading_halt: {
+      judgment_date: "2026-08-24",
+      halt_date: "2026-08-25",
+      halt_days: 1,
+      reference_date: "2026-08-20",
+      reference_close: haltReferenceClose,
+      trigger_pct: 40,
+      trigger_price_raw: rawHaltThreshold,
+      observed_close: primaryQuote.price,
+      condition_met: rawHaltThreshold == null ? null : primaryQuote.price >= rawHaltThreshold,
+      source_url: "https://kind.krx.co.kr/external/2026/08/21/000686/20260821001992/70835.htm"
+    },
+    warning_release: {
+      earliest_judgment_date: "2026-09-03",
+      five_day_reference_date: "2026-08-27",
+      five_day_reference_close: release5ReferenceClose,
+      five_day_limit_pct: 45,
+      five_day_limit_raw: release5ReferenceClose ? release5ReferenceClose * 1.45 : null,
+      fifteen_day_reference_date: "2026-08-12",
+      fifteen_day_reference_close: release15ReferenceClose,
+      fifteen_day_limit_pct: 75,
+      fifteen_day_limit_raw: release15ReferenceClose ? release15ReferenceClose * 1.75 : null,
+      must_not_be_fifteen_day_high: true,
+      source_url: "https://kind.krx.co.kr/external/2026/08/20/000602/20260820001386/70804.htm"
+    },
+    calculation_note: "KRX 공시 산식을 KIS 일별 종가에 적용한 참고 계산. 최종 시장조치는 KRX 공시를 우선 확인."
+  };
   const peers = [];
   for (const peer of peerUniverse) {
     try {
@@ -201,6 +263,8 @@ async function refreshKis() {
     source: "한국투자증권 국내주식 현재가",
     ticker,
     quote: primaryQuote,
+    price_history: priceHistory,
+    market_alert: marketAlert,
     peers,
     peer_note: "동일 업종의 완전한 비교군이 아닌 웹툰 플랫폼·IP 사업 노출 기준 스크리닝 피어"
   };

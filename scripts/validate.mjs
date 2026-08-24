@@ -47,6 +47,9 @@ assert(bySite.get("GLOBAL") === 84, "Global record count mismatch");
 assert(bySite.get("TW") === 81, "Taiwan record count mismatch");
 assert(records.every((record) => /^https:\/\/showcase\.chat\.(?:toptoon\.(?:com|jp|net)|global\.toptoon\.com)\/character\/\d+\/video-thumbnail\/[a-z0-9-]+\.mp4$/i.test(record.safe_video_url || "")), "every locale record should have a validated official motion URL");
 assert((officialSignals.providers?.kis?.peers || []).filter((peer) => peer.status === "ok").length >= 4, "KIS peer valuation screen is incomplete");
+assert(officialSignals.providers?.kis?.market_alert?.trading_halt?.reference_close > 0, "KRX halt reference close is missing");
+assert(officialSignals.providers?.kis?.market_alert?.trading_halt?.trigger_price_raw > 0, "KRX halt trigger calculation is missing");
+assert(officialSignals.providers?.kis?.market_alert?.warning_release?.fifteen_day_reference_close > 0, "KRX warning release reference is missing");
 
 [
   "revenue_nowcast",
@@ -148,6 +151,10 @@ assert(html.includes("data/characters.js"), "embedded dataset script must be ref
   "renderCharacterLeaderboard",
   "renderCharacterMotion",
   "renderPeerComparison",
+  "renderMarketAlertGuide",
+  "renderNewCharacterSupply",
+  "최고 반응월",
+  "최다 출시월",
   "renderSnapshotJourney",
   "renderPeriodComparison",
   "renderGlobalPanel",
