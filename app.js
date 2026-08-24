@@ -360,13 +360,49 @@ function mergeDatasets(datasets) {
   };
 }
 
+const CANONICAL_CHARACTER_MAP = {
+  // 대만 TW ID 불일치 보정
+  "tw:251": 249, // 林筱君 (대만 251) -> 박유미 (한국 249 / 일본 249 / 글로벌 249)
+  "tw:250": 247, // 羅心如 (대만 250) -> 나나현 (한국 247 / 글로벌 247)
+  "tw:273": 263, // 潘惠媛 (대만 273) -> 김혜연 (한국 263)
+  "tw:257": 255, // 崔善英 (대만 257) -> 최선영 (한국 255 / 글로벌 255)
+  "tw:269": 264, // 徐幼珍 (대만 269) -> 서우진 (한국 264 / 일본 264)
+
+  // 일본 JP ID 불일치 보정
+  "jp:293": 284, // 高橋夕里 (일본 293) -> 오유리 (한국 284 / 글로벌 284 / 대만 284)
+  "jp:294": 296, // 葛西陽菜乃 (일본 294) -> 김지민 (한국 296 / 대만 296)
+  "jp:295": 261, // 辛嶋雅 (일본 295) -> 나연아 (한국 261 / 대만 261)
+  "jp:257": 255, // 園田千里 (일본 257) -> 최선영 (한국 255 / 글로벌 255)
+
+  // 글로벌 GLOBAL ID 불일치 보정
+  "global:271": 290, // Lily Park (글로벌 271) -> 박소민 (한국 290 / 일본 290 / 대만 290)
+  "global:270": 292, // Min-joo Cho (글로벌 270) -> 조민주 (한국 292 / 일본 292)
+  "global:283": 291, // Alice Cha (글로벌 283) -> 차진희 (한국 291 / 일본 291)
+  "global:281": 261, // Yeon-ah Na (글로벌 281) -> 나연아 (한국 261 / 대만 261)
+  "global:316": 303, // Go-eun Choi (글로벌 316) -> 최고은 (한국 303 / 일본 303 / 대만 303)
+  "global:286": 306, // Jane Kim (글로벌 286) -> 김은주 (한국 306 / 일본 306 / 대만 306)
+  "global:276": 264, // Woo-jin Seo (글로벌 276) -> 서우진 (한국 264 / 일본 264)
+  "global:285": 316, // Summer Jung (글로벌 285) -> 정예솔 (한국 316 / 일본 316 / 대만 316)
+  "global:280": 278, // Ah-yeong Cho (글로벌 280) -> 조아영 (한국 278)
+  "jp:174": 174,
+  "tw:253": 253
+};
+
+function getCanonicalCharacterId(record) {
+  const key = `${record.market || record.site?.toLowerCase() || ""}:${record.character_id}`.toLowerCase();
+  if (CANONICAL_CHARACTER_MAP[key]) return Number(CANONICAL_CHARACTER_MAP[key]);
+  return Number(record.character_id);
+}
+
 function normalizeRecord(record) {
   const market = MARKET_BY_SITE[record.site] || "global";
   const filename = String(record.local_image || "").split("/").pop();
   const imageKey = filename ? `${market}/${filename}` : "";
+  const canonicalId = getCanonicalCharacterId({ ...record, market });
   return {
     ...record,
     market,
+    canonicalId,
     viewsNumber: Number(record.views || 0),
     chatsNumber: Number(record.chats || 0),
     genre: String(record.genre || "other"),
@@ -380,9 +416,10 @@ function normalizeRecord(record) {
 function buildGroups(allRecords) {
   const byId = new Map();
   allRecords.forEach((record) => {
-    if (!byId.has(record.character_id)) {
-      byId.set(record.character_id, {
-        id: record.character_id,
+    const canonicalId = record.canonicalId || getCanonicalCharacterId(record);
+    if (!byId.has(canonicalId)) {
+      byId.set(canonicalId, {
+        id: canonicalId,
         locales: {},
         allRecords: [],
         viewsNumber: 0,
@@ -390,7 +427,7 @@ function buildGroups(allRecords) {
         searchText: ""
       });
     }
-    const group = byId.get(record.character_id);
+    const group = byId.get(canonicalId);
     group.locales[record.market] = record;
     group.allRecords.push(record);
     group.viewsNumber += record.viewsNumber;
@@ -408,16 +445,16 @@ function buildGroups(allRecords) {
       .sort()[0] || null;
     group.markets = MARKET_ORDER.filter((market) => group.locales[market]);
     group.searchText = group.allRecords
-      .flatMap((record) => [record.character_name, record.workSafe, record.character_id])
+      .flatMap((record) => [record.character_name, record.workSafe, record.character_id, group.id])
       .join(" ")
       .toLowerCase();
     return group;
   });
 
   records = allRecords.map((record) => {
-    const group = byId.get(record.character_id);
+    const group = byId.get(record.canonicalId || record.character_id);
     record.group = group;
-    record.searchText = group.searchText;
+    record.searchText = group ? group.searchText : "";
     return record;
   });
 
@@ -1954,7 +1991,8 @@ function renderMarketPills(markets, activeMarket) {
 }
 
 function openDialog(characterId, trigger, preferredMarket = null) {
-  const group = groups.find((candidate) => candidate.id === characterId);
+  const idNum = Number(characterId);
+  const group = groups.find((candidate) => candidate.id === idNum || candidate.allRecords.some((r) => Number(r.character_id) === idNum || Number(r.canonicalId) === idNum));
   if (!group) return;
   const selected =
     preferredMarket && preferredMarket !== "all"
@@ -1994,12 +2032,15 @@ function closeDialog() {
 function renderDialogContent(group, selected) {
   const model = viewModel(selected);
   const activity = characterActivityForMarket(selected, selected.market);
-  const dailyWorker = workerActivityForId(selected.character_id);
+  const dailyWorker = workerActivityForId(group.id);
   const activityScope = activity?.scopeLabel || MARKET_META[selected.market].label;
   const officialLink = selected.detail_url
     ? `<a class="ghost-button dialog-open-link" href="${escapeAttr(selected.detail_url)}" target="_blank" rel="noopener noreferrer">공식 캐릭터 페이지</a>`
     : "";
   const estimatedRevenue = formatWonBig(selected.chatsNumber * 2354);
+  const idDisplay = selected.character_id !== group.id
+    ? `${group.id} <small style="font-size:11px;color:var(--muted)">(${MARKET_META[selected.market].short} ID ${selected.character_id})</small>`
+    : `${group.id}`;
   return `
     <div class="dialog-hero">
       <div class="dialog-image-frame">
@@ -2015,7 +2056,7 @@ function renderDialogContent(group, selected) {
       </div>
     </div>
     <div class="dialog-metrics">
-      <div><span>Character ID</span><strong>${group.id}</strong></div>
+      <div><span>Character ID</span><strong>${idDisplay}</strong></div>
       <div><span>누적 조회수</span><strong>${formatNumber(selected.viewsNumber)}</strong></div>
       <div><span>누적 대화수</span><strong>${formatNumber(selected.chatsNumber)}</strong></div>
       <div><span>가정 환산액</span><strong style="color:#f6c87d">${estimatedRevenue}</strong><small>대화 × 2,354원</small></div>
@@ -2027,7 +2068,7 @@ function renderDialogContent(group, selected) {
       <div><span>${escapeHtml(activityScope)} 최근 갱신 대화</span><strong>${activity ? renderActivityDelta(activity.chat_delta, "대화 증가 없음") : "—"}</strong><small>직전 수집 간격</small></div>
       <div><span>수집 기준 시각</span><strong>${activity ? `${escapeHtml(formatActivityTimestamp(activity.last_seen))}<small>${escapeHtml(activity.definitionLabel)}</small>` : "다음 수집 후 계산"}</strong></div>
     </div>
-    <h3>지역별 캐릭터 정보</h3>
+    <h3>지역별 캐릭터 정보 (4개국 연동)</h3>
     <div class="locale-list">
       ${MARKET_ORDER.map((market) => renderLocaleItem(group.locales[market], market, selected.market)).join("")}
     </div>
