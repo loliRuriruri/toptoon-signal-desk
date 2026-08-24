@@ -49,6 +49,9 @@ assert(bySite.get("JP") === 77, "JP record count mismatch");
 assert(bySite.get("GLOBAL") === 84, "Global record count mismatch");
 assert(bySite.get("TW") === 81, "Taiwan record count mismatch");
 assert(records.every((record) => /^https:\/\/showcase\.chat\.(?:toptoon\.(?:com|jp|net)|global\.toptoon\.com)\/character\/\d+\/video-thumbnail\/[a-z0-9-]+\.mp4$/i.test(record.safe_video_url || "")), "every locale record should have a validated official motion URL");
+assert(records.every((record) => typeof record.genre === "string" && record.genre.trim()), "every locale record should retain the official genre field");
+assert(records.every((record) => /^\d{4}-\d{2}-\d{2}T/.test(record.created_at || "")), "every locale record should retain the official creation timestamp");
+assert(records.every((record) => /^\d{4}-\d{2}-\d{2}T/.test(record.published_at || "")), "every locale record should have a public-start timestamp or documented creation fallback");
 assert((officialSignals.providers?.kis?.peers || []).filter((peer) => peer.status === "ok").length >= 4, "KIS peer valuation screen is incomplete");
 assert(officialSignals.providers?.kis?.market_alert?.trading_halt?.reference_close > 0, "KRX halt reference close is missing");
 assert(officialSignals.providers?.kis?.market_alert?.trading_halt?.trigger_price_raw > 0, "KRX halt trigger calculation is missing");
@@ -187,7 +190,7 @@ assert(html.includes("data/character-activity.js"), "embedded activity script mu
   "renderPeerComparison",
   "renderMarketAlertGuide",
   "renderNewCharacterSupply",
-  "최고 반응월",
+  "현재 평균 대화 최고",
   "최다 출시월",
   "renderSnapshotJourney",
   "renderPeriodComparison",
@@ -197,6 +200,10 @@ assert(html.includes("data/character-activity.js"), "embedded activity script mu
   "activitySummaryForMarket",
   "renderStatsMarketSummary",
   "catalogHistoryForMarket",
+  "marketCohortResponseRows",
+  "marketGenreRows",
+  "monthSeries",
+  "공식 startAt 우선 · 누락 시 createdAt",
   "공개 API 수집 간 대비",
   "최근 조회 증가",
   "최근 대화 증가",

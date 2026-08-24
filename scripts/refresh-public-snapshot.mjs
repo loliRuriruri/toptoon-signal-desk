@@ -106,6 +106,7 @@ async function collectMarket(market) {
       character_id: Number(character.id),
       character_name: String(character.name || ""),
       work_title: sortedTags[0]?.hashtag || null,
+      genre: String(character.genre || "other"),
       views: Number(character.viewCount || 0),
       chats: Number(character.chatCount || 0),
       thumbnail_url: imageUrl || null,
@@ -113,6 +114,9 @@ async function collectMarket(market) {
       local_image: imageFile ? `images_${market.key}/${imageFile}` : null,
       detail_url: `${market.host}/detail/character/${character.id}`,
       source_id: market.sourceId,
+      created_at: character.createdAt || null,
+      start_at: character.startAt || null,
+      published_at: character.startAt || character.createdAt || null,
       source_updated_at: character.updatedAt || null
     });
   }
@@ -131,7 +135,7 @@ const counts = {
 };
 const catalogPayload = {
   generated_at: capturedAt,
-  source_note: "Four public catalogs collected in one run. Work title is inferred from the first sorted hashtag and is not a separately verified title field.",
+  source_note: "Four public catalogs collected in one run. Work title is inferred from the first sorted hashtag. Genre and public start timestamp are direct public API fields; published_at falls back to createdAt only when startAt is absent.",
   market_snapshots: Object.fromEntries(marketResults.map((result) => [result.market.key, { captured_at: capturedAt, source: result.apiUrl, count: result.total }])),
   counts,
   records
@@ -219,8 +223,8 @@ const activityPayload = {
 };
 
 writeFileSync(path.join(dataDir, "characters.json"), `${JSON.stringify(catalogPayload, null, 2)}\n`, "utf8");
-const slimRecords = records.map(({ locale, site, character_id, character_name, work_title, views, chats, local_image, safe_video_url, detail_url, source_id, source_updated_at }) => ({
-  locale, site, character_id, character_name, work_title, views, chats, local_image, safe_video_url, detail_url, source_id, source_updated_at
+const slimRecords = records.map(({ locale, site, character_id, character_name, work_title, genre, views, chats, local_image, safe_video_url, detail_url, source_id, created_at, start_at, published_at, source_updated_at }) => ({
+  locale, site, character_id, character_name, work_title, genre, views, chats, local_image, safe_video_url, detail_url, source_id, created_at, start_at, published_at, source_updated_at
 }));
 writeFileSync(path.join(dataDir, "characters.js"), `window.TOPTOON_DATA=${JSON.stringify({ generated_at: capturedAt, market_snapshots: catalogPayload.market_snapshots, counts, records: slimRecords })};document.documentElement.dataset.dataReady='true';\n`, "utf8");
 writeFileSync(path.join(dataDir, "character-activity.json"), `${JSON.stringify(activityPayload, null, 2)}\n`, "utf8");

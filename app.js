@@ -369,6 +369,8 @@ function normalizeRecord(record) {
     market,
     viewsNumber: Number(record.views || 0),
     chatsNumber: Number(record.chats || 0),
+    genre: String(record.genre || "other"),
+    publishedAt: record.published_at || record.start_at || record.created_at || null,
     workSafe: record.work_title || MISSING_WORK,
     imageSrc: filename ? encodeURI(window.TOPTOON_IMAGE_MAP?.[imageKey] || `assets/${market}/${filename}`) : "",
     searchText: ""
@@ -399,6 +401,11 @@ function buildGroups(allRecords) {
     group.primary = MARKET_ORDER.map((market) => group.locales[market]).find(Boolean);
     group.name = group.primary.character_name;
     group.work = group.primary.workSafe;
+    group.genre = group.primary.genre;
+    group.publishedAt = group.allRecords
+      .map((record) => record.publishedAt)
+      .filter(Boolean)
+      .sort()[0] || null;
     group.markets = MARKET_ORDER.filter((market) => group.locales[market]);
     group.searchText = group.allRecords
       .flatMap((record) => [record.character_name, record.workSafe, record.character_id])
@@ -631,6 +638,80 @@ function catalogIntervalDeltas(market, key) {
     value: Number(row[key] || 0) - Number(rows[index]?.[key] || 0),
     sub: formatActivityWindow(rows[index]?.captured_at, row.captured_at)
   })).slice(-7);
+}
+
+function marketAnalysisItems(market) {
+  if (market !== "all") return recordsForMarket(market);
+  return groups.map((group) => ({
+    character_id: group.id,
+    character_name: group.name,
+    workSafe: group.work,
+    genre: group.genre,
+    publishedAt: group.publishedAt,
+    viewsNumber: group.viewsNumber,
+    chatsNumber: group.chatsNumber,
+    imageSrc: group.primary.imageSrc,
+    market: group.primary.market
+  }));
+}
+
+function monthSeries(items) {
+  const counts = new Map();
+  items.forEach((item) => {
+    const month = String(item.publishedAt || "").slice(0, 7);
+    if (/^\d{4}-\d{2}$/.test(month)) counts.set(month, (counts.get(month) || 0) + 1);
+  });
+  const observed = [...counts.keys()].sort();
+  if (!observed.length) return [];
+  const cursor = new Date(`${observed[0]}-01T00:00:00Z`);
+  const end = new Date(`${observed.at(-1)}-01T00:00:00Z`);
+  const rows = [];
+  while (cursor <= end) {
+    const month = `${cursor.getUTCFullYear()}-${String(cursor.getUTCMonth() + 1).padStart(2, "0")}`;
+    rows.push({ label: month, value: counts.get(month) || 0 });
+    cursor.setUTCMonth(cursor.getUTCMonth() + 1);
+  }
+  return rows;
+}
+
+function marketCohortResponseRows(market) {
+  const buckets = new Map();
+  marketAnalysisItems(market).forEach((item) => {
+    const month = String(item.publishedAt || "").slice(0, 7);
+    if (!/^\d{4}-\d{2}$/.test(month)) return;
+    const bucket = buckets.get(month) || { chats: 0, count: 0 };
+    bucket.chats += Number(item.chatsNumber || 0);
+    bucket.count += 1;
+    buckets.set(month, bucket);
+  });
+  return [...buckets.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([label, bucket]) => ({
+    label,
+    value: bucket.count ? bucket.chats / bucket.count : 0,
+    sub: `${formatNumber(bucket.count)}명 코호트`
+  }));
+}
+
+function normalizedGenre(value) {
+  const key = String(value || "other").trim().toLowerCase();
+  if (["modern", "현대"].includes(key)) return "modern";
+  return key || "other";
+}
+
+function marketGenreRows(market) {
+  const labels = { drama: "드라마", romance: "로맨스", fantasy: "판타지", daily: "일상", comedy: "코미디", thriller: "스릴러", modern: "현대", other: "기타" };
+  const buckets = new Map();
+  const items = marketAnalysisItems(market);
+  items.forEach((item) => {
+    const genre = normalizedGenre(item.genre);
+    const bucket = buckets.get(genre) || { genre, genre_label: labels[genre] || item.genre || "기타", char_count: 0, total_chats: 0 };
+    bucket.char_count += 1;
+    bucket.total_chats += Number(item.chatsNumber || 0);
+    buckets.set(genre, bucket);
+  });
+  const totalChats = items.reduce((sum, item) => sum + Number(item.chatsNumber || 0), 0) || 1;
+  return [...buckets.values()]
+    .map((row) => ({ ...row, share: row.total_chats / totalChats }))
+    .sort((a, b) => b.total_chats - a.total_chats || b.char_count - a.char_count);
 }
 
 function renderStatsMarketSummary() {
@@ -1159,6 +1240,9 @@ function renderRevenuePanel() {
   const revenue = statsData.revenue_nowcast || {};
   const byCharacter = statsData.revenue_by_character || {};
   const coinMix = statsData.coin_mix_ramp || {};
+  const market = MARKET_META[state.statsMarket] ? state.statsMarket : "all";
+  const marketLabel = MARKET_META[market].label;
+  const cohortRows = marketCohortResponseRows(market);
   return `
     <section class="panel stats-panel signal-section">
       <div class="panel-heading compact-heading">
@@ -1179,14 +1263,10 @@ function renderRevenuePanel() {
           value: item.pct,
           sub: item.label || item.month
         })), (value) => `${Number(value || 0).toFixed(1)}%`, "#f5a742")}
-        ${renderColumnChart("월별 캐릭터 반응 점수 · 한국", "한국 Worker 원본 활동점수 평균 · 계산식 미공개 · 방향성만 참고", (coinMix.monthly_activity_index || []).map((item) => ({
-          label: item.month,
-          value: item.avg_score,
-          sub: "avg score"
-        })), (value) => `${formatNumber(Math.round(value))}점`, "#62a8ff", "", {
-          latestLabel: "최근 월평균",
-          highLabel: "최고 반응월",
-          contextNote: "특정 캐릭터 점수가 아니라 해당 월 전체 캐릭터의 평균값입니다."
+        ${renderColumnChart(`공개 월별 현재 반응 · ${marketLabel}`, "해당 월 공개 캐릭터의 현재 평균 누적 대화수 · 4개 시장 동일 공식", cohortRows, (value) => `${formatNumber(Math.round(value))}회`, "#62a8ff", "", {
+          latestLabel: "최근 공개월 코호트",
+          highLabel: "현재 평균 대화 최고",
+          contextNote: "현재 시점 누적 대화수의 코호트 평균입니다. 먼저 공개된 월은 누적 기간이 길어 직접적인 성장률 비교가 아닙니다."
         })}
       </div>
     </section>
@@ -1257,7 +1337,6 @@ function renderCompletionPanel() {
 }
 
 function renderGrowthPanel() {
-  const growth = statsData.growth_cannibalization || {};
   const market = MARKET_META[state.statsMarket] ? state.statsMarket : "all";
   const chatDeltas = catalogIntervalDeltas(market, "total_chats");
   const marketLabel = MARKET_META[market].label;
@@ -1268,35 +1347,34 @@ function renderGrowthPanel() {
           <p class="section-kicker">04 · 캐릭터 공급·수요</p>
           <h2>신규 캐릭터 수와 대화 증가</h2>
         </div>
-        <span class="data-pill positive">한국 공급 · ${escapeHtml(marketLabel)} 수요</span>
+        <span class="data-pill positive">${escapeHtml(marketLabel)} 공급·수요</span>
       </div>
-      <p class="section-note">왼쪽 신규 캐릭터와 아래 장르는 한국 Worker 기준입니다. 오른쪽 대화 증가는 선택한 ${escapeHtml(marketLabel)} 공식 공개 카운터의 수집 구간 변화입니다.</p>
+      <p class="section-note">신규 캐릭터는 공식 API 공개 시작 시각(startAt, 없으면 createdAt), 장르는 공식 API genre, 대화 증가는 직전 로컬 수집본 대비입니다. 통합은 중복 지역 ID를 합친 104개 고유 캐릭터 기준입니다.</p>
       <div class="chart-grid chart-grid-primary">
-        ${renderNewCharacterSupply(growth)}
+        ${renderNewCharacterSupply(market)}
         ${renderColumnChart(`${marketLabel} 최근 대화 증가`, "직전 공식 API 수집본 대비 · 일간으로 오해 금지", chatDeltas, formatNumber, MARKET_META[market]?.color || "#27c499", "", { latestLabel: "최근 수집 구간", highLabel: "최대 증가 구간", contextNote: "수집 간격이 일정하지 않을 수 있으므로 일간 증가량으로 직접 비교하지 않습니다." })}
       </div>
-      ${renderGenreBars(growth.genre_breakdown || [])}
+      ${renderGenreBars(marketGenreRows(market), marketLabel, market === "all" ? "중복 지역을 합친 고유 캐릭터" : "시장 원본 캐릭터")}
     </section>
   `;
 }
 
-function renderNewCharacterSupply(growth) {
-  const rows = (growth.monthly_new_characters || []).map((item) => ({ label: item.month, value: Number(item.count || 0) }));
+function renderNewCharacterSupply(market) {
+  const items = marketAnalysisItems(market);
+  const marketLabel = MARKET_META[market].label;
+  const rows = monthSeries(items);
   const latest = rows.at(-1);
   const previous = rows.at(-2);
   const high = rows.reduce((best, row) => row.value > Number(best?.value ?? -Infinity) ? row : best, null);
   const max = Math.max(...rows.map((row) => row.value), 1);
   const deltaPct = previous?.value ? ((Number(latest?.value || 0) / previous.value) - 1) * 100 : 0;
-  const peakIds = new Set((growth.new_character_dates || [])
-    .filter((item) => String(item.date || "").startsWith(high?.label || ""))
-    .map((item) => Number(item.character_id)));
-  const peakCharacters = recordsForMarket("kr")
-    .filter((record) => peakIds.has(Number(record.character_id)))
+  const peakCharacters = items
+    .filter((record) => String(record.publishedAt || "").startsWith(high?.label || ""))
     .sort((a, b) => b.chatsNumber - a.chatsNumber || b.viewsNumber - a.viewsNumber)
     .slice(0, 4);
   return `
     <article class="chart-card new-character-supply-card">
-      <div class="chart-heading"><div><h3>월별 신규 캐릭터</h3><p class="stat-help">실제 공개일 기준 · 월과 캐릭터를 함께 확인</p></div><span class="sample-badge">${rows.length}개월</span></div>
+      <div class="chart-heading"><div><h3>${escapeHtml(marketLabel)} 월별 신규 캐릭터</h3><p class="stat-help">공식 startAt 우선 · 누락 시 createdAt</p></div><span class="sample-badge">${rows.length}개월</span></div>
       <div class="chart-readout">
         <div><span>최근 · ${formatPeriodLabel(latest?.label)}</span><strong>${latest ? `${formatNumber(latest.value)}명` : "-"}</strong></div>
         <div><span>직전 월 대비</span><strong class="${deltaPct >= 0 ? "is-up" : "is-down"}">${deltaPct >= 0 ? "+" : ""}${deltaPct.toFixed(1)}%</strong></div>
@@ -1316,7 +1394,7 @@ function renderNewCharacterSupply(growth) {
         <div class="peak-character-heading"><div><strong>${formatPeriodLabel(high?.label)} 공개 캐릭터</strong><small>현재 누적 대화가 많은 4명 · 선택하면 전체 정보</small></div><span>${formatNumber(high?.value)}명 중 TOP 4</span></div>
         <div class="peak-character-list">
           ${peakCharacters.map((record) => `
-            <button type="button" class="peak-character-card" data-character-id="${record.character_id}">
+            <button type="button" class="peak-character-card" data-character-id="${record.character_id}" data-character-market="${escapeAttr(record.market)}">
               ${record.imageSrc ? `<img class="thumb" src="${escapeAttr(record.imageSrc)}" alt="${escapeAttr(`${record.character_name} 이미지`)}" loading="lazy" data-fallback="${escapeAttr(record.character_name.slice(0, 1))}" />` : `<span class="thumb-fallback">${escapeHtml(record.character_name.slice(0, 1))}</span>`}
               <span><strong>${escapeHtml(record.character_name)}</strong><small>${escapeHtml(record.workSafe)}</small><b>공개 대화 ${formatCompact(record.chatsNumber)}회</b></span>
             </button>
@@ -1333,7 +1411,7 @@ function renderTotalsPanel() {
   const totals = catalogHistoryForMarket(market);
   const dailyViews = catalogIntervalDeltas(market, "total_views");
   const dailyChats = catalogIntervalDeltas(market, "total_chats");
-  const monthly = statsData.monthly_index?.rows || [];
+  const cohortRows = marketCohortResponseRows(market);
   return `
     <section class="panel stats-panel signal-section">
       <div class="panel-heading compact-heading">
@@ -1352,14 +1430,10 @@ function renderTotalsPanel() {
         ${renderPeriodComparison("최근 수집 간 조회 증가", "직전 공식 API 수집본 대비", dailyViews, formatNumber, "#62a8ff", "", { latestLabel: "최근 구간", highLabel: "최대 증가 구간" })}
         ${renderPeriodComparison("최근 수집 간 대화 증가", "직전 공식 API 수집본 대비", dailyChats, formatNumber, "#27c499", "", { latestLabel: "최근 구간", highLabel: "최대 증가 구간" })}
       </div>
-      ${renderPeriodComparison("월별 캐릭터 반응 점수 · 한국", "한국 Worker 4–7월 캐릭터당 원본 활동점수 평균 · 계산식 미공개", monthly.map((item) => ({
-        label: item.month,
-        value: item.avg_score,
-        sub: `${formatNumber(item.ranked_chars)} chars`
-      })), (value) => `${formatNumber(Math.round(value))}점`, "#d95926", "", {
-        latestLabel: "최근 월평균",
-        highLabel: "최고 반응월",
-        contextNote: "한국 전용 지표입니다. 7월은 캐릭터명이 아니라 월이며 해당 월 전체 캐릭터의 평균 반응 점수입니다."
+      ${renderPeriodComparison(`공개 월별 현재 반응 · ${marketLabel}`, "해당 월 공개 캐릭터의 현재 평균 누적 대화수", cohortRows, (value) => `${formatNumber(Math.round(value))}회`, "#d95926", "", {
+        latestLabel: "최근 공개월 코호트",
+        highLabel: "현재 평균 대화 최고",
+        contextNote: "시장별 동일 공식입니다. 현재 누적값이므로 오래된 코호트가 더 긴 관측 기간을 가집니다."
       })}
     </section>
   `;
@@ -2318,11 +2392,11 @@ function renderLineChart(title, subtitle, rows, series) {
   `;
 }
 
-function renderGenreBars(rows) {
+function renderGenreBars(rows, marketLabel = "한국", scopeLabel = "시장 원본 캐릭터") {
   const max = Math.max(...rows.map((row) => Number(row.total_chats || 0)), 1);
   return `
     <article class="chart-card full-span">
-      <div class="chart-heading"><div><h3>장르별 대화 구성</h3><p class="stat-help">누적 대화수 기준 · 캐릭터 수 병기</p></div><span class="sample-badge">${rows.length}개 장르</span></div>
+      <div class="chart-heading"><div><h3>${escapeHtml(marketLabel)} 장르별 대화 구성</h3><p class="stat-help">공식 genre · 누적 대화수 기준 · ${escapeHtml(scopeLabel)}</p></div><span class="sample-badge">${rows.length}개 장르</span></div>
       <div class="genre-list">
         ${rows
           .map((row, index) => {
