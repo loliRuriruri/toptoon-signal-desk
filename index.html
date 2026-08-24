@@ -85,21 +85,28 @@
       </section>
 
       <section class="browser panel" id="character-view" aria-labelledby="browser-title" hidden>
-        <div class="panel-heading">
-          <div>
+        <div class="panel-heading character-browser-heading">
+          <div class="character-browser-title">
             <p class="section-kicker" id="active-market-label">통합</p>
             <h2 id="browser-title">캐릭터 / 작품 검색</h2>
+            <p>시장별 캐릭터를 비교하고 작품·조회수·공개 대화 순으로 탐색합니다.</p>
           </div>
-          <p class="result-status" id="result-status" aria-live="polite"></p>
+          <div class="catalog-freshness" aria-label="캐릭터 데이터 최신성">
+            <span class="freshness-dot is-live"></span>
+            <p><small>최신 수집 데이터</small><strong id="catalog-freshness">확인 중</strong><span id="catalog-freshness-detail"></span></p>
+          </div>
         </div>
 
-        <nav class="market-tabs" aria-label="마켓 탭">
-          <button class="tab-button" type="button" data-market="all">통합</button>
-          <button class="tab-button" type="button" data-market="kr">한국</button>
-          <button class="tab-button" type="button" data-market="jp">日本</button>
-          <button class="tab-button" type="button" data-market="global">Global</button>
-          <button class="tab-button" type="button" data-market="tw">台灣</button>
-        </nav>
+        <div class="catalog-scope-bar">
+          <div><strong>시장 범위</strong><span id="catalog-scope-note">4개 시장 통합</span></div>
+          <nav class="market-tabs" aria-label="마켓 탭">
+            <button class="tab-button" type="button" data-market="all"><span>통합</span><small></small></button>
+            <button class="tab-button" type="button" data-market="kr"><span>한국</span><small></small></button>
+            <button class="tab-button" type="button" data-market="jp"><span>日本</span><small></small></button>
+            <button class="tab-button" type="button" data-market="global"><span>Global</span><small></small></button>
+            <button class="tab-button" type="button" data-market="tw"><span>台灣</span><small></small></button>
+          </nav>
+        </div>
 
         <div class="stats-grid catalog-kpi-grid" id="catalog-kpi-grid" aria-live="polite"></div>
 
@@ -127,6 +134,10 @@
               <option value="work-asc">작품명순</option>
             </select>
           </label>
+          <div class="toolbar-status">
+            <p class="result-status" id="result-status" aria-live="polite"></p>
+            <button class="ghost-button toolbar-reset" type="button" id="toolbar-reset">필터 초기화</button>
+          </div>
         </form>
 
         <div class="table-wrap" id="table-wrap">

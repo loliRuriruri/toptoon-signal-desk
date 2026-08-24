@@ -95,6 +95,9 @@ function bindElements() {
   els.validationDetail = document.querySelector("#validation-detail");
   els.activeMarketLabel = document.querySelector("#active-market-label");
   els.catalogKpiGrid = document.querySelector("#catalog-kpi-grid");
+  els.catalogFreshness = document.querySelector("#catalog-freshness");
+  els.catalogFreshnessDetail = document.querySelector("#catalog-freshness-detail");
+  els.catalogScopeNote = document.querySelector("#catalog-scope-note");
   els.searchInput = document.querySelector("#search-input");
   els.workFilter = document.querySelector("#work-filter");
   els.sortSelect = document.querySelector("#sort-select");
@@ -103,6 +106,7 @@ function bindElements() {
   els.resultStatus = document.querySelector("#result-status");
   els.emptyState = document.querySelector("#empty-state");
   els.resetFilters = document.querySelector("#reset-filters");
+  els.toolbarReset = document.querySelector("#toolbar-reset");
   els.dialog = document.querySelector("#character-dialog");
   els.dialogContent = document.querySelector("#dialog-content");
   els.dialogClose = document.querySelector("#dialog-close");
@@ -157,13 +161,29 @@ function bindEvents() {
     writeHash();
   });
 
-  els.resetFilters.addEventListener("click", () => {
+  const resetCharacterFilters = () => {
     state.q = "";
     state.work = "";
     state.sort = "views-desc";
     syncControls();
     renderCharacterView();
     writeHash();
+  };
+  els.resetFilters.addEventListener("click", resetCharacterFilters);
+  els.toolbarReset.addEventListener("click", resetCharacterFilters);
+
+  document.addEventListener("click", (event) => {
+    const toggle = event.target.closest("[data-rank-toggle]");
+    if (!toggle) return;
+    const card = toggle.closest(".character-rank-card");
+    const panel = card?.querySelector(".full-rank-panel");
+    if (!card || !panel) return;
+    const expanded = toggle.getAttribute("aria-expanded") !== "true";
+    toggle.setAttribute("aria-expanded", String(expanded));
+    toggle.querySelector("b").textContent = expanded ? "전체 순위 접기" : "전체 순위 펼치기";
+    panel.hidden = !expanded;
+    card.classList.toggle("is-expanded", expanded);
+    if (expanded) panel.querySelector(".full-rank-row")?.focus({ preventScroll: true });
   });
 
   els.dialogClose.addEventListener("click", closeDialog);
@@ -288,6 +308,7 @@ function mergeDatasets(datasets) {
   );
   return {
     generated_at: datasets[0]?.generated_at || new Date().toISOString(),
+    market_snapshots: datasets[0]?.market_snapshots || {},
     counts: {
       kr: counts.bySite.kr,
       jp: counts.bySite.jp,
@@ -1141,8 +1162,21 @@ function renderCharacterView() {
   if (!dataset) return;
   const filtered = getFilteredItems();
   els.activeMarketLabel.textContent = MARKET_META[state.market].label;
+  const sourceTotal = state.market === "all" ? groups.length : recordsForMarket(state.market).length;
+  const snapshot = state.market === "all" ? null : dataset.market_snapshots?.[state.market];
+  const capturedAt = snapshot?.captured_at || dataset.generated_at;
+  els.catalogFreshness.textContent = formatDateTime(capturedAt);
+  els.catalogFreshnessDetail.textContent = `${formatFreshnessAge(capturedAt)} · ${state.market === "all" ? "4개 공개 API 동시 수집" : `${MARKET_META[state.market].label} 공개 API`}`;
+  els.catalogScopeNote.textContent = state.market === "all" ? "중복 지역을 합친 고유 캐릭터" : `${MARKET_META[state.market].label} 원본 목록`;
+  els.marketTabs.forEach((button) => {
+    const count = button.dataset.market === "all" ? groups.length : recordsForMarket(button.dataset.market).length;
+    button.querySelector("small").textContent = formatNumber(count);
+  });
   renderCatalogSummary();
-  els.resultStatus.textContent = `${formatNumber(filtered.length)}개 표시`;
+  els.resultStatus.textContent = filtered.length === sourceTotal
+    ? `전체 ${formatNumber(sourceTotal)}명 표시`
+    : `${formatNumber(sourceTotal)}명 중 ${formatNumber(filtered.length)}명 표시`;
+  els.toolbarReset.hidden = !state.q && !state.work && state.sort === "views-desc";
   els.emptyState.hidden = filtered.length > 0;
   els.tbody.innerHTML = filtered.map(renderTableRow).join("");
   els.cardList.innerHTML = filtered.map(renderCard).join("");
@@ -1483,18 +1517,31 @@ function renderStatCards(cards) {
 }
 
 function renderCharacterLeaderboard(byCharacter) {
-  const top = (byCharacter.top || []).slice(0, 6);
-  const totalChats = Number(byCharacter.total_chats || 0) || 1;
+  const fullRanking = recordsForMarket("kr")
+    .slice()
+    .sort((a, b) => b.chatsNumber - a.chatsNumber || b.viewsNumber - a.viewsNumber);
+  const totalChats = fullRanking.reduce((sum, record) => sum + record.chatsNumber, 0) || 1;
+  const top = fullRanking.slice(0, 6).map((record) => ({
+    character_id: record.character_id,
+    name: record.character_name,
+    chats: record.chatsNumber,
+    revenue: record.chatsNumber * 2354,
+  }));
   return `
     <article class="chart-card span-5 character-rank-card">
       <div class="chart-heading">
         <div>
           <h3>인기 캐릭터 TOP 6</h3>
-          <p class="stat-help">누적 공개 대화수 순위 · 사진 선택 시 전체 정보</p>
+          <p class="stat-help">최신 한국 공개 대화수 순위 · 사진 선택 시 전체 정보</p>
         </div>
-        <span class="sample-badge">TOP 6</span>
+        <div class="rank-heading-actions">
+          <span class="sample-badge">TOP 6</span>
+          <button class="rank-expand-button" type="button" data-rank-toggle aria-expanded="false"><b>전체 순위 펼치기</b><span>${formatNumber(fullRanking.length)}명</span></button>
+        </div>
       </div>
-      <div class="character-rank-grid">
+      <div class="leaderboard-layout">
+        <div class="leaderboard-featured">
+          <div class="character-rank-grid">
         ${top.map((item, index) => {
           const group = groups.find((entry) => entry.id === Number(item.character_id));
           const primary = group?.locales?.kr || group?.primary;
@@ -1530,8 +1577,25 @@ function renderCharacterLeaderboard(byCharacter) {
             </button>
           `;
         }).join("")}
+          </div>
+          <p class="chart-tail">환산액 = 공개 대화 × 2,354원 가정입니다. 실제 매출이 아니며, 클릭하면 전체 이미지와 국가별 정보가 열립니다.</p>
+        </div>
+        <aside class="full-rank-panel" hidden aria-label="한국 전체 캐릭터 공개 대화 순위">
+          <div class="full-rank-header"><div><strong>전체 캐릭터 순위</strong><small>한국 공개 대화수 기준 · ${formatNumber(fullRanking.length)}명</small></div><span>최신 ${escapeHtml(formatDateTime(dataset.generated_at))}</span></div>
+          <div class="full-rank-list">
+            ${fullRanking.map((record, index) => {
+              const share = (record.chatsNumber / totalChats) * 100;
+              return `<button class="full-rank-row" type="button" data-character-id="${record.character_id}">
+                <span class="full-rank-number ${index < 3 ? `is-top-${index + 1}` : ""}">${index + 1}</span>
+                ${record.imageSrc ? `<img class="thumb" src="${escapeAttr(record.imageSrc)}" alt="" loading="lazy" data-fallback="${escapeAttr(record.character_name.slice(0, 1))}" />` : `<span class="thumb-fallback">${escapeHtml(record.character_name.slice(0, 1))}</span>`}
+                <span class="full-rank-identity"><strong>${escapeHtml(record.character_name)}</strong><small>${escapeHtml(record.workSafe)}</small></span>
+                <span class="full-rank-metric"><strong>${formatNumber(record.chatsNumber)}</strong><small>${share.toFixed(1)}% · ${formatWonBig(record.chatsNumber * 2354)}</small></span>
+              </button>`;
+            }).join("")}
+          </div>
+          <p class="full-rank-caveat">누적 공개 대화수 순위이며 유료 결제·매출 순위가 아닙니다.</p>
+        </aside>
       </div>
-      <p class="chart-tail">환산액 = 공개 대화 × 2,354원 가정입니다. 실제 매출이 아니며, 클릭하면 전체 이미지와 국가별 정보가 열립니다.</p>
     </article>
   `;
 }
@@ -1921,6 +1985,17 @@ function formatDateTime(value) {
     dateStyle: "medium",
     timeStyle: "short"
   }).format(date);
+}
+
+function formatFreshnessAge(value) {
+  const timestamp = new Date(value).getTime();
+  if (!Number.isFinite(timestamp)) return "수집 시각 확인 필요";
+  const minutes = Math.max(0, Math.round((Date.now() - timestamp) / 60000));
+  if (minutes < 1) return "방금 전";
+  if (minutes < 60) return `${minutes}분 전`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}시간 전`;
+  return `${Math.round(hours / 24)}일 전`;
 }
 
 function escapeHtml(value) {
