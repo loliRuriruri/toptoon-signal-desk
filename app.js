@@ -48,6 +48,7 @@ const MISSING_WORK = "작품 정보 없음";
 const state = {
   view: "stats",
   market: "all",
+  leaderboardMarket: "all",
   q: "",
   work: "",
   sort: "views-desc"
@@ -173,17 +174,36 @@ function bindEvents() {
   els.toolbarReset.addEventListener("click", resetCharacterFilters);
 
   document.addEventListener("click", (event) => {
+    const leaderboardMarketButton = event.target.closest("[data-leaderboard-market]");
+    if (leaderboardMarketButton) {
+      const nextMarket = leaderboardMarketButton.dataset.leaderboardMarket;
+      if (MARKET_META[nextMarket] && state.leaderboardMarket !== nextMarket) {
+        state.leaderboardMarket = nextMarket;
+        renderStatsDashboard();
+        bindResultButtons();
+        writeHash();
+      }
+      return;
+    }
+
     const toggle = event.target.closest("[data-rank-toggle]");
-    if (!toggle) return;
-    const card = toggle.closest(".character-rank-card");
-    const panel = card?.querySelector(".full-rank-panel");
-    if (!card || !panel) return;
-    const expanded = toggle.getAttribute("aria-expanded") !== "true";
-    toggle.setAttribute("aria-expanded", String(expanded));
-    toggle.querySelector("b").textContent = expanded ? "전체 순위 접기" : "전체 순위 펼치기";
-    panel.hidden = !expanded;
-    card.classList.toggle("is-expanded", expanded);
-    if (expanded) panel.querySelector(".full-rank-row")?.focus({ preventScroll: true });
+    if (toggle) {
+      const card = toggle.closest(".character-rank-card");
+      const panel = card?.querySelector(".full-rank-panel");
+      if (!card || !panel) return;
+      const expanded = toggle.getAttribute("aria-expanded") !== "true";
+      toggle.setAttribute("aria-expanded", String(expanded));
+      toggle.querySelector("b").textContent = expanded ? "전체 순위 접기" : "전체 순위 펼치기";
+      panel.hidden = !expanded;
+      card.classList.toggle("is-expanded", expanded);
+      if (expanded) panel.querySelector(".full-rank-row")?.focus({ preventScroll: true });
+      return;
+    }
+
+    const characterButton = event.target.closest("[data-character-id]");
+    if (characterButton) {
+      openDialog(Number(characterButton.dataset.characterId), characterButton, characterButton.dataset.characterMarket || null);
+    }
   });
 
   els.dialogClose.addEventListener("click", closeDialog);
@@ -384,9 +404,11 @@ function readHash() {
   const nextView = params.get("view");
   const legacyMarket = params.get("tab");
   const nextMarket = params.get("market") || legacyMarket;
+  const nextLeaderboardMarket = params.get("rank");
   state.view = VIEW_META[nextView] && !(PUBLIC_READ_ONLY && nextView === "settings") ? nextView : state.view;
   if (!nextView && legacyMarket && MARKET_META[legacyMarket]) state.view = "characters";
   state.market = MARKET_META[nextMarket] ? nextMarket : state.market;
+  state.leaderboardMarket = MARKET_META[nextLeaderboardMarket] ? nextLeaderboardMarket : state.leaderboardMarket;
   state.q = params.get("q") || "";
   state.work = params.get("work") || "";
   state.sort = params.get("sort") || state.sort;
@@ -396,6 +418,7 @@ function writeHash() {
   const params = new URLSearchParams();
   params.set("view", state.view);
   params.set("market", state.market);
+  if (state.leaderboardMarket !== "all") params.set("rank", state.leaderboardMarket);
   if (state.q) params.set("q", state.q);
   if (state.work) params.set("work", state.work);
   if (state.sort !== "views-desc") params.set("sort", state.sort);
@@ -1400,9 +1423,6 @@ function renderCard(item) {
 
 function bindResultButtons() {
   bindImageFallbacks(document);
-  [...document.querySelectorAll("[data-character-id]")].forEach((button) => {
-    button.addEventListener("click", () => openDialog(Number(button.dataset.characterId), button));
-  });
 }
 
 function bindImageFallbacks(root) {
@@ -1560,11 +1580,13 @@ function renderMarketPills(markets, activeMarket) {
   `;
 }
 
-function openDialog(characterId, trigger) {
+function openDialog(characterId, trigger, preferredMarket = null) {
   const group = groups.find((candidate) => candidate.id === characterId);
   if (!group) return;
   const selected =
-    state.market === "all" ? group.primary : group.locales[state.market] || group.primary;
+    preferredMarket && preferredMarket !== "all"
+      ? group.locales[preferredMarket] || group.primary
+      : state.market === "all" ? group.primary : group.locales[state.market] || group.primary;
   lastTrigger = trigger;
   els.dialogContent.innerHTML = renderDialogContent(group, selected);
   bindImageFallbacks(els.dialogContent);
@@ -1678,79 +1700,85 @@ function renderStatCards(cards) {
 }
 
 function renderCharacterLeaderboard(byCharacter) {
-  const fullRanking = recordsForMarket("kr")
-    .slice()
-    .sort((a, b) => b.chatsNumber - a.chatsNumber || b.viewsNumber - a.viewsNumber);
+  const selectedMarket = MARKET_META[state.leaderboardMarket] ? state.leaderboardMarket : "all";
+  const fullRanking = leaderboardRanking(selectedMarket);
   const totalChats = fullRanking.reduce((sum, record) => sum + record.chatsNumber, 0) || 1;
-  const top = fullRanking.slice(0, 6).map((record) => ({
-    character_id: record.character_id,
-    name: record.character_name,
-    chats: record.chatsNumber,
-    revenue: record.chatsNumber * 2354,
-  }));
+  const top = fullRanking.slice(0, 6);
+  const isKoreanRanking = selectedMarket === "kr";
+  const scopeLabel = selectedMarket === "all" ? "통합 4개 시장 합산" : `${MARKET_META[selectedMarket].label} 공개 데이터`;
   return `
     <article class="chart-card span-5 character-rank-card">
       <div class="chart-heading">
         <div>
           <h3>인기 캐릭터 TOP 6</h3>
-          <p class="stat-help">최신 한국 공개 대화수 순위 · 사진 선택 시 전체 정보</p>
+          <p class="stat-help">${escapeHtml(scopeLabel)} 대화수 순위 · 사진 선택 시 해당 시장 정보</p>
         </div>
         <div class="rank-heading-actions">
           <span class="sample-badge">TOP 6</span>
           <button class="rank-expand-button" type="button" data-rank-toggle aria-expanded="false"><b>전체 순위 펼치기</b><span>${formatNumber(fullRanking.length)}명</span></button>
         </div>
       </div>
+      <nav class="leaderboard-market-tabs" aria-label="인기 캐릭터 순위 시장 선택">
+        ${["all", ...MARKET_ORDER].map((market) => {
+          const count = market === "all" ? groups.length : recordsForMarket(market).length;
+          return `<button type="button" data-leaderboard-market="${market}" aria-pressed="${String(selectedMarket === market)}"><span>${escapeHtml(MARKET_META[market].label)}</span><small>${formatNumber(count)}</small></button>`;
+        }).join("")}
+      </nav>
       <div class="leaderboard-layout">
         <div class="leaderboard-featured">
           <div class="character-rank-grid">
         ${top.map((item, index) => {
           const group = groups.find((entry) => entry.id === Number(item.character_id));
-          const primary = group?.locales?.kr || group?.primary;
+          const primary = item.displayRecord || group?.primary;
           const work = primary?.workSafe || MISSING_WORK;
           const imageSrc = primary?.imageSrc || "";
-          const share = (Number(item.chats || 0) / totalChats) * 100;
-          const marketLabels = (group?.markets || []).map((market) => MARKET_META[market].short).join(" · ") || "KR";
-          const tooltipId = `rank-tooltip-${item.character_id}`;
-          const views = Number(primary?.viewsNumber || 0);
+          const share = (Number(item.chatsNumber || 0) / totalChats) * 100;
+          const marketLabels = (item.markets || group?.markets || []).map((market) => MARKET_META[market].short).join(" · ") || MARKET_META[selectedMarket].short;
+          const tooltipId = `rank-tooltip-${selectedMarket}-${item.character_id}`;
+          const views = Number(item.viewsNumber || 0);
+          const secondaryLabel = isKoreanRanking ? "가정 환산액" : "시장 내 대화 비중";
+          const secondaryValue = isKoreanRanking ? formatWonBig(item.chatsNumber * 2354) : `${share.toFixed(1)}%`;
           return `
-            <button class="character-rank-item rank-${index + 1}" type="button" data-character-id="${item.character_id}" aria-describedby="${tooltipId}">
+            <button class="character-rank-item rank-${index + 1}" type="button" data-character-id="${item.character_id}" data-character-market="${selectedMarket}" aria-describedby="${tooltipId}">
               <span class="rank-number">${index + 1}</span>
               <span class="rank-image-frame">
                 ${imageSrc
-                  ? `<img class="thumb rank-image" src="${escapeAttr(imageSrc)}" alt="${escapeAttr(`${item.name} 캐릭터 이미지`)}" loading="lazy" data-fallback="${escapeAttr(String(item.name || "?").slice(0, 1))}" />`
-                  : `<span class="rank-image rank-fallback">${escapeHtml(String(item.name || "?").slice(0, 1))}</span>`}
+                  ? `<img class="thumb rank-image" src="${escapeAttr(imageSrc)}" alt="${escapeAttr(`${item.character_name} 캐릭터 이미지`)}" loading="lazy" data-fallback="${escapeAttr(String(item.character_name || "?").slice(0, 1))}" />`
+                  : `<span class="rank-image rank-fallback">${escapeHtml(String(item.character_name || "?").slice(0, 1))}</span>`}
               </span>
-              <span class="rank-name">${escapeHtml(item.name || `#${item.character_id}`)}</span>
+              <span class="rank-name">${escapeHtml(item.character_name || `#${item.character_id}`)}</span>
               <span class="rank-traffic">
                 <span><small>조회수</small><strong>${formatCompact(views)}</strong></span>
-                <span><small>공개 대화</small><strong>${formatCompact(item.chats)}</strong></span>
+                <span><small>공개 대화</small><strong>${formatCompact(item.chatsNumber)}</strong></span>
               </span>
-              <span class="rank-revenue"><small>가정 환산액</small><strong>${formatWonBig(item.revenue)}</strong></span>
+              <span class="rank-revenue ${isKoreanRanking ? "" : "is-share"}"><small>${secondaryLabel}</small><strong>${secondaryValue}</strong></span>
               <span class="rank-tooltip" id="${tooltipId}" role="tooltip">
-                <strong>${escapeHtml(item.name || `#${item.character_id}`)}</strong>
+                <strong>${escapeHtml(item.character_name || `#${item.character_id}`)}</strong>
                 <span>작품 · ${escapeHtml(work)}</span>
-                <span>누적 대화 · ${formatNumber(item.chats)}회</span>
-                <span>전체 대화 비중 · ${share.toFixed(1)}%</span>
-                <span>단순 환산액 · ${formatWonBig(item.revenue)}</span>
+                <span>누적 조회 · ${formatNumber(item.viewsNumber)}회</span>
+                <span>누적 대화 · ${formatNumber(item.chatsNumber)}회</span>
+                <span>${escapeHtml(scopeLabel)} 대화 비중 · ${share.toFixed(1)}%</span>
+                ${isKoreanRanking ? `<span>단순 환산액 · ${formatWonBig(item.chatsNumber * 2354)}</span>` : ""}
                 <span>확인 시장 · ${escapeHtml(marketLabels)}</span>
-                <small>누적 대화 × 2,354원 · 실제 매출 아님</small>
+                <small>${isKoreanRanking ? "누적 대화 × 2,354원 · 실제 매출 아님" : "공개 대화수 기준이며 유료 결제·매출 순위가 아님"}</small>
               </span>
             </button>
           `;
         }).join("")}
           </div>
-          <p class="chart-tail">환산액 = 공개 대화 × 2,354원 가정입니다. 실제 매출이 아니며, 클릭하면 전체 이미지와 국가별 정보가 열립니다.</p>
+          <p class="chart-tail">${isKoreanRanking ? "한국 환산액은 공개 대화 × 2,354원 가정이며 실제 매출이 아닙니다." : "통합·해외 순위는 공개 대화수와 선택 시장 내 비중을 표시합니다."} 클릭하면 전체 이미지와 국가별 정보가 열립니다.</p>
         </div>
-        <aside class="full-rank-panel" hidden aria-label="한국 전체 캐릭터 공개 대화 순위">
-          <div class="full-rank-header"><div><strong>전체 캐릭터 순위</strong><small>한국 공개 대화수 기준 · ${formatNumber(fullRanking.length)}명</small></div><span>최신 ${escapeHtml(formatDateTime(dataset.generated_at))}</span></div>
+        <aside class="full-rank-panel" hidden aria-label="${escapeAttr(scopeLabel)} 전체 캐릭터 공개 대화 순위">
+          <div class="full-rank-header"><div><strong>${escapeHtml(MARKET_META[selectedMarket].label)} 전체 캐릭터 순위</strong><small>${escapeHtml(scopeLabel)} 공개 대화수 기준 · ${formatNumber(fullRanking.length)}명</small></div><span>최신 ${escapeHtml(formatDateTime(dataset.generated_at))}</span></div>
           <div class="full-rank-list">
             ${fullRanking.map((record, index) => {
               const share = (record.chatsNumber / totalChats) * 100;
-              return `<button class="full-rank-row" type="button" data-character-id="${record.character_id}">
+              const rowSecondary = isKoreanRanking ? formatWonBig(record.chatsNumber * 2354) : `${share.toFixed(1)}%`;
+              return `<button class="full-rank-row" type="button" data-character-id="${record.character_id}" data-character-market="${selectedMarket}">
                 <span class="full-rank-number ${index < 3 ? `is-top-${index + 1}` : ""}">${index + 1}</span>
                 ${record.imageSrc ? `<img class="thumb" src="${escapeAttr(record.imageSrc)}" alt="" loading="lazy" data-fallback="${escapeAttr(record.character_name.slice(0, 1))}" />` : `<span class="thumb-fallback">${escapeHtml(record.character_name.slice(0, 1))}</span>`}
                 <span class="full-rank-identity"><strong>${escapeHtml(record.character_name)}</strong><small>${escapeHtml(record.workSafe)}</small></span>
-                <span class="full-rank-metric"><strong>${formatNumber(record.chatsNumber)}</strong><small>${share.toFixed(1)}% · ${formatWonBig(record.chatsNumber * 2354)}</small></span>
+                <span class="full-rank-metric"><strong>${formatNumber(record.chatsNumber)}</strong><small>${share.toFixed(1)}% · ${rowSecondary}</small></span>
               </button>`;
             }).join("")}
           </div>
@@ -1759,6 +1787,31 @@ function renderCharacterLeaderboard(byCharacter) {
       </div>
     </article>
   `;
+}
+
+function leaderboardRanking(market) {
+  const ranking = market === "all"
+    ? groups.map((group) => ({
+        character_id: group.id,
+        character_name: group.primary.character_name,
+        workSafe: group.primary.workSafe,
+        imageSrc: group.primary.imageSrc,
+        viewsNumber: group.viewsNumber,
+        chatsNumber: group.chatsNumber,
+        displayRecord: group.primary,
+        markets: group.markets
+      }))
+    : recordsForMarket(market).map((record) => ({
+        character_id: record.character_id,
+        character_name: record.character_name,
+        workSafe: record.workSafe,
+        imageSrc: record.imageSrc,
+        viewsNumber: record.viewsNumber,
+        chatsNumber: record.chatsNumber,
+        displayRecord: record,
+        markets: [market]
+      }));
+  return ranking.sort((a, b) => b.chatsNumber - a.chatsNumber || b.viewsNumber - a.viewsNumber);
 }
 
 function renderSnapshotJourney(title, subtitle, rows, key, color) {
