@@ -919,6 +919,7 @@ h3 {
 
 .catalog-kpi-grid {
   margin: 14px 0;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
 }
 
 .stat-card,
@@ -2161,7 +2162,7 @@ h3 {
 
 table {
   width: 100%;
-  min-width: 780px;
+  min-width: 1160px;
   border-collapse: collapse;
   font-size: 13px;
 }
@@ -2189,6 +2190,18 @@ th {
   background: #11141d;
   color: var(--muted);
   font-size: 12px;
+}
+
+.column-label {
+  display: grid;
+  gap: 2px;
+}
+
+.column-label small {
+  color: #6f7f98;
+  font-size: 9px;
+  font-weight: 650;
+  white-space: nowrap;
 }
 
 tbody tr:hover {
@@ -2274,6 +2287,26 @@ tbody tr:last-child td {
   white-space: nowrap;
 }
 
+.activity-delta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 25px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.025);
+  padding: 3px 8px;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.activity-delta.is-up { color: #3bd6a8; background: rgba(39, 196, 153, 0.08); }
+.activity-delta.is-down { color: #ff7d7d; background: rgba(255, 91, 91, 0.08); }
+.activity-delta.is-flat { color: var(--muted); }
+.activity-unavailable { color: #59677c; }
+.collection-date { display: grid; gap: 3px; }
+.collection-date strong { color: var(--sub); font-size: 12px; }
+.collection-date small { color: var(--muted); font-size: 9px; }
+
 .pill-list {
   display: flex;
   flex-wrap: wrap;
@@ -2337,6 +2370,9 @@ tbody tr:last-child td {
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
+
+.card-meta .activity-delta { width: fit-content; min-height: 22px; padding: 2px 7px; font-size: 11px; }
+.card-collection { display: block; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 9px; color: var(--muted); font-size: 10px; }
 
 .empty-state {
   display: grid;

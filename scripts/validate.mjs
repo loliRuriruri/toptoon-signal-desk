@@ -62,6 +62,8 @@ assert(officialSignals.providers?.kis?.market_alert?.warning_release?.fifteen_da
   "site_revenue"
 ].forEach((key) => assert(stats[key], `missing statistics payload: ${key}`));
 assert(stats.totals_timeseries.rows?.length >= 5, "statistics time series is unexpectedly short");
+assert(stats.characters?.characters?.length === 87, "expected 87 KR character activity rows");
+assert(stats.characters.characters.every((row) => Number.isFinite(Number(row.delta)) && Number.isFinite(Number(row.chat_delta)) && /^\d{4}-\d{2}-\d{2}$/.test(row.last_seen)), "character activity deltas or collection dates are invalid");
 assert(validation.overall_status === "share-with-caveats", "validation posture should remain share-with-caveats until AI chat revenue is disclosed");
 assert(validation.summary?.block === 0, "validation contains blocking failures");
 assert(validation.summary?.pass >= 10, "validation pass coverage is unexpectedly low");
@@ -159,6 +161,9 @@ assert(html.includes("data/characters.js"), "embedded dataset script must be ref
   "renderPeriodComparison",
   "renderGlobalPanel",
   "renderCatalogSummary",
+  "characterActivity",
+  "최근 조회 증가",
+  "최근 대화 증가",
   "URLSearchParams",
   "showModal",
   "noopener noreferrer",

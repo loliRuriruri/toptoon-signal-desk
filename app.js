@@ -1293,11 +1293,21 @@ function renderCatalogSummary() {
   const views = source.reduce((sum, record) => sum + record.viewsNumber, 0);
   const chats = source.reduce((sum, record) => sum + record.chatsNumber, 0);
   const works = new Set(source.map((record) => record.work_title).filter(Boolean)).size;
+  const activityRows = statsData?.characters?.characters || [];
+  const latestActivityDate = statsData?.characters?.latest_date || "";
+  const activityCards = ["all", "kr"].includes(state.market) && activityRows.length
+    ? [
+        ["최근 조회 증가", signedNumber(activityRows.reduce((sum, row) => sum + Number(row.delta || 0), 0)), `${formatShortDate(latestActivityDate)} · 한국 ${formatNumber(activityRows.length)}명`, "positive"],
+        ["최근 대화 증가", signedNumber(activityRows.reduce((sum, row) => sum + Number(row.chat_delta || 0), 0)), "직전 Worker 수집본 대비", "positive"],
+        ["증가 데이터 수집일", formatShortDate(latestActivityDate), "한국 Worker 스냅샷 기준", "signal"]
+      ]
+    : [["증가 데이터", "한국만 제공", "해외 탭은 누적 공개 수치만 표시", "warning"]];
   els.catalogKpiGrid.innerHTML = renderStatCards([
     ["캐릭터", formatNumber(uniqueCharacters), state.market === "all" ? "중복 지역을 합친 고유 ID" : `${MARKET_META[state.market].label} 공개 캐릭터`],
     ["조회수", formatNumber(views), state.market === "all" ? "4개 시장 공개 수치 합산" : "해당 시장 공개 조회수"],
     ["채팅", formatNumber(chats), state.market === "all" ? "4개 시장 공개 수치 합산" : "해당 시장 공개 채팅"],
-    ["작품", formatNumber(works), "빈 작품명 제외"]
+    ["작품", formatNumber(works), "빈 작품명 제외"],
+    ...activityCards
   ]);
 }
 
@@ -1321,6 +1331,8 @@ function sortItems(items) {
     const aWork = a.work || a.workSafe;
     const bWork = b.work || b.workSafe;
     if (state.sort === "chats-desc") return b.chatsNumber - a.chatsNumber;
+    if (state.sort === "views-delta-desc") return activitySortValue(b, "delta") - activitySortValue(a, "delta");
+    if (state.sort === "chats-delta-desc") return activitySortValue(b, "chat_delta") - activitySortValue(a, "chat_delta");
     if (state.sort === "name-asc") return aName.localeCompare(bName, "ko");
     if (state.sort === "work-asc") return aWork.localeCompare(bWork, "ko");
     return b.viewsNumber - a.viewsNumber;
@@ -1334,6 +1346,7 @@ function recordsForMarket(market) {
 
 function renderTableRow(item) {
   const model = viewModel(item);
+  const activity = characterActivity(item);
   return `
     <tr>
       <td class="character-cell">
@@ -1350,7 +1363,10 @@ function renderTableRow(item) {
       <td>${escapeHtml(model.work)}</td>
       <td>${renderMarketPills(model.markets, model.market)}</td>
       <td class="metric">${formatNumber(model.views)}</td>
+      <td class="metric">${renderActivityDelta(activity?.delta, "조회 증가 데이터 없음")}</td>
       <td class="metric">${formatNumber(model.chats)}</td>
+      <td class="metric">${renderActivityDelta(activity?.chat_delta, "대화 증가 데이터 없음")}</td>
+      <td class="metric collection-date">${activity ? `<strong>${escapeHtml(formatShortDate(activity.last_seen))}</strong><small>KR Worker</small>` : `<span class="activity-unavailable">—</span>`}</td>
       <td>${escapeHtml(model.counterparts)}</td>
     </tr>
   `;
@@ -1358,6 +1374,7 @@ function renderTableRow(item) {
 
 function renderCard(item) {
   const model = viewModel(item);
+  const activity = characterActivity(item);
   return `
     <article class="character-card">
       <button class="card-button" type="button" data-character-id="${model.id}">
@@ -1370,9 +1387,12 @@ function renderCard(item) {
           </span>
         </span>
         <span class="card-meta">
-          <span>조회수<strong>${formatNumber(model.views)}</strong></span>
-          <span>채팅<strong>${formatNumber(model.chats)}</strong></span>
+          <span>누적 조회수<strong>${formatNumber(model.views)}</strong></span>
+          <span>최근 조회 증가<strong>${renderActivityDelta(activity?.delta, "미수집")}</strong></span>
+          <span>누적 대화수<strong>${formatNumber(model.chats)}</strong></span>
+          <span>최근 대화 증가<strong>${renderActivityDelta(activity?.chat_delta, "미수집")}</strong></span>
         </span>
+        <span class="card-collection">${activity ? `최근 수집 ${escapeHtml(formatShortDate(activity.last_seen))} · KR Worker` : "증가 데이터는 한국 캐릭터만 제공"}</span>
       </button>
     </article>
   `;
@@ -1425,6 +1445,39 @@ function viewModel(item) {
     fallback: primary.character_name.slice(0, 1),
     counterparts: state.market === "all" ? names.join(" / ") : otherLocaleNames(group, primary.market)
   };
+}
+
+function characterActivity(item) {
+  const isGroup = Boolean(item?.allRecords);
+  const hasKrRecord = isGroup ? Boolean(item.locales?.kr) : item?.market === "kr";
+  if (!hasKrRecord || !["all", "kr"].includes(state.market)) return null;
+  const characterId = Number(isGroup ? item.id : item.character_id);
+  return (statsData?.characters?.characters || []).find((row) => Number(row.character_id) === characterId) || null;
+}
+
+function activitySortValue(item, field) {
+  const activity = characterActivity(item);
+  return activity ? Number(activity[field] || 0) : Number.NEGATIVE_INFINITY;
+}
+
+function renderActivityDelta(value, emptyLabel) {
+  if (value == null || !Number.isFinite(Number(value))) {
+    return `<span class="activity-unavailable" title="${escapeAttr(emptyLabel)}">—</span>`;
+  }
+  const number = Number(value);
+  const tone = number > 0 ? "is-up" : number < 0 ? "is-down" : "is-flat";
+  return `<span class="activity-delta ${tone}">${signedNumber(number)}</span>`;
+}
+
+function signedNumber(value) {
+  const number = Number(value || 0);
+  return `${number > 0 ? "+" : ""}${formatNumber(number)}`;
+}
+
+function formatShortDate(value) {
+  if (!value) return "—";
+  const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return match ? `${match[1]}.${match[2]}.${match[3]}` : String(value);
 }
 
 function proxiedMediaUrl(source) {
@@ -1545,6 +1598,9 @@ function closeDialog() {
 
 function renderDialogContent(group, selected) {
   const model = viewModel(selected);
+  const activity = group.locales?.kr
+    ? (statsData?.characters?.characters || []).find((row) => Number(row.character_id) === Number(group.id))
+    : null;
   const officialLink = selected.detail_url
     ? `<a class="ghost-button dialog-open-link" href="${escapeAttr(selected.detail_url)}" target="_blank" rel="noopener noreferrer">공식 캐릭터 페이지</a>`
     : "";
@@ -1564,8 +1620,11 @@ function renderDialogContent(group, selected) {
     </div>
     <div class="dialog-metrics">
       <div><span>Character ID</span><strong>${group.id}</strong></div>
-      <div><span>조회수</span><strong>${formatNumber(selected.viewsNumber)}</strong></div>
-      <div><span>채팅</span><strong>${formatNumber(selected.chatsNumber)}</strong></div>
+      <div><span>누적 조회수</span><strong>${formatNumber(selected.viewsNumber)}</strong></div>
+      <div><span>누적 대화수</span><strong>${formatNumber(selected.chatsNumber)}</strong></div>
+      <div><span>KR 최근 조회 증가</span><strong>${activity ? renderActivityDelta(activity.delta, "조회 증가 데이터 없음") : "—"}</strong></div>
+      <div><span>KR 최근 대화 증가</span><strong>${activity ? renderActivityDelta(activity.chat_delta, "대화 증가 데이터 없음") : "—"}</strong></div>
+      <div><span>증가 데이터 수집일</span><strong>${activity ? escapeHtml(formatShortDate(activity.last_seen)) : "—"}</strong></div>
     </div>
     <h3>지역별 캐릭터 정보</h3>
     <div class="locale-list">
