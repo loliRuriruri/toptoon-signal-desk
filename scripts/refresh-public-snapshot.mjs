@@ -33,12 +33,21 @@ mkdirSync(dataDir, { recursive: true });
 mkdirSync(assetRoot, { recursive: true });
 
 const previousCatalogPath = path.join(dataDir, "characters.json");
+const previousActivityPath = path.join(dataDir, "character-activity.json");
 let previousCatalog = null;
+let previousActivity = null;
 if (existsSync(previousCatalogPath)) {
   try {
     previousCatalog = JSON.parse(readFileSync(previousCatalogPath, "utf8"));
   } catch (error) {
     console.warn(`Previous catalog snapshot could not be read: ${error.message}`);
+  }
+}
+if (existsSync(previousActivityPath)) {
+  try {
+    previousActivity = JSON.parse(readFileSync(previousActivityPath, "utf8"));
+  } catch (error) {
+    console.warn(`Previous activity history could not be read: ${error.message}`);
   }
 }
 
@@ -173,6 +182,31 @@ const activityMarkets = Object.fromEntries(marketResults.map((result) => {
   }];
 }));
 
+function aggregateCatalogSnapshot(catalog, capturedAt) {
+  if (!catalog?.records?.length || !capturedAt) return null;
+  const snapshotMarkets = Object.fromEntries(markets.map((market) => {
+    const marketRows = catalog.records.filter((row) => row.site === market.site);
+    return [market.key, {
+      characters: marketRows.length,
+      views: marketRows.reduce((sum, row) => sum + Number(row.views || 0), 0),
+      chats: marketRows.reduce((sum, row) => sum + Number(row.chats || 0), 0)
+    }];
+  }));
+  return { captured_at: capturedAt, markets: snapshotMarkets };
+}
+
+const historyByTime = new Map();
+for (const snapshot of previousActivity?.history || []) {
+  if (snapshot?.captured_at && snapshot?.markets) historyByTime.set(snapshot.captured_at, snapshot);
+}
+const previousSnapshot = aggregateCatalogSnapshot(previousCatalog, previousCatalog?.generated_at);
+const currentSnapshot = aggregateCatalogSnapshot(catalogPayload, capturedAt);
+if (previousSnapshot) historyByTime.set(previousSnapshot.captured_at, previousSnapshot);
+if (currentSnapshot) historyByTime.set(currentSnapshot.captured_at, currentSnapshot);
+const history = [...historyByTime.values()]
+  .sort((a, b) => new Date(a.captured_at).getTime() - new Date(b.captured_at).getTime())
+  .slice(-120);
+
 const activityPayload = {
   captured_at: capturedAt,
   baseline_at: baselineAt,
@@ -180,6 +214,7 @@ const activityPayload = {
   source_tier: "B",
   definition: "For each site and character ID, current public cumulative counter minus the immediately previous locally stored public catalog snapshot.",
   caveat: "This is a collection-interval change, not a daily metric or revenue. New characters without a prior row have null deltas; negative values are retained as source corrections or counter resets.",
+  history,
   markets: activityMarkets
 };
 
@@ -208,6 +243,7 @@ console.log(JSON.stringify({
   activity_baseline_at: baselineAt,
   activity_interval_seconds: intervalSeconds,
   activity_comparable_counts: Object.fromEntries(Object.entries(activityMarkets).map(([key, value]) => [key, value.comparable_count])),
+  activity_history_snapshots: history.length,
   counts,
   downloaded_asset_folders: markets.map((market) => market.key),
   stats_endpoints: Object.keys(statsEndpoints).length

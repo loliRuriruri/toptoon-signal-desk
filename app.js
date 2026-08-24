@@ -48,6 +48,7 @@ const MISSING_WORK = "작품 정보 없음";
 const state = {
   view: "stats",
   market: "all",
+  statsMarket: "all",
   leaderboardMarket: "all",
   q: "",
   work: "",
@@ -89,6 +90,10 @@ function bindElements() {
   els.statsCapturedAt = document.querySelector("#stats-captured-at");
   els.statsCaveat = document.querySelector("#stats-caveat");
   els.mainKpiGrid = document.querySelector("#main-kpi-grid");
+  els.statsMarketTabs = [...document.querySelectorAll("[data-stats-market]")];
+  els.statsMarketNote = document.querySelector("#stats-market-note");
+  els.statsMarketKpiGrid = document.querySelector("#stats-market-kpi-grid");
+  els.statsMarketDefinition = document.querySelector("#stats-market-definition");
   els.statsDashboard = document.querySelector("#stats-dashboard");
   els.validationCapturedAt = document.querySelector("#validation-captured-at");
   els.validationCaveat = document.querySelector("#validation-caveat");
@@ -143,6 +148,16 @@ function bindEvents() {
       state.work = "";
       syncControls();
       render();
+      writeHash();
+    });
+  });
+
+  els.statsMarketTabs.forEach((button) => {
+    button.addEventListener("click", () => {
+      state.statsMarket = button.dataset.statsMarket;
+      syncControls();
+      renderStatsDashboard();
+      bindResultButtons();
       writeHash();
     });
   });
@@ -409,10 +424,12 @@ function readHash() {
   const legacyMarket = params.get("tab");
   const nextMarket = params.get("market") || legacyMarket;
   const nextLeaderboardMarket = params.get("rank");
+  const nextStatsMarket = params.get("scope");
   state.view = VIEW_META[nextView] && !(PUBLIC_READ_ONLY && nextView === "settings") ? nextView : state.view;
   if (!nextView && legacyMarket && MARKET_META[legacyMarket]) state.view = "characters";
   state.market = MARKET_META[nextMarket] ? nextMarket : state.market;
   state.leaderboardMarket = MARKET_META[nextLeaderboardMarket] ? nextLeaderboardMarket : state.leaderboardMarket;
+  state.statsMarket = MARKET_META[nextStatsMarket] ? nextStatsMarket : state.statsMarket;
   state.q = params.get("q") || "";
   state.work = params.get("work") || "";
   state.sort = params.get("sort") || state.sort;
@@ -422,6 +439,7 @@ function writeHash() {
   const params = new URLSearchParams();
   params.set("view", state.view);
   params.set("market", state.market);
+  if (state.statsMarket !== "all") params.set("scope", state.statsMarket);
   if (state.leaderboardMarket !== "all") params.set("rank", state.leaderboardMarket);
   if (state.q) params.set("q", state.q);
   if (state.work) params.set("work", state.work);
@@ -436,6 +454,9 @@ function syncControls() {
   });
   els.marketTabs.forEach((button) => {
     button.setAttribute("aria-selected", String(button.dataset.market === state.market));
+  });
+  els.statsMarketTabs.forEach((button) => {
+    button.setAttribute("aria-selected", String(button.dataset.statsMarket === state.statsMarket));
   });
   els.searchInput.value = state.q;
   els.sortSelect.value = state.sort;
@@ -530,6 +551,7 @@ function renderStatsDashboard() {
     els.statsCapturedAt.textContent = "통계 스냅샷 없음";
     els.statsCaveat.textContent = "data/stats.js를 찾지 못해 캐릭터 카탈로그만 표시합니다.";
     els.mainKpiGrid.innerHTML = "";
+    if (els.statsMarketKpiGrid) els.statsMarketKpiGrid.innerHTML = "";
     els.statsDashboard.innerHTML = "";
     return;
   }
@@ -548,6 +570,8 @@ function renderStatsDashboard() {
     ["데이터 축적 기간", "3일", "추세 판단에는 최소 14일 권장", "warning"]
   ]);
 
+  renderStatsMarketSummary();
+
   els.statsDashboard.innerHTML = [
     renderRevenuePanel(),
     renderGlobalPanel(),
@@ -555,6 +579,86 @@ function renderStatsDashboard() {
     renderGrowthPanel(),
     renderTotalsPanel()
   ].join("");
+}
+
+function statsMarketRecords(market) {
+  return market === "all" ? records : recordsForMarket(market);
+}
+
+function statsMarketTotals(market) {
+  const source = statsMarketRecords(market);
+  return {
+    characters: market === "all" ? groups.length : source.length,
+    localeRecords: source.length,
+    views: source.reduce((sum, row) => sum + Number(row.viewsNumber || 0), 0),
+    chats: source.reduce((sum, row) => sum + Number(row.chatsNumber || 0), 0)
+  };
+}
+
+function catalogHistoryForMarket(market) {
+  const aggregate = (snapshot) => {
+    const selected = market === "all" ? MARKET_ORDER : [market];
+    return selected.reduce((totals, key) => {
+      const values = snapshot?.markets?.[key] || {};
+      totals.characters += Number(values.characters || 0);
+      totals.total_views += Number(values.views || 0);
+      totals.total_chats += Number(values.chats || 0);
+      return totals;
+    }, { date: String(snapshot?.captured_at || "").slice(0, 10), captured_at: snapshot?.captured_at, characters: 0, total_views: 0, total_chats: 0 });
+  };
+  const stored = (catalogActivityData?.history || []).map(aggregate).filter((row) => row.date);
+  if (stored.length >= 2) return stored;
+
+  const current = statsMarketTotals(market);
+  const directRows = market === "all"
+    ? MARKET_ORDER.map((key) => catalogActivityData?.markets?.[key]).filter(Boolean)
+    : [catalogActivityData?.markets?.[market]].filter(Boolean);
+  const viewsDelta = directRows.reduce((sum, item) => sum + Number(item.views_delta || 0), 0);
+  const chatsDelta = directRows.reduce((sum, item) => sum + Number(item.chats_delta || 0), 0);
+  const baselineAt = catalogActivityData?.baseline_at;
+  const capturedAt = catalogActivityData?.captured_at || dataset?.generated_at;
+  if (!baselineAt || !capturedAt) return stored;
+  return [
+    { date: String(baselineAt).slice(0, 10), captured_at: baselineAt, characters: current.localeRecords, total_views: current.views - viewsDelta, total_chats: current.chats - chatsDelta },
+    { date: String(capturedAt).slice(0, 10), captured_at: capturedAt, characters: current.localeRecords, total_views: current.views, total_chats: current.chats }
+  ];
+}
+
+function catalogIntervalDeltas(market, key) {
+  const rows = catalogHistoryForMarket(market);
+  return rows.slice(1).map((row, index) => ({
+    label: formatCollectionPoint(row.captured_at),
+    value: Number(row[key] || 0) - Number(rows[index]?.[key] || 0),
+    sub: formatActivityWindow(rows[index]?.captured_at, row.captured_at)
+  })).slice(-7);
+}
+
+function renderStatsMarketSummary() {
+  if (!els.statsMarketKpiGrid) return;
+  const market = MARKET_META[state.statsMarket] ? state.statsMarket : "all";
+  const meta = MARKET_META[market];
+  const totals = statsMarketTotals(market);
+  const activity = activitySummaryForMarket(market);
+  const capturedAt = market === "all"
+    ? dataset?.generated_at
+    : dataset?.market_snapshots?.[market]?.captured_at || dataset?.generated_at;
+  els.statsMarketNote.textContent = market === "all"
+    ? "4개 시장 공식 공개 카탈로그 합계 · 중복 ID는 캐릭터 수에서 통합"
+    : `${meta.label} 공식 공개 카탈로그 원본`;
+  els.statsMarketTabs.forEach((button) => {
+    const buttonMarket = button.dataset.statsMarket;
+    const count = buttonMarket === "all" ? groups.length : recordsForMarket(buttonMarket).length;
+    button.querySelector("small").textContent = `${formatNumber(count)}명`;
+  });
+  els.statsMarketKpiGrid.innerHTML = renderStatCards([
+    [`${meta.label} 캐릭터`, `${formatNumber(totals.characters)}명`, market === "all" ? `${formatNumber(totals.localeRecords)}개 지역 레코드` : "시장 원본 목록", "signal"],
+    ["누적 조회수", formatNumber(totals.views), "공개 카운터 합계", "neutral"],
+    ["누적 대화수", formatNumber(totals.chats), "공개 카운터 합계", "neutral"],
+    ["최근 조회 증가", signedNumber(activity.viewsDelta), `${activity.windowLabel} · 비교 ${formatNumber(activity.comparableCount)}건`, activity.viewsDelta >= 0 ? "positive" : "warning"],
+    ["최근 대화 증가", signedNumber(activity.chatsDelta), `${activity.windowLabel} · 비교 ${formatNumber(activity.comparableCount)}건`, activity.chatsDelta >= 0 ? "positive" : "warning"],
+    ["최신 수집", formatDateTime(capturedAt), `${formatFreshnessAge(capturedAt)} · ${activity.sourceLabel}`, "neutral"]
+  ]);
+  els.statsMarketDefinition.innerHTML = `<strong>${escapeHtml(meta.label)} 공개 활동:</strong> 조회수·대화수는 공식 공개 누적 카운터이며 매출·결제자·순매출이 아닙니다. 최근 증가는 ${escapeHtml(activity.definitionLabel)}입니다.`;
 }
 
 function renderValidationDashboard() {
@@ -1070,12 +1174,12 @@ function renderRevenuePanel() {
         ${renderCharacterLeaderboard(byCharacter)}
       </div>
       <div class="chart-grid chart-grid-secondary">
-        ${renderBarChart("유료 코인 결제 비중", "전체 결제에서 코인이 차지한 비율 · 회사 IR 제시값 · 외부 검증 전", (coinMix.ir_checkpoints || []).map((item) => ({
+        ${renderBarChart("유료 코인 결제 비중 · 회사 전체", "시장별 분리 불가 · 회사 IR 제시값 · 외부 검증 전", (coinMix.ir_checkpoints || []).map((item) => ({
           label: `${String(item.month || "").slice(5)}월`,
           value: item.pct,
           sub: item.label || item.month
         })), (value) => `${Number(value || 0).toFixed(1)}%`, "#f5a742")}
-        ${renderColumnChart("월별 캐릭터 반응 점수", "캐릭터당 원본 활동점수 평균 · 계산식 미공개 · 방향성만 참고", (coinMix.monthly_activity_index || []).map((item) => ({
+        ${renderColumnChart("월별 캐릭터 반응 점수 · 한국", "한국 Worker 원본 활동점수 평균 · 계산식 미공개 · 방향성만 참고", (coinMix.monthly_activity_index || []).map((item) => ({
           label: item.month,
           value: item.avg_score,
           sub: "avg score"
@@ -1132,9 +1236,9 @@ function renderCompletionPanel() {
           <p class="section-kicker">03 · 최대 소비 가정</p>
           <h2>한 사용자가 모두 소비할 때의 상한</h2>
         </div>
-        <span class="data-pill neutral">이론 상한</span>
+        <span class="data-pill neutral">한국 모델 · 이론 상한</span>
       </div>
-      <p class="section-note">실제 평균 결제액이 아닙니다. 활성 캐릭터 ${formatNumber(ceiling.active_count)}명과 평균 사진 ${formatNumber(ceiling.avg_photos)}장을 전부 소비하는 극단적 상한입니다.</p>
+      <p class="section-note">한국 캐릭터 기준 모델이며 실제 평균 결제액이 아닙니다. 활성 캐릭터 ${formatNumber(ceiling.active_count)}명과 평균 사진 ${formatNumber(ceiling.avg_photos)}장을 전부 소비하는 극단적 상한입니다. 일본·Global·대만에는 그대로 적용하지 않습니다.</p>
       <div class="scenario-layout">
         ${renderBarChart("Bear / Base / Bull", "고래 1명 최대지출 범위", [
           { label: "Bear", value: totals.bear, sub: "보수" },
@@ -1154,6 +1258,9 @@ function renderCompletionPanel() {
 
 function renderGrowthPanel() {
   const growth = statsData.growth_cannibalization || {};
+  const market = MARKET_META[state.statsMarket] ? state.statsMarket : "all";
+  const chatDeltas = catalogIntervalDeltas(market, "total_chats");
+  const marketLabel = MARKET_META[market].label;
   return `
     <section class="panel stats-panel signal-section">
       <div class="panel-heading compact-heading">
@@ -1161,16 +1268,12 @@ function renderGrowthPanel() {
           <p class="section-kicker">04 · 캐릭터 공급·수요</p>
           <h2>신규 캐릭터 수와 대화 증가</h2>
         </div>
-        <span class="data-pill positive">7개월 공급</span>
+        <span class="data-pill positive">한국 공급 · ${escapeHtml(marketLabel)} 수요</span>
       </div>
-      <p class="section-note">신규 캐릭터가 총 대화량을 끌어올리는지 보는 성장 검증 지표입니다. 평평하면 기존 캐릭터 잠식 가능성이 커집니다.</p>
+      <p class="section-note">왼쪽 신규 캐릭터와 아래 장르는 한국 Worker 기준입니다. 오른쪽 대화 증가는 선택한 ${escapeHtml(marketLabel)} 공식 공개 카운터의 수집 구간 변화입니다.</p>
       <div class="chart-grid chart-grid-primary">
         ${renderNewCharacterSupply(growth)}
-        ${renderColumnChart("전체 대화수 일간 증가", "3개 연속 관측 · chats", (growth.daily_total_chat_delta || []).map((item) => ({
-          label: item.date.slice(5),
-          value: item.delta,
-          sub: item.date
-        })), formatNumber, "#27c499", "", { latestLabel: "최근 증가", highLabel: "최대 증가일" })}
+        ${renderColumnChart(`${marketLabel} 최근 대화 증가`, "직전 공식 API 수집본 대비 · 일간으로 오해 금지", chatDeltas, formatNumber, MARKET_META[market]?.color || "#27c499", "", { latestLabel: "최근 수집 구간", highLabel: "최대 증가 구간", contextNote: "수집 간격이 일정하지 않을 수 있으므로 일간 증가량으로 직접 비교하지 않습니다." })}
       </div>
       ${renderGenreBars(growth.genre_breakdown || [])}
     </section>
@@ -1225,44 +1328,38 @@ function renderNewCharacterSupply(growth) {
 }
 
 function renderTotalsPanel() {
-  const totals = statsData.totals_timeseries?.rows || [];
-  const dailyViews = statsData.daily_totals?.rows || [];
-  const dailyChats = statsData.daily_chat_totals?.rows || [];
+  const market = MARKET_META[state.statsMarket] ? state.statsMarket : "all";
+  const marketLabel = MARKET_META[market].label;
+  const totals = catalogHistoryForMarket(market);
+  const dailyViews = catalogIntervalDeltas(market, "total_views");
+  const dailyChats = catalogIntervalDeltas(market, "total_chats");
   const monthly = statsData.monthly_index?.rows || [];
   return `
     <section class="panel stats-panel signal-section">
       <div class="panel-heading compact-heading">
         <div>
           <p class="section-kicker">05 · 최근 관측 변화</p>
-          <h2>처음 수집한 날과 현재 비교</h2>
+          <h2>${escapeHtml(marketLabel)} 처음 수집값과 현재 비교</h2>
         </div>
-        <span class="data-pill warning">5개 스냅샷</span>
+        <span class="data-pill warning">${formatNumber(totals.length)}회 수집</span>
       </div>
-      <p class="section-note">장기 추세가 아닙니다. 8월 18–24일 사이 저장한 5개 누적값에서 시작값·현재값·증가량을 비교합니다.</p>
+      <p class="section-note">장기 추세가 아닙니다. 선택한 ${escapeHtml(marketLabel)} 공식 공개 API의 로컬 저장 시점끼리 누적값과 증가량을 비교합니다.</p>
       <div class="chart-grid chart-grid-primary">
-        ${renderSnapshotJourney("누적 조회수", "전체 캐릭터 공개 조회수 합계", totals, "total_views", "#62a8ff")}
-        ${renderSnapshotJourney("누적 대화수", "전체 캐릭터 공개 대화수 합계", totals, "total_chats", "#27c499")}
+        ${renderSnapshotJourney("누적 조회수", `${marketLabel} 공개 조회수 합계`, totals, "total_views", "#62a8ff")}
+        ${renderSnapshotJourney("누적 대화수", `${marketLabel} 공개 대화수 합계`, totals, "total_chats", "#27c499")}
       </div>
       <div class="chart-grid chart-grid-secondary">
-        ${renderPeriodComparison("최근 3일 조회 증가", "하루 동안 새로 늘어난 공개 조회수", dailyViews.map((item) => ({
-          label: item.date.slice(5),
-          value: item.delta,
-          sub: item.date
-        })), formatNumber, "#62a8ff")}
-        ${renderPeriodComparison("최근 3일 대화 증가", "하루 동안 새로 늘어난 공개 대화수", dailyChats.map((item) => ({
-          label: item.date.slice(5),
-          value: item.delta,
-          sub: item.date
-        })), formatNumber, "#27c499")}
+        ${renderPeriodComparison("최근 수집 간 조회 증가", "직전 공식 API 수집본 대비", dailyViews, formatNumber, "#62a8ff", "", { latestLabel: "최근 구간", highLabel: "최대 증가 구간" })}
+        ${renderPeriodComparison("최근 수집 간 대화 증가", "직전 공식 API 수집본 대비", dailyChats, formatNumber, "#27c499", "", { latestLabel: "최근 구간", highLabel: "최대 증가 구간" })}
       </div>
-      ${renderPeriodComparison("월별 캐릭터 반응 점수", "4–7월 캐릭터당 원본 활동점수 평균 · 계산식 미공개", monthly.map((item) => ({
+      ${renderPeriodComparison("월별 캐릭터 반응 점수 · 한국", "한국 Worker 4–7월 캐릭터당 원본 활동점수 평균 · 계산식 미공개", monthly.map((item) => ({
         label: item.month,
         value: item.avg_score,
         sub: `${formatNumber(item.ranked_chars)} chars`
       })), (value) => `${formatNumber(Math.round(value))}점`, "#d95926", "", {
         latestLabel: "최근 월평균",
         highLabel: "최고 반응월",
-        contextNote: "7월은 캐릭터명이 아니라 월입니다. 해당 월 전체 캐릭터의 평균 반응 점수입니다."
+        contextNote: "한국 전용 지표입니다. 7월은 캐릭터명이 아니라 월이며 해당 월 전체 캐릭터의 평균 반응 점수입니다."
       })}
     </section>
   `;
@@ -1902,8 +1999,8 @@ function renderSnapshotJourney(title, subtitle, rows, key, color) {
   const latest = Number(rows.at(-1)?.[key] || 0);
   const change = latest - first;
   const changePct = first ? (change / first) * 100 : 0;
-  const firstDate = rows[0]?.date?.slice(5) || "-";
-  const latestDate = rows.at(-1)?.date?.slice(5) || "-";
+  const firstDate = formatCollectionPoint(rows[0]?.captured_at || rows[0]?.date);
+  const latestDate = formatCollectionPoint(rows.at(-1)?.captured_at || rows.at(-1)?.date);
   return `
     <article class="chart-card snapshot-journey-card">
       <div class="chart-heading">
@@ -1928,12 +2025,12 @@ function renderSnapshotJourney(title, subtitle, rows, key, color) {
       <div class="snapshot-milestones" style="--journey-color:${color}">
         ${rows.map((row, index) => `
           <div class="snapshot-milestone ${index === rows.length - 1 ? "is-latest" : ""}">
-            <span>${escapeHtml(row.date.slice(5))}</span>
+            <span>${escapeHtml(formatCollectionPoint(row.captured_at || row.date))}</span>
             <strong>${formatCompact(Number(row[key] || 0))}</strong>
           </div>
         `).join("")}
       </div>
-      <p class="chart-tail">5회 관측값은 참고용이며, 핵심 비교는 첫 수집값과 현재값의 절대 증가량입니다.</p>
+      <p class="chart-tail">${formatNumber(rows.length)}회 수집값은 참고용이며, 핵심 비교는 첫 수집값과 현재값의 절대 증가량입니다.</p>
     </article>
   `;
 }
@@ -2289,6 +2386,19 @@ function formatDateTime(value) {
     dateStyle: "medium",
     timeStyle: "short"
   }).format(date);
+}
+
+function formatCollectionPoint(value) {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value).slice(5);
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  }).format(date).replace(/\. /g, ".").replace(/\.$/, "");
 }
 
 function formatDateShort(value) {

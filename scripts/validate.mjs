@@ -78,6 +78,16 @@ for (const [market, expected] of Object.entries(activityExpectedCounts)) {
   assert(rows.every((row) => /^\d{4}-\d{2}-\d{2}T/.test(row.last_seen || "")), `${market} activity timestamps are invalid`);
   assert(marketActivity.comparable_count + marketActivity.new_count === expected, `${market} activity comparison coverage mismatch`);
 }
+const activityHistory = characterActivity.history || [];
+assert(activityHistory.length >= 2, "four-market activity history needs at least two snapshots");
+assert(new Set(activityHistory.map((row) => row.captured_at)).size === activityHistory.length, "activity history timestamps must be unique");
+assert(activityHistory.every((row, index) => index === 0 || new Date(row.captured_at) > new Date(activityHistory[index - 1].captured_at)), "activity history must be ordered oldest to newest");
+for (const snapshot of activityHistory) {
+  for (const market of Object.keys(activityExpectedCounts)) {
+    const values = snapshot.markets?.[market];
+    assert(values && [values.characters, values.views, values.chats].every((value) => Number.isFinite(Number(value)) && Number(value) >= 0), `${market} activity history aggregate is invalid`);
+  }
+}
 assert(validation.overall_status === "share-with-caveats", "validation posture should remain share-with-caveats until AI chat revenue is disclosed");
 assert(validation.summary?.block === 0, "validation contains blocking failures");
 assert(validation.summary?.pass >= 10, "validation pass coverage is unexpectedly low");
@@ -118,6 +128,8 @@ assert(html.includes("data/character-activity.js"), "embedded activity script mu
   "data-market=\"jp\"",
   "data-market=\"global\"",
   "data-market=\"tw\"",
+  "data-stats-market=\"all\"",
+  "data-stats-market=\"tw\"",
   "character-dialog",
   "validation-dashboard",
   "settings-view",
@@ -151,6 +163,8 @@ assert(html.includes("data/character-activity.js"), "embedded activity script mu
   ".character-motion-shell",
   ".decision-path",
   ".peer-layout",
+  ".business-scope-bar",
+  ".market-kpi-grid",
   "object-fit: contain"
 ].forEach((marker) => assert(css.includes(marker), `missing CSS marker: ${marker}`));
 
@@ -181,6 +195,8 @@ assert(html.includes("data/character-activity.js"), "embedded activity script mu
   "renderCatalogSummary",
   "characterActivity",
   "activitySummaryForMarket",
+  "renderStatsMarketSummary",
+  "catalogHistoryForMarket",
   "공개 API 수집 간 대비",
   "최근 조회 증가",
   "최근 대화 증가",
