@@ -1944,19 +1944,59 @@ function renderFullImage(model) {
   return renderImage(model, "full");
 }
 
-function renderCharacterMotion(model) {
-  if (!model.videoSrc) return renderFullImage(model);
+function characterMotionVariations(group) {
+  if (!group?.locales) return [];
+  const list = [];
+  const seenUrls = new Set();
+  for (const market of MARKET_ORDER) {
+    const record = group.locales[market];
+    if (record?.safe_video_url && !seenUrls.has(record.safe_video_url)) {
+      seenUrls.add(record.safe_video_url);
+      list.push({
+        market,
+        label: MARKET_META[market].label,
+        short: MARKET_META[market].short,
+        name: record.character_name,
+        videoUrl: proxiedMediaUrl(record.safe_video_url),
+        rawVideoUrl: record.safe_video_url,
+        poster: record.imageSrc || "",
+        characterId: record.character_id
+      });
+    }
+  }
+  return list;
+}
+
+function renderCharacterMotion(group, selected) {
+  const model = viewModel(selected);
+  const motions = characterMotionVariations(group);
+  if (!motions.length && !model.videoSrc) return renderFullImage(model);
+  
+  const currentMotion = motions.find((m) => m.market === selected.market) || motions[0];
+  const activeVideoSrc = currentMotion?.videoUrl || model.videoSrc;
+  const activePoster = currentMotion?.poster || model.imageSrc || "";
   const fallback = escapeHtml(model.fallback || "?");
-  const poster = model.imageSrc ? escapeAttr(model.imageSrc) : "";
+  const motionCount = motions.length;
+
   return `
     <div class="character-motion-shell">
-      <video class="character-motion" autoplay muted loop playsinline preload="metadata"${poster ? ` poster="${poster}"` : ""} aria-label="${escapeAttr(`${model.name} 공식 모션 미리보기`)}">
-        <source src="${escapeAttr(model.videoSrc)}" type="video/mp4" />
+      <video class="character-motion" autoplay muted loop playsinline preload="metadata"${activePoster ? ` poster="${escapeAttr(activePoster)}"` : ""} aria-label="${escapeAttr(`${model.name} 공식 모션 미리보기`)}">
+        <source src="${escapeAttr(activeVideoSrc)}" type="video/mp4" />
       </video>
       <div class="motion-fallback" aria-hidden="true">
-        ${model.imageSrc ? renderFullImage(model) : `<span class="thumb-fallback thumb-full">${fallback}</span>`}
+        ${activePoster ? renderFullImage(model) : `<span class="thumb-fallback thumb-full">${fallback}</span>`}
       </div>
-      <span class="motion-badge"><i></i> 공식 모션</span>
+      <span class="motion-badge"><i></i> 공식 모션${motionCount > 1 ? ` · ${motionCount}개 바리에이션` : ""}</span>
+      ${motionCount > 1 ? `
+        <div class="motion-variation-switcher" aria-label="모션 영상 바리에이션">
+          ${motions.map((m) => `
+            <button type="button" class="motion-chip${m.market === (currentMotion?.market || selected.market) ? " active" : ""}" data-motion-src="${escapeAttr(m.videoUrl)}" data-motion-poster="${escapeAttr(m.poster)}" data-motion-market="${escapeAttr(m.label)}" title="${escapeAttr(`${m.label} 버전 모션 재생`)}">
+              <span class="motion-chip-dot"></span>
+              <span>${MARKET_FLAGS[m.market] || ""} ${escapeHtml(m.label)}</span>
+            </button>
+          `).join("")}
+        </div>
+      ` : ""}
     </div>
   `;
 }
@@ -2001,7 +2041,7 @@ function openDialog(characterId, trigger, preferredMarket = null) {
   lastTrigger = trigger;
   els.dialogContent.innerHTML = renderDialogContent(group, selected);
   bindImageFallbacks(els.dialogContent);
-  bindMotionFallbacks(els.dialogContent);
+  bindMotionControls(els.dialogContent);
   if (typeof els.dialog.showModal === "function") {
     els.dialog.showModal();
   } else {
@@ -2009,13 +2049,34 @@ function openDialog(characterId, trigger, preferredMarket = null) {
   }
 }
 
-function bindMotionFallbacks(root) {
-  [...root.querySelectorAll(".character-motion")].forEach((video) => {
-    const shell = video.closest(".character-motion-shell");
-    video.addEventListener("playing", () => shell?.classList.add("is-playing"), { once: true });
-    video.addEventListener("error", () => shell?.classList.add("is-fallback"), { once: true });
-    video.play().catch(() => {
-      video.controls = true;
+function bindMotionControls(root) {
+  const video = root.querySelector("video.character-motion");
+  const badge = root.querySelector(".motion-badge");
+  const chips = root.querySelectorAll(".motion-chip[data-motion-src]");
+
+  chips.forEach((chip) => {
+    chip.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const nextSrc = chip.dataset.motionSrc;
+      const nextPoster = chip.dataset.motionPoster;
+      const marketLabel = chip.dataset.motionMarket;
+      if (video && nextSrc) {
+        video.src = nextSrc;
+        if (nextPoster) video.poster = nextPoster;
+        video.load();
+        video.play().catch(() => {});
+        chips.forEach((c) => c.classList.toggle("active", c === chip));
+        if (badge) badge.innerHTML = `<i></i> 공식 모션 · ${escapeHtml(marketLabel)}`;
+      }
+    });
+  });
+
+  [...root.querySelectorAll(".character-motion")].forEach((v) => {
+    const shell = v.closest(".character-motion-shell");
+    v.addEventListener("playing", () => shell?.classList.add("is-playing"), { once: true });
+    v.addEventListener("error", () => shell?.classList.add("is-fallback"), { once: true });
+    v.play().catch(() => {
+      v.controls = true;
       shell?.classList.add("needs-play");
     });
   });
@@ -2044,7 +2105,7 @@ function renderDialogContent(group, selected) {
   return `
     <div class="dialog-hero">
       <div class="dialog-image-frame">
-        ${renderCharacterMotion(model)}
+        ${renderCharacterMotion(group, selected)}
       </div>
       <div class="dialog-title-block">
         <p class="section-kicker">${escapeHtml(MARKET_META[selected.market].label)}</p>

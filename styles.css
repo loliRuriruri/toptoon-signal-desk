@@ -3666,3 +3666,70 @@ tbody tr:last-child td {
   .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .flow .node:after { display: none; }
 }
+
+/* ==========================================================================
+   Character Motion Variation Switcher Styles
+   ========================================================================== */
+
+.motion-variation-switcher {
+  position: absolute;
+  z-index: 4;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(7, 11, 18, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+}
+
+.motion-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #cfddec;
+  font-size: 10px;
+  font-weight: 750;
+  padding: 4px 9px;
+  cursor: pointer;
+  transition: all 140ms ease;
+  white-space: nowrap;
+}
+
+.motion-chip:hover {
+  background: rgba(57, 135, 229, 0.25);
+  border-color: rgba(98, 168, 255, 0.5);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.motion-chip.active {
+  background: linear-gradient(135deg, rgba(39, 196, 153, 0.4), rgba(57, 135, 229, 0.4));
+  border-color: #27c499;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(39, 196, 153, 0.4);
+}
+
+.motion-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.motion-chip.active .motion-chip-dot {
+  background: #27c499;
+  box-shadow: 0 0 6px #27c499;
+}
+
