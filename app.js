@@ -772,14 +772,11 @@ function renderValidationDashboard() {
   els.validationKpiGrid.innerHTML = renderDecisionKpis(summary, statusLabel, thesis, marketView);
 
   els.validationDashboard.innerHTML = [
-    renderInfographicHeroCards(),
-    renderInvestmentThesisSection(),
     renderDecisionPath(thesis),
     renderFreshnessStrip(validationData, investor, marketView),
-    renderFinancialTurnaroundSection(),
     renderLatestDisclosures(),
     renderFilingReconciliation(filing, derived),
-    renderGlobalAndRebrandSection(),
+    renderStrategicCrosscheck(),
     renderMarketRisk(investor, marketView),
     renderPeerComparison(marketView),
     renderCatalogCrosscheck(validationData.catalogs || {}),
@@ -792,183 +789,38 @@ function renderValidationDashboard() {
   ].join("");
 }
 
-function renderInfographicHeroCards() {
+function renderStrategicCrosscheck() {
   return `
-    <section class="panel stats-panel infographic-hero-panel">
-      <div class="infographic-eyebrow">
-        <span class="pill blue">CORPORATE DEEP DIVE · 2026.08</span>
-        <span class="pill purple">엔키AX(ANKEY AX) 사명 변경 추진</span>
-        <span class="pill gray">KOSDAQ 134580</span>
-      </div>
-      <div class="infographic-hero-title">
-        <h2>탑코미디어 <span class="grad-text">IP × AI 인터랙티브 콘텐츠</span> 기업 탐방 딥다이브</h2>
-        <p>2Q26 수익성 반등과 플랫폼 매출 비중 확대(70.4%), <strong>탑툰챗의 고과금형 캐릭터 BM</strong>, 일본 사업 손익 개선을 공시·실측 지표와 교차 검증합니다.</p>
-      </div>
-      <div class="stat-grid infographic-stat-grid">
-        <div class="infographic-stat">
-          <span class="k">2026 2Q 연결 매출</span>
-          <strong class="v">155억</strong>
-          <small class="s">QoQ +30.4% · YoY +4.0%</small>
-        </div>
-        <div class="infographic-stat">
-          <span class="k">2026 2Q 영업이익</span>
-          <strong class="v green-t">37억</strong>
-          <small class="s">영업이익률 23.7% (턴어라운드)</small>
-        </div>
-        <div class="infographic-stat">
-          <span class="k">탑툰챗 결제자 구조</span>
-          <strong class="v pink-t">70%</strong>
-          <small class="s">결제 이용자 중 월 5만원+ 고과금</small>
-        </div>
-        <div class="infographic-stat">
-          <span class="k">플랫폼 매출 비중</span>
-          <strong class="v cyan-t">70.4%</strong>
-          <small class="s">2024 43.8% → 2026 H1 70.4%</small>
-        </div>
-      </div>
-    </section>
-  `;
-}
-
-function renderInvestmentThesisSection() {
-  return `
-    <section class="panel stats-panel infographic-thesis-panel">
+    <section class="panel stats-panel validation-panel strategic-crosscheck-panel">
       <div class="panel-heading compact-heading">
         <div>
-          <p class="section-kicker">00 · INVESTMENT THESIS</p>
-          <h2>한 장으로 보는 투자 논리: 턴어라운드 이후 확인할 3가지</h2>
-          <p class="stat-help">2Q 실적 개선 자체는 확인되었습니다. 다음 단계는 이 이익이 구조적으로 반복 가능한지, AI챗이 진짜 고마진 신규 축으로 자리잡는지입니다.</p>
-        </div>
-      </div>
-      <div class="thesis-grid">
-        <article class="card accent-card thesis-card">
-          <div class="q">QUESTION 1 · PROFIT QUALITY</div>
-          <div class="thesis-num green-t">155 → 37</div>
-          <strong>매출 증가와 함께 비용 효율이 실제로 개선됐나?</strong>
-          <p>2Q 매출 155억원, 영업이익 37억원. 마케팅비는 늘었지만 총 영업비용은 118억원(YoY -0.7%)으로 한계비용이 낮은 고마진 플랫폼 믹스가 섞였습니다.</p>
-        </article>
-        <article class="card thesis-card">
-          <div class="q">QUESTION 2 · UNIT ECONOMICS</div>
-          <div class="thesis-num pink-t">Payer</div>
-          <strong>"70%가 5만원+"는 누구 기준인가?</strong>
-          <p>전체 MAU가 아니라 <b>결제 이용자 중 약 70%</b>입니다. 따라서 진짜 핵심은 MAU가 아닌 결제전환율, 결제자 ARPPU, D30/D90 유지율입니다.</p>
-        </article>
-        <article class="card thesis-card">
-          <div class="q">QUESTION 3 · MOAT</div>
-          <div class="thesis-num cyan-t">IP ≠ LLM</div>
-          <strong>LLM 기능 경쟁이 빨라져도 남는 해자는?</strong>
-          <p>모델 자체는 빠르게 평준화됩니다. 지속 가능한 차별화는 <b>권리 정리된 성인 IP + 기존 결제자 + 통합 지갑 + 콘텐츠 공급속도</b>입니다.</p>
-        </article>
-      </div>
-      <div class="source-note">
-        <span class="src official">공시/공식 (Tier A)</span><span>2Q 실적·코인통합</span>
-        <span class="src research">리서치 (Tier B)</span><span>결제자 지출·플랫폼 믹스</span>
-        <span class="src visit">탐방 (Tier C)</span><span>현장 설명·비공개 KPI</span>
-        <span class="src assumption">분석 가정 (Tier D)</span><span>시나리오·원가 계산</span>
-      </div>
-    </section>
-  `;
-}
-
-function renderFinancialTurnaroundSection() {
-  return `
-    <section class="panel stats-panel infographic-financial-panel">
-      <div class="panel-heading compact-heading">
-        <div>
-          <p class="section-kicker">01 · FINANCIAL TURNAROUND & FUNNEL</p>
-          <h2>2Q26 실적 급반등 & 플랫폼 믹스 · 코인 통합 퍼널</h2>
-          <p class="stat-help">2026년 1분기 영업손실 이후 2분기 영업이익률 23.7%로 급반등. 자체 플랫폼 결제 비중 확대가 이익 체질 개선을 견인했습니다.</p>
-        </div>
-        <span class="evidence-badge tier-a">A · 확정 공시</span>
-      </div>
-      <div class="grid2">
-        <div class="card">
-          <h3>최근 6개 분기 연결 실적 추이</h3>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>분기</th><th>매출</th><th>영업이익</th><th>순이익</th><th>OPM</th></tr></thead>
-              <tbody>
-                <tr><td>2025 1Q</td><td>55억</td><td class="neg">-22억</td><td class="neg">-18억</td><td class="neg">-40.0%</td></tr>
-                <tr><td>2025 2Q</td><td>149억</td><td class="pos">30억</td><td class="pos">16억</td><td class="pos">20.1%</td></tr>
-                <tr><td>2025 3Q</td><td>139억</td><td class="pos">17억</td><td class="pos">18억</td><td>12.2%</td></tr>
-                <tr><td>2025 4Q</td><td>142억</td><td class="pos">13억</td><td class="neg">-39억</td><td>9.2%</td></tr>
-                <tr><td>2026 1Q</td><td>119억</td><td class="neg">-1억</td><td class="neg">-1억</td><td class="neg">-0.8%</td></tr>
-                <tr class="is-highlight-row"><td><b>2026 2Q</b></td><td><b>155억</b></td><td class="pos"><b>37억</b></td><td class="pos"><b>32억</b></td><td class="pos"><b>23.7%</b></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="footnote">단위 억원 · DART 정기보고서 기준</p>
-        </div>
-        <div class="card accent-card">
-          <h3>수익성 개선의 핵심: '플랫폼 매출 믹스'</h3>
-          <div class="big-metric cyan-t">43.8% → 70.4%</div>
-          <p>자체 플랫폼 결제 매출 인식 비중이 상승하며 유통 수수료 부담이 줄어들고 이익률이 개선되었습니다.</p>
-          <div class="bar-list" style="margin-top:14px">
-            <div class="bar-row"><span>2024</span><div class="bar-track"><div class="bar-fill" style="width:43.8%"></div></div><b>43.8%</b></div>
-            <div class="bar-row"><span>2025</span><div class="bar-track"><div class="bar-fill" style="width:69.9%"></div></div><b>69.9%</b></div>
-            <div class="bar-row"><span>2026 H1</span><div class="bar-track"><div class="bar-fill green" style="width:70.4%"></div></div><b class="green-t">70.4%</b></div>
-          </div>
-          <div class="callout green" style="margin-top:14px"><b>2Q 비용 구조:</b> 광고선전비 증가에도 영업비용 총액은 약 118억원(YoY -0.7%)으로 억제되어 고마진 매출 구조가 입증되었습니다.</div>
-        </div>
-      </div>
-      <div class="card" style="margin-top:14px">
-        <h3>탑툰 → 탑툰챗 '한 지갑' 크로스셀 퍼널</h3>
-        <div class="flow">
-          <div class="node"><div class="n">STEP 1</div><div class="t">웹툰 IP</div><div class="d">캐릭터·세계관 인지</div></div>
-          <div class="node"><div class="n">STEP 2</div><div class="t">기존 결제자</div><div class="d">이미 결제 이력 보유</div></div>
-          <div class="node"><div class="n">STEP 3</div><div class="t">코인 통합 (5/22)</div><div class="d">별도 결제 장벽 해소</div></div>
-          <div class="node"><div class="n">STEP 4</div><div class="t">대화/에셋 해금</div><div class="d">일러스트·시나리오</div></div>
-          <div class="node"><div class="n">STEP 5</div><div class="t">관계성 재방문</div><div class="d">습관적 체류·반복결제</div></div>
-        </div>
-        <p class="footnote" style="margin-top:12px">2026년 5월 22일 공식 코인 통합으로 탑툰 보너스 코인을 탑툰챗 대화/해금에 동일하게 사용 가능합니다.</p>
-      </div>
-    </section>
-  `;
-}
-
-function renderGlobalAndRebrandSection() {
-  return `
-    <section class="panel stats-panel infographic-global-rebrand-panel">
-      <div class="panel-heading compact-heading">
-        <div>
-          <p class="section-kicker">02 · STRATEGY, REBRAND & 8-KPI WATCH</p>
-          <h2>일본·글로벌 재무 정상화 & 엔키AX 사명 변경 추진</h2>
-          <p class="stat-help">9월 10일 임시주총을 통한 AI 사업목적 4개 추가 및 향후 분기별 점검해야 할 핵심 8대 KPI입니다.</p>
+          <p class="section-kicker">Business model & KPI watch</p>
+          <h2>비즈니스 모델 퍼널 · 다음 분기 8대 핵심 점검 KPI</h2>
+          <p class="stat-help">기존 유료 웹툰 결제자를 탑툰챗으로 연결하는 크로스셀 구조와 밸류에이션 판정을 위한 핵심 점검 지표입니다.</p>
         </div>
         <span class="evidence-badge tier-b">B · 리서치·탐방</span>
       </div>
-      <div class="grid2">
-        <div class="card">
-          <h3>TOPCO JAPAN 손익 흑자 & 밸런스시트</h3>
-          <div class="grid3" style="margin-top:12px">
-            <div class="bracket"><div class="mini">2024 매출</div><div class="big-metric" style="font-size:22px">126.2억</div><div class="neg">순익 -57.9억</div></div>
-            <div class="bracket"><div class="mini">2025 매출</div><div class="big-metric" style="font-size:22px">156.4억</div><div class="pos">순익 +7.9억</div></div>
-            <div class="bracket"><div class="mini">2026 1Q</div><div class="big-metric" style="font-size:22px">26.6억</div><div class="pos">순익 +3.3억</div></div>
-          </div>
-          <div class="callout amber" style="margin-top:14px"><b>자본상태 체크:</b> 2025년 말 TOPCO JAPAN 자산 67.2억, 부채 171.3억, 순자산 <b>-104.1억</b>. 손익 흑자 전환 이후 순자산 정상화 속도를 관찰해야 합니다.</div>
-        </div>
-        <div class="card accent-card">
-          <h3>'엔키AX (ANKEY AX)' 사명 변경 (9/10 임총)</h3>
-          <p>IP 기반 AI 사업 본격화를 위해 정관상 4대 신규 사업목적을 추가합니다.</p>
-          <div class="kpi-list" style="margin-top:12px">
-            <div class="kpi-row"><span><span class="pill purple">AI CONTENT</span> AI 콘텐츠 개발·제작·유통</span><b class="cyan-t">원가율 절감</b></div>
-            <div class="kpi-row"><span><span class="pill pink">CHATBOT</span> IP 기반 대화형 AI (탑툰챗)</span><b class="green-t">현재 핵심 BM</b></div>
-            <div class="kpi-row"><span><span class="pill blue">VIRTUAL</span> AI 캐릭터·가상인간 라이선싱</span><b class="amber-t">미래 옵션</b></div>
-            <div class="kpi-row"><span><span class="pill green">SOLUTION</span> AI 솔루션·응용 SW 라이선싱</span><b class="purple-t">B2B 확장</b></div>
-          </div>
+      <div class="card" style="margin-bottom:12px">
+        <h3>탑툰 ↔ 탑툰챗 '한 지갑' 크로스셀 퍼널</h3>
+        <div class="flow">
+          <div class="node"><div class="n">STEP 1</div><div class="t">웹툰 IP</div><div class="d">캐릭터 인지</div></div>
+          <div class="node"><div class="n">STEP 2</div><div class="t">기존 결제자</div><div class="d">결제 이력 보유</div></div>
+          <div class="node"><div class="n">STEP 3</div><div class="t">코인 통합 (5/22)</div><div class="d">결제 장벽 해소</div></div>
+          <div class="node"><div class="n">STEP 4</div><div class="t">대화·에셋 해금</div><div class="d">일러스트·시나리오</div></div>
+          <div class="node"><div class="n">STEP 5</div><div class="t">관계성 재방문</div><div class="d">반복 지출 형성</div></div>
         </div>
       </div>
-      <div class="card" style="margin-top:14px">
-        <h3>다음 분기에서 꼭 확인해야 할 8대 핵심 검증 KPI</h3>
+      <div class="card">
+        <h3>다음 분기 실적에서 확인해야 할 8대 핵심 KPI</h3>
         <div class="kpi-watch">
           <div class="watch"><div class="num">01</div><b>탑툰챗 MAU</b><p>국가별·월별 활성 이용자 추세</p></div>
-          <div class="watch"><div class="num">02</div><b>Payer Conversion</b><p>MAU 중 실제 유료 결제자 비율</p></div>
-          <div class="watch"><div class="num">03</div><b>Payer ARPPU</b><p>결제자당 월평균 지출액 (5만원+ 유지여부)</p></div>
+          <div class="watch"><div class="num">02</div><b>Payer Conversion</b><p>MAU 중 실제 결제자 비율</p></div>
+          <div class="watch"><div class="num">03</div><b>Payer ARPPU</b><p>결제자당 월평균 지출액 (5만원+ 지속 여부)</p></div>
           <div class="watch"><div class="num">04</div><b>D30/D90 Retention</b><p>관계형 캐릭터챗 지속 결제율</p></div>
           <div class="watch"><div class="num">05</div><b>AI·PG·IP 원가율</b><p>추론비·수수료 감안 실질 공헌이익</p></div>
           <div class="watch"><div class="num">06</div><b>탑툰→챗 전환율</b><p>통합 코인 지갑 크로스셀 침투율</p></div>
           <div class="watch"><div class="num">07</div><b>국가별 CAC</b><p>일본·북미 현지화 모객 효율</p></div>
-          <div class="watch"><div class="num">08</div><b>TOPCO JAPAN 순자산</b><p>손익 흑자 이후 자본잠식 해소 속도</p></div>
+          <div class="watch"><div class="num">08</div><b>TOPCO JAPAN 순자산</b><p>2025 흑자(+7.9억) 이후 자본 정상화</p></div>
         </div>
       </div>
     </section>
@@ -1025,7 +877,10 @@ function renderLatestDisclosures() {
     <section class="panel stats-panel validation-panel latest-disclosure-panel">
       <div class="panel-heading compact-heading">
         <div><p class="section-kicker">OpenDART 자동 확인</p><h2>최근 회사 공시</h2><p class="stat-help">탑코미디어 134580 · 최근 180일 · 1시간마다 확인</p></div>
-        <span class="evidence-badge ${dart.status === "ok" ? "tier-a" : "tier-c"}">${dart.status === "ok" ? `${(dart.disclosures || []).length}건 확인` : "이전 정상값"}</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="pill purple" title="9월 10일 임시주총: 엔키AX(ANKEY AX) 사명변경 및 4대 AI 사업목적 추가">9/10 임총: 엔키AX 사명변경</span>
+          <span class="evidence-badge ${dart.status === "ok" ? "tier-a" : "tier-c"}">${dart.status === "ok" ? `${(dart.disclosures || []).length}건 확인` : "이전 정상값"}</span>
+        </div>
       </div>
       <div class="latest-disclosure-list">
         ${disclosures.length ? disclosures.map((item) => `
@@ -1158,11 +1013,22 @@ function renderFilingReconciliation(filing, derived) {
       </div>
       <div class="stats-grid mini-grid">
         ${renderStatCards([
-          ["연결 매출", formatWonBig(filing.revenue), `영업이익률 ${formatPercent(derived.h1_operating_margin_pct)}`],
-          ["연결 영업이익", formatWonBig(filing.operating_profit), "반기 누계"],
-          ["연결 순이익", formatWonBig(filing.net_income), "반기 누계"],
+          ["연결 매출", formatWonBig(filing.revenue), `2Q26 155억 (QoQ +30.4%)`],
+          ["연결 영업이익", formatWonBig(filing.operating_profit), `2Q26 37억 (OPM 23.7%)`],
+          ["연결 순이익", formatWonBig(filing.net_income), "반기 누계 30.5억원"],
           ["영업현금흐름", formatWonBig(filing.operating_cash_flow), `순이익 대비 ${formatPercent(derived.operating_cash_conversion_pct)}`]
         ])}
+      </div>
+      <div class="card" style="margin:12px 0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div><strong style="font-size:13px">수익성 체질 개선의 핵심: 플랫폼 매출 믹스</strong><p class="stat-help" style="margin:2px 0 0">자체 플랫폼 결제 비중 상승으로 유통수수료 절감 및 고마진화</p></div>
+          <span class="pill green">2026 H1 70.4%</span>
+        </div>
+        <div class="bar-list">
+          <div class="bar-row"><span>2024</span><div class="bar-track"><div class="bar-fill" style="width:43.8%"></div></div><b>43.8%</b></div>
+          <div class="bar-row"><span>2025</span><div class="bar-track"><div class="bar-fill" style="width:69.9%"></div></div><b>69.9%</b></div>
+          <div class="bar-row"><span>2026 H1</span><div class="bar-track"><div class="bar-fill green" style="width:70.4%"></div></div><b class="green-t">70.4%</b></div>
+        </div>
       </div>
       <div class="reconciliation-grid">
         <article class="reconciliation-card">
