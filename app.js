@@ -6,6 +6,14 @@ const MARKET_META = {
   tw: { label: "台灣", short: "TW", flag: "🇹🇼", site: "TW", locale: "zh-TW", color: "#22b8a7" }
 };
 
+const MARKET_FLAGS = {
+  all: "🌐",
+  kr: "🇰🇷",
+  jp: "🇯🇵",
+  global: "🌍",
+  tw: "🇹🇼"
+};
+
 const VIEW_META = {
   stats: "사업 요약",
   validation: "공시·주가 검증",
