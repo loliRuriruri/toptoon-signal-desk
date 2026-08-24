@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
@@ -31,6 +31,16 @@ const statsEndpoints = {
 
 mkdirSync(dataDir, { recursive: true });
 mkdirSync(assetRoot, { recursive: true });
+
+const previousCatalogPath = path.join(dataDir, "characters.json");
+let previousCatalog = null;
+if (existsSync(previousCatalogPath)) {
+  try {
+    previousCatalog = JSON.parse(readFileSync(previousCatalogPath, "utf8"));
+  } catch (error) {
+    console.warn(`Previous catalog snapshot could not be read: ${error.message}`);
+  }
+}
 
 function safeFilename(value) {
   return String(value || "character")
@@ -117,11 +127,69 @@ const catalogPayload = {
   counts,
   records
 };
+
+const previousByKey = new Map(
+  (previousCatalog?.records || []).map((record) => [`${record.site}:${Number(record.character_id)}`, record])
+);
+const baselineAt = previousCatalog?.generated_at || null;
+const baselineTime = baselineAt ? new Date(baselineAt).getTime() : Number.NaN;
+const capturedTime = new Date(capturedAt).getTime();
+const intervalSeconds = Number.isFinite(baselineTime) && Number.isFinite(capturedTime)
+  ? Math.max(0, Math.round((capturedTime - baselineTime) / 1000))
+  : null;
+
+const activityMarkets = Object.fromEntries(marketResults.map((result) => {
+  const rows = result.records.map((record) => {
+    const previous = previousByKey.get(`${record.site}:${record.character_id}`);
+    return {
+      character_id: record.character_id,
+      character_name: record.character_name,
+      current_views: record.views,
+      previous_views: previous ? Number(previous.views || 0) : null,
+      delta: previous ? record.views - Number(previous.views || 0) : null,
+      current_chats: record.chats,
+      previous_chats: previous ? Number(previous.chats || 0) : null,
+      chat_delta: previous ? record.chats - Number(previous.chats || 0) : null,
+      baseline_at: previous ? baselineAt : null,
+      last_seen: capturedAt,
+      comparison_status: previous ? "matched" : "new"
+    };
+  });
+  const matchedRows = rows.filter((row) => row.comparison_status === "matched");
+  return [result.market.key, {
+    site: result.market.site,
+    source: result.apiUrl,
+    baseline_at: baselineAt,
+    captured_at: capturedAt,
+    interval_seconds: intervalSeconds,
+    record_count: rows.length,
+    comparable_count: matchedRows.length,
+    new_count: rows.length - matchedRows.length,
+    views_delta: matchedRows.reduce((sum, row) => sum + row.delta, 0),
+    chats_delta: matchedRows.reduce((sum, row) => sum + row.chat_delta, 0),
+    negative_views_count: matchedRows.filter((row) => row.delta < 0).length,
+    negative_chats_count: matchedRows.filter((row) => row.chat_delta < 0).length,
+    rows
+  }];
+}));
+
+const activityPayload = {
+  captured_at: capturedAt,
+  baseline_at: baselineAt,
+  interval_seconds: intervalSeconds,
+  source_tier: "B",
+  definition: "For each site and character ID, current public cumulative counter minus the immediately previous locally stored public catalog snapshot.",
+  caveat: "This is a collection-interval change, not a daily metric or revenue. New characters without a prior row have null deltas; negative values are retained as source corrections or counter resets.",
+  markets: activityMarkets
+};
+
 writeFileSync(path.join(dataDir, "characters.json"), `${JSON.stringify(catalogPayload, null, 2)}\n`, "utf8");
 const slimRecords = records.map(({ locale, site, character_id, character_name, work_title, views, chats, local_image, safe_video_url, detail_url, source_id, source_updated_at }) => ({
   locale, site, character_id, character_name, work_title, views, chats, local_image, safe_video_url, detail_url, source_id, source_updated_at
 }));
 writeFileSync(path.join(dataDir, "characters.js"), `window.TOPTOON_DATA=${JSON.stringify({ generated_at: capturedAt, market_snapshots: catalogPayload.market_snapshots, counts, records: slimRecords })};document.documentElement.dataset.dataReady='true';\n`, "utf8");
+writeFileSync(path.join(dataDir, "character-activity.json"), `${JSON.stringify(activityPayload, null, 2)}\n`, "utf8");
+writeFileSync(path.join(dataDir, "character-activity.js"), `window.TOPTOON_CHARACTER_ACTIVITY=${JSON.stringify(activityPayload)};\n`, "utf8");
 
 const workerBase = "https://toptoon-tracker.john6428.workers.dev";
 const statsPairs = await Promise.all(Object.entries(statsEndpoints).map(async ([key, endpoint]) => [key, await fetchJson(`${workerBase}/api/${endpoint}`, `${workerBase}/`)]));
@@ -135,4 +203,12 @@ const statsPayload = {
 writeFileSync(path.join(dataDir, "stats.json"), `${JSON.stringify(statsPayload, null, 2)}\n`, "utf8");
 writeFileSync(path.join(dataDir, "stats.js"), `window.TOPTOON_STATS=${JSON.stringify(statsPayload)};\n`, "utf8");
 
-console.log(JSON.stringify({ captured_at: capturedAt, counts, downloaded_asset_folders: markets.map((market) => market.key), stats_endpoints: Object.keys(statsEndpoints).length }, null, 2));
+console.log(JSON.stringify({
+  captured_at: capturedAt,
+  activity_baseline_at: baselineAt,
+  activity_interval_seconds: intervalSeconds,
+  activity_comparable_counts: Object.fromEntries(Object.entries(activityMarkets).map(([key, value]) => [key, value.comparable_count])),
+  counts,
+  downloaded_asset_folders: markets.map((market) => market.key),
+  stats_endpoints: Object.keys(statsEndpoints).length
+}, null, 2));

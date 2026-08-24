@@ -21,10 +21,12 @@ const data = readJson("data/characters.json");
 const stats = readJson("data/stats.json");
 const validation = readJson("data/validation.json");
 const officialSignals = readJson("data/official-signals.json");
+const characterActivity = readJson("data/character-activity.json");
 const embeddedData = readFileSync(path.join(root, "data", "characters.js"), "utf8");
 const embeddedStats = readFileSync(path.join(root, "data", "stats.js"), "utf8");
 const embeddedValidation = readFileSync(path.join(root, "data", "validation.js"), "utf8");
 const embeddedOfficialSignals = readFileSync(path.join(root, "data", "official-signals.js"), "utf8");
+const embeddedCharacterActivity = readFileSync(path.join(root, "data", "character-activity.js"), "utf8");
 const records = data.records || [];
 const bySite = new Map();
 for (const record of records) {
@@ -40,6 +42,7 @@ assert(/^window\.TOPTOON_DATA\s*=\s*\{/.test(embeddedData), "embedded dataset sh
 assert(/^window\.TOPTOON_STATS\s*=\s*\{/.test(embeddedStats), "embedded statistics should be available without fetch");
 assert(/^window\.TOPTOON_VALIDATION\s*=\s*\{/.test(embeddedValidation), "embedded validation should be available without fetch");
 assert(/^window\.TOPTOON_OFFICIAL_SIGNALS\s*=\s*\{/.test(embeddedOfficialSignals), "embedded official signal state should be available without fetch");
+assert(/^window\.TOPTOON_CHARACTER_ACTIVITY\s*=\s*\{/.test(embeddedCharacterActivity), "embedded four-market activity should be available without fetch");
 assert(new Set(records.map((record) => record.character_id)).size === 104, "expected 104 unique character IDs");
 assert(bySite.get("KR") === 87, "KR record count mismatch");
 assert(bySite.get("JP") === 77, "JP record count mismatch");
@@ -64,6 +67,17 @@ assert(officialSignals.providers?.kis?.market_alert?.warning_release?.fifteen_da
 assert(stats.totals_timeseries.rows?.length >= 5, "statistics time series is unexpectedly short");
 assert(stats.characters?.characters?.length === 87, "expected 87 KR character activity rows");
 assert(stats.characters.characters.every((row) => Number.isFinite(Number(row.delta)) && Number.isFinite(Number(row.chat_delta)) && /^\d{4}-\d{2}-\d{2}$/.test(row.last_seen)), "character activity deltas or collection dates are invalid");
+const activityExpectedCounts = { kr: 87, jp: 77, global: 84, tw: 81 };
+for (const [market, expected] of Object.entries(activityExpectedCounts)) {
+  const marketActivity = characterActivity.markets?.[market];
+  const rows = marketActivity?.rows || [];
+  assert(rows.length === expected, `${market} activity row count mismatch`);
+  assert(new Set(rows.map((row) => row.character_id)).size === expected, `${market} activity character IDs are not unique`);
+  assert(rows.every((row) => row.delta == null || Number.isFinite(Number(row.delta))), `${market} view deltas are invalid`);
+  assert(rows.every((row) => row.chat_delta == null || Number.isFinite(Number(row.chat_delta))), `${market} chat deltas are invalid`);
+  assert(rows.every((row) => /^\d{4}-\d{2}-\d{2}T/.test(row.last_seen || "")), `${market} activity timestamps are invalid`);
+  assert(marketActivity.comparable_count + marketActivity.new_count === expected, `${market} activity comparison coverage mismatch`);
+}
 assert(validation.overall_status === "share-with-caveats", "validation posture should remain share-with-caveats until AI chat revenue is disclosed");
 assert(validation.summary?.block === 0, "validation contains blocking failures");
 assert(validation.summary?.pass >= 10, "validation pass coverage is unexpectedly low");
@@ -92,6 +106,7 @@ const html = readFileSync(path.join(root, "index.html"), "utf8");
 const css = readFileSync(path.join(root, "styles.css"), "utf8");
 const js = readFileSync(path.join(root, "app.js"), "utf8");
 assert(html.includes("data/characters.js"), "embedded dataset script must be referenced");
+assert(html.includes("data/character-activity.js"), "embedded activity script must be referenced");
 
 [
   "data-view=\"stats\"",
@@ -165,6 +180,8 @@ assert(html.includes("data/characters.js"), "embedded dataset script must be ref
   "renderGlobalPanel",
   "renderCatalogSummary",
   "characterActivity",
+  "activitySummaryForMarket",
+  "공개 API 수집 간 대비",
   "최근 조회 증가",
   "최근 대화 증가",
   "URLSearchParams",

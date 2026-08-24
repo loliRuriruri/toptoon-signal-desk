@@ -130,8 +130,8 @@
             <select id="sort-select" name="sort">
               <option value="views-desc">조회수 높은순</option>
               <option value="chats-desc">채팅 높은순</option>
-              <option value="views-delta-desc">최근 조회 증가순 (KR)</option>
-              <option value="chats-delta-desc">최근 대화 증가순 (KR)</option>
+              <option value="views-delta-desc">최근 조회 증가순</option>
+              <option value="chats-delta-desc">최근 대화 증가순</option>
               <option value="name-asc">이름 가나다순</option>
               <option value="work-asc">작품명순</option>
             </select>
@@ -153,9 +153,9 @@
                 <th scope="col">작품</th>
                 <th scope="col">시장</th>
                 <th scope="col">누적 조회수</th>
-                <th scope="col"><span class="column-label">최근 조회 증가<small>KR · 직전 수집 대비</small></span></th>
+                <th scope="col"><span class="column-label">최근 조회 증가<small id="views-delta-scope">선택 시장 · 직전 수집 대비</small></span></th>
                 <th scope="col">누적 대화수</th>
-                <th scope="col"><span class="column-label">최근 대화 증가<small>KR · 직전 수집 대비</small></span></th>
+                <th scope="col"><span class="column-label">최근 대화 증가<small id="chats-delta-scope">선택 시장 · 직전 수집 대비</small></span></th>
                 <th scope="col">최근 수집일</th>
                 <th scope="col">지역 대응</th>
               </tr>
@@ -237,6 +237,7 @@
     <script src="data/stats.js"></script>
     <script src="data/validation.js"></script>
     <script src="data/official-signals.js"></script>
+    <script src="data/character-activity.js"></script>
     <script src="data/characters.js"></script>
     <script src="app.js" defer></script>
   </body>

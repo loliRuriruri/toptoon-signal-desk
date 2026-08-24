@@ -57,6 +57,7 @@ const state = {
 const els = {};
 let dataset = null;
 let statsData = null;
+let catalogActivityData = null;
 let validationData = null;
 let integrationsData = null;
 let officialSignalsData = null;
@@ -99,6 +100,8 @@ function bindElements() {
   els.catalogFreshness = document.querySelector("#catalog-freshness");
   els.catalogFreshnessDetail = document.querySelector("#catalog-freshness-detail");
   els.catalogScopeNote = document.querySelector("#catalog-scope-note");
+  els.viewsDeltaScope = document.querySelector("#views-delta-scope");
+  els.chatsDeltaScope = document.querySelector("#chats-delta-scope");
   els.searchInput = document.querySelector("#search-input");
   els.workFilter = document.querySelector("#work-filter");
   els.sortSelect = document.querySelector("#sort-select");
@@ -229,6 +232,7 @@ function bindEvents() {
 async function load() {
   try {
     statsData = window.TOPTOON_STATS || null;
+    catalogActivityData = window.TOPTOON_CHARACTER_ACTIVITY || null;
     validationData = window.TOPTOON_VALIDATION || null;
     officialSignalsData = window.TOPTOON_OFFICIAL_SIGNALS || null;
     if (!PUBLIC_READ_ONLY) {
@@ -1293,6 +1297,9 @@ function renderCharacterView() {
   els.catalogFreshness.textContent = formatDateTime(capturedAt);
   els.catalogFreshnessDetail.textContent = `${formatFreshnessAge(capturedAt)} · ${state.market === "all" ? "4개 공개 API 동시 수집" : `${MARKET_META[state.market].label} 공개 API`}`;
   els.catalogScopeNote.textContent = state.market === "all" ? "중복 지역을 합친 고유 캐릭터" : `${MARKET_META[state.market].label} 원본 목록`;
+  const activityScope = activityScopeForMarket(state.market);
+  if (els.viewsDeltaScope) els.viewsDeltaScope.textContent = activityScope;
+  if (els.chatsDeltaScope) els.chatsDeltaScope.textContent = activityScope;
   els.marketTabs.forEach((button) => {
     const count = button.dataset.market === "all" ? groups.length : recordsForMarket(button.dataset.market).length;
     button.querySelector("small").textContent = formatNumber(count);
@@ -1316,15 +1323,14 @@ function renderCatalogSummary() {
   const views = source.reduce((sum, record) => sum + record.viewsNumber, 0);
   const chats = source.reduce((sum, record) => sum + record.chatsNumber, 0);
   const works = new Set(source.map((record) => record.work_title).filter(Boolean)).size;
-  const activityRows = statsData?.characters?.characters || [];
-  const latestActivityDate = statsData?.characters?.latest_date || "";
-  const activityCards = ["all", "kr"].includes(state.market) && activityRows.length
+  const activitySummary = activitySummaryForMarket(state.market);
+  const activityCards = activitySummary.comparableCount
     ? [
-        ["최근 조회 증가", signedNumber(activityRows.reduce((sum, row) => sum + Number(row.delta || 0), 0)), `${formatShortDate(latestActivityDate)} · 한국 ${formatNumber(activityRows.length)}명`, "positive"],
-        ["최근 대화 증가", signedNumber(activityRows.reduce((sum, row) => sum + Number(row.chat_delta || 0), 0)), "직전 Worker 수집본 대비", "positive"],
-        ["증가 데이터 수집일", formatShortDate(latestActivityDate), "한국 Worker 스냅샷 기준", "signal"]
+        ["최근 조회 증가", signedNumber(activitySummary.viewsDelta), `${activitySummary.windowLabel} · ${formatNumber(activitySummary.comparableCount)}개 비교`, activitySummary.viewsDelta >= 0 ? "positive" : "warning"],
+        ["최근 대화 증가", signedNumber(activitySummary.chatsDelta), activitySummary.definitionLabel, activitySummary.chatsDelta >= 0 ? "positive" : "warning"],
+        ["증가 데이터 수집일", formatActivityTimestamp(activitySummary.capturedAt), activitySummary.sourceLabel, "signal"]
       ]
-    : [["증가 데이터", "한국만 제공", "해외 탭은 누적 공개 수치만 표시", "warning"]];
+    : [["증가 데이터", "비교 기준 대기", "다음 수집부터 조회·대화 증가를 계산합니다", "warning"]];
   els.catalogKpiGrid.innerHTML = renderStatCards([
     ["캐릭터", formatNumber(uniqueCharacters), state.market === "all" ? "중복 지역을 합친 고유 ID" : `${MARKET_META[state.market].label} 공개 캐릭터`],
     ["조회수", formatNumber(views), state.market === "all" ? "4개 시장 공개 수치 합산" : "해당 시장 공개 조회수"],
@@ -1389,7 +1395,7 @@ function renderTableRow(item) {
       <td class="metric">${renderActivityDelta(activity?.delta, "조회 증가 데이터 없음")}</td>
       <td class="metric">${formatNumber(model.chats)}</td>
       <td class="metric">${renderActivityDelta(activity?.chat_delta, "대화 증가 데이터 없음")}</td>
-      <td class="metric collection-date">${activity ? `<strong>${escapeHtml(formatShortDate(activity.last_seen))}</strong><small>KR Worker</small>` : `<span class="activity-unavailable">—</span>`}</td>
+      <td class="metric collection-date">${activity ? `<strong>${escapeHtml(formatActivityTimestamp(activity.last_seen))}</strong><small>${escapeHtml(activity.sourceLabel)}</small>` : `<span class="activity-unavailable">—</span>`}</td>
       <td>${escapeHtml(model.counterparts)}</td>
     </tr>
   `;
@@ -1415,7 +1421,7 @@ function renderCard(item) {
           <span>누적 대화수<strong>${formatNumber(model.chats)}</strong></span>
           <span>최근 대화 증가<strong>${renderActivityDelta(activity?.chat_delta, "미수집")}</strong></span>
         </span>
-        <span class="card-collection">${activity ? `최근 수집 ${escapeHtml(formatShortDate(activity.last_seen))} · KR Worker` : "증가 데이터는 한국 캐릭터만 제공"}</span>
+        <span class="card-collection">${activity ? `최근 수집 ${escapeHtml(formatActivityTimestamp(activity.last_seen))} · ${escapeHtml(activity.sourceLabel)}` : "직전 비교 데이터 없음"}</span>
       </button>
     </article>
   `;
@@ -1467,12 +1473,90 @@ function viewModel(item) {
   };
 }
 
+function workerActivityForId(characterId) {
+  const row = (statsData?.characters?.characters || []).find((candidate) => Number(candidate.character_id) === Number(characterId));
+  if (!row) return null;
+  return {
+    ...row,
+    sourceLabel: "KR Worker · 일간",
+    scopeLabel: "한국",
+    definitionLabel: "한국 Worker 직전 일간 수집본 대비",
+    baseline_at: null
+  };
+}
+
+function directActivityForRecord(record) {
+  if (!record?.market) return null;
+  const marketData = catalogActivityData?.markets?.[record.market];
+  const row = (marketData?.rows || []).find((candidate) => Number(candidate.character_id) === Number(record.character_id));
+  if (!row || row.delta == null || row.chat_delta == null) return null;
+  return {
+    ...row,
+    sourceLabel: `${MARKET_META[record.market].short} 공개 API · 수집 간`,
+    scopeLabel: MARKET_META[record.market].label,
+    definitionLabel: "직전 로컬 공개 API 수집본 대비",
+    interval_seconds: marketData.interval_seconds
+  };
+}
+
+function aggregateDirectActivity(group) {
+  const rows = (group?.allRecords || []).map(directActivityForRecord).filter(Boolean);
+  if (!rows.length) return null;
+  return {
+    delta: rows.reduce((sum, row) => sum + Number(row.delta || 0), 0),
+    chat_delta: rows.reduce((sum, row) => sum + Number(row.chat_delta || 0), 0),
+    last_seen: catalogActivityData?.captured_at,
+    baseline_at: catalogActivityData?.baseline_at,
+    interval_seconds: catalogActivityData?.interval_seconds,
+    sourceLabel: "4개 공개 API · 수집 간",
+    scopeLabel: "통합",
+    definitionLabel: "시장별 직전 로컬 공개 API 수집본 대비 합계"
+  };
+}
+
+function characterActivityForMarket(item, market) {
+  if (market === "all") return aggregateDirectActivity(item);
+  const record = item?.allRecords ? item.locales?.[market] : item;
+  if (!record || record.market !== market) return null;
+  return market === "kr" ? workerActivityForId(record.character_id) : directActivityForRecord(record);
+}
+
 function characterActivity(item) {
-  const isGroup = Boolean(item?.allRecords);
-  const hasKrRecord = isGroup ? Boolean(item.locales?.kr) : item?.market === "kr";
-  if (!hasKrRecord || !["all", "kr"].includes(state.market)) return null;
-  const characterId = Number(isGroup ? item.id : item.character_id);
-  return (statsData?.characters?.characters || []).find((row) => Number(row.character_id) === characterId) || null;
+  return characterActivityForMarket(item, state.market);
+}
+
+function activityScopeForMarket(market) {
+  if (market === "kr") return "한국 · Worker 일간 대비";
+  if (market === "all") return "통합 · 공개 API 수집 간 대비";
+  return `${MARKET_META[market].label} · 공개 API 수집 간 대비`;
+}
+
+function activitySummaryForMarket(market) {
+  if (market === "kr") {
+    const rows = statsData?.characters?.characters || [];
+    return {
+      comparableCount: rows.length,
+      viewsDelta: rows.reduce((sum, row) => sum + Number(row.delta || 0), 0),
+      chatsDelta: rows.reduce((sum, row) => sum + Number(row.chat_delta || 0), 0),
+      capturedAt: statsData?.characters?.latest_date,
+      windowLabel: `${formatShortDate(statsData?.characters?.latest_date)} 일간`,
+      sourceLabel: "한국 Worker 스냅샷",
+      definitionLabel: "한국 Worker 직전 일간 수집본 대비"
+    };
+  }
+  const marketRows = market === "all"
+    ? MARKET_ORDER.flatMap((key) => catalogActivityData?.markets?.[key]?.rows || [])
+    : catalogActivityData?.markets?.[market]?.rows || [];
+  const comparableRows = marketRows.filter((row) => row.delta != null && row.chat_delta != null);
+  return {
+    comparableCount: comparableRows.length,
+    viewsDelta: comparableRows.reduce((sum, row) => sum + Number(row.delta || 0), 0),
+    chatsDelta: comparableRows.reduce((sum, row) => sum + Number(row.chat_delta || 0), 0),
+    capturedAt: catalogActivityData?.captured_at,
+    windowLabel: formatActivityWindow(catalogActivityData?.baseline_at, catalogActivityData?.captured_at),
+    sourceLabel: market === "all" ? "4개 공식 공개 카탈로그 API" : `${MARKET_META[market].label} 공식 공개 카탈로그 API`,
+    definitionLabel: "직전 로컬 공개 API 수집본 대비"
+  };
 }
 
 function activitySortValue(item, field) {
@@ -1620,9 +1704,8 @@ function closeDialog() {
 
 function renderDialogContent(group, selected) {
   const model = viewModel(selected);
-  const activity = group.locales?.kr
-    ? (statsData?.characters?.characters || []).find((row) => Number(row.character_id) === Number(group.id))
-    : null;
+  const activity = characterActivityForMarket(selected, selected.market);
+  const activityScope = activity?.scopeLabel || MARKET_META[selected.market].label;
   const officialLink = selected.detail_url
     ? `<a class="ghost-button dialog-open-link" href="${escapeAttr(selected.detail_url)}" target="_blank" rel="noopener noreferrer">공식 캐릭터 페이지</a>`
     : "";
@@ -1644,9 +1727,9 @@ function renderDialogContent(group, selected) {
       <div><span>Character ID</span><strong>${group.id}</strong></div>
       <div><span>누적 조회수</span><strong>${formatNumber(selected.viewsNumber)}</strong></div>
       <div><span>누적 대화수</span><strong>${formatNumber(selected.chatsNumber)}</strong></div>
-      <div><span>KR 최근 조회 증가</span><strong>${activity ? renderActivityDelta(activity.delta, "조회 증가 데이터 없음") : "—"}</strong></div>
-      <div><span>KR 최근 대화 증가</span><strong>${activity ? renderActivityDelta(activity.chat_delta, "대화 증가 데이터 없음") : "—"}</strong></div>
-      <div><span>증가 데이터 수집일</span><strong>${activity ? escapeHtml(formatShortDate(activity.last_seen)) : "—"}</strong></div>
+      <div><span>${escapeHtml(activityScope)} 최근 조회 증가</span><strong>${activity ? renderActivityDelta(activity.delta, "조회 증가 데이터 없음") : "—"}</strong></div>
+      <div><span>${escapeHtml(activityScope)} 최근 대화 증가</span><strong>${activity ? renderActivityDelta(activity.chat_delta, "대화 증가 데이터 없음") : "—"}</strong></div>
+      <div><span>증가 데이터 기준</span><strong>${activity ? `${escapeHtml(formatActivityTimestamp(activity.last_seen))}<small>${escapeHtml(activity.definitionLabel)}</small>` : "다음 수집 후 계산"}</strong></div>
     </div>
     <h3>지역별 캐릭터 정보</h3>
     <div class="locale-list">
@@ -2238,6 +2321,21 @@ function formatFreshnessAge(value) {
   const hours = Math.round(minutes / 60);
   if (hours < 24) return `${hours}시간 전`;
   return `${Math.round(hours / 24)}일 전`;
+}
+
+function formatActivityWindow(baselineAt, capturedAt) {
+  const start = new Date(baselineAt).getTime();
+  const end = new Date(capturedAt).getTime();
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return "직전 수집 대비";
+  const minutes = Math.max(1, Math.round((end - start) / 60000));
+  if (minutes < 60) return `${minutes}분 수집 간격`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 48) return `${hours}시간 수집 간격`;
+  return `${Math.round(hours / 24)}일 수집 간격`;
+}
+
+function formatActivityTimestamp(value) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(String(value || "")) ? formatShortDate(value) : formatDateTime(value);
 }
 
 function escapeHtml(value) {
