@@ -1,9 +1,9 @@
 const MARKET_META = {
-  all: { label: "통합", short: "통합" },
-  kr: { label: "한국", short: "KR", site: "KR", locale: "ko-KR", color: "#3987e5" },
-  jp: { label: "日本", short: "JP", site: "JP", locale: "ja", color: "#d95926" },
-  global: { label: "Global", short: "Global", site: "GLOBAL", locale: "en", color: "#199e70" },
-  tw: { label: "台灣", short: "TW", site: "TW", locale: "zh-TW", color: "#22b8a7" }
+  all: { label: "통합", short: "통합", flag: "🌐" },
+  kr: { label: "한국", short: "KR", flag: "🇰🇷", site: "KR", locale: "ko-KR", color: "#3987e5" },
+  jp: { label: "日本", short: "JP", flag: "🇯🇵", site: "JP", locale: "ja", color: "#d95926" },
+  global: { label: "Global", short: "Global", flag: "🌍", site: "GLOBAL", locale: "en", color: "#199e70" },
+  tw: { label: "台灣", short: "TW", flag: "🇹🇼", site: "TW", locale: "zh-TW", color: "#22b8a7" }
 };
 
 const VIEW_META = {
@@ -1544,9 +1544,24 @@ function recordsForMarket(market) {
   return records.filter((record) => record.site === site);
 }
 
+function renderDualDeltaBadge(liveDelta, dailyDelta, emptyLabel) {
+  const hasLive = liveDelta != null && Number.isFinite(Number(liveDelta));
+  const hasDaily = dailyDelta != null && Number.isFinite(Number(dailyDelta));
+  if (!hasLive && !hasDaily) {
+    return `<span class="activity-unavailable" title="${escapeAttr(emptyLabel)}">—</span>`;
+  }
+  return `
+    <div class="dual-delta-cell">
+      ${hasLive ? `<span class="delta-badge live-delta" title="직전 수집 간격 실시간 갱신 대비">${renderActivityDelta(liveDelta, "—")}<small>갱신</small></span>` : ""}
+      ${hasDaily ? `<span class="delta-badge daily-delta" title="일간(24h) 누적 증가">${renderActivityDelta(dailyDelta, "—")}<small>일간</small></span>` : ""}
+    </div>
+  `;
+}
+
 function renderTableRow(item) {
   const model = viewModel(item);
   const activity = characterActivity(item);
+  const daily = workerActivityForId(model.id);
   return `
     <tr>
       <td class="character-cell">
@@ -1563,9 +1578,9 @@ function renderTableRow(item) {
       <td>${escapeHtml(model.work)}</td>
       <td>${renderMarketPills(model.markets, model.market)}</td>
       <td class="metric">${formatNumber(model.views)}</td>
-      <td class="metric">${renderActivityDelta(activity?.delta, "조회 증가 데이터 없음")}</td>
+      <td class="metric">${renderDualDeltaBadge(activity?.delta, daily?.delta, "조회 증가 데이터 없음")}</td>
       <td class="metric">${formatNumber(model.chats)}</td>
-      <td class="metric">${renderActivityDelta(activity?.chat_delta, "대화 증가 데이터 없음")}</td>
+      <td class="metric">${renderDualDeltaBadge(activity?.chat_delta, daily?.chat_delta, "대화 증가 데이터 없음")}</td>
       <td class="metric collection-date">${activity ? `<strong>${escapeHtml(formatActivityTimestamp(activity.last_seen))}</strong><small>${escapeHtml(activity.sourceLabel)}</small>` : `<span class="activity-unavailable">—</span>`}</td>
       <td>${escapeHtml(model.counterparts)}</td>
     </tr>
@@ -1575,6 +1590,7 @@ function renderTableRow(item) {
 function renderCard(item) {
   const model = viewModel(item);
   const activity = characterActivity(item);
+  const daily = workerActivityForId(model.id);
   return `
     <article class="character-card">
       <button class="card-button" type="button" data-character-id="${model.id}">
@@ -1588,9 +1604,9 @@ function renderCard(item) {
         </span>
         <span class="card-meta">
           <span>누적 조회수<strong>${formatNumber(model.views)}</strong></span>
-          <span>최근 조회 증가<strong>${renderActivityDelta(activity?.delta, "미수집")}</strong></span>
+          <span>조회 증가 (갱신/일간)<strong>${renderDualDeltaBadge(activity?.delta, daily?.delta, "미수집")}</strong></span>
           <span>누적 대화수<strong>${formatNumber(model.chats)}</strong></span>
-          <span>최근 대화 증가<strong>${renderActivityDelta(activity?.chat_delta, "미수집")}</strong></span>
+          <span>대화 증가 (갱신/일간)<strong>${renderDualDeltaBadge(activity?.chat_delta, daily?.chat_delta, "미수집")}</strong></span>
         </span>
         <span class="card-collection">${activity ? `최근 수집 ${escapeHtml(formatActivityTimestamp(activity.last_seen))} · ${escapeHtml(activity.sourceLabel)}` : "직전 비교 데이터 없음"}</span>
       </button>
@@ -1689,7 +1705,7 @@ function characterActivityForMarket(item, market) {
   if (market === "all") return aggregateDirectActivity(item);
   const record = item?.allRecords ? item.locales?.[market] : item;
   if (!record || record.market !== market) return null;
-  return market === "kr" ? workerActivityForId(record.character_id) : directActivityForRecord(record);
+  return directActivityForRecord(record);
 }
 
 function characterActivity(item) {
@@ -1697,24 +1713,11 @@ function characterActivity(item) {
 }
 
 function activityScopeForMarket(market) {
-  if (market === "kr") return "한국 · Worker 일간 대비";
   if (market === "all") return "통합 · 공개 API 수집 간 대비";
   return `${MARKET_META[market].label} · 공개 API 수집 간 대비`;
 }
 
 function activitySummaryForMarket(market) {
-  if (market === "kr") {
-    const rows = statsData?.characters?.characters || [];
-    return {
-      comparableCount: rows.length,
-      viewsDelta: rows.reduce((sum, row) => sum + Number(row.delta || 0), 0),
-      chatsDelta: rows.reduce((sum, row) => sum + Number(row.chat_delta || 0), 0),
-      capturedAt: statsData?.characters?.latest_date,
-      windowLabel: `${formatShortDate(statsData?.characters?.latest_date)} 일간`,
-      sourceLabel: "한국 Worker 스냅샷",
-      definitionLabel: "한국 Worker 직전 일간 수집본 대비"
-    };
-  }
   const marketRows = market === "all"
     ? MARKET_ORDER.flatMap((key) => catalogActivityData?.markets?.[key]?.rows || [])
     : catalogActivityData?.markets?.[market]?.rows || [];
@@ -1876,10 +1879,12 @@ function closeDialog() {
 function renderDialogContent(group, selected) {
   const model = viewModel(selected);
   const activity = characterActivityForMarket(selected, selected.market);
+  const dailyWorker = workerActivityForId(selected.character_id);
   const activityScope = activity?.scopeLabel || MARKET_META[selected.market].label;
   const officialLink = selected.detail_url
     ? `<a class="ghost-button dialog-open-link" href="${escapeAttr(selected.detail_url)}" target="_blank" rel="noopener noreferrer">공식 캐릭터 페이지</a>`
     : "";
+  const estimatedRevenue = formatWonBig(selected.chatsNumber * 2354);
   return `
     <div class="dialog-hero">
       <div class="dialog-image-frame">
@@ -1898,9 +1903,14 @@ function renderDialogContent(group, selected) {
       <div><span>Character ID</span><strong>${group.id}</strong></div>
       <div><span>누적 조회수</span><strong>${formatNumber(selected.viewsNumber)}</strong></div>
       <div><span>누적 대화수</span><strong>${formatNumber(selected.chatsNumber)}</strong></div>
-      <div><span>${escapeHtml(activityScope)} 최근 조회 증가</span><strong>${activity ? renderActivityDelta(activity.delta, "조회 증가 데이터 없음") : "—"}</strong></div>
-      <div><span>${escapeHtml(activityScope)} 최근 대화 증가</span><strong>${activity ? renderActivityDelta(activity.chat_delta, "대화 증가 데이터 없음") : "—"}</strong></div>
-      <div><span>증가 데이터 기준</span><strong>${activity ? `${escapeHtml(formatActivityTimestamp(activity.last_seen))}<small>${escapeHtml(activity.definitionLabel)}</small>` : "다음 수집 후 계산"}</strong></div>
+      <div><span>가정 환산액</span><strong style="color:#f6c87d">${estimatedRevenue}</strong><small>대화 × 2,354원</small></div>
+      ${dailyWorker ? `
+        <div class="is-daily-metric"><span>일간(24h) 조회 증가</span><strong>${renderActivityDelta(dailyWorker.delta, "일간 데이터 없음")}</strong><small>${escapeHtml(formatShortDate(dailyWorker.last_seen))} 일간</small></div>
+        <div class="is-daily-metric"><span>일간(24h) 대화 증가</span><strong>${renderActivityDelta(dailyWorker.chat_delta, "일간 데이터 없음")}</strong><small>${escapeHtml(formatShortDate(dailyWorker.last_seen))} 일간</small></div>
+      ` : ""}
+      <div><span>${escapeHtml(activityScope)} 최근 갱신 조회</span><strong>${activity ? renderActivityDelta(activity.delta, "조회 증가 없음") : "—"}</strong><small>직전 수집 간격</small></div>
+      <div><span>${escapeHtml(activityScope)} 최근 갱신 대화</span><strong>${activity ? renderActivityDelta(activity.chat_delta, "대화 증가 없음") : "—"}</strong><small>직전 수집 간격</small></div>
+      <div><span>수집 기준 시각</span><strong>${activity ? `${escapeHtml(formatActivityTimestamp(activity.last_seen))}<small>${escapeHtml(activity.definitionLabel)}</small>` : "다음 수집 후 계산"}</strong></div>
     </div>
     <h3>지역별 캐릭터 정보</h3>
     <div class="locale-list">
@@ -1958,7 +1968,6 @@ function renderCharacterLeaderboard(byCharacter) {
   const fullRanking = leaderboardRanking(selectedMarket);
   const totalChats = fullRanking.reduce((sum, record) => sum + record.chatsNumber, 0) || 1;
   const top = fullRanking.slice(0, 6);
-  const isKoreanRanking = selectedMarket === "kr";
   const scopeLabel = selectedMarket === "all" ? "통합 4개 시장 합산" : `${MARKET_META[selectedMarket].label} 공개 데이터`;
   return `
     <article class="chart-card span-5 character-rank-card">
@@ -1972,10 +1981,19 @@ function renderCharacterLeaderboard(byCharacter) {
           <button class="rank-expand-button" type="button" data-rank-toggle aria-expanded="false"><b>전체 순위 펼치기</b><span>${formatNumber(fullRanking.length)}명</span></button>
         </div>
       </div>
-      <nav class="leaderboard-market-tabs" aria-label="인기 캐릭터 순위 시장 선택">
+      <div class="leaderboard-market-switch-heading">
+        <div>
+          <strong><span aria-hidden="true">🌐</span> 국가·서비스별 순위 전환</strong>
+          <span>국가를 선택하면 해당 서비스의 인기 순위로 바뀝니다. 통합은 같은 캐릭터를 묶어 보여줍니다.</span>
+        </div>
+        <b>아래 버튼을 선택하세요</b>
+      </div>
+      <nav class="leaderboard-market-tabs" aria-label="인기 캐릭터 국가 및 서비스 선택">
         ${["all", ...MARKET_ORDER].map((market) => {
           const count = market === "all" ? groups.length : recordsForMarket(market).length;
-          return `<button type="button" data-leaderboard-market="${market}" aria-pressed="${String(selectedMarket === market)}"><span>${escapeHtml(MARKET_META[market].label)}</span><small>${formatNumber(count)}</small></button>`;
+          const meta = MARKET_META[market];
+          const selected = selectedMarket === market;
+          return `<button type="button" data-leaderboard-market="${market}" aria-pressed="${String(selected)}" aria-label="${escapeHtml(meta.label)} 순위 ${formatNumber(count)}명${selected ? ", 현재 선택됨" : ""}"><i aria-hidden="true">${meta.flag}</i><span>${escapeHtml(meta.label)}</span><small>${formatNumber(count)}명</small></button>`;
         }).join("")}
       </nav>
       <div class="leaderboard-layout">
@@ -1990,8 +2008,7 @@ function renderCharacterLeaderboard(byCharacter) {
           const marketLabels = (item.markets || group?.markets || []).map((market) => MARKET_META[market].short).join(" · ") || MARKET_META[selectedMarket].short;
           const tooltipId = `rank-tooltip-${selectedMarket}-${item.character_id}`;
           const views = Number(item.viewsNumber || 0);
-          const secondaryLabel = isKoreanRanking ? "가정 환산액" : "시장 내 대화 비중";
-          const secondaryValue = isKoreanRanking ? formatWonBig(item.chatsNumber * 2354) : `${share.toFixed(1)}%`;
+          const estimatedWon = formatWonBig(item.chatsNumber * 2354);
           return `
             <button class="character-rank-item rank-${index + 1}" type="button" data-character-id="${item.character_id}" data-character-market="${selectedMarket}" aria-describedby="${tooltipId}">
               <span class="rank-number">${index + 1}</span>
@@ -2005,34 +2022,37 @@ function renderCharacterLeaderboard(byCharacter) {
                 <span><small>조회수</small><strong>${formatCompact(views)}</strong></span>
                 <span><small>공개 대화</small><strong>${formatCompact(item.chatsNumber)}</strong></span>
               </span>
-              <span class="rank-revenue ${isKoreanRanking ? "" : "is-share"}"><small>${secondaryLabel}</small><strong>${secondaryValue}</strong></span>
+              <div class="rank-metrics-dual rank-revenue">
+                <span class="rank-metric-item"><small>시장 내 대화 비중</small><strong>${share.toFixed(1)}%</strong></span>
+                <span class="rank-metric-item is-revenue"><small>가정 환산액</small><strong>${estimatedWon}</strong></span>
+              </div>
               <span class="rank-tooltip" id="${tooltipId}" role="tooltip">
                 <strong>${escapeHtml(item.character_name || `#${item.character_id}`)}</strong>
                 <span>작품 · ${escapeHtml(work)}</span>
                 <span>누적 조회 · ${formatNumber(item.viewsNumber)}회</span>
                 <span>누적 대화 · ${formatNumber(item.chatsNumber)}회</span>
                 <span>${escapeHtml(scopeLabel)} 대화 비중 · ${share.toFixed(1)}%</span>
-                ${isKoreanRanking ? `<span>단순 환산액 · ${formatWonBig(item.chatsNumber * 2354)}</span>` : ""}
+                <span>가정 환산액 · ${estimatedWon}</span>
                 <span>확인 시장 · ${escapeHtml(marketLabels)}</span>
-                <small>${isKoreanRanking ? "누적 대화 × 2,354원 · 실제 매출 아님" : "공개 대화수 기준이며 유료 결제·매출 순위가 아님"}</small>
+                <small>누적 대화 × 2,354원 가정치이며 유료 결제·매출 순위가 아님</small>
               </span>
             </button>
           `;
         }).join("")}
           </div>
-          <p class="chart-tail">${isKoreanRanking ? "한국 환산액은 공개 대화 × 2,354원 가정이며 실제 매출이 아닙니다." : "통합·해외 순위는 공개 대화수와 선택 시장 내 비중을 표시합니다."} 클릭하면 전체 이미지와 국가별 정보가 열립니다.</p>
+          <p class="chart-tail">통합·국가별 순위는 공개 대화수 기준이며, 환산액은 누적 대화 × 2,354원 가정치(실제 매출 아님)입니다. 클릭하면 전체 이미지와 국가별 정보가 열립니다.</p>
         </div>
         <aside class="full-rank-panel" hidden aria-label="${escapeAttr(scopeLabel)} 전체 캐릭터 공개 대화 순위">
           <div class="full-rank-header"><div><strong>${escapeHtml(MARKET_META[selectedMarket].label)} 전체 캐릭터 순위</strong><small>${escapeHtml(scopeLabel)} 공개 대화수 기준 · ${formatNumber(fullRanking.length)}명</small></div><span>최신 ${escapeHtml(formatDateTime(dataset.generated_at))}</span></div>
           <div class="full-rank-list">
             ${fullRanking.map((record, index) => {
               const share = (record.chatsNumber / totalChats) * 100;
-              const rowSecondary = isKoreanRanking ? formatWonBig(record.chatsNumber * 2354) : `${share.toFixed(1)}%`;
+              const estimatedRowWon = formatWonBig(record.chatsNumber * 2354);
               return `<button class="full-rank-row" type="button" data-character-id="${record.character_id}" data-character-market="${selectedMarket}">
                 <span class="full-rank-number ${index < 3 ? `is-top-${index + 1}` : ""}">${index + 1}</span>
                 ${record.imageSrc ? `<img class="thumb" src="${escapeAttr(record.imageSrc)}" alt="" loading="lazy" data-fallback="${escapeAttr(record.character_name.slice(0, 1))}" />` : `<span class="thumb-fallback">${escapeHtml(record.character_name.slice(0, 1))}</span>`}
                 <span class="full-rank-identity"><strong>${escapeHtml(record.character_name)}</strong><small>${escapeHtml(record.workSafe)}</small></span>
-                <span class="full-rank-metric"><strong>${formatNumber(record.chatsNumber)}</strong><small>${share.toFixed(1)}% · ${rowSecondary}</small></span>
+                <span class="full-rank-metric"><strong>${formatNumber(record.chatsNumber)}</strong><small>${share.toFixed(1)}% · ${estimatedRowWon}</small></span>
               </button>`;
             }).join("")}
           </div>

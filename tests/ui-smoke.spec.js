@@ -13,10 +13,18 @@ test("signal, validation, and character flows render without console errors", as
   await expect(page.locator(".snapshot-flow")).toHaveCount(2);
   await expect(page.locator(".period-comparison-card")).toHaveCount(3);
   await expect(page.locator(".character-rank-item")).toHaveCount(6);
-  await expect(page.locator(".rank-revenue").first()).toContainText("가정 환산액");
+  await expect(page.getByText("국가·서비스별 순위 전환")).toBeVisible();
+  await expect(page.getByText("국가를 선택하면 해당 서비스의 인기 순위로 바뀝니다.")).toBeVisible();
+  const japanRankingTab = page.locator('[data-leaderboard-market="jp"]');
+  await expect(japanRankingTab).toContainText("🇯🇵");
+  await japanRankingTab.click();
+  await expect(japanRankingTab).toHaveAttribute("aria-pressed", "true");
+  await expect(japanRankingTab).toHaveAccessibleName(/日本 순위 [\d,]+명, 현재 선택됨/);
+  await page.locator('[data-leaderboard-market="all"]').click();
+  await expect(page.locator(".rank-revenue").first()).toContainText("시장 내 대화 비중");
   await expect(page.locator(".sample-badge").filter({ hasText: /^N=/ })).toHaveCount(0);
   await page.locator(".character-rank-item").first().hover();
-  await expect(page.locator(".rank-tooltip").first()).toContainText("실제 매출 아님");
+  await expect(page.locator(".rank-tooltip").first()).toContainText("유료 결제·매출 순위가 아님");
   await page.waitForFunction(() => [...document.querySelectorAll(".rank-image")].every((image) => image.complete && image.naturalWidth > 0));
   await page.locator(".character-rank-item").first().evaluate((element) => element.blur());
   await page.locator(".character-rank-card h3").hover();
@@ -46,10 +54,10 @@ test("signal, validation, and character flows render without console errors", as
   await page.locator("#validation-dashboard").screenshot({ path: "output/playwright/validation-priority-desktop.png" });
 
   await page.getByRole("button", { name: "캐릭터" }).click();
-  await expect(page.getByText("104개 표시")).toBeVisible();
+  await expect(page.getByText("전체 104명 표시")).toBeVisible();
   await page.locator("[data-character-id]:visible").first().click();
   await expect(page.locator("#character-dialog")).toBeVisible();
-  await expect(page.locator(".thumb-full").first()).toBeVisible();
+  await expect(page.locator(".character-motion, .thumb-full").first()).toBeVisible();
   await page.locator("#dialog-close").click();
 
   await page.getByRole("button", { name: "API 설정" }).click();
@@ -67,7 +75,7 @@ test("mobile ranking stays usable without horizontal page overflow", async ({ pa
   await page.goto("/");
   await page.locator(".site-header").evaluate((element) => { element.style.position = "static"; });
   await expect(page.locator(".character-rank-item")).toHaveCount(6);
-  await page.waitForFunction(() => [...document.querySelectorAll(".rank-image")].every((image) => image.complete && image.naturalWidth > 0));
+  await expect(page.locator(".rank-image").first()).toBeVisible();
   const widths = await page.evaluate(() => ({ body: document.body.scrollWidth, viewport: window.innerWidth }));
   expect(widths.body).toBeLessThanOrEqual(widths.viewport + 1);
   await page.locator(".character-rank-card").screenshot({ path: "output/playwright/ranking-mobile.png" });
