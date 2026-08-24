@@ -1,0 +1,1 @@
+Extend the authorized unified tracker with public Taiwan chat.toptoon.net data, full uncropped character artwork in details, and faithful reproduction of the source tracker statistics dashboard while preserving existing KR JP Global behavior.

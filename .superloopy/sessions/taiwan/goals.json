@@ -1,0 +1,96 @@
+{
+  "version": 2,
+  "mode": "strict",
+  "createdAt": "2026-08-24T07:58:52.511Z",
+  "updatedAt": "2026-08-24T08:30:50.320Z",
+  "briefPath": ".superloopy/sessions/taiwan/brief.md",
+  "evidencePath": ".superloopy/sessions/taiwan/evidence",
+  "goalsPath": ".superloopy/sessions/taiwan/goals.json",
+  "ledgerPath": ".superloopy/sessions/taiwan/ledger.jsonl",
+  "outputStyle": {
+    "sayItStraight": true
+  },
+  "goals": [
+    {
+      "id": "G001",
+      "title": "Extend the authorized unified tracker with public Taiwan chat.toptoon...",
+      "objective": "Extend the authorized unified tracker with public Taiwan chat.toptoon.net data, full uncropped character artwork in details, and faithful reproduction of the source tracker statistics dashboard while preserving existing KR JP Global behavior.",
+      "status": "complete",
+      "attempt": 1,
+      "createdAt": "2026-08-24T07:58:52.511Z",
+      "updatedAt": "2026-08-24T08:30:50.320Z",
+      "criteria": [
+        {
+          "id": "C001",
+          "kind": "happy",
+          "scenario": "Happy path works from the real user-facing surface.",
+          "essential": true,
+          "status": "pass",
+          "artifact": ".superloopy/sessions/taiwan/evidence/website-clone/toptoon-tracker.john6428.workers.dev/BROWSER_QA.md",
+          "capturedAt": "2026-08-24T08:19:46.779Z",
+          "notes": "Real browser passed statistics, Taiwan catalog, cross-locale search, and full-art dialog."
+        },
+        {
+          "id": "C002",
+          "kind": "risk",
+          "scenario": "Riskiest edge or failure path is handled.",
+          "essential": true,
+          "status": "pass",
+          "artifact": ".superloopy/sessions/taiwan/evidence/website-clone/toptoon-tracker.john6428.workers.dev/qa-mobile-full-art.png",
+          "capturedAt": "2026-08-24T08:19:47.208Z",
+          "notes": "Narrow viewport passed without horizontal overflow and full portrait remained contained."
+        },
+        {
+          "id": "C003",
+          "kind": "regression",
+          "scenario": "Adjacent existing behavior still works.",
+          "essential": true,
+          "status": "pass",
+          "artifact": ".superloopy/sessions/taiwan/evidence/G001-C003-capture.txt",
+          "capturedAt": "2026-08-24T08:19:47.790Z",
+          "notes": "Four-market data, 328 assets, statistics bundle, DOM markers, and syntax passed.",
+          "command": [
+            "node",
+            "scripts/validate.mjs"
+          ],
+          "exitCode": 0
+        }
+      ],
+      "startedAt": "2026-08-24T07:58:52.520Z",
+      "completedAt": "2026-08-24T08:30:50.320Z",
+      "evidence": "Browser QA, validation, QA, review, and final gate approve."
+    }
+  ],
+  "aggregateCompletion": {
+    "status": "complete",
+    "completedAt": "2026-08-24T08:30:50.320Z",
+    "evidence": "Browser QA, validation, QA, review, and final gate approve.",
+    "qualityGate": {
+      "status": "passed",
+      "artifacts": [
+        {
+          "absolutePath": "C:\\TEST\\toptoon-tracker-unified\\.superloopy\\sessions\\taiwan\\evidence\\website-clone\\toptoon-tracker.john6428.workers.dev\\BROWSER_QA.md",
+          "relativePath": ".superloopy/sessions/taiwan/evidence/website-clone/toptoon-tracker.john6428.workers.dev/BROWSER_QA.md",
+          "size": 1742
+        },
+        {
+          "absolutePath": "C:\\TEST\\toptoon-tracker-unified\\.superloopy\\sessions\\taiwan\\evidence\\website-clone\\toptoon-tracker.john6428.workers.dev\\qa-mobile-full-art.png",
+          "relativePath": ".superloopy/sessions/taiwan/evidence/website-clone/toptoon-tracker.john6428.workers.dev/qa-mobile-full-art.png",
+          "size": 27496
+        },
+        {
+          "absolutePath": "C:\\TEST\\toptoon-tracker-unified\\.superloopy\\sessions\\taiwan\\evidence\\G001-C003-capture.txt",
+          "relativePath": ".superloopy/sessions/taiwan/evidence/G001-C003-capture.txt",
+          "size": 348
+        }
+      ]
+    }
+  },
+  "repositoryBinding": {
+    "version": 1,
+    "kind": "git-worktree",
+    "identity": "26e8f3aad15fde0e392c962d0534af0cdc82bb4304290ea6f57b0e982bc51f7d",
+    "rootLabel": "toptoon-tracker-unified"
+  },
+  "sessionId": "taiwan"
+}

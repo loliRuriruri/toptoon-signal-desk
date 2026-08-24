@@ -1,0 +1,84 @@
+const { test, expect } = require("@playwright/test");
+
+test("signal, validation, and character flows render without console errors", async ({ page }) => {
+  const errors = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+  page.on("pageerror", (error) => errors.push(error.message));
+
+  await page.goto("/");
+  await page.locator(".site-header").evaluate((element) => { element.style.position = "static"; });
+  await expect(page.getByRole("heading", { name: "사업 모멘텀 한눈에 보기" })).toBeVisible();
+  await expect(page.locator(".snapshot-flow")).toHaveCount(2);
+  await expect(page.locator(".period-comparison-card")).toHaveCount(3);
+  await expect(page.locator(".character-rank-item")).toHaveCount(6);
+  await expect(page.locator(".rank-revenue").first()).toContainText("가정 환산액");
+  await expect(page.locator(".sample-badge").filter({ hasText: /^N=/ })).toHaveCount(0);
+  await page.locator(".character-rank-item").first().hover();
+  await expect(page.locator(".rank-tooltip").first()).toContainText("실제 매출 아님");
+  await page.waitForFunction(() => [...document.querySelectorAll(".rank-image")].every((image) => image.complete && image.naturalWidth > 0));
+  await page.locator(".character-rank-item").first().evaluate((element) => element.blur());
+  await page.locator(".character-rank-card h3").hover();
+  await page.mouse.move(1400, 20);
+  await page.locator(".character-rank-card").screenshot({ path: "output/playwright/ranking-desktop.png" });
+  await page.locator(".character-rank-item").first().focus();
+  await expect(page.locator(".rank-tooltip").first()).toBeVisible();
+  await page.locator(".character-rank-item").first().click();
+  await expect(page.locator("#character-dialog")).toBeVisible();
+  await page.locator("#dialog-close").click();
+  await page.locator("section").filter({ hasText: "최근 관측 변화" }).last().screenshot({ path: "output/playwright/observation-desktop.png" });
+
+  await page.getByRole("button", { name: "공시·주가 검증" }).click();
+  await expect(page.getByRole("heading", { name: "2026년 상반기 확정 재무실적" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "최근 회사 공시" })).toBeVisible();
+  await expect(page.getByText("KIS 최근 조회").first()).toBeVisible();
+  await expect(page.getByText("투자 판단 보류")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "OpenRouter 증거 검토" })).toBeVisible();
+  await expect(page.locator("#validation-view .settings-connection-panel")).toHaveCount(0);
+  const validationOrder = await page.evaluate(() => ({
+    filing: document.querySelector("#validation-dashboard")?.getBoundingClientRect().top,
+    ai: document.querySelector("#run-ai-analysis")?.getBoundingClientRect().top,
+    checks: document.querySelector("#validation-detail")?.getBoundingClientRect().top
+  }));
+  expect(validationOrder.filing).toBeLessThan(validationOrder.ai);
+  expect(validationOrder.ai).toBeLessThan(validationOrder.checks);
+  await page.locator("#validation-dashboard").screenshot({ path: "output/playwright/validation-priority-desktop.png" });
+
+  await page.getByRole("button", { name: "캐릭터" }).click();
+  await expect(page.getByText("104개 표시")).toBeVisible();
+  await page.locator("[data-character-id]:visible").first().click();
+  await expect(page.locator("#character-dialog")).toBeVisible();
+  await expect(page.locator(".thumb-full").first()).toBeVisible();
+  await page.locator("#dialog-close").click();
+
+  await page.getByRole("button", { name: "API 설정" }).click();
+  await expect(page.getByRole("heading", { name: "API 연결 설정" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "API 연결 상태" })).toBeVisible();
+  await expect(page.locator("#settings-view .ai-analysis-panel")).toHaveCount(0);
+  await expect(page.locator("input[name='OPENROUTER_API_KEY']")).toHaveAttribute("type", "password");
+  await expect(page.getByText("키 저장됨 · 연결 검사 가능").first()).toBeVisible();
+
+  expect(errors).toEqual([]);
+});
+
+test("mobile ranking stays usable without horizontal page overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await page.locator(".site-header").evaluate((element) => { element.style.position = "static"; });
+  await expect(page.locator(".character-rank-item")).toHaveCount(6);
+  await page.waitForFunction(() => [...document.querySelectorAll(".rank-image")].every((image) => image.complete && image.naturalWidth > 0));
+  const widths = await page.evaluate(() => ({ body: document.body.scrollWidth, viewport: window.innerWidth }));
+  expect(widths.body).toBeLessThanOrEqual(widths.viewport + 1);
+  await page.locator(".character-rank-card").screenshot({ path: "output/playwright/ranking-mobile.png" });
+  await page.locator("section").filter({ hasText: "최근 관측 변화" }).last().screenshot({ path: "output/playwright/observation-mobile.png" });
+});
+
+test("public build is read-only and exposes no credential controls", async ({ page }) => {
+  await page.goto("/?public-preview=1#view=settings");
+  await expect(page.getByRole("button", { name: "API 설정" })).toHaveCount(0);
+  await expect(page.locator("#settings-view")).toHaveCount(0);
+  await expect(page.locator("#run-ai-analysis")).toHaveCount(0);
+  await expect(page.getByText("PUBLIC SNAPSHOT")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "사업 모멘텀 한눈에 보기" })).toBeVisible();
+});

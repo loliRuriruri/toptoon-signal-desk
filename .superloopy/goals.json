@@ -1,0 +1,95 @@
+{
+  "version": 2,
+  "mode": "strict",
+  "createdAt": "2026-08-24T07:09:10.240Z",
+  "updatedAt": "2026-08-24T07:52:33.736Z",
+  "briefPath": ".superloopy/brief.md",
+  "evidencePath": ".superloopy/evidence",
+  "goalsPath": ".superloopy/goals.json",
+  "ledgerPath": ".superloopy/ledger.jsonl",
+  "outputStyle": {
+    "sayItStraight": true
+  },
+  "goals": [
+    {
+      "id": "G001",
+      "title": "Authorized rebuild of top toon tracker with integrated Korea Japan Gl...",
+      "objective": "Authorized rebuild of top toon tracker with integrated Korea Japan Global tabs using collected public data; preserve source visual language and validate responsive interactions",
+      "status": "complete",
+      "attempt": 1,
+      "createdAt": "2026-08-24T07:09:10.240Z",
+      "updatedAt": "2026-08-24T07:52:33.736Z",
+      "criteria": [
+        {
+          "id": "C001",
+          "kind": "happy",
+          "scenario": "Happy path works from the real user-facing surface.",
+          "essential": true,
+          "status": "pass",
+          "artifact": ".superloopy/evidence/website-clone/toptoon-tracker.john6428.workers.dev/BROWSER_QA.md",
+          "capturedAt": "2026-08-24T07:47:31.071Z",
+          "notes": "Real-browser tabs, cross-script search, dialog, focus return, and empty reset passed."
+        },
+        {
+          "id": "C002",
+          "kind": "risk",
+          "scenario": "Riskiest edge or failure path is handled.",
+          "essential": true,
+          "status": "pass",
+          "artifact": ".superloopy/evidence/website-clone/toptoon-tracker.john6428.workers.dev/USOPP_QA.md",
+          "capturedAt": "2026-08-24T07:47:31.155Z",
+          "notes": "390x900 mobile live check passed with no horizontal overflow; 247 concurrent images passed on included server."
+        },
+        {
+          "id": "C003",
+          "kind": "regression",
+          "scenario": "Adjacent existing behavior still works.",
+          "essential": true,
+          "status": "pass",
+          "artifact": ".superloopy/evidence/G001-C003-capture.txt",
+          "capturedAt": "2026-08-24T07:47:31.354Z",
+          "notes": "Static data, asset, DOM, and syntax regression validation.",
+          "command": [
+            "node",
+            "scripts/validate.mjs"
+          ],
+          "exitCode": 0
+        }
+      ],
+      "startedAt": "2026-08-24T07:09:10.248Z",
+      "completedAt": "2026-08-24T07:52:33.736Z",
+      "evidence": "All three criteria passed with browser, mobile, validator, review, and final-gate artifacts."
+    }
+  ],
+  "aggregateCompletion": {
+    "status": "complete",
+    "completedAt": "2026-08-24T07:52:33.736Z",
+    "evidence": "All three criteria passed with browser, mobile, validator, review, and final-gate artifacts.",
+    "qualityGate": {
+      "status": "passed",
+      "artifacts": [
+        {
+          "absolutePath": "C:\\TEST\\toptoon-tracker-unified\\.superloopy\\evidence\\website-clone\\toptoon-tracker.john6428.workers.dev\\BROWSER_QA.md",
+          "relativePath": ".superloopy/evidence/website-clone/toptoon-tracker.john6428.workers.dev/BROWSER_QA.md",
+          "size": 1648
+        },
+        {
+          "absolutePath": "C:\\TEST\\toptoon-tracker-unified\\.superloopy\\evidence\\website-clone\\toptoon-tracker.john6428.workers.dev\\USOPP_QA.md",
+          "relativePath": ".superloopy/evidence/website-clone/toptoon-tracker.john6428.workers.dev/USOPP_QA.md",
+          "size": 5076
+        },
+        {
+          "absolutePath": "C:\\TEST\\toptoon-tracker-unified\\.superloopy\\evidence\\G001-C003-capture.txt",
+          "relativePath": ".superloopy/evidence/G001-C003-capture.txt",
+          "size": 321
+        }
+      ]
+    }
+  },
+  "repositoryBinding": {
+    "version": 1,
+    "kind": "git-worktree",
+    "identity": "26e8f3aad15fde0e392c962d0534af0cdc82bb4304290ea6f57b0e982bc51f7d",
+    "rootLabel": "toptoon-tracker-unified"
+  }
+}

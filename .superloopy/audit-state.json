@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "sessionId": null,
+  "auditsAccepted": 0,
+  "updatedAt": "2026-08-24T07:52:33.734Z",
+  "criteria": [
+    {
+      "criterion": "G001/C001",
+      "scenario": "Happy path works from the real user-facing surface.",
+      "inputHash": "5533f54c3286d63d0a6d207d7f851b03df42e73e3f1507de68b8de1da4e3ebce",
+      "sourceHash": "8f14dbf1996c714025dacf4d9c8465b1598adc97ff26445ec21bcd82faaa83fb",
+      "verdict": null,
+      "failCount": 0,
+      "auditedAt": "2026-08-24T07:52:33.615Z",
+      "command": null,
+      "rerunStatus": "manual-recheck",
+      "rerunArtifact": ".superloopy/evidence/website-clone/toptoon-tracker.john6428.workers.dev/BROWSER_QA.md",
+      "rerunArtifactHash": "8f14dbf1996c714025dacf4d9c8465b1598adc97ff26445ec21bcd82faaa83fb",
+      "floor": "pass",
+      "verdictArtifact": null,
+      "verdictHash": null
+    },
+    {
+      "criterion": "G001/C002",
+      "scenario": "Riskiest edge or failure path is handled.",
+      "inputHash": "de5f5f48e49d76b56be4e423706d452a4d8355085e80c77a1ebb5000fec1f30e",
+      "sourceHash": "c3ed1ef942372a3bdcac462739b2bb62bec3f5f8a28a69f0aabe47a8ac356344",
+      "verdict": null,
+      "failCount": 0,
+      "auditedAt": "2026-08-24T07:52:33.619Z",
+      "command": null,
+      "rerunStatus": "manual-recheck",
+      "rerunArtifact": ".superloopy/evidence/website-clone/toptoon-tracker.john6428.workers.dev/USOPP_QA.md",
+      "rerunArtifactHash": "c3ed1ef942372a3bdcac462739b2bb62bec3f5f8a28a69f0aabe47a8ac356344",
+      "floor": "pass",
+      "verdictArtifact": null,
+      "verdictHash": null
+    },
+    {
+      "criterion": "G001/C003",
+      "scenario": "Adjacent existing behavior still works.",
+      "inputHash": "275cac9ee70f42349d026345cf9411c96b60274dc8123257714db4d998351911",
+      "sourceHash": "2f70a800734313ceaa804b74c84f334218d318b67ffdaaa7c2980046a2955b5a",
+      "verdict": null,
+      "failCount": 0,
+      "auditedAt": "2026-08-24T07:52:33.622Z",
+      "command": [
+        "node",
+        "scripts/validate.mjs"
+      ],
+      "rerunStatus": "pass",
+      "rerunExitCode": 0,
+      "rerunArtifact": ".superloopy/evidence/audit/G001-C003-rerun.txt",
+      "rerunArtifactHash": "ec7a5ecedabcec834672b502e4210d69d174cacfac51fdd6e56e29aad485aba7",
+      "floor": "pass",
+      "verdictArtifact": null,
+      "verdictHash": null
+    }
+  ]
+}

@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "issuer": {
+    "name": "탑코미디어",
+    "ticker": "134580",
+    "market": "KOSDAQ"
+  },
+  "filing_snapshot": {
+    "as_of": "2026-06-30",
+    "filed_at": "2026-08-14T10:11:00+09:00",
+    "scope": "연결 반기 누계",
+    "revenue": 27367775943,
+    "operating_profit": 3583433522,
+    "net_income": 3049848846,
+    "operating_cash_flow": 7909920656,
+    "cash_and_cash_equivalents": 21333679011,
+    "short_term_borrowings": 11600000000,
+    "total_assets": 62829929680,
+    "total_liabilities": 26823220715,
+    "japan_revenue": 6770892000,
+    "japan_net_income": 1591622000,
+    "us_revenue": 313608000,
+    "us_net_income": 72844000,
+    "ai_chat_revenue_disclosed_separately": false,
+    "source_id": "SRC-FILING-H1-2026"
+  },
+  "market_snapshot": {
+    "as_of": "2026-08-24T15:29:59+09:00",
+    "close": 2785,
+    "volume": 3488413,
+    "reference_close": 981,
+    "reference_date": "2026-07-31",
+    "shares_outstanding": 49294149,
+    "price_source_id": "SRC-PRICE-2026-08-24",
+    "shares_source_id": "SRC-OWNERSHIP-2026-01-06"
+  },
+  "ownership_snapshot": {
+    "as_of": "2026-01-06",
+    "controller_and_related_shares": 34981012,
+    "controller_and_related_pct": 70.96,
+    "contracted_shares": 5129917,
+    "contracted_pct": 10.4,
+    "source_id": "SRC-OWNERSHIP-2026-01-06"
+  },
+  "market_actions": [
+    {
+      "date": "2026-08-20",
+      "label": "투자경고종목 지정",
+      "status": "confirmed",
+      "source_id": "SRC-KRX-WARNING"
+    },
+    {
+      "date": "2026-08-21",
+      "label": "매매거래정지 예고",
+      "status": "confirmed",
+      "source_id": "SRC-KRX-SUSPENSION-PRENOTICE"
+    }
+  ],
+  "thesis": {
+    "company_status": "strengthening",
+    "security_readiness": "conditional",
+    "action": "wait for proof",
+    "next_proof_point": "AI챗 별도 매출·유료 이용자·지역별 결제단가 또는 다음 분기 공시"
+  },
+  "sources": [
+    {
+      "id": "SRC-FILING-H1-2026",
+      "tier": "A",
+      "type": "공식 공시",
+      "label": "2026년 반기보고서",
+      "as_of": "2026-08-14",
+      "url": "https://kind.krx.co.kr/external/2026/08/14/000243/20260814000659/11012.htm"
+    },
+    {
+      "id": "SRC-OWNERSHIP-2026-01-06",
+      "tier": "A",
+      "type": "공식 공시",
+      "label": "주식등의 대량보유상황보고서",
+      "as_of": "2026-01-06",
+      "url": "https://kind.krx.co.kr/external/2026/01/07/000717/20260107002074/00636.htm"
+    },
+    {
+      "id": "SRC-KRX-WARNING",
+      "tier": "A",
+      "type": "KRX 시장조치",
+      "label": "투자경고종목 지정",
+      "as_of": "2026-08-20",
+      "url": "https://kind.krx.co.kr/common/disclsviewer.do?method=search&acptno=20260820000602"
+    },
+    {
+      "id": "SRC-KRX-SUSPENSION-PRENOTICE",
+      "tier": "A",
+      "type": "KRX 시장조치",
+      "label": "매매거래정지 예고",
+      "as_of": "2026-08-21",
+      "url": "https://kind.krx.co.kr/common/disclsviewer.do?method=search&acptno=20260821000686"
+    },
+    {
+      "id": "SRC-PRICE-2026-08-24",
+      "tier": "C",
+      "type": "2차 시장데이터",
+      "label": "탑코미디어 과거 가격",
+      "as_of": "2026-08-24 close",
+      "url": "https://kr.investing.com/equities/digital-multimedia-technology-co-lt-historical-data"
+    },
+    {
+      "id": "SRC-WORKER",
+      "tier": "C",
+      "type": "제3자 모델 API",
+      "label": "TOPTOON Tracker Worker",
+      "as_of": "runtime",
+      "url": "https://toptoon-tracker.john6428.workers.dev/"
+    },
+    {
+      "id": "SRC-CATALOG-KR",
+      "tier": "B",
+      "type": "직접 관측 API",
+      "label": "한국 공개 캐릭터 API",
+      "as_of": "runtime",
+      "url": "https://chat.toptoon.com/api/characters?limit=500"
+    },
+    {
+      "id": "SRC-CATALOG-JP",
+      "tier": "B",
+      "type": "직접 관측 API",
+      "label": "일본 공개 캐릭터 API",
+      "as_of": "runtime",
+      "url": "https://chat.toptoon.jp/api/characters?limit=500"
+    },
+    {
+      "id": "SRC-CATALOG-GLOBAL",
+      "tier": "B",
+      "type": "직접 관측 API",
+      "label": "글로벌 공개 캐릭터 API",
+      "as_of": "runtime",
+      "url": "https://chat.global.toptoon.com/api/characters?limit=500"
+    },
+    {
+      "id": "SRC-CATALOG-TW",
+      "tier": "B",
+      "type": "직접 관측 API",
+      "label": "대만 공개 캐릭터 API",
+      "as_of": "runtime",
+      "url": "https://chat.toptoon.net/api/characters?limit=500"
+    }
+  ]
+}

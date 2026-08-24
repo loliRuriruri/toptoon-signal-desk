@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "sessionId": "taiwan",
+  "auditsAccepted": 0,
+  "updatedAt": "2026-08-24T08:30:50.318Z",
+  "criteria": [
+    {
+      "criterion": "G001/C001",
+      "scenario": "Happy path works from the real user-facing surface.",
+      "inputHash": "528fe58fdabe9a9826bc0d18fc464733fb93dc49259aa25aad871ecd000c179b",
+      "sourceHash": "c8f1a91afc97b1effed80595aff0bf13f3210f3875dff16d578c96a3f1cd77dd",
+      "verdict": null,
+      "failCount": 0,
+      "auditedAt": "2026-08-24T08:30:50.179Z",
+      "command": null,
+      "rerunStatus": "manual-recheck",
+      "rerunArtifact": ".superloopy/sessions/taiwan/evidence/website-clone/toptoon-tracker.john6428.workers.dev/BROWSER_QA.md",
+      "rerunArtifactHash": "c8f1a91afc97b1effed80595aff0bf13f3210f3875dff16d578c96a3f1cd77dd",
+      "floor": "pass",
+      "verdictArtifact": null,
+      "verdictHash": null
+    },
+    {
+      "criterion": "G001/C002",
+      "scenario": "Riskiest edge or failure path is handled.",
+      "inputHash": "a306f17f4b8ae75562d56b9d0d45b2536f1fb25a81cff0d3651dea7c464f9564",
+      "sourceHash": "1313ba52122aec58ab8c817e3b95cae12ef26c95d046bca27617812c7829f67b",
+      "verdict": null,
+      "failCount": 0,
+      "auditedAt": "2026-08-24T08:30:50.183Z",
+      "command": null,
+      "rerunStatus": "manual-recheck",
+      "rerunArtifact": ".superloopy/sessions/taiwan/evidence/website-clone/toptoon-tracker.john6428.workers.dev/qa-mobile-full-art.png",
+      "rerunArtifactHash": "1313ba52122aec58ab8c817e3b95cae12ef26c95d046bca27617812c7829f67b",
+      "floor": "pass",
+      "verdictArtifact": null,
+      "verdictHash": null
+    },
+    {
+      "criterion": "G001/C003",
+      "scenario": "Adjacent existing behavior still works.",
+      "inputHash": "52ffaad7787a259e69ec79f2c4733bcb55474fafb5e3a591609bd6ca8061271c",
+      "sourceHash": "525228588ba87739ce48f4503153b8281fec86ef0a8affe141228687e583027f",
+      "verdict": null,
+      "failCount": 0,
+      "auditedAt": "2026-08-24T08:30:50.187Z",
+      "command": [
+        "node",
+        "scripts/validate.mjs"
+      ],
+      "rerunStatus": "pass",
+      "rerunExitCode": 0,
+      "rerunArtifact": ".superloopy/sessions/taiwan/evidence/audit/G001-C003-rerun.txt",
+      "rerunArtifactHash": "b4b69700ad9b4d1a0c885ad05404a332fb6f9d1c7e4df5bdee96b056761b788b",
+      "floor": "pass",
+      "verdictArtifact": null,
+      "verdictHash": null
+    }
+  ]
+}

@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      name="description"
+      content="TOPTOON chat character tracker snapshot for Korea, Japan, Global, and Taiwan catalogs."
+    />
+    <title>TOPTOON CHAT TRACKER</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="title-group">
+          <div class="brand-line">
+            <span class="brand-mark" aria-hidden="true">TT</span>
+            <div>
+              <p class="eyebrow">TOPCO MEDIA · ALTERNATIVE DATA</p>
+              <h1>TOPTOON SIGNAL DESK</h1>
+            </div>
+          </div>
+          <p class="subtitle">4개 시장 캐릭터챗 공개 지표와 공시·시세를 분리 검증하는 투자 추적 워크스페이스</p>
+        </div>
+        <div class="header-actions">
+          <span class="live-indicator"><i></i> LOCAL SNAPSHOT</span>
+          <nav class="view-tabs" aria-label="화면 탭">
+            <button class="tab-button" type="button" data-view="stats">사업 요약</button>
+            <button class="tab-button" type="button" data-view="validation">공시·주가 검증</button>
+            <button class="tab-button" type="button" data-view="characters">캐릭터</button>
+            <button class="tab-button" type="button" data-view="settings">API 설정</button>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-shell">
+      <section class="stats-view" id="stats-view" aria-labelledby="stats-title">
+        <div class="panel stats-intro">
+          <div class="panel-heading">
+            <div>
+              <p class="section-kicker">Executive signal board</p>
+              <h2 id="stats-title">사업 모멘텀 한눈에 보기</h2>
+            </div>
+            <p class="snapshot-note" id="stats-captured-at">통계 스냅샷을 불러오는 중...</p>
+          </div>
+          <p class="section-note hero-note" id="stats-caveat"></p>
+          <div class="stats-grid" id="main-kpi-grid" aria-live="polite"></div>
+        </div>
+
+        <div class="stats-dashboard" id="stats-dashboard" aria-live="polite"></div>
+      </section>
+
+      <section class="validation-view" id="validation-view" aria-labelledby="validation-title" hidden>
+        <div class="panel validation-intro">
+          <div class="panel-heading">
+            <div>
+              <p class="section-kicker">Evidence cross-check</p>
+              <h2 id="validation-title">데이터 검증 · 주식 추적</h2>
+            </div>
+            <p class="snapshot-note" id="validation-captured-at">검증 결과를 불러오는 중...</p>
+          </div>
+          <p class="section-note" id="validation-caveat"></p>
+          <div class="stats-grid" id="validation-kpi-grid" aria-live="polite"></div>
+        </div>
+        <div class="validation-dashboard" id="validation-dashboard" aria-live="polite"></div>
+
+        <section class="panel ai-analysis-panel">
+          <div class="panel-heading compact-heading">
+            <div>
+              <p class="section-kicker">Optional LLM review</p>
+              <h2>OpenRouter 증거 검토</h2>
+            </div>
+            <button class="ghost-button" type="button" id="run-ai-analysis">현재 스냅샷 분석</button>
+          </div>
+          <p class="section-note">버튼을 눌렀을 때만 공시·관측·검증 요약을 OpenRouter로 전송합니다. API 키와 캐릭터 이미지는 전송하지 않습니다.</p>
+          <p class="analysis-status" id="ai-analysis-status" role="status" aria-live="polite"></p>
+          <pre class="analysis-output" id="ai-analysis-output" hidden></pre>
+        </section>
+
+        <div class="validation-dashboard validation-detail" id="validation-detail" aria-live="polite"></div>
+      </section>
+
+      <section class="browser panel" id="character-view" aria-labelledby="browser-title" hidden>
+        <div class="panel-heading">
+          <div>
+            <p class="section-kicker" id="active-market-label">통합</p>
+            <h2 id="browser-title">캐릭터 / 작품 검색</h2>
+          </div>
+          <p class="result-status" id="result-status" aria-live="polite"></p>
+        </div>
+
+        <nav class="market-tabs" aria-label="마켓 탭">
+          <button class="tab-button" type="button" data-market="all">통합</button>
+          <button class="tab-button" type="button" data-market="kr">한국</button>
+          <button class="tab-button" type="button" data-market="jp">日本</button>
+          <button class="tab-button" type="button" data-market="global">Global</button>
+          <button class="tab-button" type="button" data-market="tw">台灣</button>
+        </nav>
+
+        <div class="stats-grid catalog-kpi-grid" id="catalog-kpi-grid" aria-live="polite"></div>
+
+        <form class="toolbar" id="filter-form" role="search">
+          <label class="field search-field">
+            <span>검색</span>
+            <input
+              id="search-input"
+              name="q"
+              type="search"
+              autocomplete="off"
+              placeholder="캐릭터명, 작품명, 다른 지역 이름 검색"
+            />
+          </label>
+          <label class="field">
+            <span>작품</span>
+            <select id="work-filter" name="work"></select>
+          </label>
+          <label class="field">
+            <span>정렬</span>
+            <select id="sort-select" name="sort">
+              <option value="views-desc">조회수 높은순</option>
+              <option value="chats-desc">채팅 높은순</option>
+              <option value="name-asc">이름 가나다순</option>
+              <option value="work-asc">작품명순</option>
+            </select>
+          </label>
+        </form>
+
+        <div class="table-wrap" id="table-wrap">
+          <table>
+            <caption>
+              캐릭터챗 공개 캐릭터 목록
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">캐릭터</th>
+                <th scope="col">작품</th>
+                <th scope="col">시장</th>
+                <th scope="col">조회수</th>
+                <th scope="col">채팅</th>
+                <th scope="col">지역 대응</th>
+              </tr>
+            </thead>
+            <tbody id="character-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="card-list" id="card-list" aria-label="모바일 캐릭터 목록"></div>
+
+        <div class="empty-state" id="empty-state" hidden>
+          <p>조건에 맞는 캐릭터가 없습니다.</p>
+          <button class="ghost-button" type="button" id="reset-filters">필터 초기화</button>
+        </div>
+      </section>
+
+      <section class="settings-view" id="settings-view" aria-labelledby="settings-title" hidden>
+        <div class="panel settings-intro">
+          <div class="panel-heading">
+            <div>
+              <p class="section-kicker">Local server configuration</p>
+              <h2 id="settings-title">API 연결 설정</h2>
+            </div>
+            <span class="evidence-badge tier-a">서버 전용</span>
+          </div>
+          <p class="section-note">입력값은 이 PC의 <code>.env.local</code>에만 저장됩니다. 브라우저에는 기존 값이 다시 표시되지 않으며 설정 여부만 확인할 수 있습니다.</p>
+        </div>
+
+        <div id="settings-integration-status" aria-live="polite"></div>
+
+        <section class="panel manual-deploy-panel" aria-labelledby="manual-deploy-title">
+          <div class="panel-heading compact-heading">
+            <div>
+              <p class="section-kicker">Manual publish</p>
+              <h2 id="manual-deploy-title">지금 최신 데이터로 공개판 갱신</h2>
+            </div>
+            <span class="evidence-badge tier-b">로컬 전용</span>
+          </div>
+          <p class="section-note">4개 시장·공시·시세를 다시 수집하고 검증과 비밀정보 검사를 통과한 경우에만 Cloudflare 운영판을 갱신합니다.</p>
+          <div class="deploy-step-list" aria-label="배포 순서">
+            <span>1 · 데이터 수집</span><span>2 · 교차검증</span><span>3 · 안전 빌드</span><span>4 · 공개 배포</span>
+          </div>
+          <div class="manual-deploy-actions">
+            <button class="primary-button" type="button" id="run-manual-deploy">지금 갱신·검증·배포</button>
+            <a class="ghost-button" href="https://toptoon-signal-desk.pages.dev/" target="_blank" rel="noopener noreferrer">공개 사이트 열기</a>
+          </div>
+          <div class="deploy-progress" id="deploy-progress" data-state="idle">
+            <span class="deploy-progress-dot"></span>
+            <p><strong id="deploy-status-title">수동 배포 대기</strong><small id="deploy-status-detail">자동 갱신과 별도로 필요할 때 실행할 수 있습니다.</small></p>
+          </div>
+        </section>
+
+        <form class="panel settings-form" id="api-settings-form">
+          <div class="panel-heading compact-heading">
+            <div>
+              <p class="section-kicker">Credentials</p>
+              <h2>공식 데이터·리서치 공급자</h2>
+            </div>
+          </div>
+          <div class="settings-provider-grid" id="api-settings-groups"></div>
+          <div class="settings-actions">
+            <button class="primary-button" type="submit">변경값 저장</button>
+            <p id="api-settings-status" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+
+      </section>
+    </main>
+
+    <dialog class="character-dialog" id="character-dialog" aria-labelledby="dialog-title">
+      <button class="dialog-close" type="button" id="dialog-close" aria-label="닫기">×</button>
+      <div id="dialog-content"></div>
+    </dialog>
+
+    <footer class="site-footer">
+      <p>공개 관측 기반 로컬 리서치 도구 · 투자 권유 아님 · 채팅 지표와 공시 매출은 별도 증거층으로 관리합니다.</p>
+    </footer>
+
+    <script src="data/stats.js"></script>
+    <script src="data/validation.js"></script>
+    <script src="data/official-signals.js"></script>
+    <script src="data/characters.js"></script>
+    <script src="app.js" defer></script>
+  </body>
+</html>

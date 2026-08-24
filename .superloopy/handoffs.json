@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "sessionId": null,
+  "handoffs": [
+    {
+      "id": "H001",
+      "agent": "nami",
+      "assignment": "Read-only inspect C:\\TEST for existing Toptoon extraction assets, datasets, and any reusable frontend project. Recommend exact project inputs and file paths; do not edit.",
+      "status": "complete",
+      "verdict": "PASS",
+      "normalizedVerdict": "accept",
+      "artifact": ".superloopy/evidence/website-clone/toptoon-tracker.john6428.workers.dev/NAVIGATOR.md",
+      "recordedAt": "2026-08-24T07:09:15.702Z",
+      "updatedAt": "2026-08-24T07:17:07.066Z"
+    },
+    {
+      "id": "H002",
+      "agent": "nami",
+      "assignment": "Read-only inspect C:\\TEST for existing Toptoon extraction assets, datasets, and any reusable frontend project. Recommend exact project inputs and file paths; do not edit.",
+      "status": "complete",
+      "verdict": "PASS",
+      "normalizedVerdict": "accept",
+      "artifact": ".superloopy/evidence/website-clone/toptoon-tracker.john6428.workers.dev/NAVIGATOR.md",
+      "recordedAt": "2026-08-24T07:13:47.596Z",
+      "updatedAt": "2026-08-24T07:13:47.596Z"
+    },
+    {
+      "id": "H003",
+      "agent": "franky",
+      "assignment": "Implement the zero-dependency integrated tracker frontend from the research and component specs. Own index.html, styles.css, app.js, README.md, and scripts/validate.mjs. Preserve source visual language; implement all/KR/JP/Global tabs, search/filter/sort, accessible details dialog, local images, and responsive no-overflow cards.",
+      "status": "complete",
+      "verdict": "PASS",
+      "normalizedVerdict": "accept",
+      "artifact": ".superloopy/evidence/website-clone/toptoon-tracker.john6428.workers.dev/FRANKY_IMPLEMENTATION.md",
+      "recordedAt": "2026-08-24T07:17:07.151Z",
+      "updatedAt": "2026-08-24T07:22:23.780Z"
+    },
+    {
+      "id": "H004",
+      "agent": "usopp",
+      "assignment": "Independently QA the local integrated tracker: validate dataset/assets, exercise tabs/search/sort/dialog/empty state in the real browser, and assess responsive CSS/mobile overflow. Write artifact under clone evidence with PASS/FAIL and exact observations. Do not edit implementation.",
+      "status": "complete",
+      "verdict": "PASS",
+      "normalizedVerdict": "accept",
+      "artifact": ".superloopy/evidence/website-clone/toptoon-tracker.john6428.workers.dev/USOPP_QA.md",
+      "recordedAt": "2026-08-24T07:36:03.040Z",
+      "updatedAt": "2026-08-24T07:45:14.317Z"
+    },
+    {
+      "id": "H005",
+      "agent": "zoro",
+      "assignment": "Independent read-only code review of unified tracker implementation and evidence. Check correctness, security, accessibility, data mapping, responsive behavior, and regression risk. Write ZORO_REVIEW.md with APPROVE or CHANGES_REQUESTED.",
+      "status": "complete",
+      "verdict": "APPROVE",
+      "normalizedVerdict": "accept",
+      "artifact": ".superloopy/evidence/website-clone/toptoon-tracker.john6428.workers.dev/ZORO_REVIEW.md",
+      "recordedAt": "2026-08-24T07:42:16.657Z",
+      "updatedAt": "2026-08-24T07:49:01.619Z"
+    },
+    {
+      "id": "H006",
+      "agent": "jinbe",
+      "assignment": "Final gate: integrate implementation, parent browser QA, Usopp mobile QA, Zoro review, criteria evidence, and fleet state. Return APPROVE or REJECT and write JINBE_GATE.md. Read-only.",
+      "status": "complete",
+      "verdict": "APPROVE",
+      "normalizedVerdict": "accept",
+      "artifact": ".superloopy/evidence/website-clone/toptoon-tracker.john6428.workers.dev/JINBE_GATE.md",
+      "recordedAt": "2026-08-24T07:49:01.709Z",
+      "updatedAt": "2026-08-24T07:52:33.244Z"
+    }
+  ]
+}
