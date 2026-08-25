@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-25T09:25:19.964Z",
+  "generated_at": "2026-08-25T10:26:20.633Z",
   "providers": {
     "opendart": {
-      "status": "ok",
+      "status": "cached",
       "source": "OpenDART 공시검색",
-      "note": "종목코드 134580의 회사 고유번호를 자동 확인해 최근 180일 조회",
+      "note": "최근 갱신 실패 · 이전 정상 응답 유지 (요청 시간 초과)",
       "corp_code": "00608699",
       "disclosures": [
         {
@@ -404,13 +404,8 @@
       "peer_note": "동일 업종의 완전한 비교군이 아닌 웹툰 플랫폼·IP 사업 노출 기준 스크리닝 피어"
     },
     "fred": {
-      "status": "ok",
-      "source": "FRED DEXKOUS",
-      "observation": {
-        "date": "2026-08-21",
-        "value": 1385.01,
-        "unit": "KRW per USD"
-      }
+      "status": "skipped",
+      "note": "FRED_API_KEY 필요"
     }
   }
 }
