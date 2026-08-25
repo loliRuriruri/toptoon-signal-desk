@@ -250,12 +250,19 @@ async function refreshKis() {
     },
     calculation_note: "KRX 공시 산식을 KIS 일별 종가에 적용한 참고 계산. 최종 시장조치는 KRX 공시를 우선 확인."
   };
+  const previousPeers = new Map((previousProviders?.kis?.peers || []).map((p) => [p.ticker, p]));
   const peers = [];
   for (const peer of peerUniverse) {
     try {
+      await new Promise((r) => setTimeout(r, 250));
       peers.push({ ...peer, ...(await fetchQuote(peer.ticker)), status: "ok" });
     } catch (error) {
-      peers.push({ ...peer, status: "error", note: String(error.message || error) });
+      const prev = previousPeers.get(peer.ticker);
+      if (prev && (prev.status === "ok" || prev.status === "cached") && Number(prev.price || 0) > 0) {
+        peers.push({ ...prev, status: "cached", note: `시세 갱신 지연 · 이전 정상값 유지 (${String(error.message || error)})` });
+      } else {
+        peers.push({ ...peer, status: "error", note: String(error.message || error) });
+      }
     }
   }
   return {
