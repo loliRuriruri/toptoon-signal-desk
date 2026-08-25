@@ -25,10 +25,10 @@ jobs:
         with:
           node-version: 22
 
-      - name: Refresh Four-Market Public Catalogs
+      - name: 1. Refresh Four-Market Public Catalogs
         run: node scripts/refresh-public-snapshot.mjs
 
-      - name: Refresh KIS & OpenDART Official Signals
+      - name: 2. Refresh KIS & OpenDART Official Signals
         env:
           KIS_APP_KEY: ${{ secrets.KIS_APP_KEY }}
           KIS_APP_SECRET: ${{ secrets.KIS_APP_SECRET }}
@@ -37,24 +37,23 @@ jobs:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: node scripts/refresh-official-signals.mjs
 
-      - name: Run Crosscheck & Live Verification
+      - name: 3. Run Crosscheck & Live Verification
         run: node scripts/crosscheck.mjs --live --write
 
-      - name: Validate Integrity & Syntaxes
+      - name: 4. Validate Integrity & Syntaxes
         run: node scripts/validate.mjs
 
-      - name: Build Public Distribution
+      - name: 5. Build Public Distribution
         run: node scripts/build-public.mjs
 
-      - name: Commit & Push Changes
+      - name: 6. Commit & Push Changes to Repository
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add data/ assets/ dist-public/
-          if git diff --staged --quiet; then
-            echo "No data changes detected. Skipping commit."
+          if git diff --cached --quiet; then
+            echo "No data changes detected. Everything is up to date."
           else
             git commit -m "chore(auto): hourly data refresh snapshot [skip ci]"
-            git pull origin main --rebase
-            git push origin main
+            git push origin HEAD:main
           fi
