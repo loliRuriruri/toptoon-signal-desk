@@ -58,6 +58,7 @@ const state = {
   market: "all",
   statsMarket: "all",
   leaderboardMarket: "all",
+  selectedSupplyMonth: null,
   q: "",
   work: "",
   sort: "views-desc"
@@ -223,6 +224,14 @@ function bindEvents() {
       panel.hidden = !expanded;
       card.classList.toggle("is-expanded", expanded);
       if (expanded) panel.querySelector(".full-rank-row")?.focus({ preventScroll: true });
+      return;
+    }
+
+    const monthButton = event.target.closest("[data-supply-month]");
+    if (monthButton) {
+      state.selectedSupplyMonth = monthButton.dataset.supplyMonth;
+      renderStatsDashboard();
+      bindResultButtons();
       return;
     }
 
@@ -1506,20 +1515,20 @@ function renderGrowthPanel() {
         </div>
         <span class="data-pill positive">${escapeHtml(marketLabel)} 공급·수요</span>
       </div>
-      <p class="section-note">신규 캐릭터는 공식 API 공개 시작 시각(startAt, 없으면 createdAt), 장르는 공식 API genre 기준입니다. <strong>24시간 일간 누적 증가량</strong>과 <strong>실시간 수집 갱신량</strong>을 각각 독립된 그래프로 분리하여 표시합니다.</p>
+      <p class="section-note"><strong>일간(24h) 대화 증가량</strong>과 <strong>실시간 수집 갱신 델타</strong>를 상단에 나란히 1:1 비교로 배치하고, 아래에서 <strong>월별 신규 캐릭터 출시 추이 및 해당 월 출시 캐릭터</strong>를 클릭하여 확인합니다.</p>
       <div class="chart-grid chart-grid-primary">
-        ${renderNewCharacterSupply(market)}
         ${renderColumnChart(`${marketLabel} 일간(24h) 대화 증가량`, "24시간 1일 누적 대화 증가량 추이 · 일자별 집계", dailyRows, formatNumber, "#3987e5", "", { latestLabel: "최근 일간(24h)", highLabel: "구간 최대 일간", contextNote: "하루 24시간 동안 발생한 일간 대화 증가량 추이이며, 실시간 수집 간격 갱신량과 구분됩니다." })}
+        ${renderColumnChart(`${marketLabel} 최근 수집 갱신 델타 (실시간)`, "직전 공식 API 수집본 대비 · 수분~수십분 배치 간격", chatDeltas, formatNumber, MARKET_META[market]?.color || "#27c499", "", { latestLabel: "최근 갱신(수집 간)", highLabel: "구간 최대 갱신", contextNote: "각 막대는 1회 수집 간격(수분~수십분) 동안 늘어난 실시간 갱신량이며, 일간 누적 증가량과 분리해 해석합니다." })}
       </div>
       <div class="chart-grid chart-grid-secondary" style="margin-top:14px">
-        ${renderColumnChart(`${marketLabel} 최근 수집 갱신 델타 (실시간)`, "직전 공식 API 수집본 대비 · 수분~수십분 배치 간격", chatDeltas, formatNumber, MARKET_META[market]?.color || "#27c499", "full-span", { latestLabel: "최근 갱신(수집 간)", highLabel: "구간 최대 갱신", contextNote: "각 막대는 1회 수집 간격(수분~수십분) 동안 늘어난 실시간 갱신량이며, 일간 누적 증가량과 분리해 해석합니다." })}
+        ${renderNewCharacterSupply(market, "full-span")}
       </div>
       ${renderGenreBars(marketGenreRows(market), marketLabel, market === "all" ? "중복 지역을 합친 고유 캐릭터" : "시장 원본 캐릭터")}
     </section>
   `;
 }
 
-function renderNewCharacterSupply(market) {
+function renderNewCharacterSupply(market, className = "") {
   const items = marketAnalysisItems(market);
   const marketLabel = MARKET_META[market].label;
   const rows = monthSeries(items);
@@ -1528,37 +1537,60 @@ function renderNewCharacterSupply(market) {
   const high = rows.reduce((best, row) => row.value > Number(best?.value ?? -Infinity) ? row : best, null);
   const max = Math.max(...rows.map((row) => row.value), 1);
   const deltaPct = previous?.value ? ((Number(latest?.value || 0) / previous.value) - 1) * 100 : 0;
-  const peakCharacters = items
-    .filter((record) => String(record.publishedAt || "").startsWith(high?.label || ""))
-    .sort((a, b) => b.chatsNumber - a.chatsNumber || b.viewsNumber - a.viewsNumber)
-    .slice(0, 4);
+
+  const availableMonths = rows.map((r) => r.label);
+  const activeMonth = (state.selectedSupplyMonth && availableMonths.includes(state.selectedSupplyMonth))
+    ? state.selectedSupplyMonth
+    : (high?.label || latest?.label || "");
+
+  const activeRow = rows.find((r) => r.label === activeMonth) || high || latest;
+  const monthCharacters = items
+    .filter((record) => String(record.publishedAt || "").startsWith(activeMonth))
+    .sort((a, b) => b.chatsNumber - a.chatsNumber || b.viewsNumber - a.viewsNumber);
+  const displayedCharacters = monthCharacters.slice(0, 4);
+
   return `
-    <article class="chart-card new-character-supply-card">
-      <div class="chart-heading"><div><h3>${escapeHtml(marketLabel)} 월별 신규 캐릭터</h3><p class="stat-help">공식 startAt 우선 · 누락 시 createdAt</p></div><span class="sample-badge">${rows.length}개월</span></div>
+    <article class="chart-card new-character-supply-card ${escapeAttr(className)}">
+      <div class="chart-heading">
+        <div>
+          <h3>${escapeHtml(marketLabel)} 월별 신규 캐릭터</h3>
+          <p class="stat-help">공식 startAt 우선 · 누락 시 createdAt · 막대를 누르면 해당 월 출시 캐릭터로 전환</p>
+        </div>
+        <span class="sample-badge">${rows.length}개월</span>
+      </div>
       <div class="chart-readout">
         <div><span>최근 · ${formatPeriodLabel(latest?.label)}</span><strong>${latest ? `${formatNumber(latest.value)}명` : "-"}</strong></div>
         <div><span>직전 월 대비</span><strong class="${deltaPct >= 0 ? "is-up" : "is-down"}">${deltaPct >= 0 ? "+" : ""}${deltaPct.toFixed(1)}%</strong></div>
-        <div class="is-highlight"><span>최다 출시월</span><strong>${formatPeriodLabel(high?.label)} · ${formatNumber(high?.value)}명</strong></div>
+        <div class="is-highlight"><span>최다 출시월 · 선택: ${formatPeriodLabel(activeMonth)}</span><strong>${formatPeriodLabel(high?.label)} · ${formatNumber(high?.value)}명</strong></div>
       </div>
-      <div class="column-chart" style="--columns:${Math.max(rows.length, 1)}">
+      <div class="column-chart supply-month-chart" style="--columns:${Math.max(rows.length, 1)}">
         ${rows.map((row) => {
           const height = Math.max(4, (row.value / max) * 100);
-          return `<div class="column-item" title="${escapeAttr(`${formatPeriodLabel(row.label)} 신규 ${row.value}명`)}">
-            <strong>${formatNumber(row.value)}명</strong>
-            <span class="column-track"><i style="height:${height}%;background:#f5a742"></i></span>
-            <small>${escapeHtml(formatPeriodLabel(row.label))}</small>
-          </div>`;
+          const isSelected = row.label === activeMonth;
+          return `
+            <button type="button" class="column-item is-clickable${isSelected ? " is-selected" : ""}" data-supply-month="${escapeAttr(row.label)}" title="${escapeAttr(`${formatPeriodLabel(row.label)} 출시 캐릭터 ${row.value}명 보기`)}">
+              <strong>${formatNumber(row.value)}명</strong>
+              <span class="column-track"><i style="height:${height}%;background:${isSelected ? "#3987e5" : "#f5a742"}"></i></span>
+              <small style="${isSelected ? "color:#62a8ff;font-weight:850" : ""}">${escapeHtml(formatPeriodLabel(row.label))}</small>
+            </button>
+          `;
         }).join("")}
       </div>
       <div class="peak-character-block">
-        <div class="peak-character-heading"><div><strong>${formatPeriodLabel(high?.label)} 공개 캐릭터</strong><small>현재 누적 대화가 많은 4명 · 선택하면 전체 정보</small></div><span>${formatNumber(high?.value)}명 중 TOP 4</span></div>
+        <div class="peak-character-heading">
+          <div>
+            <strong>${formatPeriodLabel(activeMonth)} 공개 캐릭터</strong>
+            <small>현재 누적 대화가 많은 캐릭터 순 · 카드 선택 시 상세 팝업</small>
+          </div>
+          <span>${formatNumber(monthCharacters.length)}명 중 TOP ${Math.min(4, monthCharacters.length)}</span>
+        </div>
         <div class="peak-character-list">
-          ${peakCharacters.map((record) => `
+          ${displayedCharacters.length ? displayedCharacters.map((record) => `
             <button type="button" class="peak-character-card" data-character-id="${record.character_id}" data-character-market="${escapeAttr(record.market)}">
               ${record.imageSrc ? `<img class="thumb" src="${escapeAttr(record.imageSrc)}" alt="${escapeAttr(`${record.character_name} 이미지`)}" loading="lazy" data-fallback="${escapeAttr(record.character_name.slice(0, 1))}" />` : `<span class="thumb-fallback">${escapeHtml(record.character_name.slice(0, 1))}</span>`}
               <span><strong>${escapeHtml(record.character_name)}</strong><small>${escapeHtml(record.workSafe)}</small><b>공개 대화 ${formatCompact(record.chatsNumber)}회</b></span>
             </button>
-          `).join("")}
+          `).join("") : `<p class="empty-inline" style="padding:12px;grid-column:1/-1;text-align:center;color:var(--muted)">해당 월에 공개된 캐릭터 데이터가 없습니다.</p>`}
         </div>
       </div>
     </article>

@@ -2138,6 +2138,43 @@ h3 {
   text-align: center;
 }
 
+button.column-item.is-clickable {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px 8px 0 0;
+  padding: 0;
+  cursor: pointer;
+  transition: all 150ms ease;
+  font: inherit;
+}
+
+button.column-item.is-clickable:hover {
+  background: rgba(57, 135, 229, 0.08);
+  border-color: rgba(98, 168, 255, 0.3);
+}
+
+button.column-item.is-clickable:hover .column-track {
+  background: rgba(57, 135, 229, 0.12);
+}
+
+button.column-item.is-selected {
+  background: rgba(57, 135, 229, 0.14);
+  border-color: rgba(98, 168, 255, 0.6);
+}
+
+button.column-item.is-selected strong {
+  color: #62a8ff;
+  font-weight: 800;
+}
+
+button.column-item.is-selected .column-track {
+  background: rgba(57, 135, 229, 0.22);
+}
+
+button.column-item.is-selected .column-track i {
+  box-shadow: 0 0 10px rgba(57, 135, 229, 0.6);
+}
+
 .column-item strong,
 .column-item small {
   overflow: hidden;
