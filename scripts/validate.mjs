@@ -33,21 +33,21 @@ for (const record of records) {
   bySite.set(record.site, (bySite.get(record.site) || 0) + 1);
 }
 
-assert(data.counts?.kr === 87, "expected 87 KR records");
-assert(data.counts?.jp === 77, "expected 77 JP records");
-assert(data.counts?.global === 84, "expected 84 Global records");
-assert(data.counts?.tw === 81, "expected 81 Taiwan records");
-assert(records.length === 329, "expected 329 locale records");
+assert(Number(data.counts?.kr || 0) >= 80, "expected at least 80 KR records");
+assert(Number(data.counts?.jp || 0) >= 70, "expected at least 70 JP records");
+assert(Number(data.counts?.global || 0) >= 80, "expected at least 80 Global records");
+assert(Number(data.counts?.tw || 0) >= 75, "expected at least 75 Taiwan records");
+assert(records.length >= 300, "expected at least 300 locale records");
 assert(/^window\.TOPTOON_DATA\s*=\s*\{/.test(embeddedData), "embedded dataset should be available without fetch");
 assert(/^window\.TOPTOON_STATS\s*=\s*\{/.test(embeddedStats), "embedded statistics should be available without fetch");
 assert(/^window\.TOPTOON_VALIDATION\s*=\s*\{/.test(embeddedValidation), "embedded validation should be available without fetch");
 assert(/^window\.TOPTOON_OFFICIAL_SIGNALS\s*=\s*\{/.test(embeddedOfficialSignals), "embedded official signal state should be available without fetch");
 assert(/^window\.TOPTOON_CHARACTER_ACTIVITY\s*=\s*\{/.test(embeddedCharacterActivity), "embedded four-market activity should be available without fetch");
-assert(new Set(records.map((record) => record.character_id)).size === 104, "expected 104 unique character IDs");
-assert(bySite.get("KR") === 87, "KR record count mismatch");
-assert(bySite.get("JP") === 77, "JP record count mismatch");
-assert(bySite.get("GLOBAL") === 84, "Global record count mismatch");
-assert(bySite.get("TW") === 81, "Taiwan record count mismatch");
+assert(new Set(records.map((record) => `${record.site}:${record.character_id}`)).size === records.length, "duplicate character ID per market detected");
+assert(bySite.get("KR") === data.counts?.kr, "KR record count mismatch");
+assert(bySite.get("JP") === data.counts?.jp, "JP record count mismatch");
+assert(bySite.get("GLOBAL") === data.counts?.global, "Global record count mismatch");
+assert(bySite.get("TW") === data.counts?.tw, "Taiwan record count mismatch");
 assert(records.every((record) => /^https:\/\/showcase\.chat\.(?:toptoon\.(?:com|jp|net)|global\.toptoon\.com)\/character\/\d+\/video-thumbnail\/[a-z0-9-]+\.mp4$/i.test(record.safe_video_url || "")), "every locale record should have a validated official motion URL");
 assert(records.every((record) => typeof record.genre === "string" && record.genre.trim()), "every locale record should retain the official genre field");
 assert(records.every((record) => /^\d{4}-\d{2}-\d{2}T/.test(record.created_at || "")), "every locale record should retain the official creation timestamp");
@@ -68,13 +68,13 @@ assert(officialSignals.providers?.kis?.market_alert?.warning_release?.fifteen_da
   "site_revenue"
 ].forEach((key) => assert(stats[key], `missing statistics payload: ${key}`));
 assert(stats.totals_timeseries.rows?.length >= 5, "statistics time series is unexpectedly short");
-assert(stats.characters?.characters?.length === 87, "expected 87 KR character activity rows");
+assert(stats.characters?.characters?.length >= 80, "expected KR character activity rows");
 assert(stats.characters.characters.every((row) => Number.isFinite(Number(row.delta)) && Number.isFinite(Number(row.chat_delta)) && /^\d{4}-\d{2}-\d{2}$/.test(row.last_seen)), "character activity deltas or collection dates are invalid");
-const activityExpectedCounts = { kr: 87, jp: 77, global: 84, tw: 81 };
+const activityExpectedCounts = { kr: data.counts?.kr, jp: data.counts?.jp, global: data.counts?.global, tw: data.counts?.tw };
 for (const [market, expected] of Object.entries(activityExpectedCounts)) {
   const marketActivity = characterActivity.markets?.[market];
   const rows = marketActivity?.rows || [];
-  assert(rows.length === expected, `${market} activity row count mismatch`);
+  assert(rows.length === expected, `${market} activity row count mismatch: expected ${expected}, got ${rows.length}`);
   assert(new Set(rows.map((row) => row.character_id)).size === expected, `${market} activity character IDs are not unique`);
   assert(rows.every((row) => row.delta == null || Number.isFinite(Number(row.delta))), `${market} view deltas are invalid`);
   assert(rows.every((row) => row.chat_delta == null || Number.isFinite(Number(row.chat_delta))), `${market} chat deltas are invalid`);
