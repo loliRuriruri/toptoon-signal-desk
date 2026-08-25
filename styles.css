@@ -3770,3 +3770,160 @@ tbody tr:last-child td {
   box-shadow: 0 0 6px #27c499;
 }
 
+/* ==========================================================================
+   KRX Real-time Dynamic Simulator Toolbar
+   ========================================================================== */
+
+.krx-sim-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 0 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(13, 23, 38, 0.85);
+  border: 1px solid rgba(98, 168, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.sim-label-stack {
+  display: grid;
+  gap: 2px;
+}
+
+.sim-label-stack strong {
+  font-size: 13px;
+  color: #78ddbf;
+}
+
+.sim-label-stack small {
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.sim-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.sim-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--sub);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.sim-chip span {
+  font-size: 9.5px;
+  color: var(--muted);
+}
+
+.sim-chip b {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.sim-chip:hover {
+  background: rgba(57, 135, 229, 0.15);
+  border-color: rgba(98, 168, 255, 0.4);
+  color: #fff;
+}
+
+.sim-chip.active {
+  background: linear-gradient(135deg, rgba(39, 196, 153, 0.3), rgba(57, 135, 229, 0.3));
+  border-color: #27c499;
+  box-shadow: 0 0 10px rgba(39, 196, 153, 0.35);
+}
+
+.sim-chip.active b {
+  color: #78ddbf;
+}
+
+.sim-input-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sim-price-input {
+  width: 100px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #090e17;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.sim-price-input:focus {
+  outline: none;
+  border-color: #3987e5;
+  box-shadow: 0 0 6px rgba(57, 135, 229, 0.5);
+}
+
+.sim-apply-btn {
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: #3987e5;
+  border: none;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background 140ms ease;
+}
+
+.sim-apply-btn:hover {
+  background: #256bbd;
+}
+
+.sim-reset-btn {
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: rgba(245, 167, 66, 0.15);
+  border: 1px solid rgba(245, 167, 66, 0.4);
+  color: #f6c87d;
+  font-size: 10.5px;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.sim-reset-btn:hover {
+  background: rgba(245, 167, 66, 0.25);
+}
+
+.condition-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 800;
+  margin-left: 4px;
+}
+
+.condition-tag.pass {
+  background: rgba(39, 196, 153, 0.2);
+  color: #27c499;
+  border: 1px solid rgba(39, 196, 153, 0.4);
+}
+
+.condition-tag.fail {
+  background: rgba(230, 103, 103, 0.2);
+  color: #ff9b9b;
+  border: 1px solid rgba(230, 103, 103, 0.4);
+}
+
+

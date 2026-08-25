@@ -59,6 +59,7 @@ const state = {
   statsMarket: "all",
   leaderboardMarket: "all",
   selectedSupplyMonth: null,
+  simulatedPrice: null,
   q: "",
   work: "",
   sort: "views-desc"
@@ -232,6 +233,31 @@ function bindEvents() {
       state.selectedSupplyMonth = monthButton.dataset.supplyMonth;
       renderStatsDashboard();
       bindResultButtons();
+      return;
+    }
+
+    const simChip = event.target.closest("[data-set-price]");
+    if (simChip) {
+      state.simulatedPrice = Number(simChip.dataset.setPrice);
+      renderValidationDashboard();
+      return;
+    }
+
+    const simApplyBtn = event.target.closest("#sim-apply-btn");
+    if (simApplyBtn) {
+      const input = document.querySelector("#sim-custom-price-input");
+      const val = Number(input?.value || 0);
+      if (val > 0) {
+        state.simulatedPrice = val;
+        renderValidationDashboard();
+      }
+      return;
+    }
+
+    const simResetBtn = event.target.closest("#sim-reset-btn");
+    if (simResetBtn) {
+      state.simulatedPrice = null;
+      renderValidationDashboard();
       return;
     }
 
@@ -995,27 +1021,108 @@ function buildCurrentMarketView(investor) {
   const kis = officialSignalsData?.providers?.kis || {};
   const quote = kis.quote || {};
   const hasCurrentQuote = ["ok", "cached"].includes(kis.status) && Number(quote.price || 0) > 0;
-  const price = hasCurrentQuote ? Number(quote.price) : Number(market.close || 0);
+  const basePrice = hasCurrentQuote ? Number(quote.price) : Number(market.close || 0);
+  const price = state.simulatedPrice != null ? Number(state.simulatedPrice) : basePrice;
+  const previousClose = hasCurrentQuote ? Number(quote.previous_close || 0) || (basePrice - Number(quote.change || 0)) : Number(market.reference_close || 0);
   const reportedShares = Number(market.shares_outstanding || 0);
   const liveShares = Number(quote.shares_outstanding || 0);
   const shares = hasCurrentQuote && liveShares ? liveShares : reportedShares;
   const referenceClose = Number(market.reference_close || 0);
+  const change = previousClose ? price - previousClose : (hasCurrentQuote ? Number(quote.change || 0) : null);
+  const changePct = previousClose ? ((price - previousClose) / previousClose) * 100 : (hasCurrentQuote ? Number(quote.change_pct || 0) : null);
+
   return {
     price,
-    previousClose: hasCurrentQuote ? Number(quote.previous_close || 0) || null : null,
+    basePrice,
+    isSimulated: state.simulatedPrice != null && state.simulatedPrice !== basePrice,
+    previousClose,
     open: hasCurrentQuote ? Number(quote.open || 0) || null : null,
     high: hasCurrentQuote ? Number(quote.high || 0) || null : null,
     low: hasCurrentQuote ? Number(quote.low || 0) || null : null,
-    change: hasCurrentQuote ? Number(quote.change || 0) : null,
-    changePct: hasCurrentQuote ? Number(quote.change_pct || 0) : null,
+    change,
+    changePct,
     volume: hasCurrentQuote ? Number(quote.volume || 0) : Number(market.volume || 0),
     shares,
-    marketCap: hasCurrentQuote && Number(quote.market_cap_krw || 0) ? Number(quote.market_cap_krw) : price * shares,
+    marketCap: price * shares,
     fromReferencePct: referenceClose ? ((price / referenceClose) - 1) * 100 : 0,
     refreshedAt: hasCurrentQuote ? officialSignalsData?.generated_at : market.as_of,
-    sourceLabel: hasCurrentQuote ? `KIS ${kis.status === "cached" ? "이전 정상값" : "최근 조회"}` : "2차 종가",
+    sourceLabel: state.simulatedPrice != null && state.simulatedPrice !== basePrice
+      ? "실시간 시뮬레이션 계산"
+      : (hasCurrentQuote ? `KIS ${kis.status === "cached" ? "이전 정상값" : "최근 조회"}` : "2차 종가"),
     isCurrent: hasCurrentQuote,
     shareCountChanged: Boolean(hasCurrentQuote && liveShares && reportedShares && liveShares !== reportedShares)
+  };
+}
+
+function calculateDynamicKrxAlerts(price, history = []) {
+  const currentPrice = Number(price || 0);
+  const rows = [...history].filter((r) => r.close > 0).sort((a, b) => a.date.localeCompare(b.date));
+  
+  const closeOn = (dateStr) => {
+    const compact = String(dateStr).replaceAll("-", "");
+    return rows.find((r) => r.date === compact)?.close || null;
+  };
+
+  // 1. 거래정지 판단 (2026-08-20 종가 2,160원 대비 40% 이상 상승 시 1일 정지)
+  const haltRefClose = closeOn("20260820") || 2160;
+  const haltThreshold = Math.round(haltRefClose * 1.4);
+  const haltConditionMet = currentPrice >= haltThreshold;
+  const haltGap = currentPrice - haltThreshold;
+
+  // 2. 투자경고 해제 판단 (9월 3일 최초 판단 예정)
+  // 조건 1: 5일 전(2026-08-27) 종가 대비 45% 미만 상승
+  const release5RefClose = closeOn("20260827");
+  const release5Threshold = release5RefClose ? Math.round(release5RefClose * 1.45) : null;
+  const cond1Met = release5Threshold ? currentPrice < release5Threshold : null;
+
+  // 조건 2: 15일 전(2026-08-12) 종가(1,373원) 대비 75% 미만 상승 (1373 * 1.75 = 2402.75 -> 2402원)
+  const release15RefClose = closeOn("20260812") || 1373;
+  const release15Threshold = Math.round(release15RefClose * 1.75);
+  const cond2Met = currentPrice < release15Threshold;
+
+  // 조건 3: 최근 15거래일 종가 중 최고가가 아닐 것
+  const recent15Rows = rows.slice(-15);
+  const recent15Max = recent15Rows.length ? Math.max(...recent15Rows.map((r) => r.close)) : 3440;
+  const is15DayHigh = currentPrice >= recent15Max;
+  const cond3Met = !is15DayHigh;
+
+  const targetDate = new Date("2026-09-03T00:00:00+09:00");
+  const today = new Date();
+  const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
+  const dDayLabel = diffDays > 0 ? `D-${diffDays}` : (diffDays === 0 ? "D-Day (오늘)" : "판단 진행 중");
+
+  return {
+    currentPrice,
+    halt: {
+      judgment_date: "2026-08-24",
+      halt_date: "2026-08-25",
+      reference_date: "2026-08-20",
+      reference_close: haltRefClose,
+      trigger_pct: 40,
+      trigger_price_raw: haltThreshold,
+      observed_close: currentPrice,
+      condition_met: haltConditionMet,
+      gap: haltGap,
+      source_url: "https://kind.krx.co.kr/external/2026/08/21/000686/20260821001992/70835.htm"
+    },
+    release: {
+      earliest_judgment_date: "2026-09-03",
+      d_day_label: dDayLabel,
+      five_day_reference_date: "2026-08-27",
+      five_day_reference_close: release5RefClose,
+      five_day_limit_pct: 45,
+      five_day_limit_raw: release5Threshold,
+      cond1_met: cond1Met,
+      fifteen_day_reference_date: "2026-08-12",
+      fifteen_day_reference_close: release15RefClose,
+      fifteen_day_limit_pct: 75,
+      fifteen_day_limit_raw: release15Threshold,
+      cond2_met: cond2Met,
+      recent_15_max: recent15Max,
+      cond3_met: cond3Met,
+      all_cleared: (cond1Met === true || cond1Met === null) && cond2Met && cond3Met,
+      source_url: "https://kind.krx.co.kr/external/2026/08/20/000602/20260820001386/70804.htm"
+    }
   };
 }
 
@@ -1152,7 +1259,9 @@ function renderMarketRisk(investor, marketView) {
   const market = investor.market_snapshot || {};
   const ownership = investor.ownership_snapshot || {};
   const derived = investor.derived || {};
-  const marketAlert = officialSignalsData?.providers?.kis?.market_alert || {};
+  const kis = officialSignalsData?.providers?.kis || {};
+  const dynamicAlerts = calculateDynamicKrxAlerts(marketView.price, kis.price_history || []);
+
   return `
     <section class="panel stats-panel validation-panel">
       <div class="panel-heading compact-heading">
@@ -1160,8 +1269,34 @@ function renderMarketRisk(investor, marketView) {
           <p class="section-kicker">Security setup</p>
           <h2>주가 기대·수급 위험</h2>
         </div>
-        <span class="evidence-badge tier-c">시세 C · 공시 A</span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="evidence-badge ${marketView.isSimulated ? "tier-b" : "tier-c"}">${marketView.isSimulated ? "⚡ 실시간 재계산 중" : "시세 C · 공시 A"}</span>
+        </div>
       </div>
+
+      <div class="krx-sim-toolbar" aria-label="실시간 시세 시뮬레이터 및 재계산">
+        <div class="sim-label-stack">
+          <strong>⚡ 실시간 시세 동적 재계산</strong>
+          <small>매일 종가 또는 원하는 가정 주가를 선택하면 거래정지·투자경고 해제 조건 및 시총이 즉시 다시 계산됩니다.</small>
+        </div>
+        <div class="sim-chip-list">
+          <button type="button" class="sim-chip${!marketView.isSimulated ? " active" : ""}" data-set-price="${marketView.basePrice}">
+            <span>실측 현재가</span> <b>${formatNumber(marketView.basePrice)}원</b>
+          </button>
+          <button type="button" class="sim-chip${marketView.price === dynamicAlerts.halt.trigger_price_raw ? " active" : ""}" data-set-price="${dynamicAlerts.halt.trigger_price_raw}">
+            <span>거래정지선</span> <b>${formatNumber(dynamicAlerts.halt.trigger_price_raw)}원</b>
+          </button>
+          <button type="button" class="sim-chip${marketView.price === 2400 ? " active" : ""}" data-set-price="2400">
+            <span>경고해제선</span> <b>2,400원</b>
+          </button>
+          <div class="sim-input-wrap">
+            <input type="number" id="sim-custom-price-input" class="sim-price-input" placeholder="임의 주가" value="${marketView.price}" min="100" max="100000" step="50" />
+            <button type="button" class="sim-apply-btn" id="sim-apply-btn">재계산</button>
+          </div>
+          ${marketView.isSimulated ? `<button type="button" class="sim-reset-btn" id="sim-reset-btn" title="실제 관측 시세로 복원">원래 시세로 복원</button>` : ""}
+        </div>
+      </div>
+
       <div class="stats-grid mini-grid">
         ${renderStatCards([
           ["최근 확인 주가", `${formatNumber(marketView.price)}원`, `${marketView.sourceLabel} · ${formatDateTime(marketView.refreshedAt)}`],
@@ -1174,26 +1309,27 @@ function renderMarketRisk(investor, marketView) {
       <div class="market-action-list">
         ${(investor.market_actions || []).map((action) => `<div><span class="status-badge status-warn">시장조치</span><strong>${escapeHtml(action.date)}</strong><p>${escapeHtml(action.label)}</p></div>`).join("")}
       </div>
-      ${renderMarketAlertGuide(marketAlert)}
+      ${renderMarketAlertGuide(dynamicAlerts)}
       <p class="section-note">가격 상승은 사업 성과의 증거가 아닙니다. 실적 개선과 기대 선반영·저유통 수급을 분리해 판단해야 합니다.</p>
     </section>
   `;
 }
 
-function renderMarketAlertGuide(marketAlert) {
-  const halt = marketAlert.trading_halt || {};
-  const release = marketAlert.warning_release || {};
+function renderMarketAlertGuide(alerts) {
+  const halt = alerts.halt || {};
+  const release = alerts.release || {};
   const haltThreshold = Number(halt.trigger_price_raw || 0);
   const observedClose = Number(halt.observed_close || 0);
-  const haltGap = haltThreshold ? observedClose - haltThreshold : null;
+  const haltGap = halt.gap != null ? halt.gap : (haltThreshold ? observedClose - haltThreshold : null);
   const release5 = Number(release.five_day_limit_raw || 0);
   const release15 = Number(release.fifteen_day_limit_raw || 0);
   const haltStatus = halt.condition_met === true ? "met" : halt.condition_met === false ? "clear" : "pending";
   const haltLabel = halt.condition_met === true
     ? `${formatDateShort(halt.halt_date)} 1일 정지 산식 충족`
     : halt.condition_met === false
-      ? "현재 종가는 정지 산식 미충족"
+      ? "현재 주가는 정지 산식 미충족 (안전)"
       : "기준 종가 수집 대기";
+
   return `
     <section class="market-alert-guide" aria-label="투자경고 및 거래정지 조건">
       <div class="market-alert-heading">
@@ -1205,16 +1341,16 @@ function renderMarketAlertGuide(marketAlert) {
           <span class="alert-rule-step">거래정지 판단</span>
           <strong>${haltThreshold ? `${formatNumber(haltThreshold)}원 이상` : "계산 대기"}</strong>
           <p>${escapeHtml(formatDateShort(halt.judgment_date))} 종가가 ${escapeHtml(formatDateShort(halt.reference_date))} 종가 ${halt.reference_close ? `${formatNumber(halt.reference_close)}원` : "확인값"}보다 40% 이상 높으면 다음 거래일 1일 정지</p>
-          ${haltGap != null ? `<div class="alert-meter"><span style="width:${Math.min(100, Math.max(0, (observedClose / haltThreshold) * 76))}%"></span><i style="left:76%"></i></div><small>관측 종가 ${formatNumber(observedClose)}원 · 기준보다 ${haltGap >= 0 ? "+" : "−"}${formatNumber(Math.abs(haltGap))}원</small>` : ""}
+          ${haltGap != null ? `<div class="alert-meter"><span style="width:${Math.min(100, Math.max(0, (observedClose / haltThreshold) * 76))}%"></span><i style="left:76%"></i></div><small>현재 주가 ${formatNumber(observedClose)}원 · 정지선보다 ${haltGap >= 0 ? "+" : "−"}${formatNumber(Math.abs(haltGap))}원</small>` : ""}
         </article>
         <article class="alert-rule-card is-release">
           <span class="alert-rule-step">투자경고 해제</span>
-          <strong>${formatDateShort(release.earliest_judgment_date)} 최초 판단</strong>
+          <strong>${formatDateShort(release.earliest_judgment_date)} 최초 판단 <small style="font-size:11px;color:#f6c87d">(${escapeHtml(release.d_day_label || "")})</small></strong>
           <p>아래 3개 급등 조건에 어느 하나도 해당하지 않아야 다음 날 해제됩니다.</p>
           <ul>
             <li>${formatDateShort(release.five_day_reference_date)} 종가 대비 45% 미만 상승 ${release5 ? `· ${formatNumber(release5)}원 미만` : "· 기준일이 아직 오지 않아 금액 미정"}</li>
-            <li>${formatDateShort(release.fifteen_day_reference_date)} 종가${release.fifteen_day_reference_close ? ` ${formatNumber(release.fifteen_day_reference_close)}원` : ""} 대비 75% 미만 상승${release15 ? ` · ${formatNumber(release15)}원 미만` : ""}</li>
-            <li>최근 15거래일 종가 중 최고가가 아닐 것</li>
+            <li>${formatDateShort(release.fifteen_day_reference_date)} 종가${release.fifteen_day_reference_close ? ` ${formatNumber(release.fifteen_day_reference_close)}원` : ""} 대비 75% 미만 상승${release15 ? ` · ${formatNumber(release15)}원 미만` : ""} <span class="condition-tag ${release.cond2_met ? "pass" : "fail"}">${release.cond2_met ? "충족" : "미충족"}</span></li>
+            <li>최근 15거래일 종가 중 최고가가 아닐 것 (현재: ${formatNumber(release.recent_15_max)}원) <span class="condition-tag ${release.cond3_met ? "pass" : "fail"}">${release.cond3_met ? "충족" : "미충족"}</span></li>
           </ul>
         </article>
       </div>
