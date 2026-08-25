@@ -675,18 +675,21 @@ function renderStatsDashboard() {
     return;
   }
 
+  const dailyRows = statsData.revenue_nowcast?.daily || [];
+  const accumulatedDays = dailyRows.length > 0 ? dailyRows.length : (catalogActivityData?.history?.length || 4);
+
   els.statsCapturedAt.textContent = `${formatDateTime(statsData.captured_at)} 수집 스냅샷`;
   els.statsCaveat.textContent =
-    "관측 기반 넛캐스트입니다. 공식 매출이 아니며, 3일 델타는 방향성만 보고 공시·시세와 반드시 분리해 해석합니다.";
+    `관측 기반 넛캐스트입니다. 공식 매출이 아니며, ${accumulatedDays}일 델타는 방향성만 보고 공시·시세와 반드시 분리해 해석합니다.`;
 
   const latest = statsData.revenue_nowcast?.latest || {};
   const siteRevenue = statsData.site_revenue || {};
   const siteOverall = statsData.site_comparison?.overall || {};
   els.mainKpiGrid.innerHTML = renderStatCards([
-    ["월매출 추정 범위", `약 ${formatWonBig(latest.revenue_mid)}`, `${formatWonBig(latest.revenue_low)}–${formatWonBig(latest.revenue_high)} · 최근 3일 환산`, "signal"],
+    ["월매출 추정 범위", `약 ${formatWonBig(latest.revenue_mid)}`, `${formatWonBig(latest.revenue_low)}–${formatWonBig(latest.revenue_high)} · 최근 ${accumulatedDays}일 환산`, "signal"],
     ["회사 제시 월매출 대비", latest.ir_ratio_pct != null ? `${latest.ir_ratio_pct.toFixed(1)}%` : "-", "회사 제시 9억원과 비교 · 검증 전", "neutral"],
     ["해외 추정 매출 비중", siteRevenue.overseas_contribution_pct != null ? `${siteRevenue.overseas_contribution_pct.toFixed(1)}%` : "-", `해외 누적 대화 ${formatNumber(siteOverall.overseas_total || 0)}`, "positive"],
-    ["데이터 축적 기간", "3일", "추세 판단에는 최소 14일 권장", "warning"]
+    ["데이터 축적 기간", `${accumulatedDays}일`, `일간 델타 관측치 · 추세 판단은 최소 14일 권장`, accumulatedDays >= 14 ? "positive" : "warning"]
   ]);
 
   renderStatsMarketSummary();
