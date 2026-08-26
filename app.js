@@ -734,6 +734,7 @@ function renderStatsDashboard() {
   const recentAllMarketHigh = revPerSession > 0 ? recentAllMarketMid * Number(revPerSessionRange[1] || 0) / revPerSession : 0;
   const krRecentMid = Number(latest.revenue_mid || siteRevenue.per_site?.kr?.revenue_mid || 0);
   const overseasRecentMid = Math.max(0, recentAllMarketMid - krRecentMid);
+  const krShareOfRecentPct = recentAllMarketMid > 0 ? (krRecentMid / recentAllMarketMid) * 100 : null;
   const velocityVsCumulativePct = cumulativeMonthlyAvg > 0 && recentAllMarketMid > 0
     ? ((recentAllMarketMid / cumulativeMonthlyAvg) - 1) * 100
     : null;
@@ -752,15 +753,15 @@ function renderStatsDashboard() {
         <div class="kpi-group-header">
           <div class="kpi-group-title">
             <span class="kpi-group-tag tag-cumulative">🏛️ 서비스 론칭 누적 관측</span>
-            <strong>2026.02 론칭 누적 ${elapsedMonthLabel}(${elapsedDays}일) 참고 추정</strong>
+            <strong>🌐 4개국 통합 · 2026.02 이후 ${elapsedMonthLabel} 장기 평균</strong>
           </div>
           <span class="stat-help">4개국 누적 대화 ${formatNumber(allTotals.chats)}회 × 결제 단가 2,354원 기준</span>
         </div>
         <div class="kpi-card-subgrid">
           ${renderStatCards([
-            ["누적 추정 총매출", `약 ${formatWonBig(cumulativeGrossMid)}`, `🇰🇷 한국 ${formatWonBig(krCumulativeMid)} + 🌏 해외 ${formatWonBig(overseasCumulativeMid)}`, "signal"],
-            ["누적 월평균 환산", `월 약 ${formatWonBig(cumulativeMonthlyAvg)}`, `🇰🇷 한국 월 ${formatWonBig(krMonthlyAvg)} + 🌏 해외 월 ${formatWonBig(overseasMonthlyAvg)}`, "neutral"],
-            ["해외 누적 매출 비중", siteRevenue.overseas_contribution_pct != null ? `${siteRevenue.overseas_contribution_pct.toFixed(1)}%` : "-", `해외 누적 대화 ${formatNumber(siteOverall.overseas_total || 0)}회`, "positive"],
+            ["🌐 통합 누적 추정 총매출", `약 ${formatWonBig(cumulativeGrossMid)}`, `🇰🇷 한국 ${formatWonBig(krCumulativeMid)} + 🌏 해외 ${formatWonBig(overseasCumulativeMid)}`, "signal"],
+            ["🌐 통합 장기 월평균", `월 약 ${formatWonBig(cumulativeMonthlyAvg)}`, `🇰🇷 한국 월 ${formatWonBig(krMonthlyAvg)} + 🌏 해외 월 ${formatWonBig(overseasMonthlyAvg)} · 최근 속도 아님`, "neutral"],
+            ["🌏 해외 누적 활동 비중", siteRevenue.overseas_contribution_pct != null ? `${siteRevenue.overseas_contribution_pct.toFixed(1)}%` : "-", `해외 누적 대화 ${formatNumber(siteOverall.overseas_total || 0)}회`, "positive"],
             ["서비스 운영 기간", `${elapsedDays}일차 (${elapsedMonthLabel})`, `2026.02.01 기준 계산`, "neutral"]
           ])}
         </div>
@@ -770,17 +771,22 @@ function renderStatsDashboard() {
         <div class="kpi-group-header">
           <div class="kpi-group-title">
             <span class="kpi-group-tag tag-velocity">⚡ 최근 일일 속도 관측 (현재 런레이트)</span>
-            <strong>4개국 최근 일일 대화 증가 속도(델타) 기준 월환산</strong>
+            <strong>통합·한국·해외를 분리한 최근 4~${accumulatedDays}일 월환산</strong>
           </div>
-          <span class="stat-help">일평균 증가량 × 30일 환산 (방향성 검증용)</span>
+          <span class="stat-help">최근 일평균 증가량 × 30일 · 시장별 4~${accumulatedDays}일 관측</span>
         </div>
-        <div class="kpi-card-subgrid">
+        <div class="kpi-card-subgrid kpi-scope-split-grid">
           ${renderStatCards([
-            ["최근 월환산 시나리오", recentAllMarketMid ? `약 ${formatWonBig(recentAllMarketMid)}` : "-", recentAllMarketMid ? `🇰🇷 한국 ${formatWonBig(krRecentMid)} + 🌏 해외 ${formatWonBig(overseasRecentMid)}` : "시장별 델타 수집 대기", "signal"],
-            ["한국만 회사 제시값 대비", latest.ir_ratio_pct != null ? `${latest.ir_ratio_pct.toFixed(1)}%` : "-", `한국 ${formatWonBig(krRecentMid)} vs 회사 제시 9억원 (${formatWonBig(Math.max(0, 900000000 - krRecentMid))} 차이)`, "warning"],
-            ["일일 속도 관측 표본", `시장별 4~${accumulatedDays}일`, `일간 델타 연속 기록 중 · 14일 이상 권장`, accumulatedDays >= 14 ? "positive" : "warning"],
-            ["4개국 누적 월평균 대비", velocityVsCumulativePct == null ? "-" : `${velocityDirection} (${velocityVsCumulativePct >= 0 ? "+" : ""}${velocityVsCumulativePct.toFixed(1)}%)`, `과거 월 ${formatWonBig(cumulativeMonthlyAvg)} ➔ 최근 월 ${formatWonBig(recentAllMarketMid)}`, velocityTone]
+            ["🌐 통합 최근 런레이트", recentAllMarketMid ? `월 약 ${formatWonBig(recentAllMarketMid)}` : "-", recentAllMarketMid ? `${formatWonBig(recentAllMarketLow)}–${formatWonBig(recentAllMarketHigh)} · 한국+해외` : "시장별 델타 수집 대기", "signal"],
+            ["🇰🇷 한국 최근 런레이트", krRecentMid ? `월 약 ${formatWonBig(krRecentMid)}` : "-", krShareOfRecentPct == null ? "한국 델타 수집 대기" : `통합 최근 속도의 ${krShareOfRecentPct.toFixed(1)}%`, "positive"],
+            ["🌏 해외 합산 최근 런레이트", overseasRecentMid ? `월 약 ${formatWonBig(overseasRecentMid)}` : "-", siteRevenue.overseas_contribution_pct == null ? "해외 델타 수집 대기" : `통합 최근 속도의 ${siteRevenue.overseas_contribution_pct.toFixed(1)}% · 한국 단가 임시 적용`, "neutral"],
+            ["🇰🇷 한국 9억 가정 대비", latest.ir_ratio_pct != null ? `${latest.ir_ratio_pct.toFixed(1)}%` : "-", "한국만 비교 · 9억원 원문 출처·범위 미확인", "warning"]
           ])}
+        </div>
+        <div class="kpi-scope-footnote">
+          <span><strong>기간 차이</strong> 장기 평균 ${formatWonBig(cumulativeMonthlyAvg)} ↔ 최근 속도 ${formatWonBig(recentAllMarketMid)}</span>
+          <span><strong>속도 변화</strong> ${velocityVsCumulativePct == null ? "비교 대기" : `${velocityDirection} ${velocityVsCumulativePct >= 0 ? "+" : ""}${velocityVsCumulativePct.toFixed(1)}%`}</span>
+          <span><strong>표본</strong> 시장별 4~${accumulatedDays}일 · 14일 이상 권장</span>
         </div>
       </div>
     </div>
@@ -2730,6 +2736,8 @@ function renderRevenueBand(revenue) {
   const captureDate = new Date(statsData?.captured_at || Date.now());
   const elapsedDays = Math.max(1, Math.floor((captureDate - launchDate) / (1000 * 60 * 60 * 24)));
   const elapsedMonths = elapsedDays / 30;
+  const revPerSession = Number(revenue.constants?.rev_per_session || 2354);
+  const cumulativeMonthlyAverage = elapsedMonths > 0 ? (allTotals.chats * revPerSession) / elapsedMonths : 0;
 
   if (mode === "cumulative") {
     // 2026.02 론칭 누적 실적 뷰
@@ -2863,6 +2871,11 @@ function renderRevenueBand(revenue) {
     const grandMid = siteRevenue.grand_total_mid || 1076298234;
     const grandLow = Math.round(grandMid * (2000 / 2354));
     const grandHigh = Math.round(grandMid * (2700 / 2354));
+    const krMid = Number(siteRevenue.per_site?.kr?.revenue_mid || revenue.latest?.revenue_mid || 0);
+    const overseasMid = Number(siteRevenue.overseas_total_mid || Math.max(0, grandMid - krMid));
+    const velocityVsAveragePct = cumulativeMonthlyAverage > 0
+      ? ((grandMid / cumulativeMonthlyAverage) - 1) * 100
+      : null;
     
     // 일자별 4개국 합산 델타 밴드 생성
     const dailyKeys = MARKET_ORDER.map((m) => `${m}_delta`);
@@ -2902,6 +2915,23 @@ function renderRevenueBand(revenue) {
             <span><small>높게 보면</small><strong>${formatWonBig(grandHigh)}</strong></span>
           </div>
         </div>
+        <div class="revenue-scope-compare" aria-label="통합과 한국 최근 런레이트 비교">
+          <div class="scope-card is-all">
+            <span>🌐 통합</span>
+            <strong>${formatWonBig(grandMid)}</strong>
+            <small>한국 + 일본 + Global + 대만</small>
+          </div>
+          <div class="scope-card is-kr">
+            <span>🇰🇷 한국</span>
+            <strong>${formatWonBig(krMid)}</strong>
+            <small>한국 최근 ${revenue.daily?.length || 0}일 평균</small>
+          </div>
+          <div class="scope-card is-overseas">
+            <span>🌏 해외 합산</span>
+            <strong>${formatWonBig(overseasMid)}</strong>
+            <small>일본·Global·대만 · 한국 단가 임시 적용</small>
+          </div>
+        </div>
         <div class="band-list revenue-day-list">
           ${allMarketRows
             .map((row) => {
@@ -2925,10 +2955,10 @@ function renderRevenueBand(revenue) {
             })
             .join("")}
         </div>
-        <div class="benchmark-key"><span></span><strong>4개국 통합 환산 속도는 월 약 ${formatWonBig(grandMid)}</strong><small>해외는 한국 단가(2,354원) 임시 적용 · 회사 IR 9억 목표는 한국 중심 기준</small></div>
+        <div class="benchmark-key is-warning"><span>⚠️</span><strong>${formatWonBig(grandMid)}은 최근 활동 속도의 30일 환산값입니다.</strong></div>
         <div class="revenue-confidence-grid">
           <div><span>관측 표본</span><strong>시장별 4~5일</strong><small>최소 14일 권장</small></div>
-          <div><span>4개국 누적대비</span><strong>+68.1% 가속</strong><small>누적 월평균 6.4억 대비</small></div>
+          <div><span>통합 장기 월평균 대비</span><strong>${velocityVsAveragePct == null ? "-" : `${velocityVsAveragePct >= 0 ? "+" : ""}${velocityVsAveragePct.toFixed(1)}%`}</strong><small>장기 평균 ${formatWonBig(cumulativeMonthlyAverage)} ↔ 최근 속도 ${formatWonBig(grandMid)}</small></div>
           <div class="is-caution"><span>모델 신뢰도</span><strong>낮음</strong><small>결제율·해외ASP 미공시</small></div>
         </div>
       </article>
