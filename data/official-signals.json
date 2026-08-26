@@ -1,12 +1,28 @@
 {
-  "generated_at": "2026-08-26T03:08:55.504Z",
+  "generated_at": "2026-08-26T13:57:05.087Z",
   "providers": {
     "opendart": {
-      "status": "cached",
+      "status": "ok",
       "source": "OpenDART 공시검색",
-      "note": "최근 갱신 실패 · 이전 정상 응답 유지 (요청 시간 초과)",
+      "note": "종목코드 134580의 회사 고유번호를 자동 확인해 최근 180일 조회",
       "corp_code": "00608699",
       "disclosures": [
+        {
+          "company": "탑코미디어",
+          "report": "주주총회소집공고",
+          "receipt_no": "20260826000785",
+          "filed_at": "20260826",
+          "filer": "탑코미디어",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260826000785"
+        },
+        {
+          "company": "탑코미디어",
+          "report": "교환청구권행사              ",
+          "receipt_no": "20260826900731",
+          "filed_at": "20260826",
+          "filer": "탑코미디어",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260826900731"
+        },
         {
           "company": "탑코미디어",
           "report": "주식등의대량보유상황보고서(일반)",
@@ -70,22 +86,6 @@
           "filed_at": "20260804",
           "filer": "탑코미디어",
           "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260804900431"
-        },
-        {
-          "company": "탑코미디어",
-          "report": "임원ㆍ주요주주특정증권등소유상황보고서",
-          "receipt_no": "20260724000095",
-          "filed_at": "20260724",
-          "filer": "유정석",
-          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260724000095"
-        },
-        {
-          "company": "탑코미디어",
-          "report": "임원ㆍ주요주주특정증권등소유상황보고서",
-          "receipt_no": "20260724000092",
-          "filed_at": "20260724",
-          "filer": "김기해",
-          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260724000092"
         }
       ]
     },
@@ -351,19 +351,19 @@
           "name": "키다리스튜디오",
           "role": "Core",
           "focus": "웹툰·웹소설 플랫폼/IP",
-          "price": 5840,
+          "price": 5500,
           "previous_close": 5550,
           "open": 5680,
           "high": 6390,
-          "low": 5600,
-          "change": 290,
-          "change_pct": 5.23,
-          "change_sign": "2",
-          "volume": 1789481,
+          "low": 5410,
+          "change": -50,
+          "change_pct": -0.9,
+          "change_sign": "5",
+          "volume": 2682977,
           "shares_outstanding": 37063766,
-          "market_cap_krw": 216500000000,
-          "per": 32.63,
-          "pbr": 1.06,
+          "market_cap_krw": 203900000000,
+          "per": 30.73,
+          "pbr": 1,
           "status": "ok"
         },
         {
@@ -371,19 +371,19 @@
           "name": "핑거스토리",
           "role": "Secondary",
           "focus": "웹툰·웹소설 플랫폼",
-          "price": 4110,
+          "price": 4175,
           "previous_close": 4135,
           "open": 4095,
-          "high": 4110,
+          "high": 4185,
           "low": 3970,
-          "change": -25,
-          "change_pct": -0.6,
-          "change_sign": "5",
-          "volume": 1126,
+          "change": 40,
+          "change_pct": 0.97,
+          "change_sign": "2",
+          "volume": 2516,
           "shares_outstanding": 4309215,
-          "market_cap_krw": 17700000000,
-          "per": 4.03,
-          "pbr": 0.46,
+          "market_cap_krw": 18000000000,
+          "per": 4.09,
+          "pbr": 0.47,
           "status": "ok"
         },
         {
@@ -391,27 +391,32 @@
           "name": "디앤씨미디어",
           "role": "Secondary",
           "focus": "웹소설·웹툰 IP 출판",
-          "price": 7410,
+          "price": 7380,
           "previous_close": 7430,
           "open": 7430,
           "high": 7470,
           "low": 7330,
-          "change": -20,
-          "change_pct": -0.27,
+          "change": -50,
+          "change_pct": -0.67,
           "change_sign": "5",
-          "volume": 8777,
+          "volume": 10967,
           "shares_outstanding": 12412591,
-          "market_cap_krw": 92000000000,
-          "per": 11.63,
-          "pbr": 0.97,
+          "market_cap_krw": 91600000000,
+          "per": 11.59,
+          "pbr": 0.96,
           "status": "ok"
         }
       ],
       "peer_note": "동일 업종의 완전한 비교군이 아닌 웹툰 플랫폼·IP 사업 노출 기준 스크리닝 피어"
     },
     "fred": {
-      "status": "skipped",
-      "note": "FRED_API_KEY 필요"
+      "status": "ok",
+      "source": "FRED DEXKOUS",
+      "observation": {
+        "date": "2026-08-21",
+        "value": 1385.01,
+        "unit": "KRW per USD"
+      }
     }
   }
 }
