@@ -2711,18 +2711,6 @@ function renderPeriodComparison(title, subtitle, rows, formatter = formatNumber,
 
 function renderRevenueBand(revenue) {
   const mode = state.revenueViewMode || "recent";
-  const rows = revenue.daily || [];
-  const benchmark = revenue.ir_benchmark?.monthly || 0;
-  const latest = revenue.latest || rows.at(-1) || {};
-  const allTotals = statsMarketTotals("all");
-
-  const launchDate = new Date("2026-02-01T00:00:00+09:00");
-  const captureDate = new Date(statsData?.captured_at || Date.now());
-  const elapsedDays = Math.max(1, Math.floor((captureDate - launchDate) / (1000 * 60 * 60 * 24)));
-  const elapsedMonths = elapsedDays / 30;
-
-function renderRevenueBand(revenue) {
-  const mode = state.revenueViewMode || "recent";
   const market = MARKET_META[state.statsMarket] ? state.statsMarket : "all";
   const meta = MARKET_META[market];
   const allTotals = statsMarketTotals("all");
@@ -3071,7 +3059,6 @@ function renderRevenueBand(revenue) {
       </div>
     </article>
   `;
-}
 }
 
 function renderStackedDaily(title, rows) {
