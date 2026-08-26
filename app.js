@@ -771,9 +771,9 @@ function renderStatsDashboard() {
         <div class="kpi-group-header">
           <div class="kpi-group-title">
             <span class="kpi-group-tag tag-velocity">⚡ 최근 일일 속도 관측 (현재 런레이트)</span>
-            <strong>통합·한국·해외를 분리한 최근 4~${accumulatedDays}일 월환산</strong>
+            <strong>🌐 4개국 통합 속도 및 시장별 기여 (최근 4~${accumulatedDays}일 런레이트)</strong>
           </div>
-          <span class="stat-help">최근 일평균 증가량 × 30일 · 시장별 4~${accumulatedDays}일 관측</span>
+          <span class="stat-help">최근 일평균 증가량 × 30일 환산 (통합 10.8억 = 한국 6.7억 + 해외 4.1억)</span>
         </div>
         <div class="kpi-card-subgrid kpi-scope-split-grid">
           ${renderStatCards([
