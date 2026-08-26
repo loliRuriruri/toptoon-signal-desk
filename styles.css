@@ -3926,29 +3926,39 @@ tbody tr:last-child td {
   border: 1px solid rgba(230, 103, 103, 0.4);
 }
 
+#main-kpi-grid {
+  display: block;
+  width: 100%;
+}
+
 .kpi-dual-container {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .kpi-group-card {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  background: rgba(18, 26, 38, 0.45);
+  gap: 12px;
+  background: rgba(14, 20, 30, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 14px 16px;
+  border-radius: 14px;
+  padding: 16px 18px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .kpi-group-card.group-cumulative {
-  border-left: 3px solid rgba(57, 135, 229, 0.9);
+  border-left: 4px solid rgba(57, 135, 229, 0.95);
+  background: linear-gradient(90deg, rgba(57, 135, 229, 0.07), rgba(14, 20, 30, 0.7) 35%);
 }
 
 .kpi-group-card.group-velocity {
-  border-left: 3px solid rgba(39, 196, 153, 0.9);
+  border-left: 4px solid rgba(39, 196, 153, 0.95);
+  background: linear-gradient(90deg, rgba(39, 196, 153, 0.07), rgba(14, 20, 30, 0.7) 35%);
 }
 
 .kpi-group-header {
@@ -3962,29 +3972,84 @@ tbody tr:last-child td {
 .kpi-group-title {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  gap: 10px;
+  font-size: 13.5px;
   color: var(--text);
 }
 
 .kpi-group-tag {
   display: inline-flex;
   align-items: center;
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: 6px;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 11.5px;
+  font-weight: 750;
   letter-spacing: 0.03em;
 }
 
 .tag-cumulative {
-  background: rgba(57, 135, 229, 0.18);
+  background: rgba(57, 135, 229, 0.22);
   color: #79b8ff;
-  border: 1px solid rgba(57, 135, 229, 0.4);
+  border: 1px solid rgba(57, 135, 229, 0.45);
 }
 
 .tag-velocity {
-  background: rgba(39, 196, 153, 0.18);
+  background: rgba(39, 196, 153, 0.22);
   color: #56d364;
-  border: 1px solid rgba(39, 196, 153, 0.4);
+  border: 1px solid rgba(39, 196, 153, 0.45);
 }
+
+.kpi-group-card .stats-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  width: 100% !important;
+}
+
+@media (max-width: 1024px) {
+  .kpi-group-card .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .kpi-group-card .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Revenue Mode Tabs */
+.revenue-mode-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rev-tab-btn {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+  padding: 5px 11px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 140ms ease;
+  white-space: nowrap;
+}
+
+.rev-tab-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.rev-tab-btn.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(57, 135, 229, 0.4);
+}
+

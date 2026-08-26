@@ -60,6 +60,7 @@ const state = {
   leaderboardMarket: "all",
   selectedSupplyMonth: null,
   simulatedPrice: null,
+  revenueViewMode: "recent",
   q: "",
   work: "",
   sort: "views-desc"
@@ -233,6 +234,17 @@ function bindEvents() {
       state.selectedSupplyMonth = monthButton.dataset.supplyMonth;
       renderStatsDashboard();
       bindResultButtons();
+      return;
+    }
+
+    const revModeBtn = event.target.closest("[data-revenue-mode]");
+    if (revModeBtn) {
+      const mode = revModeBtn.dataset.revenueMode;
+      if (mode && state.revenueViewMode !== mode) {
+        state.revenueViewMode = mode;
+        renderStatsDashboard();
+        bindResultButtons();
+      }
       return;
     }
 
@@ -2620,16 +2632,119 @@ function renderPeriodComparison(title, subtitle, rows, formatter = formatNumber,
 }
 
 function renderRevenueBand(revenue) {
+  const mode = state.revenueViewMode || "recent";
   const rows = revenue.daily || [];
   const benchmark = revenue.ir_benchmark?.monthly || 0;
   const latest = revenue.latest || rows.at(-1) || {};
+  const allTotals = statsMarketTotals("all");
+
+  const launchDate = new Date("2026-02-01T00:00:00+09:00");
+  const captureDate = new Date(statsData?.captured_at || Date.now());
+  const elapsedDays = Math.max(1, Math.floor((captureDate - launchDate) / (1000 * 60 * 60 * 24)));
+  const elapsedMonths = elapsedDays / 30;
+
+  if (mode === "cumulative") {
+    // 2026.02 론칭 누적 실적 뷰
+    const totalChats = allTotals.chats;
+    const grossMid = totalChats * 2354;
+    const grossLow = totalChats * 2000;
+    const grossHigh = totalChats * 2700;
+    const monthlyAvg = grossMid / elapsedMonths;
+    const irMonthly = benchmark || 900000000;
+    const irMonthlyRatio = (monthlyAvg / irMonthly) * 100;
+
+    // 4개 시장별 누적 데이터 행 구성
+    const marketRows = MARKET_ORDER.map((mKey) => {
+      const mTotals = statsMarketTotals(mKey);
+      const mChats = mTotals.chats;
+      const mMid = mChats * 2354;
+      const mLow = mChats * 2000;
+      const mHigh = mChats * 2700;
+      const share = totalChats ? (mChats / totalChats) * 100 : 0;
+      return {
+        key: mKey,
+        label: MARKET_META[mKey].label,
+        flag: MARKET_META[mKey].flag,
+        chats: mChats,
+        share,
+        revenue_low: mLow,
+        revenue_mid: mMid,
+        revenue_high: mHigh
+      };
+    });
+
+    const maxVal = Math.max(...marketRows.map((r) => r.revenue_high), 1);
+
+    return `
+      <article class="chart-card span-7 revenue-range-card">
+        <div class="chart-heading">
+          <div>
+            <h3>론칭 누적 실적 추정: 얼마를 벌었나?</h3>
+            <p class="stat-help">2026년 2월 론칭 이후 누적 ${formatNumber(totalChats)}회 대화 × 세션당 2,000~2,700원 가정</p>
+          </div>
+          <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
+            <button type="button" class="rev-tab-btn" data-revenue-mode="recent">⚡ 최근 ${rows.length}일 런레이트</button>
+            <button type="button" class="rev-tab-btn active" data-revenue-mode="cumulative">🏛️ 2026.02 론칭 누적</button>
+          </div>
+        </div>
+        <div class="revenue-headline">
+          <div><span>7개월 론칭 누적 총매출</span><strong>${formatWonBig(grossMid)}</strong><small>누적 ${formatNumber(totalChats)}회 대화 환산</small></div>
+          <div class="revenue-range-summary">
+            <span><small>낮게 보면</small><strong>${formatWonBig(grossLow)}</strong></span>
+            <span class="is-focus"><small>누적 기준값</small><strong>${formatWonBig(grossMid)}</strong></span>
+            <span><small>높게 보면</small><strong>${formatWonBig(grossHigh)}</strong></span>
+          </div>
+        </div>
+        <div class="band-list revenue-day-list">
+          ${marketRows
+            .map((row) => {
+              const left = Math.max(0, (row.revenue_low / maxVal) * 100);
+              const right = Math.max(left, (row.revenue_high / maxVal) * 100);
+              const mid = Math.max(0, (row.revenue_mid / maxVal) * 100);
+              return `
+                <div class="revenue-day-row">
+                  <span class="revenue-date" style="font-weight:750">${row.flag} ${escapeHtml(row.label)}</span>
+                  <div class="revenue-day-values">
+                    <span><small>낮게</small>${formatWonBig(row.revenue_low)}</span>
+                    <strong><small>기준</small>${formatWonBig(row.revenue_mid)}</strong>
+                    <span><small>높게</small>${formatWonBig(row.revenue_high)}</span>
+                  </div>
+                  <div class="band-track" title="${escapeAttr(`${row.label} ${formatNumber(row.chats)}회 (${row.share.toFixed(1)}%) · ${formatWonBig(row.revenue_low)}~${formatWonBig(row.revenue_high)}`)}">
+                    <span class="band-fill" style="left:${left}%;width:${right - left}%"></span>
+                    <span class="band-marker" style="left:${mid}%"></span>
+                  </div>
+                </div>
+              `;
+            })
+            .join("")}
+        </div>
+        <div class="benchmark-key"><span></span><strong>누적 7개월(${elapsedDays}일) 환산 월평균은 월 약 ${formatWonBig(monthlyAvg)} (회사 제시 월 ${formatWonBig(irMonthly)}의 ${irMonthlyRatio.toFixed(1)}%)</strong><small>누적 총매출을 7개월로 나눈 평균 실적</small></div>
+        <div class="revenue-confidence-grid">
+          <div><span>누적 운영 기간</span><strong>${elapsedDays}일 (7개월)</strong><small>2026.02.01 론칭</small></div>
+          <div><span>누적 월평균</span><strong>월 약 ${formatWonBig(monthlyAvg)}</strong><small>IR 제시 9억 대비 ${irMonthlyRatio.toFixed(1)}%</small></div>
+          <div class="is-highlight"><span>누적 총 대화수</span><strong>${formatNumber(totalChats)}회</strong><small>4개국 합계</small></div>
+        </div>
+      </article>
+    `;
+  }
+
+  // 최근 일일 런레이트 뷰 (recent)
   const values = rows.flatMap((row) => [row.revenue_low, row.revenue_mid, row.revenue_high]);
   if (benchmark) values.push(benchmark);
   const max = Math.max(...values.map(Number), 1);
   const benchmarkRatio = benchmark ? (Number(latest.revenue_mid || 0) / benchmark) * 100 : 0;
   return `
     <article class="chart-card span-7 revenue-range-card">
-      <div class="chart-heading"><div><h3>월매출 추정: 얼마까지 볼 수 있나?</h3><p class="stat-help">최근 대화 증가를 30일로 환산 · 세션당 2,000~2,700원 가정</p></div><span class="sample-badge">최근 ${rows.length}일</span></div>
+      <div class="chart-heading">
+        <div>
+          <h3>월매출 추정: 얼마까지 볼 수 있나?</h3>
+          <p class="stat-help">최근 대화 증가를 30일로 환산 · 세션당 2,000~2,700원 가정</p>
+        </div>
+        <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
+          <button type="button" class="rev-tab-btn active" data-revenue-mode="recent">⚡ 최근 ${rows.length}일 런레이트</button>
+          <button type="button" class="rev-tab-btn" data-revenue-mode="cumulative">🏛️ 2026.02 론칭 누적</button>
+        </div>
+      </div>
       <div class="revenue-headline">
         <div><span>현재 기준 시나리오</span><strong>${formatWonBig(latest.revenue_mid)}</strong><small>월 환산 · 공시 매출 아님</small></div>
         <div class="revenue-range-summary">
