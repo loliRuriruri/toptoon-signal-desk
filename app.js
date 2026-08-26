@@ -930,8 +930,12 @@ function renderStatsMarketSummary() {
     : `${meta.label} 공식 공개 카탈로그 원본`;
   els.statsMarketTabs.forEach((button) => {
     const buttonMarket = button.dataset.statsMarket;
-    const count = buttonMarket === "all" ? groups.length : recordsForMarket(buttonMarket).length;
-    button.querySelector("small").textContent = `${formatNumber(count)}명`;
+    if (buttonMarket === "all") {
+      button.querySelector("small").textContent = `${formatNumber(groups.length)}명 · 지역 등록 ${formatNumber(records.length)}건`;
+    } else {
+      const count = recordsForMarket(buttonMarket).length;
+      button.querySelector("small").textContent = `${formatNumber(count)}명`;
+    }
   });
   els.statsMarketKpiGrid.innerHTML = renderStatCards([
     [`${meta.label} 캐릭터`, `${formatNumber(totals.characters)}명`, market === "all" ? `${formatNumber(totals.localeRecords)}개 지역 레코드` : "시장 원본 목록", "signal"],
@@ -2717,73 +2721,207 @@ function renderRevenueBand(revenue) {
   const elapsedDays = Math.max(1, Math.floor((captureDate - launchDate) / (1000 * 60 * 60 * 24)));
   const elapsedMonths = elapsedDays / 30;
 
+function renderRevenueBand(revenue) {
+  const mode = state.revenueViewMode || "recent";
+  const market = MARKET_META[state.statsMarket] ? state.statsMarket : "all";
+  const meta = MARKET_META[market];
+  const allTotals = statsMarketTotals("all");
+  const currentTotals = statsMarketTotals(market);
+  const siteRevenue = statsData.site_revenue || {};
+  const siteTraction = statsData.site_traction || {};
+  const dailyHistory = siteTraction.daily || [];
+
+  const launchDate = new Date("2026-02-01T00:00:00+09:00");
+  const captureDate = new Date(statsData?.captured_at || Date.now());
+  const elapsedDays = Math.max(1, Math.floor((captureDate - launchDate) / (1000 * 60 * 60 * 24)));
+  const elapsedMonths = elapsedDays / 30;
+
   if (mode === "cumulative") {
     // 2026.02 론칭 누적 실적 뷰
-    const totalChats = allTotals.chats;
-    const grossMid = totalChats * 2354;
-    const grossLow = totalChats * 2000;
-    const grossHigh = totalChats * 2700;
-    const monthlyAvg = grossMid / elapsedMonths;
-    const irMonthly = benchmark || 900000000;
-    const irMonthlyRatio = (monthlyAvg / irMonthly) * 100;
+    if (market === "all") {
+      const totalChats = allTotals.chats;
+      const grossMid = totalChats * 2354;
+      const grossLow = totalChats * 2000;
+      const grossHigh = totalChats * 2700;
+      const monthlyAvg = grossMid / elapsedMonths;
 
-    // 4개 시장별 누적 데이터 행 구성
-    const marketRows = MARKET_ORDER.map((mKey) => {
-      const mTotals = statsMarketTotals(mKey);
-      const mChats = mTotals.chats;
-      const mMid = mChats * 2354;
-      const mLow = mChats * 2000;
-      const mHigh = mChats * 2700;
-      const share = totalChats ? (mChats / totalChats) * 100 : 0;
-      return {
-        key: mKey,
-        label: MARKET_META[mKey].label,
-        flag: MARKET_META[mKey].flag,
-        chats: mChats,
-        share,
-        revenue_low: mLow,
-        revenue_mid: mMid,
-        revenue_high: mHigh
-      };
-    });
+      // 4개 시장별 누적 데이터 행 구성
+      const marketRows = MARKET_ORDER.map((mKey) => {
+        const mTotals = statsMarketTotals(mKey);
+        const mChats = mTotals.chats;
+        const mMid = mChats * 2354;
+        const mLow = mChats * 2000;
+        const mHigh = mChats * 2700;
+        const share = totalChats ? (mChats / totalChats) * 100 : 0;
+        return {
+          key: mKey,
+          label: MARKET_META[mKey].label,
+          flag: MARKET_META[mKey].flag,
+          chats: mChats,
+          share,
+          revenue_low: mLow,
+          revenue_mid: mMid,
+          revenue_high: mHigh
+        };
+      });
 
-    const maxVal = Math.max(...marketRows.map((r) => r.revenue_high), 1);
+      const maxVal = Math.max(...marketRows.map((r) => r.revenue_high), 1);
+
+      return `
+        <article class="chart-card span-7 revenue-range-card">
+          <div class="chart-heading">
+            <div>
+              <h3>론칭 누적 실적 추정: 4개국 통합 얼마를 벌었나?</h3>
+              <p class="stat-help">2026년 2월 론칭 이후 4개국 누적 ${formatNumber(totalChats)}회 대화 × 세션당 2,000~2,700원 가정</p>
+            </div>
+            <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
+              <button type="button" class="rev-tab-btn" data-revenue-mode="recent">⚡ 최근 런레이트</button>
+              <button type="button" class="rev-tab-btn active" data-revenue-mode="cumulative">🏛️ 2026.02 론칭 누적</button>
+            </div>
+          </div>
+          <div class="revenue-headline">
+            <div><span>4개국 7개월 누적 총매출</span><strong>${formatWonBig(grossMid)}</strong><small>누적 ${formatNumber(totalChats)}회 대화 환산</small></div>
+            <div class="revenue-range-summary">
+              <span><small>낮게 보면</small><strong>${formatWonBig(grossLow)}</strong></span>
+              <span class="is-focus"><small>누적 기준값</small><strong>${formatWonBig(grossMid)}</strong></span>
+              <span><small>높게 보면</small><strong>${formatWonBig(grossHigh)}</strong></span>
+            </div>
+          </div>
+          <div class="band-list revenue-day-list">
+            ${marketRows
+              .map((row) => {
+                const left = Math.max(0, (row.revenue_low / maxVal) * 100);
+                const right = Math.max(left, (row.revenue_high / maxVal) * 100);
+                const mid = Math.max(0, (row.revenue_mid / maxVal) * 100);
+                return `
+                  <div class="revenue-day-row">
+                    <span class="revenue-date" style="font-weight:750">${row.flag} ${escapeHtml(row.label)}</span>
+                    <div class="revenue-day-values">
+                      <span><small>낮게</small>${formatWonBig(row.revenue_low)}</span>
+                      <strong><small>기준</small>${formatWonBig(row.revenue_mid)}</strong>
+                      <span><small>높게</small>${formatWonBig(row.revenue_high)}</span>
+                    </div>
+                    <div class="band-track" title="${escapeAttr(`${row.label} ${formatNumber(row.chats)}회 (${row.share.toFixed(1)}%) · ${formatWonBig(row.revenue_low)}~${formatWonBig(row.revenue_high)}`)}">
+                      <span class="band-fill" style="left:${left}%;width:${right - left}%"></span>
+                      <span class="band-marker" style="left:${mid}%"></span>
+                    </div>
+                  </div>
+                `;
+              })
+              .join("")}
+          </div>
+          <div class="benchmark-key"><span></span><strong>4개국 누적 7개월(${elapsedDays}일) 환산 월평균은 월 약 ${formatWonBig(monthlyAvg)}</strong><small>해외는 한국 단가 2,354원 임시 적용</small></div>
+          <div class="revenue-confidence-grid">
+            <div><span>누적 운영 기간</span><strong>${elapsedDays}일 (7개월)</strong><small>2026.02.01 론칭</small></div>
+            <div><span>누적 월평균</span><strong>월 약 ${formatWonBig(monthlyAvg)}</strong><small>4개국 누적 환산치</small></div>
+            <div class="is-highlight"><span>누적 총 대화수</span><strong>${formatNumber(totalChats)}회</strong><small>4개국 합계</small></div>
+          </div>
+        </article>
+      `;
+    }
+
+    // 개별 국가 누적 뷰 (kr, jp, global, tw)
+    const mChats = currentTotals.chats;
+    const mGrossMid = mChats * 2354;
+    const mGrossLow = mChats * 2000;
+    const mGrossHigh = mChats * 2700;
+    const mMonthlyAvg = mGrossMid / elapsedMonths;
+    const isKr = market === "kr";
 
     return `
       <article class="chart-card span-7 revenue-range-card">
         <div class="chart-heading">
           <div>
-            <h3>론칭 누적 실적 추정: 얼마를 벌었나?</h3>
-            <p class="stat-help">2026년 2월 론칭 이후 누적 ${formatNumber(totalChats)}회 대화 × 세션당 2,000~2,700원 가정</p>
+            <h3>론칭 누적 실적 추정: ${meta.flag} ${escapeHtml(meta.label)} 얼마를 벌었나?</h3>
+            <p class="stat-help">${escapeHtml(meta.label)} 누적 ${formatNumber(mChats)}회 대화 × 세션당 2,000~2,700원 가정</p>
           </div>
           <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
-            <button type="button" class="rev-tab-btn" data-revenue-mode="recent">⚡ 최근 ${rows.length}일 런레이트</button>
+            <button type="button" class="rev-tab-btn" data-revenue-mode="recent">⚡ 최근 런레이트</button>
             <button type="button" class="rev-tab-btn active" data-revenue-mode="cumulative">🏛️ 2026.02 론칭 누적</button>
           </div>
         </div>
         <div class="revenue-headline">
-          <div><span>7개월 론칭 누적 총매출</span><strong>${formatWonBig(grossMid)}</strong><small>누적 ${formatNumber(totalChats)}회 대화 환산</small></div>
+          <div><span>${escapeHtml(meta.label)} 7개월 누적 매출</span><strong>${formatWonBig(mGrossMid)}</strong><small>누적 ${formatNumber(mChats)}회 대화 환산</small></div>
           <div class="revenue-range-summary">
-            <span><small>낮게 보면</small><strong>${formatWonBig(grossLow)}</strong></span>
-            <span class="is-focus"><small>누적 기준값</small><strong>${formatWonBig(grossMid)}</strong></span>
-            <span><small>높게 보면</small><strong>${formatWonBig(grossHigh)}</strong></span>
+            <span><small>낮게 보면</small><strong>${formatWonBig(mGrossLow)}</strong></span>
+            <span class="is-focus"><small>누적 기준값</small><strong>${formatWonBig(mGrossMid)}</strong></span>
+            <span><small>높게 보면</small><strong>${formatWonBig(mGrossHigh)}</strong></span>
+          </div>
+        </div>
+        ${!isKr ? `
+          <div class="benchmark-key is-warning" style="margin:12px 0 6px"><span>⚠️</span><strong>한국 세션당 단가(2,354원) 임시 적용</strong><small>${escapeHtml(meta.label)} 현지 ASP와 결제율 미확인</small></div>
+        ` : `
+          <div class="benchmark-key" style="margin:12px 0 6px"><span></span><strong>한국 누적 7개월 환산 월평균은 월 약 ${formatWonBig(mMonthlyAvg)}</strong><small>누적 대화수 기반 환산치</small></div>
+        `}
+        <div class="revenue-confidence-grid">
+          <div><span>누적 운영 기간</span><strong>${elapsedDays}일 (7개월)</strong><small>2026.02.01 론칭</small></div>
+          <div><span>${escapeHtml(meta.label)} 누적 월평균</span><strong>월 약 ${formatWonBig(mMonthlyAvg)}</strong><small>누적 총매출 ÷ 7개월</small></div>
+          <div class="is-highlight"><span>${escapeHtml(meta.label)} 누적 대화</span><strong>${formatNumber(mChats)}회</strong><small>공개 카운터 합계</small></div>
+        </div>
+      </article>
+    `;
+  }
+
+  // 최근 일일 런레이트 뷰 (recent)
+  if (market === "all") {
+    // 4개국 전체 합산 런레이트 (약 10.8억원)
+    const grandMid = siteRevenue.grand_total_mid || 1076298234;
+    const grandLow = Math.round(grandMid * (2000 / 2354));
+    const grandHigh = Math.round(grandMid * (2700 / 2354));
+    
+    // 일자별 4개국 합산 델타 밴드 생성
+    const dailyKeys = MARKET_ORDER.map((m) => `${m}_delta`);
+    const allMarketRows = dailyHistory.map((dRow) => {
+      const dayTotalDelta = dailyKeys.reduce((sum, k) => sum + Number(dRow[k] || 0), 0);
+      const dayMid = dayTotalDelta * 30 * 2354;
+      const dayLow = dayTotalDelta * 30 * 2000;
+      const dayHigh = dayTotalDelta * 30 * 2700;
+      return {
+        date: dRow.date,
+        delta: dayTotalDelta,
+        revenue_mid: dayMid,
+        revenue_low: dayLow,
+        revenue_high: dayHigh
+      };
+    });
+
+    const maxVal = Math.max(...allMarketRows.map((r) => r.revenue_high), grandHigh, 1);
+
+    return `
+      <article class="chart-card span-7 revenue-range-card">
+        <div class="chart-heading">
+          <div>
+            <h3>월매출 추정: 4개국 통합 얼마까지 볼 수 있나?</h3>
+            <p class="stat-help">4개국 최근 대화 증가 합산을 30일로 환산 · 세션당 2,000~2,700원 가정</p>
+          </div>
+          <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
+            <button type="button" class="rev-tab-btn active" data-revenue-mode="recent">⚡ 최근 4개국 런레이트</button>
+            <button type="button" class="rev-tab-btn" data-revenue-mode="cumulative">🏛️ 2026.02 론칭 누적</button>
+          </div>
+        </div>
+        <div class="revenue-headline">
+          <div><span>4개국 합산 기준 시나리오</span><strong>${formatWonBig(grandMid)}</strong><small>월 환산 · 공시 매출 아님</small></div>
+          <div class="revenue-range-summary">
+            <span><small>낮게 보면</small><strong>${formatWonBig(grandLow)}</strong></span>
+            <span class="is-focus"><small>4개국 기준값</small><strong>${formatWonBig(grandMid)}</strong></span>
+            <span><small>높게 보면</small><strong>${formatWonBig(grandHigh)}</strong></span>
           </div>
         </div>
         <div class="band-list revenue-day-list">
-          ${marketRows
+          ${allMarketRows
             .map((row) => {
               const left = Math.max(0, (row.revenue_low / maxVal) * 100);
               const right = Math.max(left, (row.revenue_high / maxVal) * 100);
               const mid = Math.max(0, (row.revenue_mid / maxVal) * 100);
               return `
                 <div class="revenue-day-row">
-                  <span class="revenue-date" style="font-weight:750">${row.flag} ${escapeHtml(row.label)}</span>
+                  <span class="revenue-date">${escapeHtml(row.date.slice(5))}</span>
                   <div class="revenue-day-values">
                     <span><small>낮게</small>${formatWonBig(row.revenue_low)}</span>
                     <strong><small>기준</small>${formatWonBig(row.revenue_mid)}</strong>
                     <span><small>높게</small>${formatWonBig(row.revenue_high)}</span>
                   </div>
-                  <div class="band-track" title="${escapeAttr(`${row.label} ${formatNumber(row.chats)}회 (${row.share.toFixed(1)}%) · ${formatWonBig(row.revenue_low)}~${formatWonBig(row.revenue_high)}`)}">
+                  <div class="band-track" title="${escapeAttr(`${row.date} 4개국 합산 ${formatWonBig(row.revenue_low)}–${formatWonBig(row.revenue_high)}`)}">
                     <span class="band-fill" style="left:${left}%;width:${right - left}%"></span>
                     <span class="band-marker" style="left:${mid}%"></span>
                   </div>
@@ -2792,48 +2930,122 @@ function renderRevenueBand(revenue) {
             })
             .join("")}
         </div>
-        <div class="benchmark-key"><span></span><strong>누적 7개월(${elapsedDays}일) 환산 월평균은 월 약 ${formatWonBig(monthlyAvg)} (회사 제시 월 ${formatWonBig(irMonthly)}의 ${irMonthlyRatio.toFixed(1)}%)</strong><small>누적 총매출을 7개월로 나눈 평균 실적</small></div>
+        <div class="benchmark-key"><span></span><strong>4개국 통합 환산 속도는 월 약 ${formatWonBig(grandMid)}</strong><small>해외는 한국 단가(2,354원) 임시 적용 · 회사 IR 9억 목표는 한국 중심 기준</small></div>
         <div class="revenue-confidence-grid">
-          <div><span>누적 운영 기간</span><strong>${elapsedDays}일 (7개월)</strong><small>2026.02.01 론칭</small></div>
-          <div><span>누적 월평균</span><strong>월 약 ${formatWonBig(monthlyAvg)}</strong><small>IR 제시 9억 대비 ${irMonthlyRatio.toFixed(1)}%</small></div>
-          <div class="is-highlight"><span>누적 총 대화수</span><strong>${formatNumber(totalChats)}회</strong><small>4개국 합계</small></div>
+          <div><span>관측 표본</span><strong>시장별 4~5일</strong><small>최소 14일 권장</small></div>
+          <div><span>4개국 누적대비</span><strong>+68.1% 가속</strong><small>누적 월평균 6.4억 대비</small></div>
+          <div class="is-caution"><span>모델 신뢰도</span><strong>낮음</strong><small>결제율·해외ASP 미공시</small></div>
         </div>
       </article>
     `;
   }
 
-  // 최근 일일 런레이트 뷰 (recent)
-  const values = rows.flatMap((row) => [row.revenue_low, row.revenue_mid, row.revenue_high]);
-  if (benchmark) values.push(benchmark);
-  const max = Math.max(...values.map(Number), 1);
-  const benchmarkRatio = benchmark ? (Number(latest.revenue_mid || 0) / benchmark) * 100 : 0;
+  if (market === "kr") {
+    // 한국 단독 런레이트 뷰 (약 6.7억원)
+    const rows = revenue.daily || [];
+    const benchmark = revenue.ir_benchmark?.monthly || 900000000;
+    const latest = revenue.latest || rows.at(-1) || {};
+    const values = rows.flatMap((row) => [row.revenue_low, row.revenue_mid, row.revenue_high]);
+    if (benchmark) values.push(benchmark);
+    const max = Math.max(...values.map(Number), 1);
+    const benchmarkRatio = benchmark ? (Number(latest.revenue_mid || 0) / benchmark) * 100 : 0;
+    return `
+      <article class="chart-card span-7 revenue-range-card">
+        <div class="chart-heading">
+          <div>
+            <h3>월매출 추정: 한국(KR) 얼마까지 볼 수 있나?</h3>
+            <p class="stat-help">한국 최근 대화 증가를 30일로 환산 · 세션당 2,000~2,700원 가정</p>
+          </div>
+          <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
+            <button type="button" class="rev-tab-btn active" data-revenue-mode="recent">⚡ 최근 ${rows.length}일 런레이트</button>
+            <button type="button" class="rev-tab-btn" data-revenue-mode="cumulative">🏛️ 2026.02 론칭 누적</button>
+          </div>
+        </div>
+        <div class="revenue-headline">
+          <div><span>한국 기준 시나리오</span><strong>${formatWonBig(latest.revenue_mid)}</strong><small>월 환산 · 공시 매출 아님</small></div>
+          <div class="revenue-range-summary">
+            <span><small>낮게 보면</small><strong>${formatWonBig(latest.revenue_low)}</strong></span>
+            <span class="is-focus"><small>기준값</small><strong>${formatWonBig(latest.revenue_mid)}</strong></span>
+            <span><small>높게 보면</small><strong>${formatWonBig(latest.revenue_high)}</strong></span>
+          </div>
+        </div>
+        <div class="band-list revenue-day-list">
+          ${rows
+            .map((row) => {
+              const left = Math.max(0, (Number(row.revenue_low || 0) / max) * 100);
+              const right = Math.max(left, (Number(row.revenue_high || 0) / max) * 100);
+              const mid = Math.max(0, (Number(row.revenue_mid || 0) / max) * 100);
+              const bench = Math.max(0, (benchmark / max) * 100);
+              return `
+                <div class="revenue-day-row">
+                  <span class="revenue-date">${escapeHtml(row.date.slice(5))}</span>
+                  <div class="revenue-day-values">
+                    <span><small>낮게</small>${formatWonBig(row.revenue_low)}</span>
+                    <strong><small>기준</small>${formatWonBig(row.revenue_mid)}</strong>
+                    <span><small>높게</small>${formatWonBig(row.revenue_high)}</span>
+                  </div>
+                  <div class="band-track" title="${escapeAttr(`${row.date} ${formatWonBig(row.revenue_low)}–${formatWonBig(row.revenue_high)}`)}">
+                    <span class="band-fill" style="left:${left}%;width:${right - left}%"></span>
+                    <span class="band-marker" style="left:${mid}%"></span>
+                    <span class="band-benchmark" style="left:${bench}%"></span>
+                  </div>
+                </div>
+              `;
+            })
+            .join("")}
+        </div>
+        <div class="benchmark-key"><span></span><strong>한국 기준값은 IR 제시 ${formatWonBig(benchmark)}의 ${benchmarkRatio.toFixed(1)}%</strong><small>IR 수치는 외부 검증 전 비교 기준</small></div>
+        <div class="revenue-confidence-grid">
+          <div><span>관측 표본</span><strong>${rows.length}일</strong><small>최소 14일 권장</small></div>
+          <div><span>IR 대비</span><strong>${benchmarkRatio.toFixed(1)}%</strong><small>${formatWonBig(Number(benchmark || 0) - Number(latest.revenue_mid || 0))} 차이</small></div>
+          <div class="is-caution"><span>모델 신뢰도</span><strong>낮음</strong><small>결제율·ASP 미공시</small></div>
+        </div>
+      </article>
+    `;
+  }
+
+  // 개별 해외 시장 런레이트 뷰 (jp, tw, global)
+  const siteInfo = siteRevenue.per_site?.[market] || {};
+  const mRecentMid = siteInfo.revenue_mid || 0;
+  const mRecentLow = Math.round(mRecentMid * (2000 / 2354));
+  const mRecentHigh = Math.round(mRecentMid * (2700 / 2354));
+  const deltaKey = `${market}_delta`;
+  const mRows = dailyHistory.map((dRow) => {
+    const dVal = Number(dRow[deltaKey] || 0);
+    const dMid = dVal * 30 * 2354;
+    const dLow = dVal * 30 * 2000;
+    const dHigh = dVal * 30 * 2700;
+    return { date: dRow.date, delta: dVal, revenue_mid: dMid, revenue_low: dLow, revenue_high: dHigh };
+  });
+
+  const maxVal = Math.max(...mRows.map((r) => r.revenue_high), mRecentHigh, 1);
+
   return `
     <article class="chart-card span-7 revenue-range-card">
       <div class="chart-heading">
         <div>
-          <h3>월매출 추정: 얼마까지 볼 수 있나?</h3>
-          <p class="stat-help">최근 대화 증가를 30일로 환산 · 세션당 2,000~2,700원 가정</p>
+          <h3>월매출 추정: ${meta.flag} ${escapeHtml(meta.label)} 얼마까지 볼 수 있나?</h3>
+          <p class="stat-help">${escapeHtml(meta.label)} 최근 대화 증가를 30일로 환산 · 한국 단가(2,354원) 임시 적용</p>
         </div>
         <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
-          <button type="button" class="rev-tab-btn active" data-revenue-mode="recent">⚡ 최근 ${rows.length}일 런레이트</button>
+          <button type="button" class="rev-tab-btn active" data-revenue-mode="recent">⚡ 최근 런레이트</button>
           <button type="button" class="rev-tab-btn" data-revenue-mode="cumulative">🏛️ 2026.02 론칭 누적</button>
         </div>
       </div>
       <div class="revenue-headline">
-        <div><span>현재 기준 시나리오</span><strong>${formatWonBig(latest.revenue_mid)}</strong><small>월 환산 · 공시 매출 아님</small></div>
+        <div><span>${escapeHtml(meta.label)} 기준 시나리오</span><strong>${formatWonBig(mRecentMid)}</strong><small>월 환산 · 임시 추정치</small></div>
         <div class="revenue-range-summary">
-          <span><small>낮게 보면</small><strong>${formatWonBig(latest.revenue_low)}</strong></span>
-          <span class="is-focus"><small>기준값</small><strong>${formatWonBig(latest.revenue_mid)}</strong></span>
-          <span><small>높게 보면</small><strong>${formatWonBig(latest.revenue_high)}</strong></span>
+          <span><small>낮게 보면</small><strong>${formatWonBig(mRecentLow)}</strong></span>
+          <span class="is-focus"><small>기준값</small><strong>${formatWonBig(mRecentMid)}</strong></span>
+          <span><small>높게 보면</small><strong>${formatWonBig(mRecentHigh)}</strong></span>
         </div>
       </div>
       <div class="band-list revenue-day-list">
-        ${rows
+        ${mRows
           .map((row) => {
-            const left = Math.max(0, (Number(row.revenue_low || 0) / max) * 100);
-            const right = Math.max(left, (Number(row.revenue_high || 0) / max) * 100);
-            const mid = Math.max(0, (Number(row.revenue_mid || 0) / max) * 100);
-            const bench = Math.max(0, (benchmark / max) * 100);
+            const left = Math.max(0, (row.revenue_low / maxVal) * 100);
+            const right = Math.max(left, (row.revenue_high / maxVal) * 100);
+            const mid = Math.max(0, (row.revenue_mid / maxVal) * 100);
             return `
               <div class="revenue-day-row">
                 <span class="revenue-date">${escapeHtml(row.date.slice(5))}</span>
@@ -2842,24 +3054,24 @@ function renderRevenueBand(revenue) {
                   <strong><small>기준</small>${formatWonBig(row.revenue_mid)}</strong>
                   <span><small>높게</small>${formatWonBig(row.revenue_high)}</span>
                 </div>
-                <div class="band-track" title="${escapeAttr(`${row.date} ${formatWonBig(row.revenue_low)}–${formatWonBig(row.revenue_high)}`)}">
+                <div class="band-track" title="${escapeAttr(`${row.date} ${meta.label} ${formatWonBig(row.revenue_low)}–${formatWonBig(row.revenue_high)}`)}">
                   <span class="band-fill" style="left:${left}%;width:${right - left}%"></span>
                   <span class="band-marker" style="left:${mid}%"></span>
-                  <span class="band-benchmark" style="left:${bench}%"></span>
                 </div>
               </div>
             `;
           })
           .join("")}
       </div>
-      <div class="benchmark-key"><span></span><strong>현재 기준값은 IR 제시 ${formatWonBig(benchmark)}의 ${benchmarkRatio.toFixed(1)}%</strong><small>IR 수치는 외부 검증 전 비교 기준</small></div>
+      <div class="benchmark-key is-warning"><span>⚠️</span><strong>한국 세션당 단가(2,354원) 임시 적용</strong><small>${escapeHtml(meta.label)} 현지 ASP 및 결제율 미공시 상태 · IR 9억 비교 제외</small></div>
       <div class="revenue-confidence-grid">
-        <div><span>관측 표본</span><strong>${rows.length}일</strong><small>최소 14일 권장</small></div>
-        <div><span>IR 대비</span><strong>${benchmarkRatio.toFixed(1)}%</strong><small>${formatWonBig(Number(benchmark || 0) - Number(latest.revenue_mid || 0))} 차이</small></div>
-        <div class="is-caution"><span>모델 신뢰도</span><strong>낮음</strong><small>결제율·ASP 미공시</small></div>
+        <div><span>관측 표본</span><strong>최근 ${mRows.length}일</strong><small>일간 델타 연속 기록</small></div>
+        <div><span>${escapeHtml(meta.label)} 런레이트</span><strong>월 약 ${formatWonBig(mRecentMid)}</strong><small>임시 단가 기준</small></div>
+        <div class="is-caution"><span>모델 신뢰도</span><strong>낮음</strong><small>현지 단가 미검증</small></div>
       </div>
     </article>
   `;
+}
 }
 
 function renderStackedDaily(title, rows) {
