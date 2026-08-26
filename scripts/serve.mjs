@@ -419,6 +419,29 @@ const server = createServer(async (request, response) => {
   }
 });
 
-server.listen(port, "127.0.0.1", () => {
-  console.log(`TOPTOON Tracker Unified: http://127.0.0.1:${port}/`);
-});
+function listenWithFallback(serverInstance, candidatePort, candidateIndex = 0) {
+  const candidateList = Array.from(new Set([candidatePort, 8888, 8880, 3000, 5173, 8080, candidatePort + 1, candidatePort + 2]));
+  const targetPort = candidateList[candidateIndex];
+
+  const onError = (err) => {
+    serverInstance.removeListener("listening", onListening);
+    if (["EADDRINUSE", "EACCES"].includes(err.code) && candidateIndex + 1 < candidateList.length) {
+      console.warn(`[포트 안내] 포트 ${targetPort} 점유 또는 권한 제한(${err.code})으로 대체 포트(${candidateList[candidateIndex + 1]})로 자동 전환합니다.`);
+      listenWithFallback(serverInstance, candidatePort, candidateIndex + 1);
+    } else {
+      console.error(`서버 기동 실패: ${err.message}`);
+      process.exit(1);
+    }
+  };
+
+  const onListening = () => {
+    serverInstance.removeListener("error", onError);
+    console.log(`TOPTOON Tracker Unified: http://127.0.0.1:${targetPort}/`);
+  };
+
+  serverInstance.once("error", onError);
+  serverInstance.once("listening", onListening);
+  serverInstance.listen(targetPort, "127.0.0.1");
+}
+
+listenWithFallback(server, port);
