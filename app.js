@@ -719,6 +719,11 @@ function renderStatsDashboard() {
 
   // 론칭 누적 월평균 환산 매출 (7개월 평균 런레이트)
   const cumulativeMonthlyAvg = cumulativeGrossMid / elapsedMonths;
+  const krTotals = statsMarketTotals("kr");
+  const krCumulativeMid = krTotals.chats * 2354;
+  const overseasCumulativeMid = Math.max(0, cumulativeGrossMid - krCumulativeMid);
+  const krMonthlyAvg = krCumulativeMid / elapsedMonths;
+  const overseasMonthlyAvg = overseasCumulativeMid / elapsedMonths;
 
   // 2. 최근 일일 델타 기준 속도 관측 (Nowcast 런레이트)
   const latest = statsData.revenue_nowcast?.latest || {};
@@ -727,6 +732,8 @@ function renderStatsDashboard() {
   const recentAllMarketMid = Number(siteRevenue.grand_total_mid || 0);
   const recentAllMarketLow = revPerSession > 0 ? recentAllMarketMid * Number(revPerSessionRange[0] || 0) / revPerSession : 0;
   const recentAllMarketHigh = revPerSession > 0 ? recentAllMarketMid * Number(revPerSessionRange[1] || 0) / revPerSession : 0;
+  const krRecentMid = Number(latest.revenue_mid || siteRevenue.per_site?.kr?.revenue_mid || 0);
+  const overseasRecentMid = Math.max(0, recentAllMarketMid - krRecentMid);
   const velocityVsCumulativePct = cumulativeMonthlyAvg > 0 && recentAllMarketMid > 0
     ? ((recentAllMarketMid / cumulativeMonthlyAvg) - 1) * 100
     : null;
@@ -751,8 +758,8 @@ function renderStatsDashboard() {
         </div>
         <div class="kpi-card-subgrid">
           ${renderStatCards([
-            ["누적 추정 총매출", `약 ${formatWonBig(cumulativeGrossMid)}`, `${formatWonBig(cumulativeGrossLow)}–${formatWonBig(cumulativeGrossHigh)} · 누적 ${formatNumber(allTotals.chats)}회`, "signal"],
-            ["누적 월평균 환산", `월 약 ${formatWonBig(cumulativeMonthlyAvg)}`, `${elapsedMonthLabel}(${elapsedDays}일) 환산 · 실제 공시 매출 아님`, "neutral"],
+            ["누적 추정 총매출", `약 ${formatWonBig(cumulativeGrossMid)}`, `🇰🇷 한국 ${formatWonBig(krCumulativeMid)} + 🌏 해외 ${formatWonBig(overseasCumulativeMid)}`, "signal"],
+            ["누적 월평균 환산", `월 약 ${formatWonBig(cumulativeMonthlyAvg)}`, `🇰🇷 한국 월 ${formatWonBig(krMonthlyAvg)} + 🌏 해외 월 ${formatWonBig(overseasMonthlyAvg)}`, "neutral"],
             ["해외 누적 매출 비중", siteRevenue.overseas_contribution_pct != null ? `${siteRevenue.overseas_contribution_pct.toFixed(1)}%` : "-", `해외 누적 대화 ${formatNumber(siteOverall.overseas_total || 0)}회`, "positive"],
             ["서비스 운영 기간", `${elapsedDays}일차 (${elapsedMonthLabel})`, `2026.02.01 기준 계산`, "neutral"]
           ])}
@@ -769,10 +776,10 @@ function renderStatsDashboard() {
         </div>
         <div class="kpi-card-subgrid">
           ${renderStatCards([
-            ["최근 월환산 시나리오", recentAllMarketMid ? `약 ${formatWonBig(recentAllMarketMid)}` : "-", recentAllMarketMid ? `${formatWonBig(recentAllMarketLow)}–${formatWonBig(recentAllMarketHigh)} · 4개국 합산` : "시장별 델타 수집 대기", "signal"],
-            ["한국만 회사 제시값 대비", latest.ir_ratio_pct != null ? `${latest.ir_ratio_pct.toFixed(1)}%` : "-", "한국 런레이트와 출처 미확인 9억원 가정 비교", "warning"],
+            ["최근 월환산 시나리오", recentAllMarketMid ? `약 ${formatWonBig(recentAllMarketMid)}` : "-", recentAllMarketMid ? `🇰🇷 한국 ${formatWonBig(krRecentMid)} + 🌏 해외 ${formatWonBig(overseasRecentMid)}` : "시장별 델타 수집 대기", "signal"],
+            ["한국만 회사 제시값 대비", latest.ir_ratio_pct != null ? `${latest.ir_ratio_pct.toFixed(1)}%` : "-", `한국 ${formatWonBig(krRecentMid)} vs 회사 제시 9억원 (${formatWonBig(Math.max(0, 900000000 - krRecentMid))} 차이)`, "warning"],
             ["일일 속도 관측 표본", `시장별 4~${accumulatedDays}일`, `일간 델타 연속 기록 중 · 14일 이상 권장`, accumulatedDays >= 14 ? "positive" : "warning"],
-            ["4개국 누적 월평균 대비", velocityVsCumulativePct == null ? "-" : `${velocityDirection} (${velocityVsCumulativePct >= 0 ? "+" : ""}${velocityVsCumulativePct.toFixed(1)}%)`, `동일한 4개국 범위 · 누적 월평균 ${formatWonBig(cumulativeMonthlyAvg)}`, velocityTone]
+            ["4개국 누적 월평균 대비", velocityVsCumulativePct == null ? "-" : `${velocityDirection} (${velocityVsCumulativePct >= 0 ? "+" : ""}${velocityVsCumulativePct.toFixed(1)}%)`, `과거 월 ${formatWonBig(cumulativeMonthlyAvg)} ➔ 최근 월 ${formatWonBig(recentAllMarketMid)}`, velocityTone]
           ])}
         </div>
       </div>
