@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-26T13:57:02.344Z",
+  "generated_at": "2026-08-26T14:34:51.483Z",
   "mode": "live-crosscheck",
   "overall_status": "share-with-caveats",
   "summary": {
-    "pass": 13,
-    "warn": 8,
+    "pass": 17,
+    "warn": 9,
     "block": 0
   },
   "definitions": {
@@ -22,8 +22,8 @@
       "views": 51938384,
       "live": {
         "count": 88,
-        "chats": 1528040,
-        "views": 51938390
+        "chats": 1528504,
+        "views": 51944354
       }
     },
     "jp": {
@@ -33,8 +33,8 @@
       "views": 18432269,
       "live": {
         "count": 77,
-        "chats": 228749,
-        "views": 18432302
+        "chats": 228942,
+        "views": 18468488
       }
     },
     "global": {
@@ -44,8 +44,8 @@
       "views": 326492,
       "live": {
         "count": 85,
-        "chats": 17303,
-        "views": 326492
+        "chats": 17309,
+        "views": 326552
       }
     },
     "tw": {
@@ -55,8 +55,8 @@
       "views": 3271104,
       "live": {
         "count": 81,
-        "chats": 97130,
-        "views": 3271105
+        "chats": 97158,
+        "views": 3271986
       }
     }
   },
@@ -111,8 +111,8 @@
       "label": "한국 누적 채팅 시차",
       "status": "pass",
       "observed": 1528040,
-      "expected": 1528040,
-      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
+      "expected": 1528504,
+      "note": "수집 이후 변동 0.030% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -129,8 +129,8 @@
       "label": "일본 누적 채팅 시차",
       "status": "pass",
       "observed": 228749,
-      "expected": 228749,
-      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
+      "expected": 228942,
+      "note": "수집 이후 변동 0.084% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -147,8 +147,8 @@
       "label": "글로벌 누적 채팅 시차",
       "status": "pass",
       "observed": 17303,
-      "expected": 17303,
-      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
+      "expected": 17309,
+      "note": "수집 이후 변동 0.035% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -165,8 +165,8 @@
       "label": "대만 누적 채팅 시차",
       "status": "pass",
       "observed": 97130,
-      "expected": 97130,
-      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
+      "expected": 97158,
+      "note": "수집 이후 변동 0.029% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -221,6 +221,51 @@
       "observed": 334322142,
       "expected": 334322142,
       "note": "매출 런레이트×회사 주장 기반 마진 가정",
+      "severity": "none"
+    },
+    {
+      "id": "all-market-revenue-scope",
+      "label": "4개국 최근 런레이트 범위",
+      "status": "pass",
+      "observed": 1076298234,
+      "expected": 1076298234,
+      "note": "시장별 런레이트 합계와 4개국 합계를 동일 범위로 대조",
+      "severity": "none"
+    },
+    {
+      "id": "ir-benchmark-provenance",
+      "label": "월 9억원 비교값 출처",
+      "status": "warn",
+      "observed": "출처 없음",
+      "expected": "원문 URL 또는 source_id",
+      "note": "출처가 확인되기 전 회사 공식 제시값으로 단정하지 않음",
+      "severity": "high"
+    },
+    {
+      "id": "display-semantic-guard",
+      "label": "근거 없는 화면 수치 차단",
+      "status": "pass",
+      "observed": [],
+      "expected": [],
+      "note": "금지된 고정 수치 없음",
+      "severity": "none"
+    },
+    {
+      "id": "krx-halt-date-tieout",
+      "label": "거래정지 판단일 종가 대조",
+      "status": "pass",
+      "observed": 2785,
+      "expected": 2785,
+      "note": "최신 주가가 아닌 공시 판단일 종가로 조건을 평가",
+      "severity": "none"
+    },
+    {
+      "id": "cached-provider-freshness",
+      "label": "캐시 관측시각 보존",
+      "status": "pass",
+      "observed": [],
+      "expected": [],
+      "note": "캐시 재사용 시 실제 관측시각과 갱신 시도시각을 분리",
       "severity": "none"
     },
     {
@@ -410,6 +455,7 @@
     "작품명은 공개 API의 첫 번째 해시태그에서 추론하며 정식 작품명 필드가 아니다.",
     "Worker 통계와 직접 관측 카탈로그는 수집 시각과 파이프라인이 달라 누적 합계가 일치하지 않을 수 있다.",
     "AI챗 별도 매출, 결제자 비율, 국가별 ASP, API 비용, IP 정산, 순이익률은 공시로 검증되지 않았다.",
+    "월 9억원 비교값은 원문 출처가 연결되기 전까지 회사 공식 가이던스로 단정하지 않는다.",
     "화면의 최근 주가는 KIS 자동 조회값이지만 과거 기준가·시장조치·수급 판단은 KRX 공시와 별도로 재확인해야 한다."
   ]
 }

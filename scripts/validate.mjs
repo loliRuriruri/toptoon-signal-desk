@@ -55,7 +55,17 @@ assert(records.every((record) => /^\d{4}-\d{2}-\d{2}T/.test(record.published_at 
 assert((officialSignals.providers?.kis?.peers || []).filter((peer) => ["ok", "cached"].includes(peer.status)).length >= 1, "KIS peer valuation screen is incomplete");
 assert(officialSignals.providers?.kis?.market_alert?.trading_halt?.reference_close > 0, "KRX halt reference close is missing");
 assert(officialSignals.providers?.kis?.market_alert?.trading_halt?.trigger_price_raw > 0, "KRX halt trigger calculation is missing");
+const halt = officialSignals.providers?.kis?.market_alert?.trading_halt || {};
+const haltJudgmentDate = String(halt.judgment_date || "").replaceAll("-", "");
+const haltJudgmentClose = (officialSignals.providers?.kis?.price_history || []).find((row) => row.date === haltJudgmentDate)?.close;
+assert(haltJudgmentClose != null, "KRX halt judgment-date close is missing");
+assert(Number(halt.observed_close) === Number(haltJudgmentClose), "KRX halt must use the judgment-date close, not the latest quote");
+assert(halt.condition_met === (Number(haltJudgmentClose) >= Number(halt.trigger_price_raw)), "KRX halt condition does not match judgment-date close");
 assert(officialSignals.providers?.kis?.market_alert?.warning_release?.fifteen_day_reference_close > 0, "KRX warning release reference is missing");
+for (const [providerId, provider] of Object.entries(officialSignals.providers || {})) {
+  if (["ok", "cached"].includes(provider.status)) assert(/^\d{4}-\d{2}-\d{2}T/.test(provider.observed_at || ""), `${providerId} provider observation timestamp is missing`);
+  assert(/^\d{4}-\d{2}-\d{2}T/.test(provider.attempted_at || ""), `${providerId} provider attempt timestamp is missing`);
+}
 
 [
   "revenue_nowcast",
@@ -93,7 +103,10 @@ for (const snapshot of activityHistory) {
 }
 assert(validation.overall_status === "share-with-caveats", "validation posture should remain share-with-caveats until AI chat revenue is disclosed");
 assert(validation.summary?.block === 0, "validation contains blocking failures");
-assert(validation.summary?.pass >= 10, "validation pass coverage is unexpectedly low");
+assert(validation.checks?.length >= 18, "validation check coverage is unexpectedly low");
+for (const requiredPassId of ["revenue-nowcast-formula", "all-market-revenue-scope", "display-semantic-guard", "krx-halt-date-tieout", "cached-provider-freshness"]) {
+  assert(validation.checks?.some((check) => check.id === requiredPassId && check.status === "pass"), `required integrity check did not pass: ${requiredPassId}`);
+}
 assert(validation.checks?.some((check) => check.id === "ai-chat-revenue-tieout" && check.status === "warn"), "AI chat revenue disclosure gap must remain visible");
 assert(validation.investor?.filing_snapshot?.source_id === "SRC-FILING-H1-2026", "official filing evidence is missing");
 
@@ -118,6 +131,18 @@ assert(twMissingWorks === 1, "expected one Taiwan record with missing work title
 const html = readFileSync(path.join(root, "index.html"), "utf8");
 const css = readFileSync(path.join(root, "styles.css"), "utf8");
 const js = readFileSync(path.join(root, "app.js"), "utf8");
+[
+  "목표 50만 중 38만 관측",
+  "실측 진척률",
+  "안정 유지 (+0.1%)",
+  "3일 외삽 · C등급",
+  "누적 대화수 184만회",
+  "약 70%가 월 5만원",
+  "약 1,373억원"
+].forEach((claim) => assert(!`${js}\n${html}`.includes(claim), `unsupported or stale numeric display claim: ${claim}`));
+assert(/id="ai-analysis-output" hidden><\/pre>/.test(html), "preset analysis output should be generated from the current snapshot");
+assert(js.includes("siteRevenue.grand_total_mid"), "headline recent run-rate must use the all-market total");
+assert(js.includes("haltJudgmentClose"), "KRX halt UI must use the judgment-date close");
 assert(html.includes("data/characters.js"), "embedded dataset script must be referenced");
 assert(html.includes("data/character-activity.js"), "embedded activity script must be referenced");
 

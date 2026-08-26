@@ -627,21 +627,30 @@ async function saveApiSettings(event) {
   }
 }
 
-const PRESET_AI_ANALYSIS_REPORT = `[탑코미디어(134580) 데이터 검증 및 투자 가설 종합 검토 리포트]
+function buildPresetAiAnalysisReport() {
+  const investor = validationData?.investor || {};
+  const filing = investor.filing_snapshot || {};
+  const totals = statsMarketTotals("all");
+  const marketView = buildCurrentMarketView(investor);
+  const halt = calculateDynamicKrxAlerts(marketView.price, officialSignalsData?.providers?.kis?.price_history || []).halt;
+  const haltResult = halt.condition_met === true ? "충족" : halt.condition_met === false ? "미충족" : "판단일 종가 확인 대기";
+  return `[탑코미디어(134580) 최신 데이터 검증 요약]
 
-1. 확정 실적 및 현금흐름 턴어라운드 (Tier A · 공식 공시):
-- 2026년 2분기 연결 매출 155억원(QoQ +30.4%), 영업이익 37억원(OPM 23.7%), 순이익 32억원으로 1분기 적자(-1억원)에서 뚜렷한 흑자 전환을 달성했습니다.
-- 자체 플랫폼 결제 매출 비중이 2024년 43.8% → 2025년 69.9% → 2026년 상반기 70.4%로 상승하여 유통수수료 절감 및 영업비용 억제(118억원, YoY -0.7%)가 확인되었습니다.
-- 현금성자산 213.3억원, 단순 순현금 97.3억원, 영업현금흐름 79.1억원으로 재무 완충력이 견고합니다.
+1. 공식 반기 누계 (Tier A · ${filing.as_of || "기준일 미상"}):
+- 연결 매출 ${formatWonBig(filing.revenue)}, 영업이익 ${formatWonBig(filing.operating_profit)}, 순이익 ${formatWonBig(filing.net_income)}입니다.
+- 영업현금흐름 ${formatWonBig(filing.operating_cash_flow)}, 현금성자산 ${formatWonBig(filing.cash_and_cash_equivalents)}, 단기차입금 ${formatWonBig(filing.short_term_borrowings)}입니다.
 
-2. 탑툰챗 BM 및 공개 카탈로그 지표 관측 (Tier B & C · 실측 및 리서치):
-- 4개 시장(한국·일본·글로벌·대만) 공식 공개 API 관측 결과, 누적 대화수 184만회 및 누적 조회수 7,068만회를 기록 중입니다.
-- 외부 리서치 기준 결제자 중 약 70%가 월 5만원 이상 고과금 구조이나, 전체 MAU 대비 결제전환율 및 D30/D90 리텐션은 미공시 상태이므로 단순 일괄 외삽은 지양해야 합니다.
-- 2026년 5월 22일 코인 통합으로 기존 성인 웹툰 결제자의 탑툰챗 유입 장벽이 낮아져 크로스셀 구조가 형성되었습니다.
+2. 공개 카탈로그 직접 관측 (Tier B):
+- 4개 시장 현재 합계는 누적 대화 ${formatNumber(totals.chats)}회, 누적 조회 ${formatNumber(totals.views)}회입니다.
+- 이 공개 카운터는 결제자 수·유료 세션·매출이 아닙니다. MAU, 결제전환율, ARPPU, 리텐션, CAC는 미공시입니다.
 
-3. 기업가치 및 주요 일정 체크:
-- 9월 10일 임시주총을 통해 '엔키AX(ANKEY AX)' 사명 변경 및 4대 AI 신규 사업목적(AI 콘텐츠 제작, 대화형 AI, 가상인간, AI 솔루션) 추가가 예정되어 있습니다.
-- 시가총액은 실시간 기준 약 1,373억원 수준이며, 향후 3분기 실적의 20%대 OPM 유지 여부와 시장경보(투자경고) 해제 추이가 핵심 판단 기준입니다.`;
+3. 모델 출력과 주가 (Tier C):
+- 채팅 델타 기반 매출 환산은 미검증 단가·마진을 적용한 참고 시나리오이며 공시 매출이 아닙니다.
+- 최근 확인 주가는 ${formatNumber(marketView.price)}원, 시가총액 환산은 ${formatWonBig(marketView.marketCap)}입니다.
+- ${formatDateShort(halt.judgment_date)} 거래정지 판단 종가 ${halt.observed_close ? `${formatNumber(halt.observed_close)}원` : "미수집"}, 기준선 ${halt.trigger_price_raw ? `${formatNumber(halt.trigger_price_raw)}원` : "미수집"}으로 조건은 ${haltResult}입니다.
+
+결론: 공시 실적과 공개 활동은 분리해서 볼 수 있지만, AI챗 별도 매출과 결제 지표가 공시되기 전에는 투자 가설을 확정하지 않습니다.`;
+}
 
 async function runAiAnalysis() {
   if (els.runAiAnalysis) els.runAiAnalysis.disabled = true;
@@ -668,7 +677,7 @@ async function runAiAnalysis() {
 
   // 로컬 사전 검증 리포트 즉시 표시
   if (els.aiAnalysisOutput) {
-    els.aiAnalysisOutput.textContent = PRESET_AI_ANALYSIS_REPORT;
+    els.aiAnalysisOutput.textContent = buildPresetAiAnalysisReport();
     els.aiAnalysisOutput.hidden = false;
   }
   if (els.aiAnalysisStatus) {
@@ -696,6 +705,7 @@ function renderStatsDashboard() {
   const captureDate = new Date(statsData.captured_at || Date.now());
   const elapsedDays = Math.max(1, Math.floor((captureDate - launchDate) / (1000 * 60 * 60 * 24)));
   const elapsedMonths = elapsedDays / 30;
+  const elapsedMonthLabel = `${elapsedMonths.toFixed(1)}개월`;
 
   const revPerSession = Number(statsData.revenue_nowcast?.constants?.rev_per_session || 2354);
   const revPerSessionRange = statsData.revenue_nowcast?.constants?.rev_per_session_range || [2000, 2700];
@@ -712,10 +722,20 @@ function renderStatsDashboard() {
   const latest = statsData.revenue_nowcast?.latest || {};
   const siteRevenue = statsData.site_revenue || {};
   const siteOverall = statsData.site_comparison?.overall || {};
+  const recentAllMarketMid = Number(siteRevenue.grand_total_mid || 0);
+  const recentAllMarketLow = revPerSession > 0 ? recentAllMarketMid * Number(revPerSessionRange[0] || 0) / revPerSession : 0;
+  const recentAllMarketHigh = revPerSession > 0 ? recentAllMarketMid * Number(revPerSessionRange[1] || 0) / revPerSession : 0;
+  const velocityVsCumulativePct = cumulativeMonthlyAvg > 0 && recentAllMarketMid > 0
+    ? ((recentAllMarketMid / cumulativeMonthlyAvg) - 1) * 100
+    : null;
+  const velocityDirection = velocityVsCumulativePct == null
+    ? "비교 대기"
+    : velocityVsCumulativePct >= 0 ? "최근 속도 우위" : "최근 속도 둔화";
+  const velocityTone = velocityVsCumulativePct == null ? "neutral" : velocityVsCumulativePct >= 0 ? "positive" : "warning";
 
   els.statsCapturedAt.textContent = `${formatDateTime(statsData.captured_at)} 수집 스냅샷`;
   els.statsCaveat.textContent =
-    `관측 기반 넛캐스트입니다. 2026.02 론칭 누적 전체 실적 추정(7개월 · ${elapsedDays}일간)과 최근 ${accumulatedDays}일간의 일일 증가 속도(런레이트)를 2대 축으로 명확히 분리해 제공합니다.`;
+    `관측 채팅수에 미검증 단가를 적용한 참고 시나리오입니다. 2026.02 론칭 후 4개국 누적 추정(${elapsedMonthLabel} · ${elapsedDays}일)과 최근 시장별 4~${accumulatedDays}일 증가 속도를 같은 4개국 범위로 비교합니다.`;
 
   els.mainKpiGrid.innerHTML = `
     <div class="kpi-dual-container">
@@ -723,16 +743,16 @@ function renderStatsDashboard() {
         <div class="kpi-group-header">
           <div class="kpi-group-title">
             <span class="kpi-group-tag tag-cumulative">🏛️ 서비스 론칭 누적 관측</span>
-            <strong>2026.02 론칭 누적 7개월(${elapsedDays}일) 실적 추정</strong>
+            <strong>2026.02 론칭 누적 ${elapsedMonthLabel}(${elapsedDays}일) 참고 추정</strong>
           </div>
           <span class="stat-help">4개국 누적 대화 ${formatNumber(allTotals.chats)}회 × 결제 단가 2,354원 기준</span>
         </div>
         <div class="kpi-card-subgrid">
           ${renderStatCards([
             ["누적 추정 총매출", `약 ${formatWonBig(cumulativeGrossMid)}`, `${formatWonBig(cumulativeGrossLow)}–${formatWonBig(cumulativeGrossHigh)} · 누적 ${formatNumber(allTotals.chats)}회`, "signal"],
-            ["누적 월평균 매출", `월 약 ${formatWonBig(cumulativeMonthlyAvg)}`, `7개월(${elapsedDays}일) 환산 월평균 실적`, "positive"],
+            ["누적 월평균 환산", `월 약 ${formatWonBig(cumulativeMonthlyAvg)}`, `${elapsedMonthLabel}(${elapsedDays}일) 환산 · 실제 공시 매출 아님`, "neutral"],
             ["해외 누적 매출 비중", siteRevenue.overseas_contribution_pct != null ? `${siteRevenue.overseas_contribution_pct.toFixed(1)}%` : "-", `해외 누적 대화 ${formatNumber(siteOverall.overseas_total || 0)}회`, "positive"],
-            ["서비스 운영 기간", `${elapsedDays}일차 (7개월)`, `2026.02.01 공식 론칭 이후 누적`, "neutral"]
+            ["서비스 운영 기간", `${elapsedDays}일차 (${elapsedMonthLabel})`, `2026.02.01 기준 계산`, "neutral"]
           ])}
         </div>
       </div>
@@ -741,16 +761,16 @@ function renderStatsDashboard() {
         <div class="kpi-group-header">
           <div class="kpi-group-title">
             <span class="kpi-group-tag tag-velocity">⚡ 최근 일일 속도 관측 (현재 런레이트)</span>
-            <strong>최근 ${accumulatedDays}일간의 일일 대화 증가 속도(델타) 기준 월환산</strong>
+            <strong>4개국 최근 일일 대화 증가 속도(델타) 기준 월환산</strong>
           </div>
           <span class="stat-help">일평균 증가량 × 30일 환산 (방향성 검증용)</span>
         </div>
         <div class="kpi-card-subgrid">
           ${renderStatCards([
-            ["최근 월매출 환산 (속도)", `약 ${formatWonBig(latest.revenue_mid)}`, `${formatWonBig(latest.revenue_low)}–${formatWonBig(latest.revenue_high)} · 최근 ${accumulatedDays}일 델타 환산`, "signal"],
-            ["회사 제시 월매출 대비", latest.ir_ratio_pct != null ? `${latest.ir_ratio_pct.toFixed(1)}%` : "-", "회사 제시 9억원과 비교 · 검증 전", "neutral"],
-            ["일일 속도 관측 표본", `${accumulatedDays}일차`, `일간 델타 연속 기록 중 · 14일 이상 권장`, accumulatedDays >= 14 ? "positive" : "warning"],
-            ["누적 월평균 대비 속도", `안정 유지 (+0.1%)`, `누적 월평균(월 6.39억) 페이스 견고히 유지`, "positive"]
+            ["최근 월환산 시나리오", recentAllMarketMid ? `약 ${formatWonBig(recentAllMarketMid)}` : "-", recentAllMarketMid ? `${formatWonBig(recentAllMarketLow)}–${formatWonBig(recentAllMarketHigh)} · 4개국 합산` : "시장별 델타 수집 대기", "signal"],
+            ["한국만 회사 제시값 대비", latest.ir_ratio_pct != null ? `${latest.ir_ratio_pct.toFixed(1)}%` : "-", "한국 런레이트와 출처 미확인 9억원 가정 비교", "warning"],
+            ["일일 속도 관측 표본", `시장별 4~${accumulatedDays}일`, `일간 델타 연속 기록 중 · 14일 이상 권장`, accumulatedDays >= 14 ? "positive" : "warning"],
+            ["4개국 누적 월평균 대비", velocityVsCumulativePct == null ? "-" : `${velocityDirection} (${velocityVsCumulativePct >= 0 ? "+" : ""}${velocityVsCumulativePct.toFixed(1)}%)`, `동일한 4개국 범위 · 누적 월평균 ${formatWonBig(cumulativeMonthlyAvg)}`, velocityTone]
           ])}
         </div>
       </div>
@@ -969,7 +989,7 @@ function renderValidationDashboard() {
   ].join("");
 
   if (els.aiAnalysisOutput && !els.aiAnalysisOutput.textContent.trim()) {
-    els.aiAnalysisOutput.textContent = PRESET_AI_ANALYSIS_REPORT;
+    els.aiAnalysisOutput.textContent = buildPresetAiAnalysisReport();
     els.aiAnalysisOutput.hidden = false;
     if (els.aiAnalysisStatus) {
       const reviewTime = validationData?.generated_at || officialSignalsData?.generated_at || new Date().toISOString();
@@ -980,14 +1000,14 @@ function renderValidationDashboard() {
 
 function renderStrategicCrosscheck() {
   const kpiWatchItems = [
-    { num: "01", title: "탑툰챗 MAU", desc: "목표 50만 중 38만 관측", pct: 76.0, status: "양호", tone: "green" },
-    { num: "02", title: "Payer Conversion", desc: "목표 5.0% 대비 추정 3.8%", pct: 76.0, status: "근접", tone: "green" },
-    { num: "03", title: "Payer ARPPU", desc: "목표 5만원 대비 5.2만원", pct: 104.0, status: "달성", tone: "emerald" },
-    { num: "04", title: "D30/D90 Retention", desc: "목표 D30 30% 대비 22.5%", pct: 75.0, status: "양호", tone: "green" },
-    { num: "05", title: "AI·PG·IP 원가율", desc: "목표 공헌익 50% 대비 42.5%", pct: 85.0, status: "우수", tone: "green" },
-    { num: "06", title: "탑툰→챗 전환율", desc: "목표 15% 대비 침투 10.2%", pct: 68.0, status: "보통", tone: "amber" },
-    { num: "07", title: "국가별 CAC", desc: "목표 3천원 대비 3.4천원", pct: 88.2, status: "우수", tone: "green" },
-    { num: "08", title: "TOPCO JAPAN 순자산", desc: "25년 +7.9억 흑자 후 정상화", pct: 92.0, status: "달성", tone: "emerald" }
+    { num: "01", title: "탑툰챗 MAU", desc: "공시 또는 회사 IR 원문 확인 필요" },
+    { num: "02", title: "Payer Conversion", desc: "결제자 수와 활성 이용자 수 미공시" },
+    { num: "03", title: "Payer ARPPU", desc: "AI챗 결제액과 결제자 수 미공시" },
+    { num: "04", title: "D30/D90 Retention", desc: "코호트 잔존율 미공시" },
+    { num: "05", title: "AI·PG·IP 원가율", desc: "AI챗 단위경제와 원가 구성 미공시" },
+    { num: "06", title: "탑툰→챗 전환율", desc: "서비스 간 전환 모수와 전환자 수 미공시" },
+    { num: "07", title: "국가별 CAC", desc: "국가별 마케팅비와 신규 결제자 수 미공시" },
+    { num: "08", title: "TOPCO JAPAN 순자산", desc: "최신 종속회사 재무 공시로 재확인 필요" }
   ];
 
   return `
@@ -998,7 +1018,7 @@ function renderStrategicCrosscheck() {
           <h2>비즈니스 모델 퍼널 · 다음 분기 8대 핵심 점검 KPI</h2>
           <p class="stat-help">기존 유료 웹툰 결제자를 탑툰챗으로 연결하는 크로스셀 구조와 밸류에이션 판정을 위한 핵심 점검 지표입니다.</p>
         </div>
-        <span class="evidence-badge tier-b">B · 리서치·탐방</span>
+        <span class="evidence-badge tier-c">C · 미공시 점검표</span>
       </div>
       <div class="card" style="margin-bottom:12px">
         <h3>탑툰 ↔ 탑툰챗 '한 지갑' 크로스셀 퍼널</h3>
@@ -1014,31 +1034,24 @@ function renderStrategicCrosscheck() {
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
           <div>
             <h3 style="margin:0">다음 분기 실적에서 확인해야 할 8대 핵심 KPI</h3>
-            <p class="stat-help" style="margin:2px 0 0">목표 벤치마크 대비 현재 충족도 및 실측 진척률 게이지</p>
+            <p class="stat-help" style="margin:2px 0 0">공식 출처가 확인되기 전까지 수치와 달성률을 표시하지 않는 점검표</p>
           </div>
-          <div class="kpi-gauge-legend">
-            <span class="legend-chip tone-emerald">● 90%+ 달성</span>
-            <span class="legend-chip tone-green">● 70~89% 양호</span>
-            <span class="legend-chip tone-amber">● 50~69% 보통</span>
-          </div>
+          <div class="kpi-gauge-legend"><span class="legend-chip tone-neutral">공시·IR 출처 확인 전 숫자 미표시</span></div>
         </div>
         <div class="kpi-watch">
           ${kpiWatchItems
             .map((item) => `
-            <div class="watch tone-${item.tone}">
+            <div class="watch tone-neutral">
               <div class="watch-top">
                 <div class="watch-header">
                   <span class="num">${item.num}</span>
                   <b>${escapeHtml(item.title)}</b>
                 </div>
-                <span class="watch-pct-badge tone-${item.tone}">${item.pct.toFixed(1)}%</span>
-              </div>
-              <div class="watch-progress-track" title="달성률 ${item.pct.toFixed(1)}%">
-                <div class="watch-progress-fill tone-${item.tone}" style="width:${Math.min(100, item.pct)}%"></div>
+                <span class="watch-pct-badge tone-neutral">미공시</span>
               </div>
               <div class="watch-bottom">
                 <p>${escapeHtml(item.desc)}</p>
-                <span class="watch-status tone-${item.tone}">${item.status}</span>
+                <span class="watch-status tone-neutral">확인 필요</span>
               </div>
             </div>
           `)
@@ -1146,7 +1159,7 @@ function buildCurrentMarketView(investor) {
     shares,
     marketCap: price * shares,
     fromReferencePct: referenceClose ? ((price / referenceClose) - 1) * 100 : 0,
-    refreshedAt: hasCurrentQuote ? officialSignalsData?.generated_at : market.as_of,
+    refreshedAt: hasCurrentQuote ? (kis.observed_at || officialSignalsData?.generated_at) : market.as_of,
     sourceLabel: state.simulatedPrice != null && state.simulatedPrice !== basePrice
       ? "실시간 시뮬레이션 계산"
       : (hasCurrentQuote ? `KIS ${kis.status === "cached" ? "이전 정상값" : "최근 조회"}` : "2차 종가"),
@@ -1167,8 +1180,9 @@ function calculateDynamicKrxAlerts(price, history = []) {
   // 1. 거래정지 판단 (2026-08-20 종가 2,160원 대비 40% 이상 상승 시 1일 정지)
   const haltRefClose = closeOn("20260820") || 2160;
   const haltThreshold = Math.round(haltRefClose * 1.4);
-  const haltConditionMet = currentPrice >= haltThreshold;
-  const haltGap = currentPrice - haltThreshold;
+  const haltJudgmentClose = closeOn("20260824");
+  const haltConditionMet = haltJudgmentClose == null ? null : haltJudgmentClose >= haltThreshold;
+  const haltGap = haltJudgmentClose == null ? null : haltJudgmentClose - haltThreshold;
 
   // 2. 투자경고 해제 판단 (9월 3일 최초 판단 예정)
   // 조건 1: 5일 전(2026-08-27) 종가 대비 45% 미만 상승
@@ -1201,7 +1215,7 @@ function calculateDynamicKrxAlerts(price, history = []) {
       reference_close: haltRefClose,
       trigger_pct: 40,
       trigger_price_raw: haltThreshold,
-      observed_close: currentPrice,
+      observed_close: haltJudgmentClose,
       condition_met: haltConditionMet,
       gap: haltGap,
       source_url: "https://kind.krx.co.kr/external/2026/08/21/000686/20260821001992/70835.htm"
@@ -1375,17 +1389,17 @@ function renderMarketRisk(investor, marketView) {
         </div>
       </div>
 
-      <div class="krx-sim-toolbar" aria-label="실시간 시세 시뮬레이터 및 재계산">
+      <div class="krx-sim-toolbar" aria-label="주가 시나리오 및 재계산">
         <div class="sim-label-stack">
-          <strong>⚡ 실시간 시세 동적 재계산</strong>
-          <small>매일 종가 또는 원하는 가정 주가를 선택하면 거래정지·투자경고 해제 조건 및 시총이 즉시 다시 계산됩니다.</small>
+          <strong>⚡ 주가 시나리오 동적 재계산</strong>
+          <small>시가총액과 향후 투자경고 해제 참고조건을 재계산합니다. 8월 24일 거래정지 판정은 당시 종가로 고정됩니다.</small>
         </div>
         <div class="sim-chip-list">
           <button type="button" class="sim-chip${!marketView.isSimulated ? " active" : ""}" data-set-price="${marketView.basePrice}">
             <span>실측 현재가</span> <b>${formatNumber(marketView.basePrice)}원</b>
           </button>
           <button type="button" class="sim-chip${marketView.price === dynamicAlerts.halt.trigger_price_raw ? " active" : ""}" data-set-price="${dynamicAlerts.halt.trigger_price_raw}">
-            <span>거래정지선</span> <b>${formatNumber(dynamicAlerts.halt.trigger_price_raw)}원</b>
+            <span>8/24 정지 기준선</span> <b>${formatNumber(dynamicAlerts.halt.trigger_price_raw)}원</b>
           </button>
           <button type="button" class="sim-chip${marketView.price === 2400 ? " active" : ""}" data-set-price="2400">
             <span>경고해제선</span> <b>2,400원</b>
@@ -1428,8 +1442,8 @@ function renderMarketAlertGuide(alerts) {
   const haltLabel = halt.condition_met === true
     ? `${formatDateShort(halt.halt_date)} 1일 정지 산식 충족`
     : halt.condition_met === false
-      ? "현재 주가는 정지 산식 미충족 (안전)"
-      : "기준 종가 수집 대기";
+      ? `${formatDateShort(halt.judgment_date)} 종가 기준 정지 조건 미충족`
+      : "판단일 종가 수집 대기";
 
   return `
     <section class="market-alert-guide" aria-label="투자경고 및 거래정지 조건">
@@ -1442,7 +1456,7 @@ function renderMarketAlertGuide(alerts) {
           <span class="alert-rule-step">거래정지 판단</span>
           <strong>${haltThreshold ? `${formatNumber(haltThreshold)}원 이상` : "계산 대기"}</strong>
           <p>${escapeHtml(formatDateShort(halt.judgment_date))} 종가가 ${escapeHtml(formatDateShort(halt.reference_date))} 종가 ${halt.reference_close ? `${formatNumber(halt.reference_close)}원` : "확인값"}보다 40% 이상 높으면 다음 거래일 1일 정지</p>
-          ${haltGap != null ? `<div class="alert-meter"><span style="width:${Math.min(100, Math.max(0, (observedClose / haltThreshold) * 76))}%"></span><i style="left:76%"></i></div><small>현재 주가 ${formatNumber(observedClose)}원 · 정지선보다 ${haltGap >= 0 ? "+" : "−"}${formatNumber(Math.abs(haltGap))}원</small>` : ""}
+          ${haltGap != null ? `<div class="alert-meter"><span style="width:${Math.min(100, Math.max(0, (observedClose / haltThreshold) * 76))}%"></span><i style="left:76%"></i></div><small>판단일 종가 ${formatNumber(observedClose)}원 · 정지선보다 ${haltGap >= 0 ? "+" : "−"}${formatNumber(Math.abs(haltGap))}원</small>` : ""}
         </article>
         <article class="alert-rule-card is-release">
           <span class="alert-rule-step">투자경고 해제</span>
@@ -1623,6 +1637,7 @@ function formatValidationValue(value) {
 
 function renderRevenuePanel() {
   const revenue = statsData.revenue_nowcast || {};
+  const extrapolationDays = revenue.daily?.length || 0;
   const byCharacter = statsData.revenue_by_character || {};
   const coinMix = statsData.coin_mix_ramp || {};
   const market = MARKET_META[state.statsMarket] ? state.statsMarket : "all";
@@ -1635,7 +1650,7 @@ function renderRevenuePanel() {
           <p class="section-kicker">01 · 매출 가능성</p>
           <h2>추정 매출 범위와 인기 캐릭터</h2>
         </div>
-        <span class="data-pill warning">3일 외삽 · C등급</span>
+        <span class="data-pill warning">${extrapolationDays ? `${extrapolationDays}일 외삽` : "표본 대기"} · 가정 시나리오</span>
       </div>
       <p class="section-note metric-definition"><strong>캐릭터 기여도 정의:</strong> 캐릭터별 누적 공개 채팅수 ÷ 전체 누적 공개 채팅수입니다. 원화 환산액은 누적 chats × ₩2,354 가정이며, 실제 벌어온 금액이나 공시 매출이 아닙니다.</p>
       <div class="chart-grid chart-grid-primary">

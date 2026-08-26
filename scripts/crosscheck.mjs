@@ -7,6 +7,9 @@ const write = process.argv.includes("--write");
 const characters = JSON.parse(readFileSync(path.join(root, "data", "characters.json"), "utf8"));
 const stats = JSON.parse(readFileSync(path.join(root, "data", "stats.json"), "utf8"));
 const evidence = JSON.parse(readFileSync(path.join(root, "data", "investor-evidence.json"), "utf8"));
+const officialSignals = JSON.parse(readFileSync(path.join(root, "data", "official-signals.json"), "utf8"));
+const appSource = readFileSync(path.join(root, "app.js"), "utf8");
+const indexSource = readFileSync(path.join(root, "index.html"), "utf8");
 const records = characters.records || [];
 const checks = [];
 
@@ -99,6 +102,34 @@ const recomputedProfit = reportedRevenue * margin;
 const reportedProfit = Number(stats.revenue_nowcast?.latest?.profit_mid || 0);
 addCheck("profit-nowcast-formula", "순이익 런레이트 재계산", nearlyEqual(recomputedProfit, reportedProfit, 1) ? "pass" : "block", Math.round(recomputedProfit), reportedProfit, "매출 런레이트×회사 주장 기반 마진 가정", nearlyEqual(recomputedProfit, reportedProfit, 1) ? "none" : "critical");
 
+const siteRevenue = stats.site_revenue || {};
+const summedSiteRevenue = Object.values(siteRevenue.per_site || {}).reduce((total, row) => total + Number(row.revenue_mid || 0), 0);
+addCheck("all-market-revenue-scope", "4개국 최근 런레이트 범위", nearlyEqual(summedSiteRevenue, siteRevenue.grand_total_mid, 1) ? "pass" : "block", summedSiteRevenue, Number(siteRevenue.grand_total_mid || 0), "시장별 런레이트 합계와 4개국 합계를 동일 범위로 대조", nearlyEqual(summedSiteRevenue, siteRevenue.grand_total_mid, 1) ? "none" : "critical");
+
+const benchmark = stats.revenue_nowcast?.ir_benchmark || {};
+const benchmarkHasSource = Boolean(benchmark.source_id || benchmark.source_url);
+addCheck("ir-benchmark-provenance", "월 9억원 비교값 출처", benchmarkHasSource ? "pass" : "warn", benchmarkHasSource ? benchmark.source_id || benchmark.source_url : "출처 없음", "원문 URL 또는 source_id", "출처가 확인되기 전 회사 공식 제시값으로 단정하지 않음", benchmarkHasSource ? "none" : "high");
+
+const forbiddenDisplayClaims = ["목표 50만 중 38만 관측", "실측 진척률", "안정 유지 (+0.1%)", "3일 외삽 · C등급", "누적 대화수 184만회", "약 70%가 월 5만원", "약 1,373억원"];
+const leakedClaims = forbiddenDisplayClaims.filter((text) => `${appSource}\n${indexSource}`.includes(text));
+addCheck("display-semantic-guard", "근거 없는 화면 수치 차단", leakedClaims.length ? "block" : "pass", leakedClaims, [], leakedClaims.length ? "근거가 없거나 현재 데이터와 다른 고정 문구 발견" : "금지된 고정 수치 없음", leakedClaims.length ? "critical" : "none");
+
+const kisProvider = officialSignals.providers?.kis || {};
+const halt = kisProvider.market_alert?.trading_halt || {};
+const haltDate = String(halt.judgment_date || "").replaceAll("-", "");
+const haltHistoryClose = (kisProvider.price_history || []).find((row) => row.date === haltDate)?.close ?? null;
+const haltThreshold = Number(halt.trigger_price_raw || 0);
+const haltExpectedCondition = haltHistoryClose == null || !haltThreshold ? null : Number(haltHistoryClose) >= haltThreshold;
+const haltTied = haltHistoryClose != null
+  && Number(halt.observed_close) === Number(haltHistoryClose)
+  && halt.condition_met === haltExpectedCondition;
+addCheck("krx-halt-date-tieout", "거래정지 판단일 종가 대조", haltHistoryClose == null ? "warn" : haltTied ? "pass" : "block", halt.observed_close ?? null, haltHistoryClose, "최신 주가가 아닌 공시 판단일 종가로 조건을 평가", haltHistoryClose == null ? "high" : haltTied ? "none" : "critical");
+
+const cachedWithoutTimestamp = Object.entries(officialSignals.providers || {})
+  .filter(([, provider]) => provider.status === "cached" && (!provider.observed_at || !provider.attempted_at))
+  .map(([id]) => id);
+addCheck("cached-provider-freshness", "캐시 관측시각 보존", cachedWithoutTimestamp.length ? "block" : "pass", cachedWithoutTimestamp, [], "캐시 재사용 시 실제 관측시각과 갱신 시도시각을 분리", cachedWithoutTimestamp.length ? "high" : "none");
+
 addCheck("ai-chat-revenue-tieout", "AI챗 매출 공시 연결", "warn", "별도 공시 없음", "별도 매출·유료 이용자·ASP", "반기보고서는 플랫폼 매출만 제시하며 AI챗 매출을 분리하지 않음. 트래커 넛캐스트를 공시 매출로 간주할 수 없음", "high");
 addCheck("overseas-asp", "해외 결제단가 검증", "warn", "한국 단가 임시 적용", "국가별 실제 ASP", "일본·글로벌·대만 매출 넛캐스트는 한국 세션당매출을 그대로 적용", "high");
 addCheck("profit-margin-basis", "AI챗 순이익률 검증", "warn", `${(margin * 100).toFixed(0)}% 가정`, "공시된 AI챗 원가·마진", "연결 영업이익률과 AI챗 단위경제를 분리할 수 없음", "high");
@@ -141,6 +172,7 @@ const payload = {
     "작품명은 공개 API의 첫 번째 해시태그에서 추론하며 정식 작품명 필드가 아니다.",
     "Worker 통계와 직접 관측 카탈로그는 수집 시각과 파이프라인이 달라 누적 합계가 일치하지 않을 수 있다.",
     "AI챗 별도 매출, 결제자 비율, 국가별 ASP, API 비용, IP 정산, 순이익률은 공시로 검증되지 않았다.",
+    "월 9억원 비교값은 원문 출처가 연결되기 전까지 회사 공식 가이던스로 단정하지 않는다.",
     "화면의 최근 주가는 KIS 자동 조회값이지만 과거 기준가·시장조치·수급 판단은 KRX 공시와 별도로 재확인해야 한다."
   ]
 };

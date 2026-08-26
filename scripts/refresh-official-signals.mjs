@@ -218,11 +218,12 @@ async function refreshKis() {
   }
   const closeOn = (date) => priceHistory.find((row) => row.date === date)?.close || null;
   const haltReferenceClose = closeOn("20260820");
+  const haltJudgmentClose = closeOn("20260824");
   const release15ReferenceClose = closeOn("20260812");
   const release5ReferenceClose = closeOn("20260827");
   const rawHaltThreshold = haltReferenceClose ? haltReferenceClose * 1.4 : null;
   const marketAlert = {
-    status: haltReferenceClose ? "calculated" : "partial",
+    status: haltReferenceClose && haltJudgmentClose ? "calculated" : "partial",
     trading_halt: {
       judgment_date: "2026-08-24",
       halt_date: "2026-08-25",
@@ -231,8 +232,8 @@ async function refreshKis() {
       reference_close: haltReferenceClose,
       trigger_pct: 40,
       trigger_price_raw: rawHaltThreshold,
-      observed_close: primaryQuote.price,
-      condition_met: rawHaltThreshold == null ? null : primaryQuote.price >= rawHaltThreshold,
+      observed_close: haltJudgmentClose,
+      condition_met: rawHaltThreshold == null || haltJudgmentClose == null ? null : haltJudgmentClose >= rawHaltThreshold,
       source_url: "https://kind.krx.co.kr/external/2026/08/21/000686/20260821001992/70835.htm"
     },
     warning_release: {
@@ -297,9 +298,11 @@ async function refreshFred() {
 }
 
 await loadLocalEnvironment();
+let previousSnapshot = {};
 let previousProviders = {};
 try {
-  previousProviders = JSON.parse(await readFile(join(projectRoot, "data", "official-signals.json"), "utf8")).providers || {};
+  previousSnapshot = JSON.parse(await readFile(join(projectRoot, "data", "official-signals.json"), "utf8"));
+  previousProviders = previousSnapshot.providers || {};
 } catch {
   previousProviders = {};
 }
@@ -310,16 +313,28 @@ const tasks = [
 ];
 const providers = {};
 for (const [id, task] of tasks) {
+  const attemptedAt = new Date().toISOString();
   try {
-    providers[id] = await task();
+    const result = await task();
+    providers[id] = {
+      ...result,
+      observed_at: result.status === "ok" ? attemptedAt : (result.observed_at || null),
+      attempted_at: attemptedAt
+    };
   } catch (error) {
     const note = error?.name === "AbortError" ? "요청 시간 초과" : String(error.message || error);
     const expectedTicker = process.env.KIS_STOCK_CODE || "134580";
     const canReusePrevious = ["ok", "cached"].includes(previousProviders[id]?.status)
       && (id !== "kis" || previousProviders[id]?.ticker === expectedTicker);
     providers[id] = canReusePrevious
-      ? { ...previousProviders[id], status: "cached", note: `최근 갱신 실패 · 이전 정상 응답 유지 (${note})` }
-      : { status: "error", note };
+      ? {
+          ...previousProviders[id],
+          status: "cached",
+          observed_at: previousProviders[id].observed_at || previousSnapshot.generated_at || null,
+          attempted_at: attemptedAt,
+          note: `최근 갱신 실패 · 이전 정상 응답 유지 (${note})`
+        }
+      : { status: "error", observed_at: null, attempted_at: attemptedAt, note };
   }
 }
 
