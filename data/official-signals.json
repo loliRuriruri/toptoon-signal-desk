@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-26T01:52:21.412Z",
+  "generated_at": "2026-08-26T03:08:55.504Z",
   "providers": {
     "opendart": {
-      "status": "ok",
+      "status": "cached",
       "source": "OpenDART 공시검색",
-      "note": "종목코드 134580의 회사 고유번호를 자동 확인해 최근 180일 조회",
+      "note": "최근 갱신 실패 · 이전 정상 응답 유지 (요청 시간 초과)",
       "corp_code": "00608699",
       "disclosures": [
         {
@@ -351,19 +351,19 @@
           "name": "키다리스튜디오",
           "role": "Core",
           "focus": "웹툰·웹소설 플랫폼/IP",
-          "price": 5950,
+          "price": 5840,
           "previous_close": 5550,
           "open": 5680,
           "high": 6390,
           "low": 5600,
-          "change": 400,
-          "change_pct": 7.21,
+          "change": 290,
+          "change_pct": 5.23,
           "change_sign": "2",
-          "volume": 1590809,
+          "volume": 1789481,
           "shares_outstanding": 37063766,
-          "market_cap_krw": 220500000000,
-          "per": 33.24,
-          "pbr": 1.08,
+          "market_cap_krw": 216500000000,
+          "per": 32.63,
+          "pbr": 1.06,
           "status": "ok"
         },
         {
@@ -371,19 +371,19 @@
           "name": "핑거스토리",
           "role": "Secondary",
           "focus": "웹툰·웹소설 플랫폼",
-          "price": 4020,
+          "price": 4110,
           "previous_close": 4135,
           "open": 4095,
           "high": 4110,
           "low": 3970,
-          "change": -115,
-          "change_pct": -2.78,
+          "change": -25,
+          "change_pct": -0.6,
           "change_sign": "5",
-          "volume": 928,
+          "volume": 1126,
           "shares_outstanding": 4309215,
-          "market_cap_krw": 17300000000,
-          "per": 3.94,
-          "pbr": 0.45,
+          "market_cap_krw": 17700000000,
+          "per": 4.03,
+          "pbr": 0.46,
           "status": "ok"
         },
         {
@@ -391,32 +391,27 @@
           "name": "디앤씨미디어",
           "role": "Secondary",
           "focus": "웹소설·웹툰 IP 출판",
-          "price": 7360,
+          "price": 7410,
           "previous_close": 7430,
           "open": 7430,
           "high": 7470,
           "low": 7330,
-          "change": -70,
-          "change_pct": -0.94,
+          "change": -20,
+          "change_pct": -0.27,
           "change_sign": "5",
-          "volume": 7096,
+          "volume": 8777,
           "shares_outstanding": 12412591,
-          "market_cap_krw": 91400000000,
-          "per": 11.55,
-          "pbr": 0.96,
+          "market_cap_krw": 92000000000,
+          "per": 11.63,
+          "pbr": 0.97,
           "status": "ok"
         }
       ],
       "peer_note": "동일 업종의 완전한 비교군이 아닌 웹툰 플랫폼·IP 사업 노출 기준 스크리닝 피어"
     },
     "fred": {
-      "status": "ok",
-      "source": "FRED DEXKOUS",
-      "observation": {
-        "date": "2026-08-21",
-        "value": 1385.01,
-        "unit": "KRW per USD"
-      }
+      "status": "skipped",
+      "note": "FRED_API_KEY 필요"
     }
   }
 }
