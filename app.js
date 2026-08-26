@@ -723,11 +723,11 @@ function renderStatsDashboard() {
         <div class="kpi-group-header">
           <div class="kpi-group-title">
             <span class="kpi-group-tag tag-cumulative">🏛️ 서비스 론칭 누적 관측</span>
-            <strong>2026년 2월 론칭 이후 누적 7개월(${elapsedDays}일) 실적 추정</strong>
+            <strong>2026.02 론칭 누적 7개월(${elapsedDays}일) 실적 추정</strong>
           </div>
           <span class="stat-help">4개국 누적 대화 ${formatNumber(allTotals.chats)}회 × 결제 단가 2,354원 기준</span>
         </div>
-        <div class="stat-grid stats-grid-primary">
+        <div class="kpi-card-subgrid">
           ${renderStatCards([
             ["누적 추정 총매출", `약 ${formatWonBig(cumulativeGrossMid)}`, `${formatWonBig(cumulativeGrossLow)}–${formatWonBig(cumulativeGrossHigh)} · 누적 ${formatNumber(allTotals.chats)}회`, "signal"],
             ["누적 월평균 매출", `월 약 ${formatWonBig(cumulativeMonthlyAvg)}`, `7개월(${elapsedDays}일) 환산 월평균 실적`, "positive"],
@@ -745,7 +745,7 @@ function renderStatsDashboard() {
           </div>
           <span class="stat-help">일평균 증가량 × 30일 환산 (방향성 검증용)</span>
         </div>
-        <div class="stat-grid stats-grid-primary">
+        <div class="kpi-card-subgrid">
           ${renderStatCards([
             ["최근 월매출 환산 (속도)", `약 ${formatWonBig(latest.revenue_mid)}`, `${formatWonBig(latest.revenue_low)}–${formatWonBig(latest.revenue_high)} · 최근 ${accumulatedDays}일 델타 환산`, "signal"],
             ["회사 제시 월매출 대비", latest.ir_ratio_pct != null ? `${latest.ir_ratio_pct.toFixed(1)}%` : "-", "회사 제시 9억원과 비교 · 검증 전", "neutral"],
