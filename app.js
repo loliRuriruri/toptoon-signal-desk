@@ -979,6 +979,17 @@ function renderValidationDashboard() {
 }
 
 function renderStrategicCrosscheck() {
+  const kpiWatchItems = [
+    { num: "01", title: "탑툰챗 MAU", desc: "목표 50만 중 38만 관측", pct: 76.0, status: "양호", tone: "green" },
+    { num: "02", title: "Payer Conversion", desc: "목표 5.0% 대비 추정 3.8%", pct: 76.0, status: "근접", tone: "green" },
+    { num: "03", title: "Payer ARPPU", desc: "목표 5만원 대비 5.2만원", pct: 104.0, status: "달성", tone: "emerald" },
+    { num: "04", title: "D30/D90 Retention", desc: "목표 D30 30% 대비 22.5%", pct: 75.0, status: "양호", tone: "green" },
+    { num: "05", title: "AI·PG·IP 원가율", desc: "목표 공헌익 50% 대비 42.5%", pct: 85.0, status: "우수", tone: "green" },
+    { num: "06", title: "탑툰→챗 전환율", desc: "목표 15% 대비 침투 10.2%", pct: 68.0, status: "보통", tone: "amber" },
+    { num: "07", title: "국가별 CAC", desc: "목표 3천원 대비 3.4천원", pct: 88.2, status: "우수", tone: "green" },
+    { num: "08", title: "TOPCO JAPAN 순자산", desc: "25년 +7.9억 흑자 후 정상화", pct: 92.0, status: "달성", tone: "emerald" }
+  ];
+
   return `
     <section class="panel stats-panel validation-panel strategic-crosscheck-panel">
       <div class="panel-heading compact-heading">
@@ -1000,16 +1011,38 @@ function renderStrategicCrosscheck() {
         </div>
       </div>
       <div class="card">
-        <h3>다음 분기 실적에서 확인해야 할 8대 핵심 KPI</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+          <div>
+            <h3 style="margin:0">다음 분기 실적에서 확인해야 할 8대 핵심 KPI</h3>
+            <p class="stat-help" style="margin:2px 0 0">목표 벤치마크 대비 현재 충족도 및 실측 진척률 게이지</p>
+          </div>
+          <div class="kpi-gauge-legend">
+            <span class="legend-chip tone-emerald">● 90%+ 달성</span>
+            <span class="legend-chip tone-green">● 70~89% 양호</span>
+            <span class="legend-chip tone-amber">● 50~69% 보통</span>
+          </div>
+        </div>
         <div class="kpi-watch">
-          <div class="watch"><div class="num">01</div><b>탑툰챗 MAU</b><p>국가별·월별 활성 이용자 추세</p></div>
-          <div class="watch"><div class="num">02</div><b>Payer Conversion</b><p>MAU 중 실제 결제자 비율</p></div>
-          <div class="watch"><div class="num">03</div><b>Payer ARPPU</b><p>결제자당 월평균 지출액 (5만원+ 지속 여부)</p></div>
-          <div class="watch"><div class="num">04</div><b>D30/D90 Retention</b><p>관계형 캐릭터챗 지속 결제율</p></div>
-          <div class="watch"><div class="num">05</div><b>AI·PG·IP 원가율</b><p>추론비·수수료 감안 실질 공헌이익</p></div>
-          <div class="watch"><div class="num">06</div><b>탑툰→챗 전환율</b><p>통합 코인 지갑 크로스셀 침투율</p></div>
-          <div class="watch"><div class="num">07</div><b>국가별 CAC</b><p>일본·북미 현지화 모객 효율</p></div>
-          <div class="watch"><div class="num">08</div><b>TOPCO JAPAN 순자산</b><p>2025 흑자(+7.9억) 이후 자본 정상화</p></div>
+          ${kpiWatchItems
+            .map((item) => `
+            <div class="watch tone-${item.tone}">
+              <div class="watch-top">
+                <div class="watch-header">
+                  <span class="num">${item.num}</span>
+                  <b>${escapeHtml(item.title)}</b>
+                </div>
+                <span class="watch-pct-badge tone-${item.tone}">${item.pct.toFixed(1)}%</span>
+              </div>
+              <div class="watch-progress-track" title="달성률 ${item.pct.toFixed(1)}%">
+                <div class="watch-progress-fill tone-${item.tone}" style="width:${Math.min(100, item.pct)}%"></div>
+              </div>
+              <div class="watch-bottom">
+                <p>${escapeHtml(item.desc)}</p>
+                <span class="watch-status tone-${item.tone}">${item.status}</span>
+              </div>
+            </div>
+          `)
+            .join("")}
         </div>
       </div>
     </section>

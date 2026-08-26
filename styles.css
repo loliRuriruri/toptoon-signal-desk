@@ -3669,22 +3669,137 @@ tbody tr:last-child td {
 .kpi-watch {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
   margin-top: 10px;
 }
 
+.kpi-gauge-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10.5px;
+  font-weight: 750;
+}
+
+.kpi-gauge-legend .legend-chip {
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.legend-chip.tone-emerald { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35); }
+.legend-chip.tone-green { background: rgba(57, 135, 229, 0.15); color: #56d364; border: 1px solid rgba(86, 211, 100, 0.35); }
+.legend-chip.tone-amber { background: rgba(245, 167, 66, 0.15); color: #f5a742; border: 1px solid rgba(245, 167, 66, 0.35); }
+
 .watch {
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-radius: 10px;
   background: #0b192b;
   border: 1px solid var(--border);
-  display: grid;
-  gap: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 140ms ease, border-color 140ms ease;
 }
 
-.watch .num { font-size: 9px; color: #7991af; font-weight: 800; }
-.watch b { font-size: 11.5px; color: var(--text); }
-.watch p { font-size: 9.5px; color: var(--muted); margin: 0; }
+.watch:hover {
+  transform: translateY(-2px);
+}
+
+.watch.tone-emerald { border-color: rgba(16, 185, 129, 0.4); background: linear-gradient(145deg, rgba(16, 185, 129, 0.08), #0b192b 60%); }
+.watch.tone-green { border-color: rgba(57, 135, 229, 0.4); background: linear-gradient(145deg, rgba(57, 135, 229, 0.08), #0b192b 60%); }
+.watch.tone-amber { border-color: rgba(245, 167, 66, 0.4); background: linear-gradient(145deg, rgba(245, 167, 66, 0.08), #0b192b 60%); }
+.watch.tone-red { border-color: rgba(230, 103, 103, 0.4); background: linear-gradient(145deg, rgba(230, 103, 103, 0.08), #0b192b 60%); }
+
+.watch-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.watch-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.watch-header .num {
+  font-size: 10px;
+  color: #7991af;
+  font-weight: 850;
+  background: rgba(255, 255, 255, 0.07);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.watch-header b {
+  font-size: 12px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.watch-pct-badge {
+  font-size: 11px;
+  font-weight: 850;
+  padding: 2px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.watch-pct-badge.tone-emerald { background: rgba(16, 185, 129, 0.2); color: #27c499; border: 1px solid rgba(16, 185, 129, 0.4); }
+.watch-pct-badge.tone-green { background: rgba(86, 211, 100, 0.2); color: #56d364; border: 1px solid rgba(86, 211, 100, 0.4); }
+.watch-pct-badge.tone-amber { background: rgba(245, 167, 66, 0.2); color: #f5a742; border: 1px solid rgba(245, 167, 66, 0.4); }
+.watch-pct-badge.tone-red { background: rgba(230, 103, 103, 0.2); color: #ff9797; border: 1px solid rgba(230, 103, 103, 0.4); }
+
+.watch-progress-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.watch-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 400ms ease;
+}
+
+.watch-progress-fill.tone-emerald { background: linear-gradient(90deg, #10b981, #27c499); box-shadow: 0 0 8px rgba(39, 196, 153, 0.5); }
+.watch-progress-fill.tone-green { background: linear-gradient(90deg, #3987e5, #56d364); box-shadow: 0 0 8px rgba(86, 211, 100, 0.4); }
+.watch-progress-fill.tone-amber { background: linear-gradient(90deg, #f5a742, #ffb347); box-shadow: 0 0 8px rgba(245, 167, 66, 0.4); }
+.watch-progress-fill.tone-red { background: linear-gradient(90deg, #e66767, #ff7474); box-shadow: 0 0 8px rgba(230, 103, 103, 0.4); }
+
+.watch-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.watch-bottom p {
+  font-size: 10px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.35;
+}
+
+.watch-status {
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.watch-status.tone-emerald { color: #27c499; }
+.watch-status.tone-green { color: #56d364; }
+.watch-status.tone-amber { color: #f5a742; }
+.watch-status.tone-red { color: #ff9797; }
 
 .bracket {
   border: 1px dashed rgba(59, 86, 125, 0.7);
