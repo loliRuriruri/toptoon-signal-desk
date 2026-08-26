@@ -3926,4 +3926,65 @@ tbody tr:last-child td {
   border: 1px solid rgba(230, 103, 103, 0.4);
 }
 
+.kpi-dual-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
 
+.kpi-group-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(18, 26, 38, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.kpi-group-card.group-cumulative {
+  border-left: 3px solid rgba(57, 135, 229, 0.9);
+}
+
+.kpi-group-card.group-velocity {
+  border-left: 3px solid rgba(39, 196, 153, 0.9);
+}
+
+.kpi-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.kpi-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.kpi-group-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.tag-cumulative {
+  background: rgba(57, 135, 229, 0.18);
+  color: #79b8ff;
+  border: 1px solid rgba(57, 135, 229, 0.4);
+}
+
+.tag-velocity {
+  background: rgba(39, 196, 153, 0.18);
+  color: #56d364;
+  border: 1px solid rgba(39, 196, 153, 0.4);
+}
