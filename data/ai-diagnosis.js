@@ -1,0 +1,1 @@
+window.TOPTOON_AI_DIAGNOSIS={"schema_version":1,"status":"not-configured","generated_at":null,"model":"nvidia/nemotron-3-ultra-550b-a55b:free","analysis":"","disclosure":"GitHub Actions에 OPENROUTER_API_KEY를 등록하면 공개 데이터 기반 정기 진단이 생성됩니다."};

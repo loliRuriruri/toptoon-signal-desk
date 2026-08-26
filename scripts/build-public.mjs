@@ -39,7 +39,7 @@ for (const record of characterData.records || []) {
   }
 }
 await mkdir(join(outputRoot, "data"), { recursive: true });
-for (const filename of ["characters.js", "character-activity.js", "stats.js", "validation.js", "official-signals.js"]) {
+for (const filename of ["characters.js", "character-activity.js", "stats.js", "validation.js", "official-signals.js", "ai-diagnosis.js"]) {
   await cp(join(projectRoot, "data", filename), join(outputRoot, "data", filename));
 }
 
@@ -65,7 +65,7 @@ const indexPath = join(outputRoot, "index.html");
 const index = await readFile(indexPath, "utf8");
 if (!index.includes("TOPTOON CHAT TRACKER")) throw new Error("Public index validation failed");
 const versionHash = createHash("sha256");
-for (const filename of ["styles.css", "app.js", "data/stats.js", "data/validation.js", "data/official-signals.js", "data/character-activity.js", "data/characters.js", "data/image-map.js"]) {
+for (const filename of ["styles.css", "app.js", "data/stats.js", "data/validation.js", "data/official-signals.js", "data/ai-diagnosis.js", "data/character-activity.js", "data/characters.js", "data/image-map.js"]) {
   versionHash.update(await readFile(join(outputRoot, filename)));
 }
 const publicVersion = versionHash.digest("hex").slice(0, 12);
@@ -73,7 +73,7 @@ let versionedIndex = index.replace(
   '<script src="data/characters.js"></script>',
   '<script src="data/image-map.js"></script>\n    <script src="data/characters.js"></script>'
 );
-for (const asset of ["styles.css", "app.js", "data/stats.js", "data/validation.js", "data/official-signals.js", "data/character-activity.js", "data/image-map.js", "data/characters.js"]) {
+for (const asset of ["styles.css", "app.js", "data/stats.js", "data/validation.js", "data/official-signals.js", "data/ai-diagnosis.js", "data/character-activity.js", "data/image-map.js", "data/characters.js"]) {
   versionedIndex = versionedIndex.replaceAll(`="${asset}"`, `="${asset}?v=${publicVersion}"`);
 }
 await writeFile(indexPath, versionedIndex, "utf8");

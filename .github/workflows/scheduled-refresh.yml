@@ -3,7 +3,7 @@ name: Scheduled Data Refresh & Auto Deploy
 on:
   schedule:
     # 30분마다 자동 실행 (지연 방지 및 실시간성 강화)
-    - cron: '*/30 * * * *'
+    - cron: "*/30 * * * *"
   # GitHub 웹 Actions 탭에서 Run workflow 버튼으로 즉시 수동 실행 가능
   workflow_dispatch:
 
@@ -43,10 +43,19 @@ jobs:
       - name: 4. Validate Integrity & Syntaxes
         run: node scripts/validate.mjs
 
-      - name: 5. Build Public Distribution
+      - name: 5. Generate Scheduled Nemotron Diagnosis
+        continue-on-error: true
+        timeout-minutes: 7
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL || 'nvidia/nemotron-3-ultra-550b-a55b:free' }}
+          AI_DIAGNOSIS_MIN_HOURS: ${{ vars.AI_DIAGNOSIS_MIN_HOURS || '2' }}
+        run: node scripts/generate-ai-diagnosis.mjs
+
+      - name: 6. Build Public Distribution
         run: node scripts/build-public.mjs
 
-      - name: 6. Commit & Push Changes to Repository
+      - name: 7. Commit & Push Changes to Repository
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"

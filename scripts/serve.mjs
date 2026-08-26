@@ -266,6 +266,7 @@ async function runOpenRouterAnalysis() {
   try {
     const stats = JSON.parse(await readFile(join(projectRoot, "data", "stats.json"), "utf8"));
     const validation = JSON.parse(await readFile(join(projectRoot, "data", "validation.json"), "utf8"));
+    const officialSignals = JSON.parse(await readFile(join(projectRoot, "data", "official-signals.json"), "utf8"));
     const snapshot = {
       captured_at: stats.captured_at,
       revenue_nowcast: stats.revenue_nowcast,
@@ -278,8 +279,23 @@ async function runOpenRouterAnalysis() {
       daily_traction: stats.site_traction?.daily,
       filing_snapshot: validation.investor?.filing_snapshot,
       market_snapshot: validation.investor?.market_snapshot,
+      validation_checks: validation.checks,
       evidence_gaps: validation.required_caveats,
-      validation_summary: validation.summary
+      validation_summary: validation.summary,
+      sources: validation.investor?.sources,
+      official_signals: {
+        opendart: {
+          status: officialSignals.providers?.opendart?.status,
+          observed_at: officialSignals.providers?.opendart?.observed_at,
+          disclosures: officialSignals.providers?.opendart?.disclosures
+        },
+        kis: {
+          status: officialSignals.providers?.kis?.status,
+          observed_at: officialSignals.providers?.kis?.observed_at,
+          quote: officialSignals.providers?.kis?.quote,
+          market_alert: officialSignals.providers?.kis?.market_alert
+        }
+      }
     };
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -290,9 +306,10 @@ async function runOpenRouterAnalysis() {
         "X-OpenRouter-Title": "TOPTOON Signal Desk"
       },
       body: JSON.stringify({
-        model: process.env.OPENROUTER_MODEL || "openai/gpt-4.1-mini",
+        model: process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free",
         temperature: 0.2,
-        max_tokens: 1200,
+        max_tokens: 2000,
+        reasoning: { effort: "none", exclude: true },
         messages: [
           {
             role: "system",
@@ -304,11 +321,12 @@ async function runOpenRouterAnalysis() {
     });
     if (!response.ok) throw new Error(`OpenRouter HTTP ${response.status}`);
     const payload = await response.json();
+    if (payload.error) throw new Error(`OpenRouter API error ${payload.error.code || "unknown"}: ${payload.error.message || "unknown"}`);
     const content = payload.choices?.[0]?.message?.content;
     if (!content) throw new Error("OpenRouter returned no analysis");
     return {
       generated_at: new Date().toISOString(),
-      model: payload.model || process.env.OPENROUTER_MODEL || "openai/gpt-4.1-mini",
+      model: payload.model || process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free",
       analysis: content,
       usage: payload.usage ? {
         prompt_tokens: payload.usage.prompt_tokens,

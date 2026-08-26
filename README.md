@@ -92,6 +92,39 @@ Cloudflare의 `public-worker.js`는 캐릭터 상세 화면에서 사용하는 �
 
 실행 로그는 `.runtime\auto-update`에 저장됩니다. 자동화를 제거하려면 `.\scripts\uninstall-auto-update-task.ps1`을 실행합니다.
 
+### GitHub Actions 기반 무인 갱신·Nemotron 진단
+
+`.github/workflows/scheduled-refresh.yml`은 GitHub의 Ubuntu 실행기에서 30분마다 동작하므로 로컬 PC가 꺼져 있어도 실행됩니다. 데이터 수집과 검증은 매 실행마다 수행하고, LLM 진단은 기본 2시간 간격으로 제한합니다. OpenRouter가 실패하거나 무료 호출 한도에 걸려도 기존 데이터 수집·검증·커밋은 계속됩니다.
+
+GitHub 저장소에서 `Settings` → `Secrets and variables` → `Actions`로 이동합니다.
+
+`Secrets` 탭에는 다음 민감정보를 각각 `New repository secret`으로 등록합니다.
+
+```text
+KIS_APP_KEY
+KIS_APP_SECRET
+OPENDART_API_KEY
+OPENROUTER_API_KEY
+```
+
+`Variables` 탭에는 공개 가능한 설정값을 등록합니다.
+
+```text
+OPENROUTER_MODEL=nvidia/nemotron-3-ultra-550b-a55b:free
+AI_DIAGNOSIS_MIN_HOURS=2
+```
+
+선택적으로 `KIS_STOCK_CODE=134580`을 Secret으로 등록할 수 있지만 종목코드는 민감정보가 아니므로 워크플로 기본값을 그대로 사용해도 됩니다. Secret 값은 GitHub에서 다시 열람할 수 없으며, 수정하려면 같은 이름의 Secret을 `Update`하여 새 값으로 교체합니다.
+
+등록 후 저장소의 `Actions` → `Scheduled Data Refresh & Auto Deploy` → `Run workflow`를 눌러 수동 실행합니다. 다음 단계를 확인합니다.
+
+1. `Refresh KIS & OpenDART Official Signals`가 성공해야 합니다.
+2. `Generate Scheduled Nemotron Diagnosis`가 성공하거나, 키 미등록 시 명시적으로 skip되어야 합니다.
+3. `Validate Integrity & Syntaxes`가 통과해야 합니다.
+4. 마지막 단계가 `chore(auto): scheduled data refresh snapshot` 커밋을 생성하거나 변경 없음으로 끝나야 합니다.
+
+LLM에는 공개 공시, 공개 카탈로그, 검증 결과, 가정이 명시된 매출 시나리오만 전송합니다. API 키, `.env.local`, 캐릭터 이미지, 개인정보는 전송하지 않습니다. 결과는 `data/ai-diagnosis.json`과 브라우저용 `data/ai-diagnosis.js`에 저장되며 공개 사이트에는 보조 진단임을 명시해 표시합니다.
+
 ## 공식 API 키
 
 대시보드는 `/api/integrations/status`에서 설정 여부만 읽습니다. 키 원문은 브라우저로 전송하지 않습니다.

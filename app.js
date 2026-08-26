@@ -73,6 +73,7 @@ let catalogActivityData = null;
 let validationData = null;
 let integrationsData = null;
 let officialSignalsData = null;
+let aiDiagnosisData = null;
 let records = [];
 let groups = [];
 let lastTrigger = null;
@@ -305,6 +306,7 @@ async function load() {
     catalogActivityData = window.TOPTOON_CHARACTER_ACTIVITY || null;
     validationData = window.TOPTOON_VALIDATION || null;
     officialSignalsData = window.TOPTOON_OFFICIAL_SIGNALS || null;
+    aiDiagnosisData = window.TOPTOON_AI_DIAGNOSIS || null;
     if (!PUBLIC_READ_ONLY) {
       try {
         const integrationResponse = await fetch("/api/integrations/status");
@@ -587,7 +589,7 @@ function renderSettingsView() {
       <p>${provider.configured ? (provider.adapter ? "키 저장됨 · 연결 검사 가능" : "키 저장됨 · 호출기 준비 중") : "설정 필요"}</p>
       ${(provider.fields || []).map((field) => {
         const visible = /(_MODEL|_CORP_CODE|_STOCK_CODE|CLIENT_ID|APP_KEY)$/.test(field.key) && !field.key.endsWith("API_KEY");
-        const preset = field.key === "KIS_STOCK_CODE" ? "134580" : field.key === "OPENROUTER_MODEL" ? "openai/gpt-4.1-mini" : "";
+        const preset = field.key === "KIS_STOCK_CODE" ? "134580" : field.key === "OPENROUTER_MODEL" ? "nvidia/nemotron-3-ultra-550b-a55b:free" : "";
         return `<label class="settings-field">
           <span>${escapeHtml(SETTING_FIELD_LABELS[field.key] || field.key)}</span>
           <input type="${visible ? "text" : "password"}" name="${escapeAttr(field.key)}" autocomplete="off" placeholder="${field.configured ? "설정됨 · 새 값 입력 시 교체" : escapeAttr(preset || "값 입력")}" />
@@ -980,6 +982,7 @@ function renderValidationDashboard() {
     renderMarketRisk(investor, marketView),
     renderPeerComparison(marketView),
     renderCatalogCrosscheck(validationData.catalogs || {}),
+    renderScheduledAiDiagnosis(),
     renderRequiredCaveats(validationData.required_caveats || [], thesis)
   ].join("");
 
@@ -1578,6 +1581,29 @@ function renderCatalogCrosscheck(catalogs) {
         }).join("")}
       </div>
       <p class="section-note">누적 채팅·조회수는 재조회 순간에도 증가할 수 있어 소폭 차이는 정상입니다. 목록 수·ID·이미지 누락은 별도 차단 검사입니다.</p>
+    </section>
+  `;
+}
+
+function renderScheduledAiDiagnosis() {
+  const diagnosis = aiDiagnosisData || {};
+  const ready = diagnosis.status === "ok" && typeof diagnosis.analysis === "string" && diagnosis.analysis.trim();
+  const statusLabel = ready ? "GitHub Actions 정기 진단" : "OpenRouter 등록 대기";
+  const body = ready
+    ? `<pre class="analysis-output scheduled-ai-output">${escapeHtml(diagnosis.analysis)}</pre>`
+    : `<div class="empty-state"><strong>정기 LLM 진단이 아직 없습니다.</strong><p>${escapeHtml(diagnosis.disclosure || "GitHub Actions에 OpenRouter Secret을 등록하면 생성됩니다.")}</p></div>`;
+  return `
+    <section class="panel stats-panel validation-panel scheduled-ai-panel">
+      <div class="panel-heading compact-heading">
+        <div>
+          <p class="section-kicker">Evidence-bounded LLM review</p>
+          <h2>Nemotron 데이터·투자 가설 보조 진단</h2>
+          <p class="stat-help">공개 스냅샷만 전달하며 규칙 기반 검증과 공식 원자료를 대체하지 않습니다.</p>
+        </div>
+        <span class="evidence-badge ${ready ? "tier-c" : "tier-b"}">${escapeHtml(statusLabel)}</span>
+      </div>
+      ${body}
+      <p class="section-note">모델 ${escapeHtml(diagnosis.model || "-")} · ${ready ? `${formatDateTime(diagnosis.generated_at)} 생성` : "API 키 미등록 또는 첫 실행 대기"} · 숫자 확정과 매매 판단에 직접 사용하지 않습니다.</p>
     </section>
   `;
 }

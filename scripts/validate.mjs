@@ -21,11 +21,13 @@ const data = readJson("data/characters.json");
 const stats = readJson("data/stats.json");
 const validation = readJson("data/validation.json");
 const officialSignals = readJson("data/official-signals.json");
+const aiDiagnosis = readJson("data/ai-diagnosis.json");
 const characterActivity = readJson("data/character-activity.json");
 const embeddedData = readFileSync(path.join(root, "data", "characters.js"), "utf8");
 const embeddedStats = readFileSync(path.join(root, "data", "stats.js"), "utf8");
 const embeddedValidation = readFileSync(path.join(root, "data", "validation.js"), "utf8");
 const embeddedOfficialSignals = readFileSync(path.join(root, "data", "official-signals.js"), "utf8");
+const embeddedAiDiagnosis = readFileSync(path.join(root, "data", "ai-diagnosis.js"), "utf8");
 const embeddedCharacterActivity = readFileSync(path.join(root, "data", "character-activity.js"), "utf8");
 const records = data.records || [];
 const bySite = new Map();
@@ -42,6 +44,7 @@ assert(/^window\.TOPTOON_DATA\s*=\s*\{/.test(embeddedData), "embedded dataset sh
 assert(/^window\.TOPTOON_STATS\s*=\s*\{/.test(embeddedStats), "embedded statistics should be available without fetch");
 assert(/^window\.TOPTOON_VALIDATION\s*=\s*\{/.test(embeddedValidation), "embedded validation should be available without fetch");
 assert(/^window\.TOPTOON_OFFICIAL_SIGNALS\s*=\s*\{/.test(embeddedOfficialSignals), "embedded official signal state should be available without fetch");
+assert(/^window\.TOPTOON_AI_DIAGNOSIS\s*=\s*\{/.test(embeddedAiDiagnosis), "embedded scheduled AI diagnosis should be available without fetch");
 assert(/^window\.TOPTOON_CHARACTER_ACTIVITY\s*=\s*\{/.test(embeddedCharacterActivity), "embedded four-market activity should be available without fetch");
 assert(new Set(records.map((record) => `${record.site}:${record.character_id}`)).size === records.length, "duplicate character ID per market detected");
 assert(bySite.get("KR") === data.counts?.kr, "KR record count mismatch");
@@ -62,6 +65,12 @@ assert(haltJudgmentClose != null, "KRX halt judgment-date close is missing");
 assert(Number(halt.observed_close) === Number(haltJudgmentClose), "KRX halt must use the judgment-date close, not the latest quote");
 assert(halt.condition_met === (Number(haltJudgmentClose) >= Number(halt.trigger_price_raw)), "KRX halt condition does not match judgment-date close");
 assert(officialSignals.providers?.kis?.market_alert?.warning_release?.fifteen_day_reference_close > 0, "KRX warning release reference is missing");
+assert(["ok", "not-configured"].includes(aiDiagnosis.status), "scheduled AI diagnosis status is invalid");
+if (aiDiagnosis.status === "ok") {
+  assert(/^\d{4}-\d{2}-\d{2}T/.test(aiDiagnosis.generated_at || ""), "scheduled AI diagnosis timestamp is missing");
+  assert(typeof aiDiagnosis.analysis === "string" && aiDiagnosis.analysis.length >= 100, "scheduled AI diagnosis output is unexpectedly short");
+  assert(typeof aiDiagnosis.input_hash === "string" && aiDiagnosis.input_hash.length === 64, "scheduled AI diagnosis input hash is invalid");
+}
 for (const [providerId, provider] of Object.entries(officialSignals.providers || {})) {
   if (["ok", "cached"].includes(provider.status)) assert(/^\d{4}-\d{2}-\d{2}T/.test(provider.observed_at || ""), `${providerId} provider observation timestamp is missing`);
   assert(/^\d{4}-\d{2}-\d{2}T/.test(provider.attempted_at || ""), `${providerId} provider attempt timestamp is missing`);
@@ -166,6 +175,7 @@ assert(html.includes("data/character-activity.js"), "embedded activity script mu
   "data/stats.js",
   "data/validation.js"
   ,"data/official-signals.js"
+  ,"data/ai-diagnosis.js"
 ].forEach((marker) => assert(html.includes(marker), `missing HTML marker: ${marker}`));
 
 [
@@ -221,6 +231,7 @@ assert(html.includes("data/character-activity.js"), "embedded activity script mu
   "renderPeriodComparison",
   "renderGlobalPanel",
   "renderCatalogSummary",
+  "renderScheduledAiDiagnosis",
   "characterActivity",
   "activitySummaryForMarket",
   "renderStatsMarketSummary",
@@ -260,7 +271,7 @@ assert(serverSource.includes("/api/analysis/openrouter"), "OpenRouter analysis e
 assert(serverSource.includes("/media-proxy"), "local motion proxy endpoint is missing");
 assert(serverSource.includes(".env.local"), "local environment loader is missing");
 
-for (const script of ["scripts/refresh-public-snapshot.mjs", "scripts/crosscheck.mjs", "scripts/refresh-official-signals.mjs"]) {
+for (const script of ["scripts/refresh-public-snapshot.mjs", "scripts/crosscheck.mjs", "scripts/refresh-official-signals.mjs", "scripts/generate-ai-diagnosis.mjs"]) {
   const check = spawnSync(process.execPath, ["--check", script], { cwd: root, encoding: "utf8" });
   assert(check.status === 0, `node --check ${script} failed: ${check.stderr || check.stdout}`);
 }
