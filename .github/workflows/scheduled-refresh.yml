@@ -2,8 +2,8 @@ name: Scheduled Data Refresh & Auto Deploy
 
 on:
   schedule:
-    # 매시 정각의 GitHub Actions 혼잡을 피해서 30분마다 실행
-    - cron: "7,37 * * * *"
+    # 15분마다 자동 실행 (정각 00/30분 트래픽 혼잡을 피해 7,22,37,52분에 실행)
+    - cron: "7,22,37,52 * * * *"
   # GitHub 웹 Actions 탭에서 Run workflow 버튼으로 즉시 수동 실행 가능
   workflow_dispatch:
 
