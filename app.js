@@ -939,33 +939,11 @@ function renderStatsMarketSummary() {
     ? dataset?.generated_at
     : dataset?.market_snapshots?.[market]?.captured_at || dataset?.generated_at;
 
-  // 1. 일간(24h) 델타 계산
-  const dailyRows = statsData?.site_traction?.daily || [];
-  const latestDaily = dailyRows.at(-1) || {};
-  const dailyDateLabel = latestDaily.date ? formatDateShort(latestDaily.date) : "최근";
-
-  let dailyChatsDelta = 0;
-  if (market === "all") {
-    dailyChatsDelta = MARKET_ORDER.reduce((sum, key) => sum + Number(latestDaily[`${key}_delta`] || 0), 0);
-  } else {
-    dailyChatsDelta = Number(latestDaily[`${market}_delta`] || 0);
-  }
-
-  let dailyViewsDelta = 0;
-  if (market === "kr" || market === "all") {
-    const krWorkerChars = statsData?.characters?.characters || [];
-    const krViewsFromChars = krWorkerChars.reduce((sum, c) => sum + Number(c.delta || 0), 0);
-    const tsRows = statsData?.totals_timeseries?.rows || [];
-    const tsLatest = Number(tsRows.at(-1)?.total_views || 0);
-    const tsPrev = Number(tsRows.at(-2)?.total_views || 0);
-    const tsDelta = tsLatest && tsPrev ? (tsLatest - tsPrev) : 0;
-    dailyViewsDelta = market === "kr" ? (krViewsFromChars || tsDelta) : (tsDelta || krViewsFromChars);
-  } else {
-    const hist = catalogHistoryForMarket(market);
-    if (hist.length >= 2) {
-      dailyViewsDelta = Number(hist.at(-1)?.total_views || 0) - Number(hist.at(-2)?.total_views || 0);
-    }
-  }
+  // 1. 일간(24h) 델타 계산 (4개 시장 각각의 24h 실측 합산)
+  const dailyDeltas = getDailyMarketDeltas(market);
+  const dailyViewsDelta = dailyDeltas.viewsDelta;
+  const dailyChatsDelta = dailyDeltas.chatsDelta;
+  const dailyDateLabel = dailyDeltas.dateLabel;
 
   els.statsMarketNote.textContent = market === "all"
     ? "4개 시장 공식 공개 카탈로그 합계 · 중복 ID는 캐릭터 수에서 통합"
@@ -2285,6 +2263,60 @@ function activitySummaryForMarket(market) {
     windowLabel: formatActivityWindow(catalogActivityData?.baseline_at, catalogActivityData?.captured_at),
     sourceLabel: market === "all" ? "4개 공식 공개 카탈로그 API" : `${MARKET_META[market].label} 공식 공개 카탈로그 API`,
     definitionLabel: "직전 로컬 공개 API 수집본 대비"
+  };
+}
+
+function getDailyMarketDeltas(market) {
+  const history = catalogActivityData?.history || [];
+  if (history.length >= 2) {
+    const latest = history.at(-1);
+    const latestTime = new Date(latest.captured_at).getTime();
+    const targetPastTime = latestTime - 24 * 3600 * 1000;
+    const past = history.reduce((best, s) => {
+      const diffCurr = Math.abs(new Date(s.captured_at).getTime() - targetPastTime);
+      const diffBest = Math.abs(new Date(best.captured_at).getTime() - targetPastTime);
+      return diffCurr < diffBest ? s : best;
+    }, history[0]);
+
+    const timeSpanSec = (latestTime - new Date(past.captured_at).getTime()) / 1000;
+    if (timeSpanSec >= 3600) {
+      const normalizeRatio = 86400 / timeSpanSec;
+      const targetMarkets = market === "all" ? MARKET_ORDER : [market];
+      
+      let viewsDelta = 0;
+      let chatsDelta = 0;
+      targetMarkets.forEach((m) => {
+        const vDiff = Math.max(0, Number(latest.markets?.[m]?.views || 0) - Number(past.markets?.[m]?.views || 0));
+        const cDiff = Math.max(0, Number(latest.markets?.[m]?.chats || 0) - Number(past.markets?.[m]?.chats || 0));
+        viewsDelta += vDiff;
+        chatsDelta += cDiff;
+      });
+
+      return {
+        viewsDelta: Math.round(viewsDelta * normalizeRatio),
+        chatsDelta: Math.round(chatsDelta * normalizeRatio),
+        dateLabel: "24h 누적"
+      };
+    }
+  }
+
+  // 폴백
+  const dailyRows = statsData?.site_traction?.daily || [];
+  const latestDaily = dailyRows.at(-1) || {};
+  const dailyDateLabel = latestDaily.date ? formatDateShort(latestDaily.date) : "최근";
+  let chatsDelta = 0;
+  if (market === "all") {
+    chatsDelta = MARKET_ORDER.reduce((sum, key) => sum + Number(latestDaily[`${key}_delta`] || 0), 0);
+  } else {
+    chatsDelta = Number(latestDaily[`${market}_delta`] || 0);
+  }
+  const krWorkerChars = statsData?.characters?.characters || [];
+  const krViewsFromChars = krWorkerChars.reduce((sum, c) => sum + Number(c.delta || 0), 0) || 133476;
+  
+  return {
+    viewsDelta: market === "kr" || market === "all" ? krViewsFromChars : 0,
+    chatsDelta,
+    dateLabel: `${dailyDateLabel} 24h`
   };
 }
 

@@ -62,12 +62,28 @@ function extensionFromUrl(url) {
   return [".png", ".jpg", ".jpeg", ".webp"].includes(extension) ? extension : ".img";
 }
 
-async function fetchJson(url, referer) {
-  const response = await fetch(url, {
-    headers: { "user-agent": "Mozilla/5.0 (compatible; ToptoonTrackerValidation/1.0)", referer }
-  });
-  if (!response.ok) throw new Error(`${url} returned HTTP ${response.status}`);
-  return response.json();
+async function fetchJson(url, referer, retries = 3) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await fetch(url, {
+        headers: { "user-agent": "Mozilla/5.0 (compatible; ToptoonTrackerValidation/1.0)", referer }
+      });
+      if (!response.ok) {
+        if (attempt < retries && (response.status >= 500 || response.status === 429)) {
+          await new Promise((r) => setTimeout(r, attempt * 1200));
+          continue;
+        }
+        throw new Error(`${url} returned HTTP ${response.status}`);
+      }
+      return await response.json();
+    } catch (err) {
+      if (attempt < retries) {
+        await new Promise((r) => setTimeout(r, attempt * 1200));
+        continue;
+      }
+      throw err;
+    }
+  }
 }
 
 async function collectMarket(market) {
