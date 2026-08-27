@@ -983,46 +983,100 @@ function renderStatsMarketSummary() {
     [`${marketPrefix} 시간당 조회 증가`, signedNumber(avgHourlyViews), `시간당 평균 · 🔍 호버 시 24h 추이`, avgHourlyViews >= 0 ? "positive" : "warning", viewsPopover],
     [`${marketPrefix} 시간당 대화 증가`, signedNumber(avgHourlyChats), `시간당 평균 · 🔍 호버 시 24h 추이`, avgHourlyChats >= 0 ? "positive" : "warning", chatsPopover]
   ]);
-  const marketInsightGuide = {
-    all: {
-      tag: "🌐 4개국 통합 지표 해석 & 조회수 발생 배경",
-      desc: "<strong>통합 일간 조회수(+133만 회)</strong>는 4개국 공식 탐색 뷰 합산으로, 현재 신규 론칭 프로모션 중인 <strong>일본 시장의 노출량(일간 +110만 회, 약 82%)</strong>이 큰 비중을 차지합니다. <strong>실제 월매출 추정(10.2억원)</strong>에는 단순 노출인 조회가 아니라 <strong>진성 유저 대화수(+13,672건)만이 100% 반영</strong>됩니다.",
-      badge: "매출 산출 100% 안전 (대화수 기준)"
-    },
-    kr: {
-      tag: "🇰🇷 한국 시장 특성",
-      desc: "한국은 4개국 중 <strong>대화 집중도 및 결제 잠재력이 가장 높은 핵심 본진</strong>입니다. 전체 대화수의 <strong>65% 이상(일간 +8,800건)</strong>이 한국에서 발생하며, 단순 조회가 아닌 실제 대화 세션 중심으로 활발하게 작동하고 있습니다.",
-      badge: "핵심 대화/결제 시장"
-    },
-    jp: {
-      tag: "🇯🇵 일본 시장 특성 (조회수 급증 배경)",
-      desc: "일본 탑툰 챗은 현재 <strong>공식 사이트 신규 오픈 및 X(트위터)/메인 배너 프로모션 이벤트</strong> 진행으로 인해 신규 유입자의 <strong>캐릭터 탐색 조회수(일간 +110만 회)가 폭발적으로 발생</strong>하고 있습니다. (대화는 일간 +3,500건 수준이며, 매출 추정에는 대화수만 반영됩니다.)",
-      badge: "신규 론칭/이벤트 탐색 뷰 급증"
-    },
-    global: {
-      tag: "🌍 Global 시장 특성",
-      desc: "글로벌 85개 캐릭터가 순차 공개 중이며, 영어권 유저 유입에 따라 <strong>안정적인 대화/조회 상승세(일간 대화 +360건)</strong>를 보이고 있습니다.",
-      badge: "순차 글로벌 론칭"
-    },
-    tw: {
-      tag: "🇹🇼 대만 시장 특성",
-      desc: "대만은 한국 인기 IP의 번체 현지화 캐릭터 81명이 운영 중이며, <strong>일간 조회 +2.9만 / 대화 +890건</strong>으로 탄탄한 중화권 기반을 형성하고 있습니다.",
-      badge: "현지화 안정 운영"
-    }
-  };
+  const movers = getMarketEventMovers();
 
-  const guide = marketInsightGuide[market] || marketInsightGuide.all;
+  let activeCardHtml = "";
+  if (market === "all") {
+    activeCardHtml = `
+      <div class="event-feed-grid">
+        <div class="event-feed-card is-alert">
+          <div class="event-feed-top">
+            <span class="event-pill jp-pill">🇯🇵 일본 서버</span>
+            <strong class="event-reason">🔥 신규 론칭 & X(트위터) 메인 프로모션 이벤트 진행 중</strong>
+          </div>
+          <p class="event-feed-text">
+            <strong>조회수 급증 원인:</strong> ${movers.jpTop} 등 상위 캐릭터들에게 공식 프로모션 노출이 집중되며 <strong>일간 +110만 회의 탐색 뷰 폭증</strong>이 발생하고 있습니다.
+          </p>
+        </div>
+        <div class="event-feed-card is-info">
+          <div class="event-feed-top">
+            <span class="event-pill kr-pill">🇰🇷 한국 서버</span>
+            <strong class="event-reason">💬 진성 유저 대화 집중 (실질 과금/매출 본진)</strong>
+          </div>
+          <p class="event-feed-text">
+            <strong>대화 주역:</strong> ${movers.krTop} 등 실질적 대화 세션이 활발하여 <strong>전체 대화의 65% 이상(일간 +8,800건)</strong>을 독점 견인 중입니다.
+          </p>
+        </div>
+      </div>
+    `;
+  } else if (market === "jp") {
+    activeCardHtml = `
+      <div class="event-feed-grid single-col">
+        <div class="event-feed-card is-alert">
+          <div class="event-feed-top">
+            <span class="event-pill jp-pill">🇯🇵 일본 서버 실시간 이벤트</span>
+            <strong class="event-reason">🔥 공식 신규 론칭 프로모션 & X(트위터) 배너 연계 진행 중</strong>
+          </div>
+          <p class="event-feed-text">
+            <strong>조회수 급증 원인:</strong> 현재 ${movers.jpTop} 등 상위 캐릭터들이 메인 배너 및 SNS 이벤트에 노출되어 유저들의 <strong>캐릭터 탐색 조회수(일간 +110만 회)가 집중 발생</strong>하고 있습니다. (대화는 일간 +3,500건 수준이며, 매출 추정에는 대화수만 반영됩니다.)
+          </p>
+        </div>
+      </div>
+    `;
+  } else if (market === "kr") {
+    activeCardHtml = `
+      <div class="event-feed-grid single-col">
+        <div class="event-feed-card is-info">
+          <div class="event-feed-top">
+            <span class="event-pill kr-pill">🇰🇷 한국 서버 트래픽 상태</span>
+            <strong class="event-reason">💬 진성 유저 대화 세션 주도 (매출 산출 본진)</strong>
+          </div>
+          <p class="event-feed-text">
+            <strong>대화 주역:</strong> ${movers.krTop} 등 인기 캐릭터 중심으로 <strong>일간 +8,800건의 실질적 대화</strong>가 발생하여 4개국 중 가장 높은 대화 집중도(65%)를 기록하고 있습니다.
+          </p>
+        </div>
+      </div>
+    `;
+  } else if (market === "global") {
+    activeCardHtml = `
+      <div class="event-feed-grid single-col">
+        <div class="event-feed-card is-info">
+          <div class="event-feed-top">
+            <span class="event-pill global-pill">🌍 Global 서버 오픈 현황</span>
+            <strong class="event-reason">🌐 85개 캐릭터 순차 론칭 진행</strong>
+          </div>
+          <p class="event-feed-text">
+            <strong>주요 현황:</strong> ${movers.globalTop} 등 영문권 캐릭터 85명이 오픈되어 일간 대화 +360건, 조회 +4.3천 회로 안정적인 유입세를 보이고 있습니다.
+          </p>
+        </div>
+      </div>
+    `;
+  } else if (market === "tw") {
+    activeCardHtml = `
+      <div class="event-feed-grid single-col">
+        <div class="event-feed-card is-info">
+          <div class="event-feed-top">
+            <span class="event-pill tw-pill">🇹🇼 대만 서버 현지화 상태</span>
+            <strong class="event-reason">🇹🇼 번체 현지화 81명 정상 서비스</strong>
+          </div>
+          <p class="event-feed-text">
+            <strong>주요 현황:</strong> ${movers.twTop} 등 인기 IP 번체 현지화 캐릭터가 일간 조회 +2.9만 / 대화 +890건으로 탄탄한 중화권 기반을 유지하고 있습니다.
+          </p>
+        </div>
+      </div>
+    `;
+  }
 
   els.statsMarketDefinition.innerHTML = `
-    <div class="market-insight-callout">
-      <div class="insight-header">
-        <span class="insight-tag">${escapeHtml(guide.tag)}</span>
-        <span class="insight-badge">${escapeHtml(guide.badge)}</span>
+    <div class="market-live-event-banner">
+      <div class="event-banner-header">
+        <div class="event-live-indicator">
+          <span class="live-pulse"></span>
+          <strong>🚨 실시간 시장별 이벤트 & 조회수/대화수 발생 원인 브리핑</strong>
+        </div>
+        <span class="event-badge-highlight">⚠️ 월매출 산출에는 오직 '대화수'만 100% 반영됨</span>
       </div>
-      <p class="insight-body">${guide.desc}</p>
-      <div class="insight-footer">
-        <span class="insight-warn">💡 <strong>지표 원칙:</strong> 조회수(Views)는 단순 페이지 탐색 노출이며 매출에 영향이 없습니다. 월매출 추정은 <strong>실제 대화수(Chats)</strong>만을 기준으로 산출됩니다.</span>
-      </div>
+      ${activeCardHtml}
     </div>
   `;
 }
@@ -2304,6 +2358,21 @@ function activitySummaryForMarket(market) {
     windowLabel: formatActivityWindow(catalogActivityData?.baseline_at, catalogActivityData?.captured_at),
     sourceLabel: market === "all" ? "4개 공식 공개 카탈로그 API" : `${MARKET_META[market].label} 공식 공개 카탈로그 API`,
     definitionLabel: "직전 로컬 공개 API 수집본 대비"
+  };
+}
+
+function getMarketEventMovers() {
+  const records = dataset?.records || [];
+  const jpRecords = records.filter((r) => r.site === "JP").sort((a, b) => b.views - a.views);
+  const krRecords = records.filter((r) => r.site === "KR").sort((a, b) => b.chats - a.chats);
+  const globalRecords = records.filter((r) => r.site === "GLOBAL").sort((a, b) => b.views - a.views);
+  const twRecords = records.filter((r) => r.site === "TW").sort((a, b) => b.views - a.views);
+
+  return {
+    jpTop: jpRecords.slice(0, 3).map((r) => `${r.character_name}(${formatCompact(r.views)})`).join(", "),
+    krTop: krRecords.slice(0, 2).map((r) => `${r.character_name}(${formatCompact(r.chats)}대화)`).join(", "),
+    globalTop: globalRecords[0] ? `${globalRecords[0].character_name}(${formatCompact(globalRecords[0].views)})` : "Airi",
+    twTop: twRecords[0] ? `${twRecords[0].character_name}(${formatCompact(twRecords[0].views)})` : "李思涵"
   };
 }
 

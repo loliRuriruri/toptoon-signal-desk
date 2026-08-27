@@ -1127,61 +1127,148 @@ h3 {
   line-height: 1.55;
 }
 
-.market-insight-callout {
+.market-live-event-banner {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 10px;
 }
 
-.insight-header {
+.event-banner-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+}
+
+.event-live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.event-live-indicator strong {
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 850;
+}
+
+.live-pulse {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f43f5e;
+  box-shadow: 0 0 10px #f43f5e;
+  animation: pulse-dot 1.4s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+}
+
+.event-badge-highlight {
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: #fbbf24;
+}
+
+.event-feed-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.event-feed-grid.single-col {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 900px) {
+  .event-feed-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.event-feed-card {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
   gap: 6px;
 }
 
-.insight-tag {
-  color: #93c5fd;
-  font-size: 12px;
+.event-feed-card.is-alert {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(15, 23, 42, 0.8));
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.event-feed-card.is-info {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(15, 23, 42, 0.8));
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+.event-feed-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.event-pill {
+  font-size: 10px;
   font-weight: 850;
-  letter-spacing: 0.01em;
+  padding: 2px 7px;
+  border-radius: 6px;
 }
 
-.insight-badge {
-  font-size: 10.5px;
+.event-pill.jp-pill {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.event-pill.kr-pill {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.event-pill.global-pill {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.event-pill.tw-pill {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.event-reason {
+  color: #fff;
+  font-size: 11.5px;
   font-weight: 800;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(37, 99, 235, 0.2);
-  border: 1px solid rgba(98, 168, 255, 0.4);
-  color: #60a5fa;
 }
 
-.insight-body {
+.event-feed-text {
   margin: 0;
   color: #cbd5e1;
-  font-size: 11.5px;
-  line-height: 1.55;
-}
-
-.insight-body strong {
-  color: #fff;
-}
-
-.insight-footer {
-  margin-top: 3px;
-  padding-top: 6px;
-  border-top: 1px dashed rgba(255, 255, 255, 0.08);
-}
-
-.insight-warn {
-  color: #94a3b8;
   font-size: 11px;
+  line-height: 1.5;
 }
 
-.insight-warn strong {
-  color: #38bdf8;
+.event-feed-text strong {
+  color: #fff;
 }
 
 .stat-card,
