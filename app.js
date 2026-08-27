@@ -57,7 +57,6 @@ const state = {
   view: "stats",
   market: "all",
   statsMarket: "all",
-  leaderboardMarket: "all",
   selectedSupplyMonth: null,
   simulatedPrice: null,
   revenueViewMode: "recent",
@@ -205,18 +204,6 @@ function bindEvents() {
   els.toolbarReset.addEventListener("click", resetCharacterFilters);
 
   document.addEventListener("click", (event) => {
-    const leaderboardMarketButton = event.target.closest("[data-leaderboard-market]");
-    if (leaderboardMarketButton) {
-      const nextMarket = leaderboardMarketButton.dataset.leaderboardMarket;
-      if (MARKET_META[nextMarket] && state.leaderboardMarket !== nextMarket) {
-        state.leaderboardMarket = nextMarket;
-        renderStatsDashboard();
-        bindResultButtons();
-        writeHash();
-      }
-      return;
-    }
-
     const toggle = event.target.closest("[data-rank-toggle]");
     if (toggle) {
       const card = toggle.closest(".character-rank-card");
@@ -531,8 +518,11 @@ function readHash() {
   state.view = VIEW_META[nextView] && !(PUBLIC_READ_ONLY && nextView === "settings") ? nextView : state.view;
   if (!nextView && legacyMarket && MARKET_META[legacyMarket]) state.view = "characters";
   state.market = MARKET_META[nextMarket] ? nextMarket : state.market;
-  state.leaderboardMarket = MARKET_META[nextLeaderboardMarket] ? nextLeaderboardMarket : state.leaderboardMarket;
-  state.statsMarket = MARKET_META[nextStatsMarket] ? nextStatsMarket : state.statsMarket;
+  state.statsMarket = MARKET_META[nextStatsMarket]
+    ? nextStatsMarket
+    : MARKET_META[nextLeaderboardMarket]
+      ? nextLeaderboardMarket
+      : state.statsMarket;
   state.q = params.get("q") || "";
   state.work = params.get("work") || "";
   state.sort = params.get("sort") || state.sort;
@@ -543,7 +533,6 @@ function writeHash() {
   params.set("view", state.view);
   params.set("market", state.market);
   if (state.statsMarket !== "all") params.set("scope", state.statsMarket);
-  if (state.leaderboardMarket !== "all") params.set("rank", state.leaderboardMarket);
   if (state.q) params.set("q", state.q);
   if (state.work) params.set("work", state.work);
   if (state.sort !== "views-desc") params.set("sort", state.sort);
@@ -3065,7 +3054,7 @@ function renderStatCards(cards) {
 }
 
 function renderCharacterLeaderboard(byCharacter) {
-  const selectedMarket = MARKET_META[state.leaderboardMarket] ? state.leaderboardMarket : "all";
+  const selectedMarket = MARKET_META[state.statsMarket] ? state.statsMarket : "all";
   const fullRanking = leaderboardRanking(selectedMarket);
   const totalChats = fullRanking.reduce((sum, record) => sum + record.chatsNumber, 0) || 1;
   const top = fullRanking.slice(0, 6);
@@ -3075,28 +3064,17 @@ function renderCharacterLeaderboard(byCharacter) {
       <div class="chart-heading">
         <div>
           <h3>인기 캐릭터 TOP 6</h3>
-          <p class="stat-help">${escapeHtml(scopeLabel)} 대화수 순위 · 사진 선택 시 해당 시장 정보</p>
+          <p class="stat-help">${escapeHtml(scopeLabel)} 대화수 순위 · 상단 국가 선택과 자동 연동</p>
         </div>
         <div class="rank-heading-actions">
           <span class="sample-badge">TOP 6</span>
           <button class="rank-expand-button" type="button" data-rank-toggle aria-expanded="false"><b>전체 순위 펼치기</b><span>${formatNumber(fullRanking.length)}명</span></button>
         </div>
       </div>
-      <div class="leaderboard-market-switch-heading">
-        <div>
-          <strong><span aria-hidden="true">🌐</span> 국가·서비스별 순위 전환</strong>
-          <span>국가를 선택하면 해당 서비스의 인기 순위로 바뀝니다. 통합은 같은 캐릭터를 묶어 보여줍니다.</span>
-        </div>
-        <b>아래 버튼을 선택하세요</b>
+      <div class="leaderboard-scope-note" aria-live="polite">
+        <span aria-hidden="true">🔗</span>
+        <p><strong>${escapeHtml(MARKET_META[selectedMarket].flag)} ${escapeHtml(MARKET_META[selectedMarket].label)} 선택 적용 중</strong><small>상단 국가 버튼을 바꾸면 TOP6와 전체 순위도 함께 전환됩니다.</small></p>
       </div>
-      <nav class="leaderboard-market-tabs" aria-label="인기 캐릭터 국가 및 서비스 선택">
-        ${["all", ...MARKET_ORDER].map((market) => {
-          const count = market === "all" ? groups.length : recordsForMarket(market).length;
-          const meta = MARKET_META[market];
-          const selected = selectedMarket === market;
-          return `<button type="button" data-leaderboard-market="${market}" aria-pressed="${String(selected)}" aria-label="${escapeHtml(meta.label)} 순위 ${formatNumber(count)}명${selected ? ", 현재 선택됨" : ""}"><i aria-hidden="true">${meta.flag}</i><span>${escapeHtml(meta.label)}</span><small>${formatNumber(count)}명</small></button>`;
-        }).join("")}
-      </nav>
       <div class="leaderboard-layout">
         <div class="leaderboard-featured">
           <div class="character-rank-grid">

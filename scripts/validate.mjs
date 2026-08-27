@@ -258,7 +258,7 @@ assert(html.includes("data/official-promotions.js"), "embedded official promotio
   "renderColumnChart",
   "renderCharacterLeaderboard",
   "leaderboardRanking",
-  "data-leaderboard-market",
+  "상단 국가 버튼을 바꾸면 TOP6와 전체 순위도 함께 전환됩니다.",
   "시장 내 대화 비중",
   "renderCharacterMotion",
   "renderPeerComparison",
