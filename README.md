@@ -116,7 +116,10 @@ CLOUDFLARE_ACCOUNT_ID
 ```text
 OPENROUTER_MODEL=nvidia/nemotron-3-ultra-550b-a55b:free
 AI_DIAGNOSIS_MIN_HOURS=2
+KIS_REFRESH_MIN_HOURS=20
 ```
+
+GitHub Actions 실행기는 매번 새 환경에서 시작하므로 로컬 `.cache`의 KIS 접근 토큰을 다음 실행에서 재사용할 수 없습니다. 대신 마지막 정상 KIS 공개 스냅샷이 `KIS_REFRESH_MIN_HOURS`보다 새로우면 시세 결과를 재사용하고 토큰 발급 API를 호출하지 않습니다. 기본값 `20`은 카탈로그 수집·Pages 배포는 15분 간격으로 유지하면서 KIS 토큰 발급 알림은 하루 한 번 수준으로 제한합니다.
 
 선택적으로 `KIS_STOCK_CODE=134580`을 Secret으로 등록할 수 있지만 종목코드는 민감정보가 아니므로 워크플로 기본값을 그대로 사용해도 됩니다. Secret 값은 GitHub에서 다시 열람할 수 없으며, 수정하려면 같은 이름의 Secret을 `Update`하여 새 값으로 교체합니다.
 

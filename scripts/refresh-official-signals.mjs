@@ -182,6 +182,27 @@ async function refreshKis() {
   const appSecret = process.env.KIS_APP_SECRET;
   const ticker = process.env.KIS_STOCK_CODE || "134580";
   if (!appKey || !appSecret) return { status: "skipped", note: "KIS_APP_KEY와 KIS_APP_SECRET 필요" };
+
+  const previousKis = previousProviders?.kis;
+  const configuredMinimumHours = Number(process.env.KIS_REFRESH_MIN_HOURS || 20);
+  const minimumHours = Number.isFinite(configuredMinimumHours) ? Math.max(0, configuredMinimumHours) : 20;
+  const previousObservedAt = Date.parse(previousKis?.observed_at || "");
+  const previousAgeMs = Number.isFinite(previousObservedAt) ? Date.now() - previousObservedAt : Infinity;
+  const canReusePrevious = ["ok", "cached"].includes(previousKis?.status)
+    && previousKis?.ticker === ticker
+    && Number(previousKis?.quote?.price || 0) > 0
+    && previousAgeMs >= 0
+    && previousAgeMs < minimumHours * 60 * 60 * 1000;
+
+  if (process.env.KIS_REFRESH_FORCE !== "1" && canReusePrevious) {
+    const ageHours = previousAgeMs / (60 * 60 * 1000);
+    return {
+      ...previousKis,
+      status: "cached",
+      note: `KIS 토큰 중복 발급 방지 · 마지막 정상 시세 ${ageHours.toFixed(1)}시간 전 · ${minimumHours}시간 간격으로 재조회`
+    };
+  }
+
   const base = "https://openapi.koreainvestment.com:9443";
   const accessToken = await getKisAccessToken(base, appKey, appSecret);
   const headers = {
