@@ -57,6 +57,8 @@ const state = {
   view: "stats",
   market: "all",
   statsMarket: "all",
+  leaderboardMarket: "all",
+  leaderboardOverride: false,
   selectedSupplyMonth: null,
   simulatedPrice: null,
   revenueViewMode: "recent",
@@ -167,6 +169,8 @@ function bindEvents() {
   els.statsMarketTabs.forEach((button) => {
     button.addEventListener("click", () => {
       state.statsMarket = button.dataset.statsMarket;
+      state.leaderboardMarket = state.statsMarket;
+      state.leaderboardOverride = false;
       syncControls();
       renderStatsDashboard();
       bindResultButtons();
@@ -204,6 +208,29 @@ function bindEvents() {
   els.toolbarReset.addEventListener("click", resetCharacterFilters);
 
   document.addEventListener("click", (event) => {
+    const leaderboardMarketButton = event.target.closest("[data-leaderboard-market]");
+    if (leaderboardMarketButton) {
+      const nextMarket = leaderboardMarketButton.dataset.leaderboardMarket;
+      if (MARKET_META[nextMarket]) {
+        state.leaderboardMarket = nextMarket;
+        state.leaderboardOverride = nextMarket !== state.statsMarket;
+        renderStatsDashboard();
+        bindResultButtons();
+        writeHash();
+      }
+      return;
+    }
+
+    const leaderboardSyncButton = event.target.closest("[data-rank-sync]");
+    if (leaderboardSyncButton) {
+      state.leaderboardMarket = state.statsMarket;
+      state.leaderboardOverride = false;
+      renderStatsDashboard();
+      bindResultButtons();
+      writeHash();
+      return;
+    }
+
     const toggle = event.target.closest("[data-rank-toggle]");
     if (toggle) {
       const card = toggle.closest(".character-rank-card");
@@ -515,14 +542,14 @@ function readHash() {
   const nextMarket = params.get("market") || legacyMarket;
   const nextLeaderboardMarket = params.get("rank");
   const nextStatsMarket = params.get("scope");
+  const hasValidRank = Boolean(MARKET_META[nextLeaderboardMarket]);
+  const hasValidScope = Boolean(MARKET_META[nextStatsMarket]);
   state.view = VIEW_META[nextView] && !(PUBLIC_READ_ONLY && nextView === "settings") ? nextView : state.view;
   if (!nextView && legacyMarket && MARKET_META[legacyMarket]) state.view = "characters";
   state.market = MARKET_META[nextMarket] ? nextMarket : state.market;
-  state.statsMarket = MARKET_META[nextStatsMarket]
-    ? nextStatsMarket
-    : MARKET_META[nextLeaderboardMarket]
-      ? nextLeaderboardMarket
-      : state.statsMarket;
+  state.statsMarket = hasValidScope ? nextStatsMarket : hasValidRank ? "all" : state.statsMarket;
+  state.leaderboardMarket = hasValidRank ? nextLeaderboardMarket : state.statsMarket;
+  state.leaderboardOverride = hasValidRank && nextLeaderboardMarket !== state.statsMarket;
   state.q = params.get("q") || "";
   state.work = params.get("work") || "";
   state.sort = params.get("sort") || state.sort;
@@ -532,7 +559,8 @@ function writeHash() {
   const params = new URLSearchParams();
   params.set("view", state.view);
   params.set("market", state.market);
-  if (state.statsMarket !== "all") params.set("scope", state.statsMarket);
+  if (state.statsMarket !== "all" || state.leaderboardOverride) params.set("scope", state.statsMarket);
+  if (state.leaderboardOverride && state.leaderboardMarket !== state.statsMarket) params.set("rank", state.leaderboardMarket);
   if (state.q) params.set("q", state.q);
   if (state.work) params.set("work", state.work);
   if (state.sort !== "views-desc") params.set("sort", state.sort);
@@ -3096,7 +3124,8 @@ function renderStatCards(cards) {
 }
 
 function renderCharacterLeaderboard(byCharacter) {
-  const selectedMarket = MARKET_META[state.statsMarket] ? state.statsMarket : "all";
+  const linkedToGlobalMarket = !state.leaderboardOverride;
+  const selectedMarket = MARKET_META[linkedToGlobalMarket ? state.statsMarket : state.leaderboardMarket] ? (linkedToGlobalMarket ? state.statsMarket : state.leaderboardMarket) : "all";
   const fullRanking = leaderboardRanking(selectedMarket);
   const totalChats = fullRanking.reduce((sum, record) => sum + record.chatsNumber, 0) || 1;
   const top = fullRanking.slice(0, 6);
@@ -3106,17 +3135,26 @@ function renderCharacterLeaderboard(byCharacter) {
       <div class="chart-heading">
         <div>
           <h3>인기 캐릭터 TOP 6</h3>
-          <p class="stat-help">${escapeHtml(scopeLabel)} 대화수 순위 · 상단 국가 선택과 자동 연동</p>
+          <p class="stat-help">${escapeHtml(scopeLabel)} 대화수 순위 · ${linkedToGlobalMarket ? "상단 국가 선택과 자동 연동" : "TOP6만 단독 국가 보기"}</p>
         </div>
         <div class="rank-heading-actions">
           <span class="sample-badge">TOP 6</span>
           <button class="rank-expand-button" type="button" data-rank-toggle aria-expanded="false"><b>전체 순위 펼치기</b><span>${formatNumber(fullRanking.length)}명</span></button>
         </div>
       </div>
-      <div class="leaderboard-scope-note" aria-live="polite">
-        <span aria-hidden="true">🔗</span>
-        <p><strong>${escapeHtml(MARKET_META[selectedMarket].flag)} ${escapeHtml(MARKET_META[selectedMarket].label)} 선택 적용 중</strong><small>상단 국가 버튼을 바꾸면 TOP6와 전체 순위도 함께 전환됩니다.</small></p>
+      <div class="leaderboard-scope-note${linkedToGlobalMarket ? " is-linked" : " is-overridden"}" aria-live="polite">
+        <span aria-hidden="true">${linkedToGlobalMarket ? "🔗" : "🎯"}</span>
+        <p><strong>${escapeHtml(MARKET_META[selectedMarket].flag)} ${escapeHtml(MARKET_META[selectedMarket].label)} ${linkedToGlobalMarket ? "상단 선택 적용 중" : "TOP6 단독 선택"}</strong><small>${linkedToGlobalMarket ? "상단 국가 버튼을 바꾸면 TOP6와 전체 순위도 함께 전환됩니다." : "상단 국가와 별도로 TOP6만 보는 중입니다."}</small></p>
+        ${linkedToGlobalMarket ? "" : `<button type="button" class="rank-sync-button" data-rank-sync>상단 선택으로 돌아가기</button>`}
       </div>
+      <nav class="leaderboard-market-tabs" aria-label="인기 캐릭터 국가 및 서비스 선택">
+        ${["all", ...MARKET_ORDER].map((market) => {
+          const count = market === "all" ? groups.length : recordsForMarket(market).length;
+          const meta = MARKET_META[market];
+          const selected = selectedMarket === market;
+          return `<button type="button" data-leaderboard-market="${market}" aria-pressed="${String(selected)}" aria-label="${escapeHtml(meta.label)} 순위 ${formatNumber(count)}명${selected ? ", 현재 선택됨" : ""}"><i aria-hidden="true">${meta.flag}</i><span>${escapeHtml(meta.label)}</span><small>${formatNumber(count)}명</small></button>`;
+        }).join("")}
+      </nav>
       <div class="leaderboard-layout">
         <div class="leaderboard-featured">
           <div class="character-rank-grid">

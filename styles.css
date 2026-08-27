@@ -1854,6 +1854,56 @@ h3 {
 .leaderboard-scope-note p { display: grid; min-width: 0; gap: 2px; margin: 0; }
 .leaderboard-scope-note strong { color: #eef6ff; font-size: 10px; }
 .leaderboard-scope-note small { color: var(--muted); font-size: 8.5px; line-height: 1.45; }
+.leaderboard-scope-note.is-overridden { border-color: rgba(245, 167, 66, 0.48); background: linear-gradient(110deg, rgba(245, 167, 66, 0.12), rgba(57, 135, 229, 0.06)); }
+.leaderboard-scope-note.is-overridden strong { color: #f6c87d; }
+.rank-sync-button {
+  flex: 0 0 auto;
+  border: 1px solid rgba(98, 168, 255, 0.38);
+  border-radius: 999px;
+  background: rgba(57, 135, 229, 0.1);
+  padding: 5px 8px;
+  color: #8fc3ff;
+  font-size: 8px;
+  font-weight: 800;
+}
+.rank-sync-button:hover,
+.rank-sync-button:focus-visible { border-color: var(--accent); background: rgba(57, 135, 229, 0.18); color: #fff; outline: none; }
+
+.leaderboard-market-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+  border: 1px solid rgba(98, 168, 255, 0.32);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(15, 29, 48, 0.82), rgba(7, 10, 15, 0.58));
+  padding: 7px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.leaderboard-market-tabs button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  gap: 6px;
+  min-height: 36px;
+  border: 1px solid rgba(98, 168, 255, 0.13);
+  border-radius: 8px;
+  background: rgba(12, 20, 32, 0.72);
+  color: #a8b8ca;
+  font-size: 10.5px;
+  font-weight: 800;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.leaderboard-market-tabs button:hover,
+.leaderboard-market-tabs button:focus-visible { border-color: rgba(98, 168, 255, 0.7); background: rgba(57, 135, 229, 0.13); color: #fff; outline: none; transform: translateY(-1px); }
+.leaderboard-market-tabs button[aria-pressed="true"] { border-color: #62a8ff; background: linear-gradient(135deg, #3987e5, #2c6fca); color: #fff; box-shadow: 0 5px 16px rgba(57, 135, 229, 0.34), inset 0 1px 0 rgba(255,255,255,0.2); }
+.leaderboard-market-tabs button i { font-size: 14px; font-style: normal; line-height: 1; filter: saturate(0.88); }
+.leaderboard-market-tabs button[aria-pressed="true"] i { filter: none; }
+.leaderboard-market-tabs small { border-radius: 999px; background: rgba(255,255,255,0.08); padding: 2px 6px; color: inherit; font-size: 8px; font-variant-numeric: tabular-nums; }
+.leaderboard-market-tabs button[aria-pressed="true"] small { background: rgba(255,255,255,0.2); }
 
 .rank-expand-button {
   display: inline-flex;
