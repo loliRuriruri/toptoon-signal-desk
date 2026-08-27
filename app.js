@@ -987,15 +987,17 @@ function renderStatsMarketSummary() {
   const formattedViewsPerHour = signedNumber(activity.viewsPerHour || activity.viewsDelta);
   const formattedChatsPerHour = signedNumber(activity.chatsPerHour || activity.chatsDelta);
 
+  const cleanCapturedAt = formatShortTimestamp(capturedAt);
+
   els.statsMarketKpiGrid.innerHTML = renderStatCards([
     [`${meta.label} 캐릭터`, `${formatNumber(totals.characters)}명`, market === "all" ? `${formatNumber(totals.localeRecords)}개 지역 레코드` : "시장 원본 목록", "signal"],
     ["누적 조회수", formatNumber(totals.views), "공개 카운터 합계", "neutral"],
     ["누적 대화수", formatNumber(totals.chats), "공개 카운터 합계", "neutral"],
-    ["일간(24h) 조회 증가", signedNumber(dailyViewsDelta), `${dailyDateLabel} 일간`, dailyViewsDelta >= 0 ? "positive" : "warning"],
-    ["일간(24h) 대화 증가", signedNumber(dailyChatsDelta), `${dailyDateLabel} 일간`, dailyChatsDelta >= 0 ? "positive" : "warning"],
+    ["최신 수집", cleanCapturedAt, `${formatFreshnessAge(capturedAt)} · ${activity.sourceLabel}`, "neutral"],
+    ["일간(24h) 조회 증가", signedNumber(dailyViewsDelta), `${dailyDateLabel} 24h 누적`, dailyViewsDelta >= 0 ? "positive" : "warning"],
+    ["일간(24h) 대화 증가", signedNumber(dailyChatsDelta), `${dailyDateLabel} 24h 누적`, dailyChatsDelta >= 0 ? "positive" : "warning"],
     [`${marketPrefix} 시간당(1h) 조회 속도`, `${formattedViewsPerHour}/h`, `실시간 시속 · 🔍 마우스 호버 시 24h 추이`, activity.viewsDelta >= 0 ? "positive" : "warning", viewsPopover],
-    [`${marketPrefix} 시간당(1h) 대화 속도`, `${formattedChatsPerHour}/h`, `실시간 시속 · 🔍 마우스 호버 시 24h 추이`, activity.chatsDelta >= 0 ? "positive" : "warning", chatsPopover],
-    ["최신 수집", formatDateTime(capturedAt), `${formatFreshnessAge(capturedAt)} · ${activity.sourceLabel}`, "neutral"]
+    [`${marketPrefix} 시간당(1h) 대화 속도`, `${formattedChatsPerHour}/h`, `실시간 시속 · 🔍 마우스 호버 시 24h 추이`, activity.chatsDelta >= 0 ? "positive" : "warning", chatsPopover]
   ]);
   els.statsMarketDefinition.innerHTML = `<strong>${escapeHtml(meta.label)} 공개 활동:</strong> 조회수·대화수는 공식 공개 누적 카운터이며 매출·결제자·순매출이 아닙니다. 일간 증가는 <strong>24시간 1일 누적</strong>이며, 시간당 속도는 <strong>실측 수집 델타를 1시간(Hourly)으로 환산한 실시간 시속</strong>입니다. 카드에 마우스를 올리면 최근 24시간 시간별 추이 팝업이 표시됩니다.`;
 }
@@ -3570,6 +3572,17 @@ function formatDateTime(value) {
     dateStyle: "medium",
     timeStyle: "short"
   }).format(date);
+}
+
+function formatShortTimestamp(value) {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  const h = String(date.getHours()).padStart(2, "0");
+  const min = String(date.getMinutes()).padStart(2, "0");
+  return `${date.getFullYear()}.${m}.${d} ${h}:${min}`;
 }
 
 function formatCollectionPoint(value) {
