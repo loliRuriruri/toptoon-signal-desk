@@ -2035,7 +2035,7 @@ function renderCharacterView() {
 function renderCatalogSummary() {
   const source = state.market === "all" ? records : recordsForMarket(state.market);
   const uniqueCharacters = state.market === "all"
-    ? dataset.counts.unique_character_ids
+    ? groups.length
     : source.length;
   const views = source.reduce((sum, record) => sum + record.viewsNumber, 0);
   const chats = source.reduce((sum, record) => sum + record.chatsNumber, 0);
@@ -2049,7 +2049,7 @@ function renderCatalogSummary() {
       ]
     : [["증가 데이터", "비교 기준 대기", "다음 수집부터 조회·대화 증가를 계산합니다", "warning"]];
   els.catalogKpiGrid.innerHTML = renderStatCards([
-    ["캐릭터", formatNumber(uniqueCharacters), state.market === "all" ? "중복 지역을 합친 고유 ID" : `${MARKET_META[state.market].label} 공개 캐릭터`],
+    ["캐릭터", formatNumber(uniqueCharacters), state.market === "all" ? "국가별 대응 매핑 후 고유 캐릭터" : `${MARKET_META[state.market].label} 공개 캐릭터`],
     ["조회수", formatNumber(views), state.market === "all" ? "4개 시장 공개 수치 합산" : "해당 시장 공개 조회수"],
     ["채팅", formatNumber(chats), state.market === "all" ? "4개 시장 공개 수치 합산" : "해당 시장 공개 채팅"],
     ["작품", formatNumber(works), "빈 작품명 제외"],
@@ -2256,6 +2256,146 @@ function characterActivityForMarket(item, market) {
 
 function characterActivity(item) {
   return characterActivityForMarket(item, state.market);
+}
+
+function formatObservationDuration(seconds) {
+  const totalMinutes = Math.max(1, Math.round(Number(seconds || 0) / 60));
+  if (totalMinutes < 60) return `${totalMinutes}분`;
+  const hours = totalMinutes / 60;
+  if (hours < 24) return `${hours >= 10 ? Math.round(hours) : hours.toFixed(1)}시간`;
+  return `${(hours / 24).toFixed(1)}일`;
+}
+
+function characterHistoryIntervals(record, maxHours = 24) {
+  if (!record?.market || record.character_id == null) return [];
+  const history = catalogActivityData?.character_history || [];
+  const latestTime = new Date(catalogActivityData?.captured_at || history.at(-1)?.captured_at).getTime();
+  const cutoff = Number.isFinite(latestTime) ? latestTime - maxHours * 3600000 : Number.NEGATIVE_INFINITY;
+  const rows = history.flatMap((entry) => {
+    const pair = entry?.markets?.[record.market]?.[String(Number(record.character_id))];
+    if (!Array.isArray(pair) || pair.length < 2) return [];
+    const end = new Date(entry.captured_at).getTime();
+    const declaredSeconds = Number(entry.interval_seconds || 0);
+    const parsedStart = new Date(entry.baseline_at).getTime();
+    const start = Number.isFinite(parsedStart) ? parsedStart : end - declaredSeconds * 1000;
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start || end <= cutoff) return [];
+    const effectiveStart = Math.max(start, cutoff);
+    const effectiveSeconds = Math.max(1, (end - effectiveStart) / 1000);
+    const fullSeconds = Math.max(1, (end - start) / 1000);
+    const overlapShare = Math.min(1, effectiveSeconds / fullSeconds);
+    return [{
+      start,
+      end,
+      seconds: effectiveSeconds,
+      viewsDelta: Number(pair[0] || 0) * overlapShare,
+      chatsDelta: Number(pair[1] || 0) * overlapShare
+    }];
+  });
+
+  if (rows.length) return rows.sort((a, b) => a.end - b.end);
+  const fallback = directActivityForRecord(record);
+  const fallbackSeconds = Number(fallback?.interval_seconds || 0);
+  const fallbackEnd = new Date(fallback?.last_seen).getTime();
+  if (!fallback || !Number.isFinite(fallbackSeconds) || fallbackSeconds <= 0 || !Number.isFinite(fallbackEnd)) return [];
+  return [{
+    start: fallbackEnd - fallbackSeconds * 1000,
+    end: fallbackEnd,
+    seconds: fallbackSeconds,
+    viewsDelta: Number(fallback.delta || 0),
+    chatsDelta: Number(fallback.chat_delta || 0)
+  }];
+}
+
+function characterHourlyMetrics(record, maxHours = 24) {
+  const intervals = characterHistoryIntervals(record, maxHours);
+  if (!intervals.length) return null;
+  const coverageSeconds = intervals.reduce((sum, row) => sum + row.seconds, 0);
+  if (!(coverageSeconds > 0)) return null;
+  const viewsDelta = intervals.reduce((sum, row) => sum + row.viewsDelta, 0);
+  const chatsDelta = intervals.reduce((sum, row) => sum + row.chatsDelta, 0);
+  const hourMap = new Map();
+  intervals.forEach((row) => {
+    const date = new Date(row.end);
+    const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}`;
+    if (!hourMap.has(key)) {
+      hourMap.set(key, {
+        time: row.end,
+        label: `${String(date.getHours()).padStart(2, "0")}:00`,
+        fullLabel: `${date.getMonth() + 1}.${date.getDate()} ${String(date.getHours()).padStart(2, "0")}:00`,
+        seconds: 0,
+        viewsDelta: 0,
+        chatsDelta: 0
+      });
+    }
+    const bucket = hourMap.get(key);
+    bucket.seconds += row.seconds;
+    bucket.viewsDelta += row.viewsDelta;
+    bucket.chatsDelta += row.chatsDelta;
+  });
+  const hourlyRows = [...hourMap.values()].map((row) => ({
+    ...row,
+    viewsPerHour: Math.round((row.viewsDelta / row.seconds) * 3600),
+    chatsPerHour: Math.round((row.chatsDelta / row.seconds) * 3600)
+  }));
+  const coverageLabel = coverageSeconds >= 20 * 3600
+    ? "최근 24시간"
+    : `${formatObservationDuration(coverageSeconds)} 관측 · 24h 누적 중`;
+  return {
+    intervals,
+    hourlyRows,
+    coverageSeconds,
+    coverageLabel,
+    viewsDelta,
+    chatsDelta,
+    viewsPerHour: Math.round((viewsDelta / coverageSeconds) * 3600),
+    chatsPerHour: Math.round((chatsDelta / coverageSeconds) * 3600),
+    latestAt: new Date(intervals.at(-1).end).toISOString()
+  };
+}
+
+function renderCharacterHourlyPopover(record, metricType, metrics = characterHourlyMetrics(record)) {
+  const isViews = metricType === "views";
+  const metricLabel = isViews ? "조회" : "대화";
+  const rows = metrics?.hourlyRows || [];
+  if (!rows.length) {
+    return `<div class="hourly-popover-card"><p class="popover-empty-note">캐릭터별 시간대 이력이 다음 정기 수집부터 누적됩니다.</p></div>`;
+  }
+  const valueFor = (row) => isViews ? row.viewsPerHour : row.chatsPerHour;
+  const peakRow = rows.reduce((best, row) => Math.abs(valueFor(row)) > Math.abs(valueFor(best)) ? row : best, rows[0]);
+  const maxAbs = Math.max(...rows.map((row) => Math.abs(valueFor(row))), 1);
+  const average = isViews ? metrics.viewsPerHour : metrics.chatsPerHour;
+  return `
+    <div class="hourly-popover-card is-${metricType}">
+      <div class="hourly-popover-header">
+        <div class="popover-title-group">
+          <strong>📊 ${escapeHtml(record.character_name)} 시간대별 ${metricLabel} 증가 추이</strong>
+          <span class="popover-subtext">${escapeHtml(MARKET_META[record.market].label)} 공식 공개 카운터 · 최대 최근 24시간</span>
+        </div>
+        <div class="popover-summary-chips">
+          <span class="popover-chip peak-chip">⚡ 최대 변동: ${escapeHtml(peakRow.fullLabel)} (${signedNumber(valueFor(peakRow))}회/h)</span>
+          <span class="popover-chip avg-chip">시간당 평균: ${signedNumber(average)}회</span>
+        </div>
+      </div>
+      <div class="hourly-timeline-table">
+        <div class="timeline-table-header"><span>시간</span><span>증가 강도</span><span>시간당 ${metricLabel}</span></div>
+        <div class="timeline-table-body">
+          ${rows.slice().reverse().map((row, index) => {
+            const value = valueFor(row);
+            const width = Math.max(4, Math.round((Math.abs(value) / maxAbs) * 100));
+            return `
+              <div class="timeline-row${row === peakRow ? " is-peak" : ""}">
+                <span class="timeline-time">${escapeHtml(row.label)}${index === 0 ? ` <small class="now-tag">최신</small>` : ""}</span>
+                <div class="timeline-dual-bars"><div class="bar-slot single-bar"><span class="bar-fill ${isViews ? "view-fill" : "chat-fill"}${value < 0 ? " is-negative" : ""}" style="width:${width}%"></span></div></div>
+                <strong class="timeline-val ${isViews ? "view-val" : "chat-val"}">${signedNumber(value)}회/h</strong>
+              </div>`;
+          }).join("")}
+        </div>
+      </div>
+      <div class="hourly-popover-footer">
+        <span>${escapeHtml(metrics.coverageLabel)}</span>
+        <small>불규칙 수집 간격을 실제 경과시간으로 정규화</small>
+      </div>
+    </div>`;
 }
 
 function activityScopeForMarket(market) {
@@ -2823,8 +2963,11 @@ function closeDialog() {
 function renderDialogContent(group, selected) {
   const model = viewModel(selected);
   const activity = characterActivityForMarket(selected, selected.market);
-  const dailyWorker = workerActivityForId(group.id);
-  const activityScope = activity?.scopeLabel || MARKET_META[selected.market].label;
+  const dailyWorker = selected.market === "kr" ? workerActivityForId(selected.character_id) : null;
+  const hourlyMetrics = characterHourlyMetrics(selected);
+  const hourlyViewsPopover = renderCharacterHourlyPopover(selected, "views", hourlyMetrics);
+  const hourlyChatsPopover = renderCharacterHourlyPopover(selected, "chats", hourlyMetrics);
+  const hourlyHelp = hourlyMetrics ? `${hourlyMetrics.coverageLabel} · 🔍 호버 시 추이` : "시간대 이력 수집 대기";
   const officialLink = selected.detail_url
     ? `<a class="ghost-button dialog-open-link" href="${escapeAttr(selected.detail_url)}" target="_blank" rel="noopener noreferrer">공식 캐릭터 페이지</a>`
     : "";
@@ -2855,9 +2998,19 @@ function renderDialogContent(group, selected) {
         <div class="is-daily-metric"><span>일간(24h) 조회 증가</span><strong>${renderActivityDelta(dailyWorker.delta, "일간 데이터 없음")}</strong><small>${escapeHtml(formatShortDate(dailyWorker.last_seen))} 일간</small></div>
         <div class="is-daily-metric"><span>일간(24h) 대화 증가</span><strong>${renderActivityDelta(dailyWorker.chat_delta, "일간 데이터 없음")}</strong><small>${escapeHtml(formatShortDate(dailyWorker.last_seen))} 일간</small></div>
       ` : ""}
-      <div><span>${escapeHtml(activityScope)} 최근 갱신 조회</span><strong>${activity ? renderActivityDelta(activity.delta, "조회 증가 없음") : "—"}</strong><small>직전 수집 간격</small></div>
-      <div><span>${escapeHtml(activityScope)} 최근 갱신 대화</span><strong>${activity ? renderActivityDelta(activity.chat_delta, "대화 증가 없음") : "—"}</strong><small>직전 수집 간격</small></div>
-      <div><span>수집 기준 시각</span><strong>${activity ? `${escapeHtml(formatActivityTimestamp(activity.last_seen))}<small>${escapeHtml(activity.definitionLabel)}</small>` : "다음 수집 후 계산"}</strong></div>
+      <div class="character-rate-metric has-popover" tabindex="0">
+        <span>${escapeHtml(MARKET_META[selected.market].label)} 시간당 평균 조회</span>
+        <strong>${hourlyMetrics ? `${signedNumber(hourlyMetrics.viewsPerHour)}<small>회/h</small>` : "—"}</strong>
+        <small>${escapeHtml(hourlyHelp)}</small>
+        <div class="stat-card-popover character-metric-popover">${hourlyViewsPopover}</div>
+      </div>
+      <div class="character-rate-metric has-popover" tabindex="0">
+        <span>${escapeHtml(MARKET_META[selected.market].label)} 시간당 평균 대화</span>
+        <strong>${hourlyMetrics ? `${signedNumber(hourlyMetrics.chatsPerHour)}<small>회/h</small>` : "—"}</strong>
+        <small>${escapeHtml(hourlyHelp)}</small>
+        <div class="stat-card-popover character-metric-popover">${hourlyChatsPopover}</div>
+      </div>
+      <div class="collection-time-metric"><span>수집 기준 시각</span><strong>${activity || hourlyMetrics ? escapeHtml(formatActivityTimestamp(hourlyMetrics?.latestAt || activity?.last_seen)) : "다음 수집 후 계산"}</strong><small>공식 공개 API 카운터 · 고유 이용자/결제/매출 아님</small></div>
     </div>
     <h3>지역별 캐릭터 정보 (4개국 연동)</h3>
     <div class="locale-list">

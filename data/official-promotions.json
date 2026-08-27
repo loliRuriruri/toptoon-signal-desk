@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-27T23:01:57.423Z",
+  "generated_at": "2026-08-27T23:20:59.464Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,11 +7,11 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-08-27T23:01:57.423Z",
+      "observed_at": "2026-08-27T23:20:59.464Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters?limit=500",
       "status": "verified",
-      "change": "new",
+      "change": "continuing",
       "signature": "74:오늘특가 단 하루 한정! 허유희, 최대 60%",
       "homepage_error": null,
       "items": [
@@ -29,11 +29,11 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-08-27T23:01:57.423Z",
+      "observed_at": "2026-08-27T23:20:59.464Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters?limit=500",
       "status": "verified",
-      "change": "new",
+      "change": "continuing",
       "signature": "130:本日特価は今日だけ！ レイ、最大 60%",
       "homepage_error": null,
       "items": [
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-08-27T23:01:57.423Z",
+      "observed_at": "2026-08-27T23:20:59.464Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters?limit=500",
       "status": "none",
@@ -63,11 +63,11 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-08-27T23:01:57.423Z",
+      "observed_at": "2026-08-27T23:20:59.464Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters?limit=500",
       "status": "verified",
-      "change": "new",
+      "change": "continuing",
       "signature": "261:今日特惠僅限一天！ 庭佳，最高 60%",
       "homepage_error": null,
       "items": [
@@ -105,6 +105,31 @@
         "tw": {
           "status": "verified",
           "change": "new",
+          "signature": "261:今日特惠僅限一天！ 庭佳，最高 60%"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-08-27T23:20:59.464Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "74:오늘특가 단 하루 한정! 허유희, 최대 60%"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "130:本日特価は今日だけ！ レイ、最大 60%"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "continuing",
           "signature": "261:今日特惠僅限一天！ 庭佳，最高 60%"
         }
       }

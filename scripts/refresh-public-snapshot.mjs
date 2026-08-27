@@ -371,14 +371,52 @@ const history = [...historyByTime.values()]
   .sort((a, b) => new Date(a.captured_at).getTime() - new Date(b.captured_at).getTime())
   .slice(-120);
 
+function compactCharacterInterval(activity) {
+  const seconds = Number(activity?.interval_seconds || 0);
+  if (!activity?.captured_at || !activity?.baseline_at || !Number.isFinite(seconds) || seconds <= 0) return null;
+  const compactMarkets = Object.fromEntries(markets.map((market) => {
+    const rows = activity?.markets?.[market.key]?.rows || [];
+    const comparable = rows
+      .filter((row) => row?.comparison_status === "matched" && Number.isFinite(Number(row.delta)) && Number.isFinite(Number(row.chat_delta)))
+      .map((row) => [String(Number(row.character_id)), [Number(row.delta), Number(row.chat_delta)]]);
+    return [market.key, Object.fromEntries(comparable)];
+  }));
+  return {
+    captured_at: activity.captured_at,
+    baseline_at: activity.baseline_at,
+    interval_seconds: seconds,
+    markets: compactMarkets
+  };
+}
+
+const characterHistoryByTime = new Map();
+for (const interval of previousActivity?.character_history || []) {
+  if (interval?.captured_at && interval?.markets) characterHistoryByTime.set(interval.captured_at, interval);
+}
+// Migrate the immediately previous detailed interval so this feature starts with
+// useful coverage before the next scheduled runs have accumulated a full day.
+const previousCharacterInterval = compactCharacterInterval(previousActivity);
+if (previousCharacterInterval) characterHistoryByTime.set(previousCharacterInterval.captured_at, previousCharacterInterval);
+const currentCharacterInterval = compactCharacterInterval({
+  captured_at: capturedAt,
+  baseline_at: baselineAt,
+  interval_seconds: intervalSeconds,
+  markets: activityMarkets
+});
+if (currentCharacterInterval) characterHistoryByTime.set(currentCharacterInterval.captured_at, currentCharacterInterval);
+const characterHistory = [...characterHistoryByTime.values()]
+  .sort((a, b) => new Date(a.captured_at).getTime() - new Date(b.captured_at).getTime())
+  .slice(-192);
+
 const activityPayload = {
   captured_at: capturedAt,
   baseline_at: baselineAt,
   interval_seconds: intervalSeconds,
   source_tier: "B",
   definition: "For each site and character ID, current public cumulative counter minus the immediately previous locally stored public catalog snapshot.",
-  caveat: "This is a collection-interval change, not a daily metric or revenue. New characters without a prior row have null deltas; negative values are retained as source corrections or counter resets.",
+  caveat: "Character hourly rates normalize comparable collection intervals within a rolling 24-hour window. They are public counter changes, not unique users, payments or revenue. New characters without a prior row have null deltas; negative values are retained as source corrections or counter resets.",
   history,
+  character_history: characterHistory,
   markets: activityMarkets
 };
 
@@ -410,6 +448,7 @@ console.log(JSON.stringify({
   activity_interval_seconds: intervalSeconds,
   activity_comparable_counts: Object.fromEntries(Object.entries(activityMarkets).map(([key, value]) => [key, value.comparable_count])),
   activity_history_snapshots: history.length,
+  character_history_intervals: characterHistory.length,
   promotion_statuses: Object.fromEntries(Object.entries(promotionMarkets).map(([key, value]) => [key, value.status])),
   counts,
   downloaded_asset_folders: markets.map((market) => market.key),

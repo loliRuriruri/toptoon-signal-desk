@@ -126,6 +126,19 @@ for (const snapshot of activityHistory) {
     assert(values && [values.characters, values.views, values.chats].every((value) => Number.isFinite(Number(value)) && Number(value) >= 0), `${market} activity history aggregate is invalid`);
   }
 }
+const characterHistory = characterActivity.character_history || [];
+assert(characterHistory.length >= 1, "character hourly history needs at least one comparable interval");
+assert(new Set(characterHistory.map((row) => row.captured_at)).size === characterHistory.length, "character hourly history timestamps must be unique");
+assert(characterHistory.every((row, index) => index === 0 || new Date(row.captured_at) > new Date(characterHistory[index - 1].captured_at)), "character hourly history must be ordered oldest to newest");
+for (const interval of characterHistory) {
+  assert(Number(interval.interval_seconds) > 0, "character hourly interval duration must be positive");
+  assert(new Date(interval.captured_at) > new Date(interval.baseline_at), "character hourly interval timestamps are invalid");
+  for (const market of Object.keys(activityExpectedCounts)) {
+    const values = interval.markets?.[market];
+    assert(values && typeof values === "object" && !Array.isArray(values), `${market} character hourly interval is missing`);
+    assert(Object.values(values).every((pair) => Array.isArray(pair) && pair.length === 2 && pair.every((value) => Number.isFinite(Number(value)))), `${market} character hourly deltas are invalid`);
+  }
+}
 assert(validation.overall_status === "share-with-caveats", "validation posture should remain share-with-caveats until AI chat revenue is disclosed");
 assert(validation.summary?.block === 0, "validation contains blocking failures");
 assert(validation.checks?.length >= 18, "validation check coverage is unexpectedly low");
@@ -173,6 +186,9 @@ const js = readFileSync(path.join(root, "app.js"), "utf8");
 assert(/id="ai-analysis-output" hidden><\/pre>/.test(html), "preset analysis output should be generated from the current snapshot");
 assert(js.includes("siteRevenue.grand_total_mid"), "headline recent run-rate must use the all-market total");
 assert(js.includes("haltJudgmentClose"), "KRX halt UI must use the judgment-date close");
+assert(js.includes("characterHourlyMetrics"), "character detail must calculate normalized hourly metrics");
+assert(js.includes("시간당 평균 조회") && js.includes("시간당 평균 대화"), "character detail hourly metric labels are missing");
+assert(!js.includes("최근 갱신 조회</span>") && !js.includes("최근 갱신 대화</span>"), "character detail must not display raw collection-interval cards");
 assert(html.includes("data/characters.js"), "embedded dataset script must be referenced");
 assert(html.includes("data/character-activity.js"), "embedded activity script must be referenced");
 assert(html.includes("data/official-promotions.js"), "embedded official promotion script must be referenced");
