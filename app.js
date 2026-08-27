@@ -981,6 +981,11 @@ function renderStatsMarketSummary() {
   });
 
   const marketPrefix = meta.label === "통합" ? "통합" : meta.label;
+  const viewsPopover = renderHourlyTrafficPopover(market);
+  const chatsPopover = renderHourlyTrafficPopover(market);
+
+  const formattedViewsPerHour = signedNumber(activity.viewsPerHour || activity.viewsDelta);
+  const formattedChatsPerHour = signedNumber(activity.chatsPerHour || activity.chatsDelta);
 
   els.statsMarketKpiGrid.innerHTML = renderStatCards([
     [`${meta.label} 캐릭터`, `${formatNumber(totals.characters)}명`, market === "all" ? `${formatNumber(totals.localeRecords)}개 지역 레코드` : "시장 원본 목록", "signal"],
@@ -988,11 +993,11 @@ function renderStatsMarketSummary() {
     ["누적 대화수", formatNumber(totals.chats), "공개 카운터 합계", "neutral"],
     ["일간(24h) 조회 증가", signedNumber(dailyViewsDelta), `${dailyDateLabel} 일간`, dailyViewsDelta >= 0 ? "positive" : "warning"],
     ["일간(24h) 대화 증가", signedNumber(dailyChatsDelta), `${dailyDateLabel} 일간`, dailyChatsDelta >= 0 ? "positive" : "warning"],
-    [`${marketPrefix} 최근 갱신 조회`, signedNumber(activity.viewsDelta), `${activity.windowLabel} · 직전 수집 간격`, activity.viewsDelta >= 0 ? "positive" : "warning"],
-    [`${marketPrefix} 최근 갱신 대화`, signedNumber(activity.chatsDelta), `${activity.windowLabel} · 직전 수집 간격`, activity.chatsDelta >= 0 ? "positive" : "warning"],
+    [`${marketPrefix} 시간당(1h) 조회 속도`, `${formattedViewsPerHour}/h`, `실시간 시속 · 🔍 마우스 호버 시 24h 추이`, activity.viewsDelta >= 0 ? "positive" : "warning", viewsPopover],
+    [`${marketPrefix} 시간당(1h) 대화 속도`, `${formattedChatsPerHour}/h`, `실시간 시속 · 🔍 마우스 호버 시 24h 추이`, activity.chatsDelta >= 0 ? "positive" : "warning", chatsPopover],
     ["최신 수집", formatDateTime(capturedAt), `${formatFreshnessAge(capturedAt)} · ${activity.sourceLabel}`, "neutral"]
   ]);
-  els.statsMarketDefinition.innerHTML = `<strong>${escapeHtml(meta.label)} 공개 활동:</strong> 조회수·대화수는 공식 공개 누적 카운터이며 매출·결제자·순매출이 아닙니다. 일간 증가는 <strong>24시간 1일 누적</strong>이며, 최근 갱신은 <strong>${escapeHtml(activity.definitionLabel)}</strong>입니다.`;
+  els.statsMarketDefinition.innerHTML = `<strong>${escapeHtml(meta.label)} 공개 활동:</strong> 조회수·대화수는 공식 공개 누적 카운터이며 매출·결제자·순매출이 아닙니다. 일간 증가는 <strong>24시간 1일 누적</strong>이며, 시간당 속도는 <strong>실측 수집 델타를 1시간(Hourly)으로 환산한 실시간 시속</strong>입니다. 카드에 마우스를 올리면 최근 24시간 시간별 추이 팝업이 표시됩니다.`;
 }
 
 function renderValidationDashboard() {
@@ -2245,15 +2250,189 @@ function activitySummaryForMarket(market) {
     ? MARKET_ORDER.flatMap((key) => catalogActivityData?.markets?.[key]?.rows || [])
     : catalogActivityData?.markets?.[market]?.rows || [];
   const comparableRows = marketRows.filter((row) => row.delta != null && row.chat_delta != null);
+  
+  const baselineAt = catalogActivityData?.baseline_at;
+  const capturedAt = catalogActivityData?.captured_at;
+  let intervalSec = Number(catalogActivityData?.interval_seconds || 0);
+  if ((!intervalSec || intervalSec <= 0) && baselineAt && capturedAt) {
+    intervalSec = Math.max(1, Math.round((new Date(capturedAt).getTime() - new Date(baselineAt).getTime()) / 1000));
+  }
+  if (!intervalSec || intervalSec <= 0) intervalSec = 1800; // 기본 30분 환산
+
+  const viewsDelta = comparableRows.reduce((sum, row) => sum + Number(row.delta || 0), 0);
+  const chatsDelta = comparableRows.reduce((sum, row) => sum + Number(row.chat_delta || 0), 0);
+
+  // 1시간당 시속(Hourly Rate) 정규화
+  const viewsPerHour = Math.round((viewsDelta / intervalSec) * 3600);
+  const chatsPerHour = Math.round((chatsDelta / intervalSec) * 3600);
+
   return {
     comparableCount: comparableRows.length,
-    viewsDelta: comparableRows.reduce((sum, row) => sum + Number(row.delta || 0), 0),
-    chatsDelta: comparableRows.reduce((sum, row) => sum + Number(row.chat_delta || 0), 0),
+    viewsDelta,
+    chatsDelta,
+    viewsPerHour,
+    chatsPerHour,
+    intervalSec,
     capturedAt: catalogActivityData?.captured_at,
     windowLabel: formatActivityWindow(catalogActivityData?.baseline_at, catalogActivityData?.captured_at),
     sourceLabel: market === "all" ? "4개 공식 공개 카탈로그 API" : `${MARKET_META[market].label} 공식 공개 카탈로그 API`,
     definitionLabel: "직전 로컬 공개 API 수집본 대비"
   };
+}
+
+function getHourlyTrafficHistory(market, maxHours = 24) {
+  const history = catalogActivityData?.history || [];
+  if (history.length < 2) return [];
+
+  const selectedMarkets = market === "all" ? MARKET_ORDER : [market];
+
+  const snapshots = history.map((snap) => {
+    const t = new Date(snap.captured_at).getTime();
+    let views = 0;
+    let chats = 0;
+    selectedMarkets.forEach((m) => {
+      views += Number(snap.markets?.[m]?.views || 0);
+      chats += Number(snap.markets?.[m]?.chats || 0);
+    });
+    return { time: t, date: snap.captured_at, views, chats };
+  }).filter((s) => Number.isFinite(s.time)).sort((a, b) => a.time - b.time);
+
+  if (snapshots.length < 2) return [];
+
+  const intervals = [];
+  for (let i = 1; i < snapshots.length; i++) {
+    const prev = snapshots[i - 1];
+    const curr = snapshots[i];
+    const diffSec = (curr.time - prev.time) / 1000;
+    if (diffSec <= 0) continue;
+
+    const vDelta = Math.max(0, curr.views - prev.views);
+    const cDelta = Math.max(0, curr.chats - prev.chats);
+    const vRate = Math.round((vDelta / diffSec) * 3600);
+    const cRate = Math.round((cDelta / diffSec) * 3600);
+
+    const d = new Date(curr.time);
+    const hourKey = `${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:00`;
+    const shortHour = `${String(d.getHours()).padStart(2, "0")}:00`;
+
+    intervals.push({
+      time: curr.time,
+      hourKey,
+      shortHour,
+      viewsDelta: vDelta,
+      chatsDelta: cDelta,
+      viewsRate: vRate,
+      chatsRate: cRate,
+      diffMinutes: Math.round(diffSec / 60)
+    });
+  }
+
+  const hourMap = new Map();
+  intervals.forEach((item) => {
+    if (!hourMap.has(item.hourKey)) {
+      hourMap.set(item.hourKey, {
+        label: item.shortHour,
+        fullLabel: item.hourKey,
+        time: item.time,
+        viewsRateSum: 0,
+        chatsRateSum: 0,
+        viewsDeltaSum: 0,
+        chatsDeltaSum: 0,
+        count: 0
+      });
+    }
+    const entry = hourMap.get(item.hourKey);
+    entry.viewsRateSum += item.viewsRate;
+    entry.chatsRateSum += item.chatsRate;
+    entry.viewsDeltaSum += item.viewsDelta;
+    entry.chatsDeltaSum += item.chatsDelta;
+    entry.count += 1;
+  });
+
+  return [...hourMap.values()].map((h) => ({
+    label: h.label,
+    fullLabel: h.fullLabel,
+    time: h.time,
+    viewsPerHour: Math.round(h.viewsRateSum / h.count),
+    chatsPerHour: Math.round(h.chatsRateSum / h.count),
+    viewsDelta: h.viewsDeltaSum,
+    chatsDelta: h.chatsDeltaSum
+  })).slice(-maxHours);
+}
+
+function renderHourlyTrafficPopover(market) {
+  const meta = MARKET_META[market] || MARKET_META.all;
+  const hourlyRows = getHourlyTrafficHistory(market, 12);
+  const marketLabel = meta.label || "통합";
+
+  if (!hourlyRows.length) {
+    return `
+      <div class="hourly-popover-card">
+        <div class="hourly-popover-header">
+          <strong>📊 ${escapeHtml(marketLabel)} 시간대별(Hourly) 트래픽</strong>
+          <span class="popover-badge">스냅샷 누적 중</span>
+        </div>
+        <p class="popover-empty-note">정기 수집이 진행됨에 따라 시간대별 시속 추이가 실시간으로 누적됩니다.</p>
+      </div>
+    `;
+  }
+
+  const maxChats = Math.max(...hourlyRows.map((r) => r.chatsPerHour), 1);
+  const maxViews = Math.max(...hourlyRows.map((r) => r.viewsPerHour), 1);
+  const peakRow = hourlyRows.reduce((best, r) => r.chatsPerHour > (best?.chatsPerHour || 0) ? r : best, hourlyRows[0]);
+  const avgChats = Math.round(hourlyRows.reduce((sum, r) => sum + r.chatsPerHour, 0) / hourlyRows.length);
+
+  return `
+    <div class="hourly-popover-card">
+      <div class="hourly-popover-header">
+        <div class="popover-title-group">
+          <strong>📊 ${escapeHtml(marketLabel)} 최근 시간대별(Hourly) 트래픽 추이</strong>
+          <span class="popover-subtext">실측 델타 기반 1시간 환산 시속 (Hourly Rate)</span>
+        </div>
+        <div class="popover-summary-chips">
+          <span class="popover-chip peak-chip">⚡ 피크: ${escapeHtml(peakRow.label)} (+${formatNumber(peakRow.chatsPerHour)}/h)</span>
+          <span class="popover-chip avg-chip">평균: +${formatNumber(avgChats)}/h</span>
+        </div>
+      </div>
+      <div class="hourly-timeline-table">
+        <div class="timeline-table-header">
+          <span>시간</span>
+          <span>트래픽 강도 게이지</span>
+          <span>조회수 시속</span>
+          <span>대화수 시속</span>
+        </div>
+        <div class="timeline-table-body">
+          ${hourlyRows.slice().reverse().map((row, idx) => {
+            const isPeak = row === peakRow;
+            const chatWidth = Math.max(4, Math.round((row.chatsPerHour / maxChats) * 100));
+            const viewWidth = Math.max(4, Math.round((row.viewsPerHour / maxViews) * 100));
+            return `
+              <div class="timeline-row${isPeak ? " is-peak" : ""}">
+                <span class="timeline-time">${escapeHtml(row.label)}${idx === 0 ? ` <small class="now-tag">최신</small>` : ""}</span>
+                <div class="timeline-dual-bars">
+                  <div class="bar-slot views-bar" title="조회수 시속 +${formatNumber(row.viewsPerHour)}/h">
+                    <span class="bar-fill view-fill" style="width:${viewWidth}%"></span>
+                  </div>
+                  <div class="bar-slot chats-bar" title="대화수 시속 +${formatNumber(row.chatsPerHour)}/h">
+                    <span class="bar-fill chat-fill" style="width:${chatWidth}%"></span>
+                  </div>
+                </div>
+                <span class="timeline-val view-val">+${formatCompact(row.viewsPerHour)}/h</span>
+                <strong class="timeline-val chat-val">+${formatNumber(row.chatsPerHour)}/h</strong>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+      <div class="hourly-popover-footer">
+        <div class="popover-legend">
+          <span><i class="legend-dot view-dot"></i> 조회수 시속 (/h)</span>
+          <span><i class="legend-dot chat-dot"></i> 대화수 시속 (/h)</span>
+        </div>
+        <small>수집 시차 보정 1시간 표준화</small>
+      </div>
+    </div>
+  `;
 }
 
 function activitySortValue(item, field) {
@@ -2540,11 +2719,12 @@ function renderLocaleItem(record, market, activeMarket) {
 function renderStatCards(cards) {
   return cards
     .map(
-      ([label, value, help, tone = "neutral"]) => `
-        <article class="stat-card tone-${escapeAttr(tone)}">
+      ([label, value, help, tone = "neutral", popover = null]) => `
+        <article class="stat-card tone-${escapeAttr(tone)}${popover ? " has-popover" : ""}">
           <span class="stat-label">${escapeHtml(label)}</span>
           <strong class="stat-value">${escapeHtml(value ?? "-")}</strong>
           <p class="stat-help">${escapeHtml(help ?? "")}</p>
+          ${popover ? `<div class="stat-card-popover">${popover}</div>` : ""}
         </article>
       `
     )
