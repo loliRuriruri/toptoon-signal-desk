@@ -981,11 +981,17 @@ function renderStatsMarketSummary() {
   });
 
   const marketPrefix = meta.label === "통합" ? "통합" : meta.label;
+
+  const hourlyRows = getHourlyTrafficHistory(market, 12);
+  let avgHourlyViews = activity.viewsPerHour || activity.viewsDelta;
+  let avgHourlyChats = activity.chatsPerHour || activity.chatsDelta;
+  if (hourlyRows.length > 0) {
+    avgHourlyViews = Math.round(hourlyRows.reduce((s, r) => s + r.viewsPerHour, 0) / hourlyRows.length);
+    avgHourlyChats = Math.round(hourlyRows.reduce((s, r) => s + r.chatsPerHour, 0) / hourlyRows.length);
+  }
+
   const viewsPopover = renderHourlyTrafficPopover(market, "views");
   const chatsPopover = renderHourlyTrafficPopover(market, "chats");
-
-  const formattedViewsPerHour = signedNumber(activity.viewsPerHour || activity.viewsDelta);
-  const formattedChatsPerHour = signedNumber(activity.chatsPerHour || activity.chatsDelta);
 
   const cleanCapturedAt = formatShortTimestamp(capturedAt);
 
@@ -996,10 +1002,10 @@ function renderStatsMarketSummary() {
     ["최신 수집", cleanCapturedAt, `${formatFreshnessAge(capturedAt)} · ${activity.sourceLabel}`, "neutral"],
     ["일간(24h) 조회 증가", signedNumber(dailyViewsDelta), `${dailyDateLabel} 24h 누적`, dailyViewsDelta >= 0 ? "positive" : "warning"],
     ["일간(24h) 대화 증가", signedNumber(dailyChatsDelta), `${dailyDateLabel} 24h 누적`, dailyChatsDelta >= 0 ? "positive" : "warning"],
-    [`${marketPrefix} 시간당(1h) 조회 속도`, `${formattedViewsPerHour}/h`, `실시간 시속 · 🔍 마우스 호버 시 24h 추이`, activity.viewsDelta >= 0 ? "positive" : "warning", viewsPopover],
-    [`${marketPrefix} 시간당(1h) 대화 속도`, `${formattedChatsPerHour}/h`, `실시간 시속 · 🔍 마우스 호버 시 24h 추이`, activity.chatsDelta >= 0 ? "positive" : "warning", chatsPopover]
+    [`${marketPrefix} 시간당 조회 증가`, signedNumber(avgHourlyViews), `시간당 평균 · 🔍 호버 시 24h 추이`, avgHourlyViews >= 0 ? "positive" : "warning", viewsPopover],
+    [`${marketPrefix} 시간당 대화 증가`, signedNumber(avgHourlyChats), `시간당 평균 · 🔍 호버 시 24h 추이`, avgHourlyChats >= 0 ? "positive" : "warning", chatsPopover]
   ]);
-  els.statsMarketDefinition.innerHTML = `<strong>${escapeHtml(meta.label)} 공개 활동:</strong> 조회수·대화수는 공식 공개 누적 카운터이며 매출·결제자·순매출이 아닙니다. 일간 증가는 <strong>24시간 1일 누적</strong>이며, 시간당 속도는 <strong>실측 수집 델타를 1시간(Hourly)으로 환산한 실시간 시속</strong>입니다. 카드에 마우스를 올리면 최근 24시간 시간별 추이 팝업이 표시됩니다.`;
+  els.statsMarketDefinition.innerHTML = `<strong>${escapeHtml(meta.label)} 공개 활동:</strong> 조회수·대화수는 공식 공개 누적 카운터이며 매출·결제자·순매출이 아닙니다. 일간 증가는 <strong>24시간 1일 누적</strong>이며, 시간당 증가는 <strong>최근 시간대별 평균 증가량</strong>입니다. 카드에 마우스를 올리면 최근 24시간 시간별 추이 팝업이 표시됩니다.`;
 }
 
 function renderValidationDashboard() {
@@ -2372,10 +2378,10 @@ function renderHourlyTrafficPopover(market, metricType = "chats") {
     return `
       <div class="hourly-popover-card">
         <div class="hourly-popover-header">
-          <strong>📊 ${escapeHtml(marketLabel)} 시간대별 ${isViews ? "조회수" : "대화수"} 트래픽</strong>
+          <strong>📊 ${escapeHtml(marketLabel)} 시간대별 ${isViews ? "조회 증가" : "대화 증가"}</strong>
           <span class="popover-badge">스냅샷 누적 중</span>
         </div>
-        <p class="popover-empty-note">정기 수집이 진행됨에 따라 시간대별 시속 추이가 실시간으로 누적됩니다.</p>
+        <p class="popover-empty-note">정기 수집이 진행됨에 따라 시간대별 1시간 증가 추이가 누적됩니다.</p>
       </div>
     `;
   }
@@ -2395,19 +2401,19 @@ function renderHourlyTrafficPopover(market, metricType = "chats") {
     <div class="hourly-popover-card is-${metricType}">
       <div class="hourly-popover-header">
         <div class="popover-title-group">
-          <strong>📊 ${escapeHtml(marketLabel)} 최근 시간대별 ${isViews ? "조회수(Views)" : "대화수(Chats)"} 시속 추이</strong>
-          <span class="popover-subtext">실측 델타 기반 1시간 환산 시속 (Hourly Rate)</span>
+          <strong>📊 ${escapeHtml(marketLabel)} 최근 시간대별 ${isViews ? "조회 증가" : "대화 증가"} 추이</strong>
+          <span class="popover-subtext">최근 수집 이력 기반 1시간(1h) 단위 실제 증가량</span>
         </div>
         <div class="popover-summary-chips">
-          <span class="popover-chip peak-chip">⚡ ${isViews ? "조회" : "대화"} 피크: ${escapeHtml(peakRow.label)} (+${formatNumber(peakVal)}/h)</span>
-          <span class="popover-chip avg-chip">12시간 평균: +${formatNumber(avgVal)}/h</span>
+          <span class="popover-chip peak-chip">⚡ 최고 시간대: ${escapeHtml(peakRow.label)} (+${formatNumber(peakVal)}회)</span>
+          <span class="popover-chip avg-chip">시간당 평균: +${formatNumber(avgVal)}회</span>
         </div>
       </div>
       <div class="hourly-timeline-table">
         <div class="timeline-table-header">
           <span>시간</span>
-          <span>${isViews ? "조회수" : "대화수"} 강도 게이지</span>
-          <span>시간당 ${isViews ? "조회" : "대화"} 시속</span>
+          <span>트래픽 강도 게이지</span>
+          <span>시간당 ${isViews ? "조회" : "대화"} 증가</span>
         </div>
         <div class="timeline-table-body">
           ${hourlyRows.slice().reverse().map((row, idx) => {
@@ -2418,11 +2424,11 @@ function renderHourlyTrafficPopover(market, metricType = "chats") {
               <div class="timeline-row${isPeak ? " is-peak" : ""}">
                 <span class="timeline-time">${escapeHtml(row.label)}${idx === 0 ? ` <small class="now-tag">최신</small>` : ""}</span>
                 <div class="timeline-dual-bars">
-                  <div class="bar-slot single-bar" title="${isViews ? "조회수" : "대화수"} 시속 +${formatNumber(currentVal)}/h">
+                  <div class="bar-slot single-bar" title="${isViews ? "조회 증가" : "대화 증가"} +${formatNumber(currentVal)}회">
                     <span class="bar-fill ${isViews ? "view-fill" : "chat-fill"}" style="width:${width}%"></span>
                   </div>
                 </div>
-                <strong class="timeline-val ${isViews ? "view-val" : "chat-val"}">+${formatNumber(currentVal)}/h</strong>
+                <strong class="timeline-val ${isViews ? "view-val" : "chat-val"}">+${formatNumber(currentVal)}회</strong>
               </div>
             `;
           }).join("")}
@@ -2430,9 +2436,9 @@ function renderHourlyTrafficPopover(market, metricType = "chats") {
       </div>
       <div class="hourly-popover-footer">
         <div class="popover-legend">
-          <span><i class="legend-dot ${isViews ? "view-dot" : "chat-dot"}"></i> ${isViews ? "시간당 조회수 (/h)" : "시간당 대화수 (/h)"}</span>
+          <span><i class="legend-dot ${isViews ? "view-dot" : "chat-dot"}"></i> ${isViews ? "시간당 조회 증가량" : "시간당 대화 증가량"}</span>
         </div>
-        <small>수집 시차 보정 1시간 표준화</small>
+        <small>수집 시차 보정 1시간 환산</small>
       </div>
     </div>
   `;
