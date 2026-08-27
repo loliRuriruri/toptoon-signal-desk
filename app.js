@@ -978,8 +978,8 @@ function renderStatsMarketSummary() {
     ["누적 조회수", formatNumber(totals.views), "공개 카운터 합계", "neutral"],
     ["누적 대화수", formatNumber(totals.chats), "공개 카운터 합계", "neutral"],
     ["최신 수집", cleanCapturedAt, `${formatFreshnessAge(capturedAt)} · ${activity.sourceLabel}`, "neutral"],
-    ["일간(24h) 조회 증가", signedNumber(dailyViewsDelta), `${dailyDateLabel} 24h 누적`, dailyViewsDelta >= 0 ? "positive" : "warning"],
-    ["일간(24h) 대화 증가", signedNumber(dailyChatsDelta), `${dailyDateLabel} 24h 누적`, dailyChatsDelta >= 0 ? "positive" : "warning"],
+    ["일간(24h) 조회 증가", signedNumber(dailyViewsDelta), `${dailyDateLabel}`, dailyViewsDelta >= 0 ? "positive" : "warning"],
+    ["일간(24h) 대화 증가", signedNumber(dailyChatsDelta), `${dailyDateLabel}`, dailyChatsDelta >= 0 ? "positive" : "warning"],
     [`${marketPrefix} 시간당 조회 증가`, signedNumber(avgHourlyViews), `시간당 평균 · 🔍 호버 시 24h 추이`, avgHourlyViews >= 0 ? "positive" : "warning", viewsPopover],
     [`${marketPrefix} 시간당 대화 증가`, signedNumber(avgHourlyChats), `시간당 평균 · 🔍 호버 시 24h 추이`, avgHourlyChats >= 0 ? "positive" : "warning", chatsPopover]
   ]);
