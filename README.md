@@ -163,6 +163,8 @@ node scripts/validate.mjs
 
 4개 시장과 원본 Worker 통계를 한 번에 갱신한 뒤 라이브 원본과 다시 대조합니다.
 
+같은 갱신에서 `data/official-promotions.json`도 생성합니다. 공식 프로모션은 각 시장 카탈로그 API의 `price_promotion` 배지가 있는 캐릭터만 후보로 삼고, 공식 홈페이지에서 동일 캐릭터 링크와 프로모션 문구가 함께 확인될 때 `verified`로 표시합니다. 프로모션과 조회·대화 증가 사이의 인과관계는 공식 공지나 리퍼러 자료가 없으면 표시하지 않습니다.
+
 ```powershell
 node scripts\refresh-public-snapshot.mjs
 node scripts\crosscheck.mjs --live --write

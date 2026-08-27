@@ -34,8 +34,10 @@ mkdirSync(assetRoot, { recursive: true });
 
 const previousCatalogPath = path.join(dataDir, "characters.json");
 const previousActivityPath = path.join(dataDir, "character-activity.json");
+const previousPromotionsPath = path.join(dataDir, "official-promotions.json");
 let previousCatalog = null;
 let previousActivity = null;
+let previousPromotions = null;
 if (existsSync(previousCatalogPath)) {
   try {
     previousCatalog = JSON.parse(readFileSync(previousCatalogPath, "utf8"));
@@ -48,6 +50,13 @@ if (existsSync(previousActivityPath)) {
     previousActivity = JSON.parse(readFileSync(previousActivityPath, "utf8"));
   } catch (error) {
     console.warn(`Previous activity history could not be read: ${error.message}`);
+  }
+}
+if (existsSync(previousPromotionsPath)) {
+  try {
+    previousPromotions = JSON.parse(readFileSync(previousPromotionsPath, "utf8"));
+  } catch (error) {
+    console.warn(`Previous promotion snapshot could not be read: ${error.message}`);
   }
 }
 
@@ -84,6 +93,61 @@ async function fetchJson(url, referer, retries = 3) {
       throw err;
     }
   }
+}
+
+async function fetchText(url, referer, retries = 3) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await fetch(url, {
+        headers: { "user-agent": "Mozilla/5.0 (compatible; ToptoonTrackerValidation/1.0)", referer }
+      });
+      if (!response.ok) {
+        if (attempt < retries && (response.status >= 500 || response.status === 429)) {
+          await new Promise((resolve) => setTimeout(resolve, attempt * 1200));
+          continue;
+        }
+        throw new Error(`${url} returned HTTP ${response.status}`);
+      }
+      return await response.text();
+    } catch (error) {
+      if (attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, attempt * 1200));
+        continue;
+      }
+      throw error;
+    }
+  }
+}
+
+function decodeHtml(value) {
+  return String(value || "")
+    .replace(/<!--.*?-->/gs, " ")
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(Number.parseInt(code, 16)))
+    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
+    .replaceAll("&amp;", "&")
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#39;", "'")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&nbsp;", " ");
+}
+
+function htmlText(value) {
+  return decodeHtml(String(value || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function extractPromotionHeadline(homepageHtml, route, characterName) {
+  const routePattern = escapeRegExp(route);
+  const anchorMatch = homepageHtml.match(new RegExp(`<a\\b[^>]*href=["']${routePattern}["'][^>]*>([\\s\\S]*?)<\\/a>`, "i"));
+  if (!anchorMatch) return null;
+  const headlineMatch = anchorMatch[1].match(/<span\b[^>]*class=["'][^"']*line-clamp-1[^"']*["'][^>]*>([\s\S]*?)<\/span>/i);
+  const headline = htmlText(headlineMatch?.[1] || anchorMatch[1]);
+  if (!headline || !headline.includes(String(characterName || ""))) return null;
+  return headline;
 }
 
 async function collectMarket(market) {
@@ -136,10 +200,90 @@ async function collectMarket(market) {
       source_updated_at: character.updatedAt || null
     });
   }
-  return { market, apiUrl, records, total: expected };
+  const promotionCandidates = rows
+    .filter((character) => (character.badges || []).includes("price_promotion"))
+    .map((character) => ({
+      character_id: Number(character.id),
+      character_name: String(character.name || ""),
+      api_badge: "price_promotion",
+      detail_url: `${market.host}/detail/character/${character.id}`
+    }));
+  return { market, apiUrl, records, total: expected, promotionCandidates };
 }
 
 const marketResults = await Promise.all(markets.map(collectMarket));
+
+async function collectOfficialPromotions(result) {
+  const { market, apiUrl, promotionCandidates } = result;
+  let homepageHtml = "";
+  let homepageError = null;
+  try {
+    homepageHtml = await fetchText(`${market.host}/`, `${market.host}/`);
+  } catch (error) {
+    homepageError = error.message;
+  }
+
+  const items = promotionCandidates.map((candidate) => {
+    const route = `/detail/character/${candidate.character_id}`;
+    const headline = homepageHtml
+      ? extractPromotionHeadline(homepageHtml, route, candidate.character_name)
+      : null;
+    return {
+      ...candidate,
+      headline,
+      verification: headline ? "api-and-homepage" : "api-badge-only",
+      source_url: headline ? `${market.host}/` : apiUrl
+    };
+  });
+  const verifiedCount = items.filter((item) => item.verification === "api-and-homepage").length;
+  const signature = items
+    .map((item) => `${item.character_id}:${item.headline || item.api_badge}`)
+    .sort()
+    .join("|");
+  const previousMarket = previousPromotions?.markets?.[market.key] || null;
+  const previousSignature = String(previousMarket?.signature || "");
+  const change = signature === previousSignature
+    ? (signature ? "continuing" : "none")
+    : signature
+      ? (previousSignature ? "changed" : "new")
+      : (previousSignature ? "ended" : "none");
+
+  return [market.key, {
+    market: market.key,
+    label: market.site,
+    observed_at: capturedAt,
+    homepage_url: `${market.host}/`,
+    api_url: apiUrl,
+    status: homepageError ? (items.length ? "partial" : "unavailable") : items.length && verifiedCount === items.length ? "verified" : items.length ? "partial" : "none",
+    change,
+    signature,
+    homepage_error: homepageError,
+    items
+  }];
+}
+
+const promotionMarkets = Object.fromEntries(await Promise.all(marketResults.map(collectOfficialPromotions)));
+const promotionHistory = [
+  ...(previousPromotions?.history || []),
+  {
+    captured_at: capturedAt,
+    markets: Object.fromEntries(Object.entries(promotionMarkets).map(([key, value]) => [key, {
+      status: value.status,
+      change: value.change,
+      signature: value.signature
+    }]))
+  }
+].filter((entry, index, values) => entry?.captured_at && values.findIndex((candidate) => candidate.captured_at === entry.captured_at) === index)
+  .sort((a, b) => new Date(a.captured_at).getTime() - new Date(b.captured_at).getTime())
+  .slice(-192);
+const promotionsPayload = {
+  generated_at: capturedAt,
+  source_tier: "A",
+  definition: "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
+  caveat: "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
+  markets: promotionMarkets,
+  history: promotionHistory
+};
 const records = marketResults.flatMap((result) => result.records);
 const counts = {
   kr: records.filter((row) => row.site === "KR").length,
@@ -245,6 +389,8 @@ const slimRecords = records.map(({ locale, site, character_id, character_name, w
 writeFileSync(path.join(dataDir, "characters.js"), `window.TOPTOON_DATA=${JSON.stringify({ generated_at: capturedAt, market_snapshots: catalogPayload.market_snapshots, counts, records: slimRecords })};document.documentElement.dataset.dataReady='true';\n`, "utf8");
 writeFileSync(path.join(dataDir, "character-activity.json"), `${JSON.stringify(activityPayload, null, 2)}\n`, "utf8");
 writeFileSync(path.join(dataDir, "character-activity.js"), `window.TOPTOON_CHARACTER_ACTIVITY=${JSON.stringify(activityPayload)};\n`, "utf8");
+writeFileSync(path.join(dataDir, "official-promotions.json"), `${JSON.stringify(promotionsPayload, null, 2)}\n`, "utf8");
+writeFileSync(path.join(dataDir, "official-promotions.js"), `window.TOPTOON_OFFICIAL_PROMOTIONS=${JSON.stringify(promotionsPayload)};\n`, "utf8");
 
 const workerBase = "https://toptoon-tracker.john6428.workers.dev";
 const statsPairs = await Promise.all(Object.entries(statsEndpoints).map(async ([key, endpoint]) => [key, await fetchJson(`${workerBase}/api/${endpoint}`, `${workerBase}/`)]));
@@ -264,6 +410,7 @@ console.log(JSON.stringify({
   activity_interval_seconds: intervalSeconds,
   activity_comparable_counts: Object.fromEntries(Object.entries(activityMarkets).map(([key, value]) => [key, value.comparable_count])),
   activity_history_snapshots: history.length,
+  promotion_statuses: Object.fromEntries(Object.entries(promotionMarkets).map(([key, value]) => [key, value.status])),
   counts,
   downloaded_asset_folders: markets.map((market) => market.key),
   stats_endpoints: Object.keys(statsEndpoints).length

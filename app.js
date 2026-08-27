@@ -73,6 +73,7 @@ let catalogActivityData = null;
 let validationData = null;
 let integrationsData = null;
 let officialSignalsData = null;
+let officialPromotionsData = null;
 let aiDiagnosisData = null;
 let records = [];
 let groups = [];
@@ -306,6 +307,7 @@ async function load() {
     catalogActivityData = window.TOPTOON_CHARACTER_ACTIVITY || null;
     validationData = window.TOPTOON_VALIDATION || null;
     officialSignalsData = window.TOPTOON_OFFICIAL_SIGNALS || null;
+    officialPromotionsData = window.TOPTOON_OFFICIAL_PROMOTIONS || null;
     aiDiagnosisData = window.TOPTOON_AI_DIAGNOSIS || null;
     if (!PUBLIC_READ_ONLY) {
       try {
@@ -983,100 +985,35 @@ function renderStatsMarketSummary() {
     [`${marketPrefix} 시간당 조회 증가`, signedNumber(avgHourlyViews), `시간당 평균 · 🔍 호버 시 24h 추이`, avgHourlyViews >= 0 ? "positive" : "warning", viewsPopover],
     [`${marketPrefix} 시간당 대화 증가`, signedNumber(avgHourlyChats), `시간당 평균 · 🔍 호버 시 24h 추이`, avgHourlyChats >= 0 ? "positive" : "warning", chatsPopover]
   ]);
-  const movers = getMarketEventMovers();
-
-  let activeCardHtml = "";
-  if (market === "all") {
-    activeCardHtml = `
-      <div class="event-feed-grid">
-        <div class="event-feed-card is-alert">
-          <div class="event-feed-top">
-            <span class="event-pill jp-pill">🇯🇵 일본 카탈로그 공식 실측</span>
-            <strong class="event-reason">📊 상위 3개 캐릭터 탐색 조회수 집중 (전체 조회의 82% 점유)</strong>
-          </div>
-          <p class="event-feed-text">
-            <strong>실측 데이터:</strong> ${movers.jpTop} 등 상위 3개 캐릭터의 누적 조회가 각각 2.4M 이상을 기록하며, 일본 시장이 <strong>통합 일간 조회수(+133만 회)의 82%</strong>를 점유하고 있습니다.
-          </p>
-        </div>
-        <div class="event-feed-card is-info">
-          <div class="event-feed-top">
-            <span class="event-pill kr-pill">🇰🇷 한국 카탈로그 공식 실측</span>
-            <strong class="event-reason">💬 진성 대화 세션 집중 (전체 대화의 65% 점유)</strong>
-          </div>
-          <p class="event-feed-text">
-            <strong>실측 데이터:</strong> ${movers.krTop} 등 핵심 캐릭터 중심의 대화가 활발하여, 한국 시장이 <strong>통합 일간 대화수(+13,672건)의 65%</strong>를 주도하고 있습니다.
-          </p>
-        </div>
-      </div>
-    `;
-  } else if (market === "jp") {
-    activeCardHtml = `
-      <div class="event-feed-grid single-col">
-        <div class="event-feed-card is-alert">
-          <div class="event-feed-top">
-            <span class="event-pill jp-pill">🇯🇵 일본 카탈로그 공식 실측</span>
-            <strong class="event-reason">📊 상위 캐릭터 탐색 조회수 집중 집계 현황</strong>
-          </div>
-          <p class="event-feed-text">
-            <strong>실측 데이터:</strong> 일본 공식 API 집계상 ${movers.jpTop} 등 상위 캐릭터를 중심으로 <strong>일간 조회수 +110만 회 / 일간 대화수 +3,530건</strong>이 공식 집계되고 있습니다. (월매출 산출에는 대화수만 100% 반영됩니다.)
-          </p>
-        </div>
-      </div>
-    `;
-  } else if (market === "kr") {
-    activeCardHtml = `
-      <div class="event-feed-grid single-col">
-        <div class="event-feed-card is-info">
-          <div class="event-feed-top">
-            <span class="event-pill kr-pill">🇰🇷 한국 카탈로그 공식 실측</span>
-            <strong class="event-reason">💬 4개국 중 가장 높은 대화 집중도 (65% 점유)</strong>
-          </div>
-          <p class="event-feed-text">
-            <strong>실측 데이터:</strong> 한국 공식 API 집계상 ${movers.krTop} 등 핵심 캐릭터를 중심으로 <strong>일간 대화수 +8,898건 / 일간 조회수 +20만 회</strong>가 공식 집계되어 매출 산출의 핵심 본진 역할을 하고 있습니다.
-          </p>
-        </div>
-      </div>
-    `;
-  } else if (market === "global") {
-    activeCardHtml = `
-      <div class="event-feed-grid single-col">
-        <div class="event-feed-card is-info">
-          <div class="event-feed-top">
-            <span class="event-pill global-pill">🌍 Global 카탈로그 공식 실측</span>
-            <strong class="event-reason">🌐 85개 캐릭터 등록 및 운영 현황</strong>
-          </div>
-          <p class="event-feed-text">
-            <strong>실측 데이터:</strong> 글로벌 공식 API 집계상 ${movers.globalTop} 등 85개 캐릭터에서 <strong>일간 대화수 +367건 / 일간 조회수 +4.3천 회</strong>가 공식 집계되고 있습니다.
-          </p>
-        </div>
-      </div>
-    `;
-  } else if (market === "tw") {
-    activeCardHtml = `
-      <div class="event-feed-grid single-col">
-        <div class="event-feed-card is-info">
-          <div class="event-feed-top">
-            <span class="event-pill tw-pill">🇹🇼 대만 카탈로그 공식 실측</span>
-            <strong class="event-reason">🇹🇼 번체 캐릭터 81명 등록 및 운영 현황</strong>
-          </div>
-          <p class="event-feed-text">
-            <strong>실측 데이터:</strong> 대만 공식 API 집계상 ${movers.twTop} 등 번체 캐릭터 81명에서 <strong>일간 대화수 +892건 / 일간 조회수 +2.9만 회</strong>가 공식 집계되고 있습니다.
-          </p>
-        </div>
-      </div>
-    `;
-  }
+  const targetMarkets = market === "all" ? MARKET_ORDER : [market];
+  const allDailyDeltas = getDailyMarketDeltas("all");
+  const observedCards = targetMarkets.map((key) => renderObservedMarketCard(key, allDailyDeltas)).join("");
+  const promotionCards = targetMarkets.map(renderOfficialPromotionCard).join("");
 
   els.statsMarketDefinition.innerHTML = `
     <div class="market-live-event-banner">
       <div class="event-banner-header">
         <div class="event-live-indicator">
           <span class="live-pulse"></span>
-          <strong>📊 실시간 4개 시장 카탈로그 API 실측 팩트 브리핑</strong>
+          <strong>📊 4개 시장 API 실측 변화 · 공식 프로모션</strong>
         </div>
-        <span class="event-badge-highlight">⚠️ 월매출 추정은 100% 대화수(Chats)만을 기준으로 산출됨</span>
+        <span class="event-badge-highlight">⚠️ 공개 카운터는 유입 원인·고유 이용자·결제·매출이 아님</span>
       </div>
-      ${activeCardHtml}
+      <section class="event-fact-section" aria-label="API 관측 변화">
+        <div class="event-section-heading">
+          <strong>API 관측 변화</strong>
+          <span>24시간 환산 시장 비중과 최근 수집 간 실제 증가 상위</span>
+        </div>
+        <div class="event-feed-grid${market === "all" ? "" : " single-col"}">${observedCards}</div>
+      </section>
+      <section class="event-promotion-section" aria-label="공식 프로모션 감지">
+        <div class="event-section-heading">
+          <strong>공식 프로모션 감지</strong>
+          <span>카탈로그 <code>price_promotion</code> 배지와 공식 홈페이지의 동일 캐릭터 링크를 교차확인</span>
+        </div>
+        <div class="promotion-feed-grid${market === "all" ? "" : " single-col"}">${promotionCards}</div>
+      </section>
+      <p class="event-source-caveat">프로모션 존재와 조회·대화 증가는 함께 표시할 뿐 인과관계로 연결하지 않습니다. 유입 원인은 공식 공지나 리퍼러 자료가 있을 때만 별도 표기합니다.</p>
     </div>
   `;
 }
@@ -2361,19 +2298,111 @@ function activitySummaryForMarket(market) {
   };
 }
 
-function getMarketEventMovers() {
-  const records = dataset?.records || [];
-  const jpRecords = records.filter((r) => r.site === "JP").sort((a, b) => b.views - a.views);
-  const krRecords = records.filter((r) => r.site === "KR").sort((a, b) => b.chats - a.chats);
-  const globalRecords = records.filter((r) => r.site === "GLOBAL").sort((a, b) => b.views - a.views);
-  const twRecords = records.filter((r) => r.site === "TW").sort((a, b) => b.views - a.views);
+function recentMarketMovers(market, field, limit = 3) {
+  return [...(catalogActivityData?.markets?.[market]?.rows || [])]
+    .filter((row) => Number(row[field]) > 0)
+    .sort((a, b) => Number(b[field]) - Number(a[field]))
+    .slice(0, limit);
+}
 
+function renderMoverNames(market, field) {
+  const rows = recentMarketMovers(market, field);
+  if (!rows.length) return "증가 항목 없음";
+  return rows.map((row) => `${escapeHtml(row.character_name)} <b>${signedNumber(row[field])}</b>`).join(" · ");
+}
+
+function percentOf(value, total) {
+  const denominator = Number(total || 0);
+  return denominator > 0 ? (Number(value || 0) / denominator) * 100 : 0;
+}
+
+function renderObservedMarketCard(market, allDailyDeltas) {
+  const meta = MARKET_META[market];
+  const daily = getDailyMarketDeltas(market);
+  const activity = activitySummaryForMarket(market);
+  const viewShare = percentOf(daily.viewsDelta, allDailyDeltas.viewsDelta);
+  const chatShare = percentOf(daily.chatsDelta, allDailyDeltas.chatsDelta);
+  return `
+    <article class="event-feed-card market-${escapeHtml(market)}">
+      <div class="event-feed-top">
+        <span class="event-pill ${escapeHtml(market)}-pill">${meta.flag} ${escapeHtml(meta.label)} API 실측</span>
+        <strong class="event-reason">24시간 환산 조회 ${signedNumber(daily.viewsDelta)} · 대화 ${signedNumber(daily.chatsDelta)}</strong>
+      </div>
+      <p class="event-share-line">
+        <span>4개국 조회 증가 비중 <b>${viewShare.toFixed(1)}%</b></span>
+        <span>4개국 대화 증가 비중 <b>${chatShare.toFixed(1)}%</b></span>
+      </p>
+      <p class="event-feed-text"><strong>최근 ${escapeHtml(activity.windowLabel)} 조회 증가 상위:</strong> ${renderMoverNames(market, "delta")}</p>
+      <p class="event-feed-text"><strong>최근 ${escapeHtml(activity.windowLabel)} 대화 증가 상위:</strong> ${renderMoverNames(market, "chat_delta")}</p>
+      <p class="event-metric-note">누적 상위가 아닌 최근 수집 간 델타 순위입니다. 증가 원인은 공개 API만으로 판단하지 않습니다.</p>
+    </article>
+  `;
+}
+
+function promotionChangeLabel(change) {
   return {
-    jpTop: jpRecords.slice(0, 3).map((r) => `${r.character_name}(${formatCompact(r.views)})`).join(", "),
-    krTop: krRecords.slice(0, 2).map((r) => `${r.character_name}(${formatCompact(r.chats)}대화)`).join(", "),
-    globalTop: globalRecords[0] ? `${globalRecords[0].character_name}(${formatCompact(globalRecords[0].views)})` : "Airi",
-    twTop: twRecords[0] ? `${twRecords[0].character_name}(${formatCompact(twRecords[0].views)})` : "李思涵"
-  };
+    new: "신규 감지",
+    changed: "내용 변경",
+    continuing: "계속 확인",
+    ended: "종료 감지",
+    none: "미감지"
+  }[change] || "확인 상태";
+}
+
+function renderOfficialPromotionCard(market) {
+  const meta = MARKET_META[market];
+  const observation = officialPromotionsData?.markets?.[market] || null;
+  const items = observation?.items || [];
+  const status = observation?.status || "unavailable";
+  const observedAt = observation?.observed_at || officialPromotionsData?.generated_at;
+  const statusClass = ["verified", "partial", "none"].includes(status) ? status : "unavailable";
+
+  if (!items.length) {
+    const message = status === "none"
+      ? "이번 갱신에서 공식 카탈로그의 할인 프로모션 배지가 감지되지 않았습니다."
+      : "공식 프로모션 출처를 확인하지 못했습니다. 이전 문구를 추정으로 대체하지 않습니다.";
+    return `
+      <article class="promotion-card is-${statusClass}">
+        <div class="promotion-card-head">
+          <span>${meta.flag} ${escapeHtml(meta.label)}</span>
+          <b>${status === "none" ? "공식 프로모션 미감지" : "출처 확인 불가"}</b>
+        </div>
+        <p>${message}</p>
+        <div class="promotion-card-meta">
+          <span>${observedAt ? `${escapeHtml(formatShortTimestamp(observedAt))} 확인` : "확인 시각 없음"}</span>
+          ${observation?.homepage_url ? `<a href="${escapeHtml(observation.homepage_url)}" target="_blank" rel="noopener noreferrer">공식 홈 열기 ↗</a>` : ""}
+        </div>
+      </article>
+    `;
+  }
+
+  const itemHtml = items.map((item) => {
+    const title = item.headline || `${item.character_name} · 공식 API 프로모션 배지 확인`;
+    const verificationLabel = item.verification === "api-and-homepage"
+      ? "API 배지 + 공식 홈 교차확인"
+      : "API 배지만 확인 · 홈 문구 미확인";
+    return `
+      <div class="promotion-item">
+        <strong>${escapeHtml(title)}</strong>
+        <span>${escapeHtml(verificationLabel)}</span>
+        <a href="${escapeHtml(item.detail_url)}" target="_blank" rel="noopener noreferrer">공식 캐릭터 페이지 ↗</a>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <article class="promotion-card is-${statusClass}">
+      <div class="promotion-card-head">
+        <span>${meta.flag} ${escapeHtml(meta.label)}</span>
+        <b>${escapeHtml(promotionChangeLabel(observation.change))}</b>
+      </div>
+      ${itemHtml}
+      <div class="promotion-card-meta">
+        <span>${observedAt ? `${escapeHtml(formatShortTimestamp(observedAt))} 확인` : "확인 시각 없음"}</span>
+        <a href="${escapeHtml(observation.homepage_url)}" target="_blank" rel="noopener noreferrer">출처 홈 ↗</a>
+      </div>
+    </article>
+  `;
 }
 
 function getDailyMarketDeltas(market) {

@@ -110,7 +110,20 @@ const benchmark = stats.revenue_nowcast?.ir_benchmark || {};
 const benchmarkHasSource = Boolean(benchmark.source_id || benchmark.source_url);
 addCheck("ir-benchmark-provenance", "월 9억원 비교값 출처", benchmarkHasSource ? "pass" : "warn", benchmarkHasSource ? benchmark.source_id || benchmark.source_url : "출처 없음", "원문 URL 또는 source_id", "출처가 확인되기 전 회사 공식 제시값으로 단정하지 않음", benchmarkHasSource ? "none" : "high");
 
-const forbiddenDisplayClaims = ["목표 50만 중 38만 관측", "실측 진척률", "안정 유지 (+0.1%)", "3일 외삽 · C등급", "누적 대화수 184만회", "약 70%가 월 5만원", "약 1,373억원"];
+const forbiddenDisplayClaims = [
+  "목표 50만 중 38만 관측",
+  "실측 진척률",
+  "안정 유지 (+0.1%)",
+  "3일 외삽 · C등급",
+  "누적 대화수 184만회",
+  "약 70%가 월 5만원",
+  "약 1,373억원",
+  "상위 3개 캐릭터 탐색 조회수 집중",
+  "진성 대화 세션 집중",
+  "전체 조회의 82%",
+  "매출 산출의 핵심 본진",
+  "일간 조회수 +110만 회"
+];
 const leakedClaims = forbiddenDisplayClaims.filter((text) => `${appSource}\n${indexSource}`.includes(text));
 addCheck("display-semantic-guard", "근거 없는 화면 수치 차단", leakedClaims.length ? "block" : "pass", leakedClaims, [], leakedClaims.length ? "근거가 없거나 현재 데이터와 다른 고정 문구 발견" : "금지된 고정 수치 없음", leakedClaims.length ? "critical" : "none");
 

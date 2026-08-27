@@ -21,12 +21,14 @@ const data = readJson("data/characters.json");
 const stats = readJson("data/stats.json");
 const validation = readJson("data/validation.json");
 const officialSignals = readJson("data/official-signals.json");
+const officialPromotions = readJson("data/official-promotions.json");
 const aiDiagnosis = readJson("data/ai-diagnosis.json");
 const characterActivity = readJson("data/character-activity.json");
 const embeddedData = readFileSync(path.join(root, "data", "characters.js"), "utf8");
 const embeddedStats = readFileSync(path.join(root, "data", "stats.js"), "utf8");
 const embeddedValidation = readFileSync(path.join(root, "data", "validation.js"), "utf8");
 const embeddedOfficialSignals = readFileSync(path.join(root, "data", "official-signals.js"), "utf8");
+const embeddedOfficialPromotions = readFileSync(path.join(root, "data", "official-promotions.js"), "utf8");
 const embeddedAiDiagnosis = readFileSync(path.join(root, "data", "ai-diagnosis.js"), "utf8");
 const embeddedCharacterActivity = readFileSync(path.join(root, "data", "character-activity.js"), "utf8");
 const records = data.records || [];
@@ -44,6 +46,7 @@ assert(/^window\.TOPTOON_DATA\s*=\s*\{/.test(embeddedData), "embedded dataset sh
 assert(/^window\.TOPTOON_STATS\s*=\s*\{/.test(embeddedStats), "embedded statistics should be available without fetch");
 assert(/^window\.TOPTOON_VALIDATION\s*=\s*\{/.test(embeddedValidation), "embedded validation should be available without fetch");
 assert(/^window\.TOPTOON_OFFICIAL_SIGNALS\s*=\s*\{/.test(embeddedOfficialSignals), "embedded official signal state should be available without fetch");
+assert(/^window\.TOPTOON_OFFICIAL_PROMOTIONS\s*=\s*\{/.test(embeddedOfficialPromotions), "embedded official promotion state should be available without fetch");
 assert(/^window\.TOPTOON_AI_DIAGNOSIS\s*=\s*\{/.test(embeddedAiDiagnosis), "embedded scheduled AI diagnosis should be available without fetch");
 assert(/^window\.TOPTOON_CHARACTER_ACTIVITY\s*=\s*\{/.test(embeddedCharacterActivity), "embedded four-market activity should be available without fetch");
 assert(new Set(records.map((record) => `${record.site}:${record.character_id}`)).size === records.length, "duplicate character ID per market detected");
@@ -74,6 +77,19 @@ if (aiDiagnosis.status === "ok") {
 for (const [providerId, provider] of Object.entries(officialSignals.providers || {})) {
   if (["ok", "cached"].includes(provider.status)) assert(/^\d{4}-\d{2}-\d{2}T/.test(provider.observed_at || ""), `${providerId} provider observation timestamp is missing`);
   assert(/^\d{4}-\d{2}-\d{2}T/.test(provider.attempted_at || ""), `${providerId} provider attempt timestamp is missing`);
+}
+assert(officialPromotions.source_tier === "A", "official promotions should retain first-party source tier");
+assert(/^\d{4}-\d{2}-\d{2}T/.test(officialPromotions.generated_at || ""), "official promotion observation timestamp is missing");
+for (const market of ["kr", "jp", "global", "tw"]) {
+  const observation = officialPromotions.markets?.[market];
+  assert(observation, `${market} official promotion observation is missing`);
+  assert(["verified", "partial", "none", "unavailable"].includes(observation?.status), `${market} official promotion status is invalid`);
+  assert(/^https:\/\/chat\.(?:toptoon\.(?:com|jp|net)|global\.toptoon\.com)\/$/.test(observation?.homepage_url || ""), `${market} official promotion homepage URL is invalid`);
+  for (const item of observation?.items || []) {
+    assert(item.api_badge === "price_promotion", `${market} promotion item lacks the official API badge`);
+    assert(["api-and-homepage", "api-badge-only"].includes(item.verification), `${market} promotion verification state is invalid`);
+    if (item.verification === "api-and-homepage") assert(typeof item.headline === "string" && item.headline.includes(item.character_name), `${market} verified promotion headline does not match its character`);
+  }
 }
 
 [
@@ -147,13 +163,19 @@ const js = readFileSync(path.join(root, "app.js"), "utf8");
   "3일 외삽 · C등급",
   "누적 대화수 184만회",
   "약 70%가 월 5만원",
-  "약 1,373억원"
+  "약 1,373억원",
+  "상위 3개 캐릭터 탐색 조회수 집중",
+  "진성 대화 세션 집중",
+  "전체 조회의 82%",
+  "매출 산출의 핵심 본진",
+  "일간 조회수 +110만 회"
 ].forEach((claim) => assert(!`${js}\n${html}`.includes(claim), `unsupported or stale numeric display claim: ${claim}`));
 assert(/id="ai-analysis-output" hidden><\/pre>/.test(html), "preset analysis output should be generated from the current snapshot");
 assert(js.includes("siteRevenue.grand_total_mid"), "headline recent run-rate must use the all-market total");
 assert(js.includes("haltJudgmentClose"), "KRX halt UI must use the judgment-date close");
 assert(html.includes("data/characters.js"), "embedded dataset script must be referenced");
 assert(html.includes("data/character-activity.js"), "embedded activity script must be referenced");
+assert(html.includes("data/official-promotions.js"), "embedded official promotion script must be referenced");
 
 [
   "data-view=\"stats\"",
@@ -175,6 +197,7 @@ assert(html.includes("data/character-activity.js"), "embedded activity script mu
   "data/stats.js",
   "data/validation.js"
   ,"data/official-signals.js"
+  ,"data/official-promotions.js"
   ,"data/ai-diagnosis.js"
 ].forEach((marker) => assert(html.includes(marker), `missing HTML marker: ${marker}`));
 
