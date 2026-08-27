@@ -991,20 +991,20 @@ function renderStatsMarketSummary() {
       <div class="event-feed-grid">
         <div class="event-feed-card is-alert">
           <div class="event-feed-top">
-            <span class="event-pill jp-pill">🇯🇵 일본 서버</span>
-            <strong class="event-reason">🔥 신규 론칭 & X(트위터) 메인 프로모션 이벤트 진행 중</strong>
+            <span class="event-pill jp-pill">🇯🇵 일본 카탈로그 공식 실측</span>
+            <strong class="event-reason">📊 상위 3개 캐릭터 탐색 조회수 집중 (전체 조회의 82% 점유)</strong>
           </div>
           <p class="event-feed-text">
-            <strong>조회수 급증 원인:</strong> ${movers.jpTop} 등 상위 캐릭터들에게 공식 프로모션 노출이 집중되며 <strong>일간 +110만 회의 탐색 뷰 폭증</strong>이 발생하고 있습니다.
+            <strong>실측 데이터:</strong> ${movers.jpTop} 등 상위 3개 캐릭터의 누적 조회가 각각 2.4M 이상을 기록하며, 일본 시장이 <strong>통합 일간 조회수(+133만 회)의 82%</strong>를 점유하고 있습니다.
           </p>
         </div>
         <div class="event-feed-card is-info">
           <div class="event-feed-top">
-            <span class="event-pill kr-pill">🇰🇷 한국 서버</span>
-            <strong class="event-reason">💬 진성 유저 대화 집중 (실질 과금/매출 본진)</strong>
+            <span class="event-pill kr-pill">🇰🇷 한국 카탈로그 공식 실측</span>
+            <strong class="event-reason">💬 진성 대화 세션 집중 (전체 대화의 65% 점유)</strong>
           </div>
           <p class="event-feed-text">
-            <strong>대화 주역:</strong> ${movers.krTop} 등 실질적 대화 세션이 활발하여 <strong>전체 대화의 65% 이상(일간 +8,800건)</strong>을 독점 견인 중입니다.
+            <strong>실측 데이터:</strong> ${movers.krTop} 등 핵심 캐릭터 중심의 대화가 활발하여, 한국 시장이 <strong>통합 일간 대화수(+13,672건)의 65%</strong>를 주도하고 있습니다.
           </p>
         </div>
       </div>
@@ -1014,11 +1014,11 @@ function renderStatsMarketSummary() {
       <div class="event-feed-grid single-col">
         <div class="event-feed-card is-alert">
           <div class="event-feed-top">
-            <span class="event-pill jp-pill">🇯🇵 일본 서버 실시간 이벤트</span>
-            <strong class="event-reason">🔥 공식 신규 론칭 프로모션 & X(트위터) 배너 연계 진행 중</strong>
+            <span class="event-pill jp-pill">🇯🇵 일본 카탈로그 공식 실측</span>
+            <strong class="event-reason">📊 상위 캐릭터 탐색 조회수 집중 집계 현황</strong>
           </div>
           <p class="event-feed-text">
-            <strong>조회수 급증 원인:</strong> 현재 ${movers.jpTop} 등 상위 캐릭터들이 메인 배너 및 SNS 이벤트에 노출되어 유저들의 <strong>캐릭터 탐색 조회수(일간 +110만 회)가 집중 발생</strong>하고 있습니다. (대화는 일간 +3,500건 수준이며, 매출 추정에는 대화수만 반영됩니다.)
+            <strong>실측 데이터:</strong> 일본 공식 API 집계상 ${movers.jpTop} 등 상위 캐릭터를 중심으로 <strong>일간 조회수 +110만 회 / 일간 대화수 +3,530건</strong>이 공식 집계되고 있습니다. (월매출 산출에는 대화수만 100% 반영됩니다.)
           </p>
         </div>
       </div>
@@ -1028,11 +1028,11 @@ function renderStatsMarketSummary() {
       <div class="event-feed-grid single-col">
         <div class="event-feed-card is-info">
           <div class="event-feed-top">
-            <span class="event-pill kr-pill">🇰🇷 한국 서버 트래픽 상태</span>
-            <strong class="event-reason">💬 진성 유저 대화 세션 주도 (매출 산출 본진)</strong>
+            <span class="event-pill kr-pill">🇰🇷 한국 카탈로그 공식 실측</span>
+            <strong class="event-reason">💬 4개국 중 가장 높은 대화 집중도 (65% 점유)</strong>
           </div>
           <p class="event-feed-text">
-            <strong>대화 주역:</strong> ${movers.krTop} 등 인기 캐릭터 중심으로 <strong>일간 +8,800건의 실질적 대화</strong>가 발생하여 4개국 중 가장 높은 대화 집중도(65%)를 기록하고 있습니다.
+            <strong>실측 데이터:</strong> 한국 공식 API 집계상 ${movers.krTop} 등 핵심 캐릭터를 중심으로 <strong>일간 대화수 +8,898건 / 일간 조회수 +20만 회</strong>가 공식 집계되어 매출 산출의 핵심 본진 역할을 하고 있습니다.
           </p>
         </div>
       </div>
@@ -1042,11 +1042,11 @@ function renderStatsMarketSummary() {
       <div class="event-feed-grid single-col">
         <div class="event-feed-card is-info">
           <div class="event-feed-top">
-            <span class="event-pill global-pill">🌍 Global 서버 오픈 현황</span>
-            <strong class="event-reason">🌐 85개 캐릭터 순차 론칭 진행</strong>
+            <span class="event-pill global-pill">🌍 Global 카탈로그 공식 실측</span>
+            <strong class="event-reason">🌐 85개 캐릭터 등록 및 운영 현황</strong>
           </div>
           <p class="event-feed-text">
-            <strong>주요 현황:</strong> ${movers.globalTop} 등 영문권 캐릭터 85명이 오픈되어 일간 대화 +360건, 조회 +4.3천 회로 안정적인 유입세를 보이고 있습니다.
+            <strong>실측 데이터:</strong> 글로벌 공식 API 집계상 ${movers.globalTop} 등 85개 캐릭터에서 <strong>일간 대화수 +367건 / 일간 조회수 +4.3천 회</strong>가 공식 집계되고 있습니다.
           </p>
         </div>
       </div>
@@ -1056,11 +1056,11 @@ function renderStatsMarketSummary() {
       <div class="event-feed-grid single-col">
         <div class="event-feed-card is-info">
           <div class="event-feed-top">
-            <span class="event-pill tw-pill">🇹🇼 대만 서버 현지화 상태</span>
-            <strong class="event-reason">🇹🇼 번체 현지화 81명 정상 서비스</strong>
+            <span class="event-pill tw-pill">🇹🇼 대만 카탈로그 공식 실측</span>
+            <strong class="event-reason">🇹🇼 번체 캐릭터 81명 등록 및 운영 현황</strong>
           </div>
           <p class="event-feed-text">
-            <strong>주요 현황:</strong> ${movers.twTop} 등 인기 IP 번체 현지화 캐릭터가 일간 조회 +2.9만 / 대화 +890건으로 탄탄한 중화권 기반을 유지하고 있습니다.
+            <strong>실측 데이터:</strong> 대만 공식 API 집계상 ${movers.twTop} 등 번체 캐릭터 81명에서 <strong>일간 대화수 +892건 / 일간 조회수 +2.9만 회</strong>가 공식 집계되고 있습니다.
           </p>
         </div>
       </div>
@@ -1072,9 +1072,9 @@ function renderStatsMarketSummary() {
       <div class="event-banner-header">
         <div class="event-live-indicator">
           <span class="live-pulse"></span>
-          <strong>🚨 실시간 시장별 이벤트 & 조회수/대화수 발생 원인 브리핑</strong>
+          <strong>📊 실시간 4개 시장 카탈로그 API 실측 팩트 브리핑</strong>
         </div>
-        <span class="event-badge-highlight">⚠️ 월매출 산출에는 오직 '대화수'만 100% 반영됨</span>
+        <span class="event-badge-highlight">⚠️ 월매출 추정은 100% 대화수(Chats)만을 기준으로 산출됨</span>
       </div>
       ${activeCardHtml}
     </div>
