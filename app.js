@@ -938,6 +938,35 @@ function renderStatsMarketSummary() {
   const capturedAt = market === "all"
     ? dataset?.generated_at
     : dataset?.market_snapshots?.[market]?.captured_at || dataset?.generated_at;
+
+  // 1. 일간(24h) 델타 계산
+  const dailyRows = statsData?.site_traction?.daily || [];
+  const latestDaily = dailyRows.at(-1) || {};
+  const dailyDateLabel = latestDaily.date ? formatDateShort(latestDaily.date) : "최근";
+
+  let dailyChatsDelta = 0;
+  if (market === "all") {
+    dailyChatsDelta = MARKET_ORDER.reduce((sum, key) => sum + Number(latestDaily[`${key}_delta`] || 0), 0);
+  } else {
+    dailyChatsDelta = Number(latestDaily[`${market}_delta`] || 0);
+  }
+
+  let dailyViewsDelta = 0;
+  if (market === "kr" || market === "all") {
+    const krWorkerChars = statsData?.characters?.characters || [];
+    const krViewsFromChars = krWorkerChars.reduce((sum, c) => sum + Number(c.delta || 0), 0);
+    const tsRows = statsData?.totals_timeseries?.rows || [];
+    const tsLatest = Number(tsRows.at(-1)?.total_views || 0);
+    const tsPrev = Number(tsRows.at(-2)?.total_views || 0);
+    const tsDelta = tsLatest && tsPrev ? (tsLatest - tsPrev) : 0;
+    dailyViewsDelta = market === "kr" ? (krViewsFromChars || tsDelta) : (tsDelta || krViewsFromChars);
+  } else {
+    const hist = catalogHistoryForMarket(market);
+    if (hist.length >= 2) {
+      dailyViewsDelta = Number(hist.at(-1)?.total_views || 0) - Number(hist.at(-2)?.total_views || 0);
+    }
+  }
+
   els.statsMarketNote.textContent = market === "all"
     ? "4개 시장 공식 공개 카탈로그 합계 · 중복 ID는 캐릭터 수에서 통합"
     : `${meta.label} 공식 공개 카탈로그 원본`;
@@ -950,15 +979,20 @@ function renderStatsMarketSummary() {
       button.querySelector("small").textContent = `${formatNumber(count)}명`;
     }
   });
+
+  const marketPrefix = meta.label === "통합" ? "통합" : meta.label;
+
   els.statsMarketKpiGrid.innerHTML = renderStatCards([
     [`${meta.label} 캐릭터`, `${formatNumber(totals.characters)}명`, market === "all" ? `${formatNumber(totals.localeRecords)}개 지역 레코드` : "시장 원본 목록", "signal"],
     ["누적 조회수", formatNumber(totals.views), "공개 카운터 합계", "neutral"],
     ["누적 대화수", formatNumber(totals.chats), "공개 카운터 합계", "neutral"],
-    ["최근 조회 증가", signedNumber(activity.viewsDelta), `${activity.windowLabel} · 비교 ${formatNumber(activity.comparableCount)}건`, activity.viewsDelta >= 0 ? "positive" : "warning"],
-    ["최근 대화 증가", signedNumber(activity.chatsDelta), `${activity.windowLabel} · 비교 ${formatNumber(activity.comparableCount)}건`, activity.chatsDelta >= 0 ? "positive" : "warning"],
+    ["일간(24h) 조회 증가", signedNumber(dailyViewsDelta), `${dailyDateLabel} 일간`, dailyViewsDelta >= 0 ? "positive" : "warning"],
+    ["일간(24h) 대화 증가", signedNumber(dailyChatsDelta), `${dailyDateLabel} 일간`, dailyChatsDelta >= 0 ? "positive" : "warning"],
+    [`${marketPrefix} 최근 갱신 조회`, signedNumber(activity.viewsDelta), `${activity.windowLabel} · 직전 수집 간격`, activity.viewsDelta >= 0 ? "positive" : "warning"],
+    [`${marketPrefix} 최근 갱신 대화`, signedNumber(activity.chatsDelta), `${activity.windowLabel} · 직전 수집 간격`, activity.chatsDelta >= 0 ? "positive" : "warning"],
     ["최신 수집", formatDateTime(capturedAt), `${formatFreshnessAge(capturedAt)} · ${activity.sourceLabel}`, "neutral"]
   ]);
-  els.statsMarketDefinition.innerHTML = `<strong>${escapeHtml(meta.label)} 공개 활동:</strong> 조회수·대화수는 공식 공개 누적 카운터이며 매출·결제자·순매출이 아닙니다. 최근 증가는 ${escapeHtml(activity.definitionLabel)}입니다.`;
+  els.statsMarketDefinition.innerHTML = `<strong>${escapeHtml(meta.label)} 공개 활동:</strong> 조회수·대화수는 공식 공개 누적 카운터이며 매출·결제자·순매출이 아닙니다. 일간 증가는 <strong>24시간 1일 누적</strong>이며, 최근 갱신은 <strong>${escapeHtml(activity.definitionLabel)}</strong>입니다.`;
 }
 
 function renderValidationDashboard() {
