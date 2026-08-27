@@ -94,7 +94,7 @@ Cloudflare의 `public-worker.js`는 캐릭터 상세 화면에서 사용하는 �
 
 ### GitHub Actions 기반 무인 갱신·Nemotron 진단
 
-`.github/workflows/scheduled-refresh.yml`은 GitHub의 Ubuntu 실행기에서 30분마다 동작하므로 로컬 PC가 꺼져 있어도 실행됩니다. 데이터 수집과 검증은 매 실행마다 수행하고, LLM 진단은 기본 2시간 간격으로 제한합니다. OpenRouter가 실패하거나 무료 호출 한도에 걸려도 기존 데이터 수집·검증·커밋은 계속됩니다.
+`.github/workflows/scheduled-refresh.yml`은 GitHub의 Ubuntu 실행기에서 매시 7분·37분에 동작하므로 로컬 PC가 꺼져 있어도 실행됩니다. 정각 혼잡을 피하기 위해 `0분·30분` 대신 이 시간대를 사용합니다. 데이터 수집과 검증은 매 실행마다 수행하고, LLM 진단은 기본 2시간 간격으로 제한합니다. OpenRouter가 실패하거나 무료 호출 한도에 걸려도 기존 데이터 수집·검증·커밋은 계속됩니다.
 
 GitHub 저장소에서 `Settings` → `Secrets and variables` → `Actions`로 이동합니다.
 
@@ -105,7 +105,11 @@ KIS_APP_KEY
 KIS_APP_SECRET
 OPENDART_API_KEY
 OPENROUTER_API_KEY
+CLOUDFLARE_API_TOKEN
+CLOUDFLARE_ACCOUNT_ID
 ```
+
+`CLOUDFLARE_API_TOKEN`은 Cloudflare의 `Account API tokens`에서 Custom Token으로 만들고 `Account → Cloudflare Pages → Edit` 권한을 부여합니다. `CLOUDFLARE_ACCOUNT_ID`는 Cloudflare 대시보드 계정 개요에서 확인합니다. 두 값은 공개 가능한 `Variables`가 아니라 반드시 암호화되는 `Secrets`에 등록합니다. 둘 중 하나라도 없으면 데이터 수집·검증·GitHub 커밋은 정상 진행되고 Pages 배포 단계만 경고와 함께 건너뜁니다.
 
 `Variables` 탭에는 공개 가능한 설정값을 등록합니다.
 
@@ -121,7 +125,8 @@ AI_DIAGNOSIS_MIN_HOURS=2
 1. `Refresh KIS & OpenDART Official Signals`가 성공해야 합니다.
 2. `Generate Scheduled Nemotron Diagnosis`가 성공하거나, 키 미등록 시 명시적으로 skip되어야 합니다.
 3. `Validate Integrity & Syntaxes`가 통과해야 합니다.
-4. 마지막 단계가 `chore(auto): scheduled data refresh snapshot` 커밋을 생성하거나 변경 없음으로 끝나야 합니다.
+4. `Commit & Push Changes to Repository`가 `chore(auto): scheduled data refresh snapshot` 커밋을 생성하거나 변경 없음으로 끝나야 합니다.
+5. `Deploy Public Distribution to Cloudflare Pages`가 성공하고 `toptoon-signal-desk.pages.dev` 운영판이 같은 스냅샷 시각을 표시해야 합니다.
 
 LLM에는 공개 공시, 공개 카탈로그, 검증 결과, 가정이 명시된 매출 시나리오만 전송합니다. API 키, `.env.local`, 캐릭터 이미지, 개인정보는 전송하지 않습니다. 결과는 `data/ai-diagnosis.json`과 브라우저용 `data/ai-diagnosis.js`에 저장되며 공개 사이트에는 보조 진단임을 명시해 표시합니다.
 
