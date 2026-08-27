@@ -187,6 +187,7 @@ assert(/id="ai-analysis-output" hidden><\/pre>/.test(html), "preset analysis out
 assert(js.includes("siteRevenue.grand_total_mid"), "headline recent run-rate must use the all-market total");
 assert(js.includes("haltJudgmentClose"), "KRX halt UI must use the judgment-date close");
 assert(js.includes("characterHourlyMetrics"), "character detail must calculate normalized hourly metrics");
+assert(js.includes("characterPeriodMetrics"), "character detail must expose a source-aware observed/24h period metric");
 assert(js.includes("시간당 평균 조회") && js.includes("시간당 평균 대화"), "character detail hourly metric labels are missing");
 assert(!js.includes("최근 갱신 조회</span>") && !js.includes("최근 갱신 대화</span>"), "character detail must not display raw collection-interval cards");
 assert(html.includes("data/characters.js"), "embedded dataset script must be referenced");

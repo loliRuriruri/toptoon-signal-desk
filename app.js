@@ -2096,7 +2096,7 @@ function renderDualDeltaBadge(liveDelta, dailyDelta, emptyLabel) {
 function renderTableRow(item) {
   const model = viewModel(item);
   const activity = characterActivity(item);
-  const daily = workerActivityForId(model.id);
+  const daily = dailyActivityForItem(item, model.id);
   return `
     <tr>
       <td class="character-cell">
@@ -2125,7 +2125,7 @@ function renderTableRow(item) {
 function renderCard(item) {
   const model = viewModel(item);
   const activity = characterActivity(item);
-  const daily = workerActivityForId(model.id);
+  const daily = dailyActivityForItem(item, model.id);
   return `
     <article class="character-card">
       <button class="card-button" type="button" data-character-id="${model.id}">
@@ -2326,7 +2326,7 @@ function characterHourlyMetrics(record, maxHours = 24) {
     viewsPerHour: Math.round((row.viewsDelta / row.seconds) * 3600),
     chatsPerHour: Math.round((row.chatsDelta / row.seconds) * 3600)
   }));
-  const coverageLabel = coverageSeconds >= 20 * 3600
+  const coverageLabel = coverageSeconds >= 22 * 3600
     ? "최근 24시간"
     : `${formatObservationDuration(coverageSeconds)} 관측 · 24h 누적 중`;
   return {
@@ -2339,6 +2339,50 @@ function characterHourlyMetrics(record, maxHours = 24) {
     viewsPerHour: Math.round((viewsDelta / coverageSeconds) * 3600),
     chatsPerHour: Math.round((chatsDelta / coverageSeconds) * 3600),
     latestAt: new Date(intervals.at(-1).end).toISOString()
+  };
+}
+
+function dailyActivityForItem(item, characterId) {
+  if (state.market === "kr") return workerActivityForId(characterId);
+  if (state.market === "all") return null;
+  const record = item?.allRecords ? item.locales?.[state.market] : item;
+  if (!record || record.market !== state.market) return null;
+  const metrics = characterHourlyMetrics(record);
+  if (!metrics || metrics.coverageSeconds < 22 * 3600) return null;
+  return {
+    delta: Math.round(metrics.viewsDelta),
+    chat_delta: Math.round(metrics.chatsDelta),
+    last_seen: metrics.latestAt,
+    sourceLabel: `${MARKET_META[state.market].short} 공개 API · 최근 24h`,
+    scopeLabel: MARKET_META[state.market].label,
+    definitionLabel: "공식 공개 API 캐릭터 이력의 최대 최근 24시간 누적"
+  };
+}
+
+function characterPeriodMetrics(record, hourlyMetrics = characterHourlyMetrics(record)) {
+  const krDaily = record?.market === "kr" ? workerActivityForId(record.character_id) : null;
+  if (krDaily) {
+    return {
+      label: "일간(24h)",
+      viewsDelta: Number(krDaily.delta || 0),
+      chatsDelta: Number(krDaily.chat_delta || 0),
+      help: `${formatShortDate(krDaily.last_seen)} 한국 Worker 일간`
+    };
+  }
+  if (!hourlyMetrics) {
+    return {
+      label: "최근 관측",
+      viewsDelta: null,
+      chatsDelta: null,
+      help: "공식 API 이력 수집 대기"
+    };
+  }
+  const isFullDay = hourlyMetrics.coverageSeconds >= 22 * 3600;
+  return {
+    label: isFullDay ? "최근(24h)" : `관측(${formatObservationDuration(hourlyMetrics.coverageSeconds)})`,
+    viewsDelta: Math.round(hourlyMetrics.viewsDelta),
+    chatsDelta: Math.round(hourlyMetrics.chatsDelta),
+    help: isFullDay ? "공식 API 최근 24h 누적" : "공식 API 관측 누적 · 24h 누적 중"
   };
 }
 
@@ -2952,8 +2996,8 @@ function closeDialog() {
 function renderDialogContent(group, selected) {
   const model = viewModel(selected);
   const activity = characterActivityForMarket(selected, selected.market);
-  const dailyWorker = selected.market === "kr" ? workerActivityForId(selected.character_id) : null;
   const hourlyMetrics = characterHourlyMetrics(selected);
+  const periodMetrics = characterPeriodMetrics(selected, hourlyMetrics);
   const hourlyViewsPopover = renderCharacterHourlyPopover(selected, "views", hourlyMetrics);
   const hourlyChatsPopover = renderCharacterHourlyPopover(selected, "chats", hourlyMetrics);
   const hourlyHelp = hourlyMetrics ? `${hourlyMetrics.coverageLabel} · 🔍 호버 시 추이` : "시간대 이력 수집 대기";
@@ -2983,17 +3027,15 @@ function renderDialogContent(group, selected) {
       <div><span>누적 조회수</span><strong>${formatNumber(selected.viewsNumber)}</strong></div>
       <div><span>누적 대화수</span><strong>${formatNumber(selected.chatsNumber)}</strong></div>
       <div><span>가정 환산액</span><strong style="color:#f6c87d">${estimatedRevenue}</strong><small>대화 × 2,354원</small></div>
-      ${dailyWorker ? `
-        <div class="is-daily-metric"><span>일간(24h) 조회 증가</span><strong>${renderActivityDelta(dailyWorker.delta, "일간 데이터 없음")}</strong><small>${escapeHtml(formatShortDate(dailyWorker.last_seen))} 일간</small></div>
-        <div class="is-daily-metric"><span>일간(24h) 대화 증가</span><strong>${renderActivityDelta(dailyWorker.chat_delta, "일간 데이터 없음")}</strong><small>${escapeHtml(formatShortDate(dailyWorker.last_seen))} 일간</small></div>
-      ` : ""}
-      <div class="character-rate-metric has-popover" tabindex="0">
+      <div class="is-daily-metric${selected.market === "kr" ? "" : " is-observed-metric"}"><span>${escapeHtml(periodMetrics.label)} 조회 증가</span><strong>${renderActivityDelta(periodMetrics.viewsDelta, "관측 데이터 없음")}</strong><small>${escapeHtml(periodMetrics.help)}</small></div>
+      <div class="is-daily-metric${selected.market === "kr" ? "" : " is-observed-metric"}"><span>${escapeHtml(periodMetrics.label)} 대화 증가</span><strong>${renderActivityDelta(periodMetrics.chatsDelta, "관측 데이터 없음")}</strong><small>${escapeHtml(periodMetrics.help)}</small></div>
+      <div class="character-rate-metric metric-views has-popover" tabindex="0">
         <span>${escapeHtml(MARKET_META[selected.market].label)} 시간당 평균 조회</span>
         <strong>${hourlyMetrics ? `${signedNumber(hourlyMetrics.viewsPerHour)}<small>회/h</small>` : "—"}</strong>
         <small>${escapeHtml(hourlyHelp)}</small>
         <div class="stat-card-popover character-metric-popover">${hourlyViewsPopover}</div>
       </div>
-      <div class="character-rate-metric has-popover" tabindex="0">
+      <div class="character-rate-metric metric-chats has-popover" tabindex="0">
         <span>${escapeHtml(MARKET_META[selected.market].label)} 시간당 평균 대화</span>
         <strong>${hourlyMetrics ? `${signedNumber(hourlyMetrics.chatsPerHour)}<small>회/h</small>` : "—"}</strong>
         <small>${escapeHtml(hourlyHelp)}</small>

@@ -3709,6 +3709,11 @@ tbody tr:last-child td {
   color: #8ec3ff;
 }
 
+.dialog-metrics .is-observed-metric {
+  border-color: rgba(98, 168, 255, 0.28);
+  background: linear-gradient(135deg, rgba(57, 135, 229, 0.08), rgba(16, 23, 34, 0.9));
+}
+
 .dialog-metrics .character-rate-metric {
   overflow: visible;
   border-color: rgba(39, 196, 153, 0.42);
@@ -3771,6 +3776,16 @@ tbody tr:last-child td {
   .character-metric-popover {
     min-width: 0;
     width: min(420px, calc(100vw - 64px));
+  }
+
+  .metric-views .character-metric-popover {
+    right: auto;
+    left: 0;
+  }
+
+  .metric-chats .character-metric-popover {
+    right: 0;
+    left: auto;
   }
 }
 
