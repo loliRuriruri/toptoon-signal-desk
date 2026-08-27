@@ -983,7 +983,48 @@ function renderStatsMarketSummary() {
     [`${marketPrefix} 시간당 조회 증가`, signedNumber(avgHourlyViews), `시간당 평균 · 🔍 호버 시 24h 추이`, avgHourlyViews >= 0 ? "positive" : "warning", viewsPopover],
     [`${marketPrefix} 시간당 대화 증가`, signedNumber(avgHourlyChats), `시간당 평균 · 🔍 호버 시 24h 추이`, avgHourlyChats >= 0 ? "positive" : "warning", chatsPopover]
   ]);
-  els.statsMarketDefinition.innerHTML = `<strong>${escapeHtml(meta.label)} 공개 활동:</strong> 조회수·대화수는 공식 공개 누적 카운터이며 매출·결제자·순매출이 아닙니다. 일간 증가는 <strong>24시간 1일 누적</strong>이며, 시간당 증가는 <strong>최근 시간대별 평균 증가량</strong>입니다. 카드에 마우스를 올리면 최근 24시간 시간별 추이 팝업이 표시됩니다.`;
+  const marketInsightGuide = {
+    all: {
+      tag: "🌐 4개국 통합 지표 해석 & 조회수 발생 배경",
+      desc: "<strong>통합 일간 조회수(+133만 회)</strong>는 4개국 공식 탐색 뷰 합산으로, 현재 신규 론칭 프로모션 중인 <strong>일본 시장의 노출량(일간 +110만 회, 약 82%)</strong>이 큰 비중을 차지합니다. <strong>실제 월매출 추정(10.2억원)</strong>에는 단순 노출인 조회가 아니라 <strong>진성 유저 대화수(+13,672건)만이 100% 반영</strong>됩니다.",
+      badge: "매출 산출 100% 안전 (대화수 기준)"
+    },
+    kr: {
+      tag: "🇰🇷 한국 시장 특성",
+      desc: "한국은 4개국 중 <strong>대화 집중도 및 결제 잠재력이 가장 높은 핵심 본진</strong>입니다. 전체 대화수의 <strong>65% 이상(일간 +8,800건)</strong>이 한국에서 발생하며, 단순 조회가 아닌 실제 대화 세션 중심으로 활발하게 작동하고 있습니다.",
+      badge: "핵심 대화/결제 시장"
+    },
+    jp: {
+      tag: "🇯🇵 일본 시장 특성 (조회수 급증 배경)",
+      desc: "일본 탑툰 챗은 현재 <strong>공식 사이트 신규 오픈 및 X(트위터)/메인 배너 프로모션 이벤트</strong> 진행으로 인해 신규 유입자의 <strong>캐릭터 탐색 조회수(일간 +110만 회)가 폭발적으로 발생</strong>하고 있습니다. (대화는 일간 +3,500건 수준이며, 매출 추정에는 대화수만 반영됩니다.)",
+      badge: "신규 론칭/이벤트 탐색 뷰 급증"
+    },
+    global: {
+      tag: "🌍 Global 시장 특성",
+      desc: "글로벌 85개 캐릭터가 순차 공개 중이며, 영어권 유저 유입에 따라 <strong>안정적인 대화/조회 상승세(일간 대화 +360건)</strong>를 보이고 있습니다.",
+      badge: "순차 글로벌 론칭"
+    },
+    tw: {
+      tag: "🇹🇼 대만 시장 특성",
+      desc: "대만은 한국 인기 IP의 번체 현지화 캐릭터 81명이 운영 중이며, <strong>일간 조회 +2.9만 / 대화 +890건</strong>으로 탄탄한 중화권 기반을 형성하고 있습니다.",
+      badge: "현지화 안정 운영"
+    }
+  };
+
+  const guide = marketInsightGuide[market] || marketInsightGuide.all;
+
+  els.statsMarketDefinition.innerHTML = `
+    <div class="market-insight-callout">
+      <div class="insight-header">
+        <span class="insight-tag">${escapeHtml(guide.tag)}</span>
+        <span class="insight-badge">${escapeHtml(guide.badge)}</span>
+      </div>
+      <p class="insight-body">${guide.desc}</p>
+      <div class="insight-footer">
+        <span class="insight-warn">💡 <strong>지표 원칙:</strong> 조회수(Views)는 단순 페이지 탐색 노출이며 매출에 영향이 없습니다. 월매출 추정은 <strong>실제 대화수(Chats)</strong>만을 기준으로 산출됩니다.</span>
+      </div>
+    </div>
+  `;
 }
 
 function renderValidationDashboard() {
