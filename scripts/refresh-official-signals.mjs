@@ -139,21 +139,54 @@ async function refreshOpenDart() {
   };
 }
 
+async function getKisAccessToken(base, appKey, appSecret) {
+  const cacheDir = join(process.cwd(), ".cache");
+  const cachePath = join(cacheDir, "kis-token.json");
+
+  try {
+    const cached = JSON.parse(await readFile(cachePath, "utf8"));
+    const now = Date.now();
+    if (cached.appkey === appKey && cached.access_token && cached.expires_at && (cached.expires_at - now > 15 * 60 * 1000)) {
+      return cached.access_token;
+    }
+  } catch {}
+
+  const tokenPayload = await fetchJson(`${base}/oauth2/tokenP`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ grant_type: "client_credentials", appkey: appKey, appsecret: appSecret })
+  });
+
+  if (!tokenPayload.access_token) throw new Error("KIS access token missing");
+
+  const expiresInSec = Number(tokenPayload.expires_in || 86400);
+  const expiresAt = Date.now() + expiresInSec * 1000;
+
+  try {
+    await mkdir(cacheDir, { recursive: true });
+    await writeFile(cachePath, JSON.stringify({
+      appkey: appKey,
+      access_token: tokenPayload.access_token,
+      expires_at: expiresAt,
+      created_at: new Date().toISOString()
+    }, null, 2), "utf8");
+  } catch (err) {
+    console.warn(`[KIS 토큰 캐시 저장 실패] ${err.message}`);
+  }
+
+  return tokenPayload.access_token;
+}
+
 async function refreshKis() {
   const appKey = process.env.KIS_APP_KEY;
   const appSecret = process.env.KIS_APP_SECRET;
   const ticker = process.env.KIS_STOCK_CODE || "134580";
   if (!appKey || !appSecret) return { status: "skipped", note: "KIS_APP_KEY와 KIS_APP_SECRET 필요" };
   const base = "https://openapi.koreainvestment.com:9443";
-  const token = await fetchJson(`${base}/oauth2/tokenP`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ grant_type: "client_credentials", appkey: appKey, appsecret: appSecret })
-  });
-  if (!token.access_token) throw new Error("KIS access token missing");
+  const accessToken = await getKisAccessToken(base, appKey, appSecret);
   const headers = {
     "Content-Type": "application/json",
-    authorization: `Bearer ${token.access_token}`,
+    authorization: `Bearer ${accessToken}`,
     appkey: appKey,
     appsecret: appSecret,
     tr_id: "FHKST01010100"
