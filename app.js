@@ -1197,48 +1197,56 @@ function calculateDynamicKrxAlerts(price, history = []) {
     return rows.find((r) => r.date === compact)?.close || null;
   };
 
-  // 1. 거래정지 판단 (2026-08-20 종가 2,160원 대비 40% 이상 상승 시 1일 정지)
+  // 1. 거래정지 이력 및 다음 정지 판단
+  // - 8/25 종가(3,440원)가 8/20(2,160원) 대비 40% 이상 급등하여 8/26 1일간 정지 집행 완료
+  // - 8/27 오늘 매매거래정지 해제되어 정상 거래 재개 (종가 3,320원)
+  // - 다음 추가 정지 요건: 직전 최고가(3,440원) 대비 40% 이상 추가 급등 시 (4,816원 이상)
   const haltRefClose = closeOn("20260820") || 2160;
-  const haltThreshold = Math.round(haltRefClose * 1.4);
-  const haltJudgmentClose = closeOn("20260824");
-  const haltConditionMet = haltJudgmentClose == null ? null : haltJudgmentClose >= haltThreshold;
-  const haltGap = haltJudgmentClose == null ? null : haltJudgmentClose - haltThreshold;
+  const haltJudgmentClose = closeOn("20260825") || closeOn("20260824") || 3440;
+  const peakClose = Math.max(haltJudgmentClose, 3440); // 8월 25일 최고 종가
+  const nextHaltThreshold = Math.round(peakClose * 1.4); // 4,816원
+  const nextHaltGap = currentPrice - nextHaltThreshold;
+  const isNextHaltMet = currentPrice >= nextHaltThreshold;
 
   // 2. 투자경고 해제 판단 (9월 3일 최초 판단 예정)
-  // 조건 1: 5일 전(2026-08-27) 종가 대비 45% 미만 상승
-  const release5RefClose = closeOn("20260827");
-  const release5Threshold = release5RefClose ? Math.round(release5RefClose * 1.45) : null;
-  const cond1Met = release5Threshold ? currentPrice < release5Threshold : null;
+  // 조건 1: 5일 전(2026-08-27) 종가(3,320원) 대비 45% 미만 상승 (3,320 * 1.45 = 4,814원)
+  const release5RefClose = closeOn("20260827") || 3320;
+  const release5Threshold = Math.round(release5RefClose * 1.45);
+  const cond1Met = currentPrice < release5Threshold;
 
-  // 조건 2: 15일 전(2026-08-12) 종가(1,373원) 대비 75% 미만 상승 (1373 * 1.75 = 2402.75 -> 2402원)
+  // 조건 2: 15일 전(2026-08-12) 종가(1,373원) 대비 75% 미만 상승 (1,373 * 1.75 = 2,403원)
   const release15RefClose = closeOn("20260812") || 1373;
   const release15Threshold = Math.round(release15RefClose * 1.75);
   const cond2Met = currentPrice < release15Threshold;
 
-  // 조건 3: 최근 15거래일 종가 중 최고가가 아닐 것
+  // 조건 3: 최근 15거래일 종가 중 최고가가 아닐 것 (최고 종가: 3,440원)
   const recent15Rows = rows.slice(-15);
   const recent15Max = recent15Rows.length ? Math.max(...recent15Rows.map((r) => r.close)) : 3440;
   const is15DayHigh = currentPrice >= recent15Max;
   const cond3Met = !is15DayHigh;
 
   const targetDate = new Date("2026-09-03T00:00:00+09:00");
-  const today = new Date();
+  const today = new Date("2026-08-27T00:00:00+09:00");
   const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
   const dDayLabel = diffDays > 0 ? `D-${diffDays}` : (diffDays === 0 ? "D-Day (오늘)" : "판단 진행 중");
 
   return {
     currentPrice,
+    currentStatus: {
+      isWarning: true,
+      isHalted: false,
+      resumedAt: "2026-08-27",
+      statusLabel: "🚨 투자경고종목 지정 유지 (8/27 거래정지 해제)"
+    },
     halt: {
-      judgment_date: "2026-08-24",
-      halt_date: "2026-08-25",
-      reference_date: "2026-08-20",
-      reference_close: haltRefClose,
-      trigger_pct: 40,
-      trigger_price_raw: haltThreshold,
-      observed_close: haltJudgmentClose,
-      condition_met: haltConditionMet,
-      gap: haltGap,
-      source_url: "https://kind.krx.co.kr/external/2026/08/21/000686/20260821001992/70835.htm"
+      past_halt_date: "2026-08-26",
+      past_judgment_close: 3440,
+      resumed_date: "2026-08-27",
+      resumed_close: 3320,
+      next_trigger_price: nextHaltThreshold,
+      next_trigger_gap: nextHaltGap,
+      is_next_halt_met: isNextHaltMet,
+      source_url: "https://kind.krx.co.kr/external/2026/08/25/000686/20260825002011/70835.htm"
     },
     release: {
       earliest_judgment_date: "2026-09-03",
@@ -1255,7 +1263,7 @@ function calculateDynamicKrxAlerts(price, history = []) {
       cond2_met: cond2Met,
       recent_15_max: recent15Max,
       cond3_met: cond3Met,
-      all_cleared: (cond1Met === true || cond1Met === null) && cond2Met && cond3Met,
+      all_cleared: cond1Met && cond2Met && cond3Met,
       source_url: "https://kind.krx.co.kr/external/2026/08/20/000602/20260820001386/70804.htm"
     }
   };
@@ -1393,7 +1401,6 @@ function renderFilingReconciliation(filing, derived) {
 function renderMarketRisk(investor, marketView) {
   const market = investor.market_snapshot || {};
   const ownership = investor.ownership_snapshot || {};
-  const derived = investor.derived || {};
   const kis = officialSignalsData?.providers?.kis || {};
   const dynamicAlerts = calculateDynamicKrxAlerts(marketView.price, kis.price_history || []);
 
@@ -1412,17 +1419,17 @@ function renderMarketRisk(investor, marketView) {
       <div class="krx-sim-toolbar" aria-label="주가 시나리오 및 재계산">
         <div class="sim-label-stack">
           <strong>⚡ 주가 시나리오 동적 재계산</strong>
-          <small>시가총액과 향후 투자경고 해제 참고조건을 재계산합니다. 8월 24일 거래정지 판정은 당시 종가로 고정됩니다.</small>
+          <small>시가총액과 9월 3일 투자경고 해제 조건(2,403원 미만) 및 재정지 기준선(4,816원)을 실시간 시뮬레이션합니다.</small>
         </div>
         <div class="sim-chip-list">
           <button type="button" class="sim-chip${!marketView.isSimulated ? " active" : ""}" data-set-price="${marketView.basePrice}">
             <span>실측 현재가</span> <b>${formatNumber(marketView.basePrice)}원</b>
           </button>
-          <button type="button" class="sim-chip${marketView.price === dynamicAlerts.halt.trigger_price_raw ? " active" : ""}" data-set-price="${dynamicAlerts.halt.trigger_price_raw}">
-            <span>8/24 정지 기준선</span> <b>${formatNumber(dynamicAlerts.halt.trigger_price_raw)}원</b>
+          <button type="button" class="sim-chip${marketView.price === dynamicAlerts.release.fifteen_day_limit_raw ? " active" : ""}" data-set-price="${dynamicAlerts.release.fifteen_day_limit_raw}">
+            <span>경고해제 기준선</span> <b>${formatNumber(dynamicAlerts.release.fifteen_day_limit_raw)}원</b>
           </button>
-          <button type="button" class="sim-chip${marketView.price === 2400 ? " active" : ""}" data-set-price="2400">
-            <span>경고해제선</span> <b>2,400원</b>
+          <button type="button" class="sim-chip${marketView.price === dynamicAlerts.halt.next_trigger_price ? " active" : ""}" data-set-price="${dynamicAlerts.halt.next_trigger_price}">
+            <span>재정지 기준선</span> <b>${formatNumber(dynamicAlerts.halt.next_trigger_price)}원</b>
           </button>
           <div class="sim-input-wrap">
             <input type="number" id="sim-custom-price-input" class="sim-price-input" placeholder="임의 주가" value="${marketView.price}" min="100" max="100000" step="50" />
@@ -1453,47 +1460,42 @@ function renderMarketRisk(investor, marketView) {
 function renderMarketAlertGuide(alerts) {
   const halt = alerts.halt || {};
   const release = alerts.release || {};
-  const haltThreshold = Number(halt.trigger_price_raw || 0);
-  const observedClose = Number(halt.observed_close || 0);
-  const haltGap = halt.gap != null ? halt.gap : (haltThreshold ? observedClose - haltThreshold : null);
+  const currentStatus = alerts.currentStatus || {};
   const release5 = Number(release.five_day_limit_raw || 0);
   const release15 = Number(release.fifteen_day_limit_raw || 0);
-  const haltStatus = halt.condition_met === true ? "met" : halt.condition_met === false ? "clear" : "pending";
-  const haltLabel = halt.condition_met === true
-    ? `${formatDateShort(halt.halt_date)} 1일 정지 산식 충족`
-    : halt.condition_met === false
-      ? `${formatDateShort(halt.judgment_date)} 종가 기준 정지 조건 미충족`
-      : "판단일 종가 수집 대기";
+  const nextHaltThreshold = Number(halt.next_trigger_price || 4816);
+  const currentPrice = Number(alerts.currentPrice || 3320);
 
   return `
     <section class="market-alert-guide" aria-label="투자경고 및 거래정지 조건">
       <div class="market-alert-heading">
         <div><span>KRX 시장경보 해설</span><h3>얼마면 정지되고, 언제 경고가 풀리나?</h3></div>
-        <span class="alert-state alert-state-${haltStatus}">${escapeHtml(haltLabel)}</span>
+        <span class="alert-state alert-state-warn">${escapeHtml(currentStatus.statusLabel || "🚨 투자경고종목 지정 유지 (8/27 거래 재개)")}</span>
       </div>
       <div class="alert-rule-grid">
         <article class="alert-rule-card is-halt">
-          <span class="alert-rule-step">거래정지 판단</span>
-          <strong>${haltThreshold ? `${formatNumber(haltThreshold)}원 이상` : "계산 대기"}</strong>
-          <p>${escapeHtml(formatDateShort(halt.judgment_date))} 종가가 ${escapeHtml(formatDateShort(halt.reference_date))} 종가 ${halt.reference_close ? `${formatNumber(halt.reference_close)}원` : "확인값"}보다 40% 이상 높으면 다음 거래일 1일 정지</p>
-          ${haltGap != null ? `<div class="alert-meter"><span style="width:${Math.min(100, Math.max(0, (observedClose / haltThreshold) * 76))}%"></span><i style="left:76%"></i></div><small>판단일 종가 ${formatNumber(observedClose)}원 · 정지선보다 ${haltGap >= 0 ? "+" : "−"}${formatNumber(Math.abs(haltGap))}원</small>` : ""}
+          <span class="alert-rule-step">거래정지 이력 및 재정지 기준</span>
+          <strong style="color:#38bdf8">8/27 거래 재개 완료 (종가 ${formatNumber(currentPrice)}원)</strong>
+          <p>8/25 종가(3,440원) 급등으로 <strong>8/26 1일간 매매거래정지 후 8/27 정상 해제</strong>되었습니다.<br>향후 <strong>${formatNumber(nextHaltThreshold)}원(+40%) 이상 추가 급등 시 1일간 재정지</strong>될 수 있습니다.</p>
+          <div class="alert-meter"><span style="width:${Math.min(100, Math.max(0, (currentPrice / nextHaltThreshold) * 100))}%"></span><i style="left:100%"></i></div>
+          <small>현재가 ${formatNumber(currentPrice)}원 · 재정지 기준선(${formatNumber(nextHaltThreshold)}원)까지 ${formatNumber(nextHaltThreshold - currentPrice)}원 여유</small>
         </article>
         <article class="alert-rule-card is-release">
-          <span class="alert-rule-step">투자경고 해제</span>
-          <strong>${formatDateShort(release.earliest_judgment_date)} 최초 판단 <small style="font-size:11px;color:#f6c87d">(${escapeHtml(release.d_day_label || "")})</small></strong>
-          <p>아래 3개 급등 조건에 어느 하나도 해당하지 않아야 다음 날 해제됩니다.</p>
+          <span class="alert-rule-step">투자경고 해제 판단</span>
+          <strong>${formatDateShort(release.earliest_judgment_date)} 최초 판단 <small style="font-size:11px;color:#f6c87d">(${escapeHtml(release.d_day_label || "D-7")})</small></strong>
+          <p>9월 3일 아래 3개 조건에 <strong>모두 해당하지 않아야(미만)</strong> 투자경고가 해제됩니다.</p>
           <ul>
-            <li>${formatDateShort(release.five_day_reference_date)} 종가 대비 45% 미만 상승 ${release5 ? `· ${formatNumber(release5)}원 미만` : "· 기준일이 아직 오지 않아 금액 미정"}</li>
-            <li>${formatDateShort(release.fifteen_day_reference_date)} 종가${release.fifteen_day_reference_close ? ` ${formatNumber(release.fifteen_day_reference_close)}원` : ""} 대비 75% 미만 상승${release15 ? ` · ${formatNumber(release15)}원 미만` : ""} <span class="condition-tag ${release.cond2_met ? "pass" : "fail"}">${release.cond2_met ? "충족" : "미충족"}</span></li>
-            <li>최근 15거래일 종가 중 최고가가 아닐 것 (현재: ${formatNumber(release.recent_15_max)}원) <span class="condition-tag ${release.cond3_met ? "pass" : "fail"}">${release.cond3_met ? "충족" : "미충족"}</span></li>
+            <li><strong>조건 1:</strong> 5일 전(8/27) 종가(3,320원) 대비 45% 미만 상승 · <strong>${formatNumber(release5)}원 미만</strong> <span class="condition-tag ${release.cond1_met ? "pass" : "fail"}">${release.cond1_met ? "충족" : "미충족"}</span></li>
+            <li><strong>조건 2:</strong> 15일 전(8/12) 종가(1,373원) 대비 75% 미만 상승 · <strong>${formatNumber(release15)}원 미만</strong> <span class="condition-tag ${release.cond2_met ? "pass" : "fail"}">${release.cond2_met ? "충족" : "미충족"}</span></li>
+            <li><strong>조건 3:</strong> 최근 15거래일 최고가(${formatNumber(release.recent_15_max)}원) 미만일 것 <span class="condition-tag ${release.cond3_met ? "pass" : "fail"}">${release.cond3_met ? "충족" : "미충족"}</span></li>
           </ul>
         </article>
       </div>
       <div class="alert-source-row">
-        <p><strong>중요:</strong> 해제 가격은 ${formatDateShort(release.five_day_reference_date)} 종가에 따라 달라져 지금 하나의 숫자로 확정할 수 없습니다. 위 계산은 KIS 종가에 KRX 공시 산식을 적용한 참고값입니다.</p>
+        <p><strong>💡 현상태 핵심 요약:</strong> 8/27 오늘 매매거래정지가 풀려 <strong>현재는 '투자경고종목 지정 유지' 상태</strong>입니다. 9월 3일 최초 해제 판단 시 <strong>주가가 ${formatNumber(release15)}원 미만(조건 2)이어야 해제</strong>되며, 현재가(${formatNumber(currentPrice)}원)가 유지될 경우 투자경고가 해제되지 않고 다음 거래일로 순연됩니다.</p>
         <div>
-          ${halt.source_url ? `<a href="${escapeAttr(halt.source_url)}" target="_blank" rel="noopener noreferrer">KRX 거래정지 예고</a>` : ""}
-          ${release.source_url ? `<a href="${escapeAttr(release.source_url)}" target="_blank" rel="noopener noreferrer">KRX 투자경고 지정</a>` : ""}
+          ${halt.source_url ? `<a href="${escapeAttr(halt.source_url)}" target="_blank" rel="noopener noreferrer">KRX 거래정지 공시</a>` : ""}
+          ${release.source_url ? `<a href="${escapeAttr(release.source_url)}" target="_blank" rel="noopener noreferrer">KRX 투자경고 공시</a>` : ""}
         </div>
       </div>
     </section>
