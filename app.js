@@ -981,8 +981,8 @@ function renderStatsMarketSummary() {
   });
 
   const marketPrefix = meta.label === "통합" ? "통합" : meta.label;
-  const viewsPopover = renderHourlyTrafficPopover(market);
-  const chatsPopover = renderHourlyTrafficPopover(market);
+  const viewsPopover = renderHourlyTrafficPopover(market, "views");
+  const chatsPopover = renderHourlyTrafficPopover(market, "chats");
 
   const formattedViewsPerHour = signedNumber(activity.viewsPerHour || activity.viewsDelta);
   const formattedChatsPerHour = signedNumber(activity.chatsPerHour || activity.chatsDelta);
@@ -2362,16 +2362,17 @@ function getHourlyTrafficHistory(market, maxHours = 24) {
   })).slice(-maxHours);
 }
 
-function renderHourlyTrafficPopover(market) {
+function renderHourlyTrafficPopover(market, metricType = "chats") {
   const meta = MARKET_META[market] || MARKET_META.all;
   const hourlyRows = getHourlyTrafficHistory(market, 12);
   const marketLabel = meta.label || "통합";
+  const isViews = metricType === "views";
 
   if (!hourlyRows.length) {
     return `
       <div class="hourly-popover-card">
         <div class="hourly-popover-header">
-          <strong>📊 ${escapeHtml(marketLabel)} 시간대별(Hourly) 트래픽</strong>
+          <strong>📊 ${escapeHtml(marketLabel)} 시간대별 ${isViews ? "조회수" : "대화수"} 트래픽</strong>
           <span class="popover-badge">스냅샷 누적 중</span>
         </div>
         <p class="popover-empty-note">정기 수집이 진행됨에 따라 시간대별 시속 추이가 실시간으로 누적됩니다.</p>
@@ -2379,48 +2380,49 @@ function renderHourlyTrafficPopover(market) {
     `;
   }
 
-  const maxChats = Math.max(...hourlyRows.map((r) => r.chatsPerHour), 1);
-  const maxViews = Math.max(...hourlyRows.map((r) => r.viewsPerHour), 1);
-  const peakRow = hourlyRows.reduce((best, r) => r.chatsPerHour > (best?.chatsPerHour || 0) ? r : best, hourlyRows[0]);
-  const avgChats = Math.round(hourlyRows.reduce((sum, r) => sum + r.chatsPerHour, 0) / hourlyRows.length);
+  const maxVal = Math.max(...hourlyRows.map((r) => isViews ? r.viewsPerHour : r.chatsPerHour), 1);
+  const peakRow = hourlyRows.reduce((best, r) => {
+    const val = isViews ? r.viewsPerHour : r.chatsPerHour;
+    const bestVal = isViews ? best?.viewsPerHour : best?.chatsPerHour;
+    return val > (bestVal || 0) ? r : best;
+  }, hourlyRows[0]);
+
+  const sumVal = hourlyRows.reduce((sum, r) => sum + (isViews ? r.viewsPerHour : r.chatsPerHour), 0);
+  const avgVal = Math.round(sumVal / hourlyRows.length);
+  const peakVal = isViews ? peakRow.viewsPerHour : peakRow.chatsPerHour;
 
   return `
-    <div class="hourly-popover-card">
+    <div class="hourly-popover-card is-${metricType}">
       <div class="hourly-popover-header">
         <div class="popover-title-group">
-          <strong>📊 ${escapeHtml(marketLabel)} 최근 시간대별(Hourly) 트래픽 추이</strong>
+          <strong>📊 ${escapeHtml(marketLabel)} 최근 시간대별 ${isViews ? "조회수(Views)" : "대화수(Chats)"} 시속 추이</strong>
           <span class="popover-subtext">실측 델타 기반 1시간 환산 시속 (Hourly Rate)</span>
         </div>
         <div class="popover-summary-chips">
-          <span class="popover-chip peak-chip">⚡ 피크: ${escapeHtml(peakRow.label)} (+${formatNumber(peakRow.chatsPerHour)}/h)</span>
-          <span class="popover-chip avg-chip">평균: +${formatNumber(avgChats)}/h</span>
+          <span class="popover-chip peak-chip">⚡ ${isViews ? "조회" : "대화"} 피크: ${escapeHtml(peakRow.label)} (+${formatNumber(peakVal)}/h)</span>
+          <span class="popover-chip avg-chip">12시간 평균: +${formatNumber(avgVal)}/h</span>
         </div>
       </div>
       <div class="hourly-timeline-table">
         <div class="timeline-table-header">
           <span>시간</span>
-          <span>트래픽 강도 게이지</span>
-          <span>조회수 시속</span>
-          <span>대화수 시속</span>
+          <span>${isViews ? "조회수" : "대화수"} 강도 게이지</span>
+          <span>시간당 ${isViews ? "조회" : "대화"} 시속</span>
         </div>
         <div class="timeline-table-body">
           ${hourlyRows.slice().reverse().map((row, idx) => {
             const isPeak = row === peakRow;
-            const chatWidth = Math.max(4, Math.round((row.chatsPerHour / maxChats) * 100));
-            const viewWidth = Math.max(4, Math.round((row.viewsPerHour / maxViews) * 100));
+            const currentVal = isViews ? row.viewsPerHour : row.chatsPerHour;
+            const width = Math.max(4, Math.round((currentVal / maxVal) * 100));
             return `
               <div class="timeline-row${isPeak ? " is-peak" : ""}">
                 <span class="timeline-time">${escapeHtml(row.label)}${idx === 0 ? ` <small class="now-tag">최신</small>` : ""}</span>
                 <div class="timeline-dual-bars">
-                  <div class="bar-slot views-bar" title="조회수 시속 +${formatNumber(row.viewsPerHour)}/h">
-                    <span class="bar-fill view-fill" style="width:${viewWidth}%"></span>
-                  </div>
-                  <div class="bar-slot chats-bar" title="대화수 시속 +${formatNumber(row.chatsPerHour)}/h">
-                    <span class="bar-fill chat-fill" style="width:${chatWidth}%"></span>
+                  <div class="bar-slot single-bar" title="${isViews ? "조회수" : "대화수"} 시속 +${formatNumber(currentVal)}/h">
+                    <span class="bar-fill ${isViews ? "view-fill" : "chat-fill"}" style="width:${width}%"></span>
                   </div>
                 </div>
-                <span class="timeline-val view-val">+${formatCompact(row.viewsPerHour)}/h</span>
-                <strong class="timeline-val chat-val">+${formatNumber(row.chatsPerHour)}/h</strong>
+                <strong class="timeline-val ${isViews ? "view-val" : "chat-val"}">+${formatNumber(currentVal)}/h</strong>
               </div>
             `;
           }).join("")}
@@ -2428,8 +2430,7 @@ function renderHourlyTrafficPopover(market) {
       </div>
       <div class="hourly-popover-footer">
         <div class="popover-legend">
-          <span><i class="legend-dot view-dot"></i> 조회수 시속 (/h)</span>
-          <span><i class="legend-dot chat-dot"></i> 대화수 시속 (/h)</span>
+          <span><i class="legend-dot ${isViews ? "view-dot" : "chat-dot"}"></i> ${isViews ? "시간당 조회수 (/h)" : "시간당 대화수 (/h)"}</span>
         </div>
         <small>수집 시차 보정 1시간 표준화</small>
       </div>
