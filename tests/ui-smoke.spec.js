@@ -13,6 +13,7 @@ test("signal, validation, and character flows render without console errors", as
   await expect(page.locator(".snapshot-flow")).toHaveCount(2);
   await expect(page.locator(".period-comparison-card")).toHaveCount(3);
   await expect(page.locator(".character-rank-item")).toHaveCount(6);
+  await expect(page.locator(".business-scope-bar")).toBeVisible();
   await expect(page.locator("[data-leaderboard-market]")).toHaveCount(5);
   await expect(page.locator(".leaderboard-scope-note")).toContainText("통합 상단 선택 적용 중");
   const japanRankingTab = page.locator('[data-leaderboard-market="jp"]');
@@ -67,7 +68,20 @@ test("signal, validation, and character flows render without console errors", as
   const characterDialog = page.locator("#character-dialog");
   await expect(characterDialog).toBeVisible();
   await expect(characterDialog.locator(".character-motion, .thumb-full").first()).toBeVisible();
+  const dialogMarketSwitcher = characterDialog.locator(".dialog-market-switcher");
+  await expect(dialogMarketSwitcher).toBeVisible();
   await expect(characterDialog.locator('.motion-chip[data-dialog-market="jp"]')).toHaveCount(1);
+  const dialogScrollState = await characterDialog.evaluate((dialog) => ({
+    top: dialog.getBoundingClientRect().top,
+    scrollHeight: dialog.scrollHeight,
+    clientHeight: dialog.clientHeight
+  }));
+  if (dialogScrollState.scrollHeight > dialogScrollState.clientHeight + 2) {
+    await characterDialog.evaluate((dialog) => { dialog.scrollTop = dialog.scrollHeight; });
+    const stickySwitcherTop = await dialogMarketSwitcher.evaluate((element) => element.getBoundingClientRect().top);
+    expect(stickySwitcherTop - dialogScrollState.top).toBeLessThan(40);
+    await characterDialog.evaluate((dialog) => { dialog.scrollTop = 0; });
+  }
   const linkedDialogMetrics = await characterDialog.locator(".dialog-metrics").innerText();
   await characterDialog.locator('.motion-chip[data-dialog-market="jp"]').click();
   await expect(characterDialog.locator(".dialog-title-block .section-kicker")).toHaveText("日本");

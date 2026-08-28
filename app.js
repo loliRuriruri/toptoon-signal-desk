@@ -81,6 +81,13 @@ let groups = [];
 let lastTrigger = null;
 let activeDialog = null;
 
+function syncSiteHeaderOffset() {
+  const header = els.siteHeader || document.querySelector(".site-header");
+  if (!header) return;
+  const height = Math.ceil(header.getBoundingClientRect().height);
+  document.documentElement.style.setProperty("--site-header-height", `${height}px`);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   bindElements();
   bindEvents();
@@ -96,6 +103,7 @@ function bindElements() {
     const liveLabel = document.querySelector(".live-indicator");
     if (liveLabel) liveLabel.innerHTML = "<i></i> PUBLIC SNAPSHOT";
   }
+  els.siteHeader = document.querySelector(".site-header");
   els.viewTabs = [...document.querySelectorAll("[data-view]")];
   els.marketTabs = [...document.querySelectorAll("[data-market]")];
   els.statsView = document.querySelector("#stats-view");
@@ -148,6 +156,9 @@ function bindElements() {
 }
 
 function bindEvents() {
+  syncSiteHeaderOffset();
+  window.addEventListener("resize", syncSiteHeaderOffset, { passive: true });
+
   els.viewTabs.forEach((button) => {
     button.addEventListener("click", () => {
       state.view = button.dataset.view;
@@ -2922,17 +2933,25 @@ function renderCharacterMotion(group, selected) {
         ${activePoster ? renderFullImage(model) : `<span class="thumb-fallback thumb-full">${fallback}</span>`}
       </div>
       <span class="motion-badge"><i></i> 공식 모션${motionCount > 1 ? ` · ${motionCount}개 바리에이션` : ""}</span>
-      ${motionCount > 1 ? `
-        <div class="motion-variation-switcher" aria-label="프로필 국가 및 모션 전환">
-          ${motions.map((m) => `
-            <button type="button" class="motion-chip${m.market === selected.market ? " active" : ""}" data-dialog-market="${escapeAttr(m.market)}" data-motion-src="${escapeAttr(m.videoUrl)}" data-motion-poster="${escapeAttr(m.poster)}" data-motion-market="${escapeAttr(m.label)}" aria-pressed="${String(m.market === selected.market)}" aria-label="${escapeAttr(`${m.label} 프로필 및 모션 전환`)}" title="${escapeAttr(`${m.label} 프로필 및 모션 전환`)}">
-              <span class="motion-chip-dot"></span>
-              <span>${MARKET_FLAGS[m.market] || ""} ${escapeHtml(m.label)}</span>
-            </button>
-          `).join("")}
-        </div>
-      ` : ""}
     </div>
+  `;
+}
+
+function renderDialogMarketSwitcher(group, selected) {
+  const motions = characterMotionVariations(group);
+  if (motions.length <= 1) return "";
+  return `
+    <nav class="dialog-market-switcher" aria-label="프로필 국가 및 모션 전환">
+      <span class="dialog-market-switcher-label">프로필 국가·지표</span>
+      <div class="dialog-market-switcher-chips">
+        ${motions.map((m) => `
+          <button type="button" class="motion-chip${m.market === selected.market ? " active" : ""}" data-dialog-market="${escapeAttr(m.market)}" data-motion-src="${escapeAttr(m.videoUrl)}" data-motion-poster="${escapeAttr(m.poster)}" data-motion-market="${escapeAttr(m.label)}" aria-pressed="${String(m.market === selected.market)}" aria-label="${escapeAttr(`${m.label} 프로필 및 모션 전환`)}" title="${escapeAttr(`${m.label} 프로필 및 모션 전환`)}">
+            <span class="motion-chip-dot"></span>
+            <span>${MARKET_FLAGS[m.market] || ""} ${escapeHtml(m.label)}</span>
+          </button>
+        `).join("")}
+      </div>
+    </nav>
   `;
 }
 
@@ -3124,6 +3143,7 @@ function renderDialogContent(group, selected, dialogState = null) {
     ? "상단 국가와 별도로 이 프로필만 보는 중입니다."
     : "상단 국가 선택과 프로필 이미지·지표가 함께 전환됩니다.";
   return `
+    ${renderDialogMarketSwitcher(group, selected)}
     <div class="dialog-hero">
       <div class="dialog-image-frame">
         ${renderCharacterMotion(group, selected)}
