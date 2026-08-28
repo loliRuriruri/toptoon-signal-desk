@@ -1065,8 +1065,8 @@ h3 {
 }
 
 .market-kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 10px;
   border: 1px solid rgba(98, 168, 255, 0.22);
   border-top: 1px solid rgba(98, 168, 255, 0.22);
@@ -1075,8 +1075,23 @@ h3 {
   overflow: visible;
 }
 
+.market-kpi-row {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.market-kpi-row-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.market-kpi-row-growth {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 @media (max-width: 960px) {
-  .market-kpi-grid {
+  .market-kpi-row-summary,
+  .market-kpi-row-growth {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -1105,12 +1120,6 @@ h3 {
   font-size: 11px;
   white-space: nowrap;
   word-break: keep-all;
-}
-
-/* Seven metrics now fit without leaving a blank desktop cell after the
-   duplicate freshness card is removed. */
-.market-kpi-grid > .stat-card:last-child {
-  grid-column: span 2;
 }
 
 .market-data-definition {
@@ -4037,9 +4046,6 @@ tbody tr:last-child td {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .market-kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .market-kpi-grid > .stat-card:last-child { grid-column: span 3; }
-
   .toolbar {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -4086,8 +4092,6 @@ tbody tr:last-child td {
   .business-scope-bar { align-items: stretch; flex-direction: column; }
   .business-scope-bar .market-tabs { display: grid; width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; }
   .business-scope-bar .tab-button { justify-content: center; padding-inline: 7px; }
-  .market-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .market-kpi-grid > .stat-card:last-child { grid-column: span 2; }
   .full-rank-row { grid-template-columns: 25px 36px minmax(0, 1fr) auto; gap: 7px; padding-inline: 8px; }
 
   .snapshot-note,
@@ -4099,8 +4103,6 @@ tbody tr:last-child td {
   .overview-grid {
     grid-template-columns: minmax(0, 1fr);
   }
-
-  .stats-grid.market-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   .table-wrap {
     display: none;

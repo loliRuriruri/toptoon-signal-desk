@@ -998,15 +998,21 @@ function renderStatsMarketSummary() {
   const viewsPopover = renderHourlyTrafficPopover(market, "views");
   const chatsPopover = renderHourlyTrafficPopover(market, "chats");
 
-  els.statsMarketKpiGrid.innerHTML = renderStatCards([
+  const summaryCards = renderStatCards([
     [`${meta.label} 캐릭터`, `${formatNumber(totals.characters)}명`, market === "all" ? `${formatNumber(totals.localeRecords)}개 지역 레코드` : "시장 원본 목록", "signal"],
     ["누적 조회수", formatNumber(totals.views), "공개 카운터 합계", "neutral"],
-    ["누적 대화수", formatNumber(totals.chats), "공개 카운터 합계", "neutral"],
+    ["누적 대화수", formatNumber(totals.chats), "공개 카운터 합계", "neutral"]
+  ]);
+  const growthCards = renderStatCards([
     ["일간(24h) 조회 증가", signedNumber(dailyViewsDelta), `${dailyDateLabel}`, dailyViewsDelta >= 0 ? "positive" : "warning"],
     ["일간(24h) 대화 증가", signedNumber(dailyChatsDelta), `${dailyDateLabel}`, dailyChatsDelta >= 0 ? "positive" : "warning"],
     [`${marketPrefix} 시간당 조회 증가`, signedNumber(avgHourlyViews), `시간당 평균 · 🔍 호버 시 24h 추이`, avgHourlyViews >= 0 ? "positive" : "warning", viewsPopover],
     [`${marketPrefix} 시간당 대화 증가`, signedNumber(avgHourlyChats), `시간당 평균 · 🔍 호버 시 24h 추이`, avgHourlyChats >= 0 ? "positive" : "warning", chatsPopover]
   ]);
+  els.statsMarketKpiGrid.innerHTML = `
+    <div class="market-kpi-row market-kpi-row-summary" aria-label="누적 지표">${summaryCards}</div>
+    <div class="market-kpi-row market-kpi-row-growth" aria-label="24시간 증가 지표">${growthCards}</div>
+  `;
   const targetMarkets = market === "all" ? MARKET_ORDER : [market];
   const allDailyDeltas = getDailyMarketDeltas("all");
   const observedCards = targetMarkets.map((key) => renderObservedMarketCard(key, allDailyDeltas)).join("");
