@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-28T16:27:37.386Z",
+  "generated_at": "2026-08-28T16:34:55.107Z",
   "mode": "live-crosscheck",
   "overall_status": "share-with-caveats",
   "summary": {
@@ -22,8 +22,8 @@
       "views": 52393982,
       "live": {
         "count": 88,
-        "chats": 1547610,
-        "views": 52393994
+        "chats": 1547703,
+        "views": 52395348
       }
     },
     "jp": {
@@ -33,8 +33,8 @@
       "views": 20781248,
       "live": {
         "count": 78,
-        "chats": 236604,
-        "views": 20781304
+        "chats": 236631,
+        "views": 20788088
       }
     },
     "global": {
@@ -44,8 +44,8 @@
       "views": 336090,
       "live": {
         "count": 85,
-        "chats": 18096,
-        "views": 336090
+        "chats": 18097,
+        "views": 336097
       }
     },
     "tw": {
@@ -55,8 +55,8 @@
       "views": 3337354,
       "live": {
         "count": 81,
-        "chats": 99214,
-        "views": 3337354
+        "chats": 99225,
+        "views": 3337601
       }
     }
   },
@@ -111,8 +111,8 @@
       "label": "한국 누적 채팅 시차",
       "status": "pass",
       "observed": 1547610,
-      "expected": 1547610,
-      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
+      "expected": 1547703,
+      "note": "수집 이후 변동 0.006% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -129,8 +129,8 @@
       "label": "일본 누적 채팅 시차",
       "status": "pass",
       "observed": 236603,
-      "expected": 236604,
-      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
+      "expected": 236631,
+      "note": "수집 이후 변동 0.012% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -147,8 +147,8 @@
       "label": "글로벌 누적 채팅 시차",
       "status": "pass",
       "observed": 18096,
-      "expected": 18096,
-      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
+      "expected": 18097,
+      "note": "수집 이후 변동 0.006% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -165,8 +165,8 @@
       "label": "대만 누적 채팅 시차",
       "status": "pass",
       "observed": 99214,
-      "expected": 99214,
-      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
+      "expected": 99225,
+      "note": "수집 이후 변동 0.011% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -211,7 +211,7 @@
       "status": "pass",
       "observed": 643882894,
       "expected": 643882894,
-      "note": "평균 일간 chatCount 증가×30일×참여자 증가당 역산계수",
+      "note": "평균 일간 chatCount 증가×30일×구형 IR 역산계수",
       "severity": "none"
     },
     {
@@ -312,9 +312,9 @@
       "id": "overseas-asp",
       "label": "해외 결제단가 검증",
       "status": "warn",
-      "observed": "한국 역산계수 임시 적용",
+      "observed": "한국 구형 역산계수 임시 적용",
       "expected": "국가별 실제 ASP",
-      "note": "일본·글로벌·대만 매출 프록시는 한국의 참여자 증가당 역산계수를 그대로 적용",
+      "note": "일본·글로벌·대만 금액 프록시는 한국 공개 chatCount 기반의 구형 역산계수를 그대로 적용",
       "severity": "high"
     },
     {

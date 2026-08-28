@@ -95,7 +95,7 @@ const constants = stats.revenue_nowcast?.constants || {};
 const meanDelta = dailyChatRows.length ? sum(dailyChatRows, "delta") / dailyChatRows.length : 0;
 const recomputedRevenue = meanDelta * 30 * Number(constants.rev_per_session || 0);
 const reportedRevenue = Number(stats.revenue_nowcast?.latest?.revenue_mid || 0);
-addCheck("revenue-nowcast-formula", "한국 IR 보정 프록시 재계산", nearlyEqual(recomputedRevenue, reportedRevenue, 1) ? "pass" : "block", Math.round(recomputedRevenue), reportedRevenue, "평균 일간 chatCount 증가×30일×참여자 증가당 역산계수", nearlyEqual(recomputedRevenue, reportedRevenue, 1) ? "none" : "critical");
+addCheck("revenue-nowcast-formula", "한국 IR 보정 프록시 재계산", nearlyEqual(recomputedRevenue, reportedRevenue, 1) ? "pass" : "block", Math.round(recomputedRevenue), reportedRevenue, "평균 일간 chatCount 증가×30일×구형 IR 역산계수", nearlyEqual(recomputedRevenue, reportedRevenue, 1) ? "none" : "critical");
 
 const latestDelta = Number(dailyChatRows.at(-1)?.delta || 0);
 const workerCurrentMid = latestDelta * 30 * 3000;
@@ -149,7 +149,7 @@ const forbiddenDisplayClaims = [
 const leakedClaims = forbiddenDisplayClaims.filter((text) => `${appSource}\n${indexSource}`.includes(text));
 addCheck("display-semantic-guard", "근거 없는 화면 수치 차단", leakedClaims.length ? "block" : "pass", leakedClaims, [], leakedClaims.length ? "근거가 없거나 현재 데이터와 다른 고정 문구 발견" : "금지된 고정 수치 없음", leakedClaims.length ? "critical" : "none");
 
-const misleadingRevenueLabels = ["세션당 단가", "누적 총매출", "얼마를 벌었나?", "가정 환산액"]
+const misleadingRevenueLabels = ["세션당 단가", "누적 총매출", "얼마를 벌었나?", "가정 환산액", "참여자 증가당 2,000~2,700원 가정"]
   .filter((text) => `${appSource}\n${indexSource}`.includes(text));
 addCheck(
   "revenue-label-semantic-guard",
@@ -178,7 +178,7 @@ const cachedWithoutTimestamp = Object.entries(officialSignals.providers || {})
 addCheck("cached-provider-freshness", "캐시 관측시각 보존", cachedWithoutTimestamp.length ? "block" : "pass", cachedWithoutTimestamp, [], "캐시 재사용 시 실제 관측시각과 갱신 시도시각을 분리", cachedWithoutTimestamp.length ? "high" : "none");
 
 addCheck("ai-chat-revenue-tieout", "AI챗 매출 공시 연결", "warn", "별도 공시 없음", "별도 매출·유료 이용자·ASP", "반기보고서는 플랫폼 매출만 제시하며 AI챗 매출을 분리하지 않음. 트래커 넛캐스트를 공시 매출로 간주할 수 없음", "high");
-addCheck("overseas-asp", "해외 결제단가 검증", "warn", "한국 역산계수 임시 적용", "국가별 실제 ASP", "일본·글로벌·대만 매출 프록시는 한국의 참여자 증가당 역산계수를 그대로 적용", "high");
+addCheck("overseas-asp", "해외 결제단가 검증", "warn", "한국 구형 역산계수 임시 적용", "국가별 실제 ASP", "일본·글로벌·대만 금액 프록시는 한국 공개 chatCount 기반의 구형 역산계수를 그대로 적용", "high");
 addCheck("profit-margin-basis", "AI챗 순이익률 검증", "warn", `${(margin * 100).toFixed(0)}% 가정`, "공시된 AI챗 원가·마진", "연결 영업이익률과 AI챗 단위경제를 분리할 수 없음", "high");
 
 const filing = evidence.filing_snapshot;

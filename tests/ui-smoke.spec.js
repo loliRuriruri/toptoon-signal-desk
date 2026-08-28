@@ -19,6 +19,7 @@ test("signal, validation, and character flows render without console errors", as
   await expect(revenueCrosscheck).toContainText("검증된 실제 매출");
   await expect(revenueCrosscheck).toContainText("산출 불가");
   await expect(revenueCrosscheck).toContainText(/모델 선택만으로 [+-]\d+\.\d% 차이/);
+  await expect(page.getByText("참여자 증가당 2,000~2,700원 가정", { exact: false })).toHaveCount(0);
   await expect(page.locator(".character-rank-item")).toHaveCount(6);
   await expect(page.locator(".business-scope-bar")).toBeVisible();
   await expect(page.locator("[data-leaderboard-market]")).toHaveCount(5);

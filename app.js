@@ -1909,7 +1909,7 @@ function renderGlobalPanel() {
         </div>
         <span class="data-pill neutral">단가 미검증</span>
       </div>
-      <p class="section-note">한국·일본·Global·대만 공개 목록을 같은 시점에 수집했습니다. 해외 매출 프록시에는 한국의 참여자 증가당 역산계수를 임시 적용했습니다.</p>
+      <p class="section-note">한국·일본·Global·대만 공개 목록을 같은 시점에 수집했습니다. 해외 금액 프록시에는 한국 공개 chatCount 기반의 구형 역산계수를 임시 적용했습니다.</p>
       <div class="chart-grid chart-grid-primary">
         ${renderMarketComposition(overall.totals || {}, revenue.overseas_contribution_pct)}
         ${renderStackedDaily("최근 하루 대화 증가량", traction.daily || [])}
@@ -3773,7 +3773,7 @@ function renderRevenueBand(revenue) {
           <div class="chart-heading">
             <div>
               <h3>론칭 누적 활동의 IR 보정 프록시</h3>
-              <p class="stat-help">2026년 2월 이후 4개국 대화 참여자 카운터 ${formatNumber(totalChats)} × 참여자 증가당 2,000~2,700원 가정</p>
+              <p class="stat-help">구형 IR 역산 모델: 2026년 2월 이후 공개 chatCount ${formatNumber(totalChats)}에 2,000~2,700원 계수 적용 · 실제 매출 아님</p>
             </div>
             <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
               <button type="button" class="rev-tab-btn" data-revenue-mode="recent">⚡ 최근 런레이트</button>
@@ -3834,7 +3834,7 @@ function renderRevenueBand(revenue) {
         <div class="chart-heading">
           <div>
             <h3>론칭 누적 활동 프록시: ${meta.flag} ${escapeHtml(meta.label)}</h3>
-            <p class="stat-help">${escapeHtml(meta.label)} 대화 참여자 카운터 ${formatNumber(mChats)} × 참여자 증가당 2,000~2,700원 가정</p>
+            <p class="stat-help">구형 IR 역산 모델: ${escapeHtml(meta.label)} 공개 chatCount ${formatNumber(mChats)}에 2,000~2,700원 계수 적용 · 실제 매출 아님</p>
           </div>
           <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
             <button type="button" class="rev-tab-btn" data-revenue-mode="recent">⚡ 최근 런레이트</button>
@@ -3850,7 +3850,7 @@ function renderRevenueBand(revenue) {
           </div>
         </div>
         ${!isKr ? `
-          <div class="benchmark-key is-warning" style="margin:12px 0 6px"><span>⚠️</span><strong>한국 참여자 증가당 역산계수(2,354원) 임시 적용</strong><small>${escapeHtml(meta.label)} 현지 ASP와 결제율 미확인</small></div>
+          <div class="benchmark-key is-warning" style="margin:12px 0 6px"><span>⚠️</span><strong>한국 공개 chatCount 기반 구형 역산계수(2,354원) 임시 적용</strong><small>${escapeHtml(meta.label)} 현지 ASP와 결제율 미확인</small></div>
         ` : `
           <div class="benchmark-key" style="margin:12px 0 6px"><span></span><strong>한국 누적 활동의 환산 월평균 프록시는 약 ${formatWonBig(mMonthlyAvg)}</strong><small>대화 참여자 카운터 기반</small></div>
         `}
@@ -3898,7 +3898,7 @@ function renderRevenueBand(revenue) {
         <div class="chart-heading">
           <div>
             <h3>월매출 프록시: 4개국 통합 활동 시나리오</h3>
-            <p class="stat-help">4개국 최근 참여자 카운터 증가를 30일로 환산 · 참여자 증가당 2,000~2,700원 가정</p>
+            <p class="stat-help">최근 공개 chatCount 증감을 30일로 환산한 구형 모델 참고값 · 2,000~2,700원 계수 · 실제 매출 아님</p>
           </div>
           <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
             <button type="button" class="rev-tab-btn active" data-revenue-mode="recent">⚡ 최근 4개국 런레이트</button>
@@ -3977,7 +3977,7 @@ function renderRevenueBand(revenue) {
         <div class="chart-heading">
           <div>
             <h3>월매출 프록시: 한국(KR) 활동 시나리오</h3>
-            <p class="stat-help">한국 최근 참여자 카운터 증가를 30일로 환산 · 참여자 증가당 2,000~2,700원 가정</p>
+            <p class="stat-help">한국 최근 공개 chatCount 증감을 30일로 환산한 구형 모델 참고값 · 2,000~2,700원 계수 · 실제 매출 아님</p>
           </div>
           <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
             <button type="button" class="rev-tab-btn active" data-revenue-mode="recent">⚡ 최근 ${rows.length}일 런레이트</button>
@@ -4086,7 +4086,7 @@ function renderRevenueBand(revenue) {
           })
           .join("")}
       </div>
-      <div class="benchmark-key is-warning"><span>⚠️</span><strong>한국 참여자 증가당 역산계수(2,354원) 임시 적용</strong><small>${escapeHtml(meta.label)} 현지 ASP 및 결제율 미공시 상태 · IR 9억 비교 제외</small></div>
+      <div class="benchmark-key is-warning"><span>⚠️</span><strong>한국 공개 chatCount 기반 구형 역산계수(2,354원) 임시 적용</strong><small>${escapeHtml(meta.label)} 현지 ASP 및 결제율 미공시 상태 · IR 9억 비교 제외</small></div>
       <div class="revenue-confidence-grid">
         <div><span>관측 표본</span><strong>최근 ${mRows.length}일</strong><small>일간 델타 연속 기록</small></div>
         <div><span>${escapeHtml(meta.label)} 런레이트</span><strong>월 약 ${formatWonBig(mRecentMid)}</strong><small>임시 단가 기준</small></div>
