@@ -215,6 +215,8 @@ assert(js.includes("characterHourlyMetrics"), "character detail must calculate n
 assert(js.includes("characterPeriodMetrics"), "character detail must expose a source-aware observed/24h period metric");
 assert(js.includes("시간당 평균 조회") && js.includes("시간당 평균 대화"), "character detail hourly metric labels are missing");
 assert(!js.includes("최근 갱신 조회</span>") && !js.includes("최근 갱신 대화</span>"), "character detail must not display raw collection-interval cards");
+assert(js.includes("renderHoverPreviewMedia") && js.includes("data-hover-preview"), "official media hover preview wiring is missing");
+assert(/banner\\\/main-top/.test(js), "official home banner motion preview path is missing");
 assert(html.includes("data/characters.js"), "embedded dataset script must be referenced");
 assert(html.includes("data/character-activity.js"), "embedded activity script must be referenced");
 assert(html.includes("data/official-promotions.js"), "embedded official promotion script must be referenced");
@@ -270,6 +272,7 @@ assert(html.includes("data/official-home-banners.js"), "embedded official home b
   ".peer-layout",
   ".business-scope-bar",
   ".market-kpi-grid",
+  ".media-hover-preview",
   "object-fit: contain"
 ].forEach((marker) => assert(css.includes(marker), `missing CSS marker: ${marker}`));
 

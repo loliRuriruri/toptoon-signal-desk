@@ -9,7 +9,10 @@ function validatedMediaUrl(rawValue) {
   if (!rawValue || rawValue.length > 500) return null;
   try {
     const url = new URL(rawValue);
-    const validPath = /^\/character\/\d+\/video-thumbnail\/[a-z0-9-]+\.mp4$/i.test(url.pathname);
+    const validPath = [
+      /^\/character\/\d+\/video-thumbnail\/[a-z0-9-]+\.mp4$/i,
+      /^\/banner\/main-top\/[a-z0-9-]+\.mp4$/i
+    ].some((pattern) => pattern.test(url.pathname));
     return url.protocol === "https:" && allowedMediaHosts.has(url.hostname) && validPath && !url.search ? url : null;
   } catch {
     return null;

@@ -221,6 +221,29 @@ function bindEvents() {
   els.resetFilters.addEventListener("click", resetCharacterFilters);
   els.toolbarReset.addEventListener("click", resetCharacterFilters);
 
+  document.addEventListener("pointerover", (event) => {
+    const target = event.target instanceof Element ? event.target.closest("[data-hover-preview]") : null;
+    if (!target || (event.relatedTarget instanceof Node && target.contains(event.relatedTarget))) return;
+    activateHoverPreview(target);
+  });
+
+  document.addEventListener("pointerout", (event) => {
+    const target = event.target instanceof Element ? event.target.closest("[data-hover-preview]") : null;
+    if (!target || (event.relatedTarget instanceof Node && target.contains(event.relatedTarget))) return;
+    deactivateHoverPreview(target);
+  });
+
+  document.addEventListener("focusin", (event) => {
+    const target = event.target instanceof Element ? event.target.closest("[data-hover-preview]") : null;
+    if (target) activateHoverPreview(target);
+  });
+
+  document.addEventListener("focusout", (event) => {
+    const target = event.target instanceof Element ? event.target.closest("[data-hover-preview]") : null;
+    if (!target || (event.relatedTarget instanceof Node && target.contains(event.relatedTarget))) return;
+    deactivateHoverPreview(target);
+  });
+
   document.addEventListener("click", (event) => {
     const leaderboardMarketButton = event.target.closest("[data-leaderboard-market]");
     if (leaderboardMarketButton) {
@@ -2612,6 +2635,68 @@ const HOME_BANNER_BADGE_LABELS = {
   promotion: "오늘특가"
 };
 
+function renderHoverPreviewMedia({ imageSrc = "", videoSrc = "", sourceLabel = "" } = {}) {
+  if (!imageSrc && !videoSrc) return "";
+  return `
+    <span class="media-hover-preview" aria-hidden="true">
+      ${imageSrc ? `<img class="media-hover-preview-image" data-preview-image="${escapeAttr(imageSrc)}" alt="" />` : ""}
+      ${videoSrc ? `<video class="media-hover-preview-video" data-preview-video="${escapeAttr(videoSrc)}" muted loop playsinline preload="none"></video>` : ""}
+      ${sourceLabel ? `<span class="media-hover-preview-note">${escapeHtml(sourceLabel)}</span>` : ""}
+    </span>
+  `;
+}
+
+function activateHoverPreview(target) {
+  const preview = target?.querySelector(".media-hover-preview");
+  if (!preview) return;
+  target.classList.add("is-preview-open");
+
+  const image = preview.querySelector("[data-preview-image]");
+  if (image && !image.getAttribute("src")) image.setAttribute("src", image.dataset.previewImage || "");
+
+  const video = preview.querySelector("video[data-preview-video]");
+  if (!video) return;
+  if (!video.dataset.previewBound) {
+    video.dataset.previewBound = "true";
+    video.addEventListener("canplay", () => {
+      video.classList.add("is-ready");
+      if (target.classList.contains("is-preview-open")) video.play().catch(() => {});
+    });
+    video.addEventListener("error", () => video.classList.add("is-error"), { once: true });
+  }
+  if (!video.getAttribute("src")) {
+    video.setAttribute("src", video.dataset.previewVideo || "");
+    if (image?.getAttribute("src")) video.poster = image.getAttribute("src");
+    video.load();
+  }
+  video.play().catch(() => {});
+}
+
+function deactivateHoverPreview(target) {
+  const preview = target?.querySelector(".media-hover-preview");
+  if (!preview) return;
+  target.classList.remove("is-preview-open");
+  const video = preview.querySelector("video[data-preview-video]");
+  if (video) {
+    video.pause();
+    try { video.currentTime = 0; } catch { /* media may not have loaded metadata yet */ }
+  }
+}
+
+function promotionPreviewSources(market, item) {
+  const characterId = Number(item?.character_id);
+  const homeBanner = (officialHomeBannersData?.markets?.[market]?.items || [])
+    .find((banner) => Number(banner.character_id) === characterId);
+  const record = records.find((candidate) => candidate.market === market && Number(candidate.character_id) === characterId);
+  const imageSrc = homeBanner?.image_url || record?.imageSrc || "";
+  const videoSrc = proxiedMediaUrl(homeBanner?.asset_url) || proxiedMediaUrl(record?.safe_video_url);
+  return {
+    imageSrc,
+    videoSrc,
+    sourceLabel: homeBanner ? "공식 홈 배너" : record ? "캐릭터 모션" : "공식 이미지"
+  };
+}
+
 function renderOfficialHomeBannerCard(market) {
   const meta = MARKET_META[market];
   const observation = officialHomeBannersData?.markets?.[market] || null;
@@ -2645,14 +2730,15 @@ function renderOfficialHomeBannerCard(market) {
     const title = item.title || item.info_text || `공식 홈 배너 ${index + 1}`;
     const info = item.info_text && item.info_text !== item.title ? item.info_text : "";
     const href = item.detail_url || observation.homepage_url;
+    const videoSrc = proxiedMediaUrl(item.asset_url);
     return `
-      <a class="official-home-banner-item" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer">
-        <img src="${escapeAttr(item.image_url)}" alt="${escapeAttr(`${meta.label} 공식 홈 배너 ${index + 1}: ${title}`)}" loading="lazy" />
+      <a class="official-home-banner-item" data-hover-preview href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer" aria-label="${escapeAttr(`${meta.label} 공식 홈 배너 ${index + 1}: ${title}`)}">
         <span class="official-home-banner-caption">
           <span class="official-home-banner-badges">${badges}</span>
           <strong>${escapeHtml(title)}</strong>
           ${info ? `<small>${escapeHtml(info)}</small>` : ""}
         </span>
+        ${renderHoverPreviewMedia({ imageSrc: item.image_url, videoSrc, sourceLabel: videoSrc ? "공식 모션" : "공식 홈 배너" })}
       </a>
     `;
   }).join("");
@@ -2698,9 +2784,11 @@ function renderOfficialPromotionCard(market) {
     const verificationHint = item.verification === "api-and-homepage"
       ? "카탈로그 배지와 공식 홈페이지 링크를 함께 확인"
       : "카탈로그 API 배지만 확인";
+    const previewMedia = renderHoverPreviewMedia(promotionPreviewSources(market, item));
     return `
-      <div class="promotion-item">
+      <div class="promotion-item${previewMedia ? " has-hover-preview" : ""}"${previewMedia ? " data-hover-preview" : ""}>
         <strong class="promotion-item-title" title="${escapeAttr(verificationHint)}">${escapeHtml(title)}</strong>
+        ${previewMedia}
         <a class="promotion-link-btn" href="${escapeAttr(item.detail_url)}" target="_blank" rel="noopener noreferrer">공식 캐릭터 페이지 ↗</a>
       </div>
     `;
@@ -2967,7 +3055,10 @@ function proxiedMediaUrl(source) {
       "showcase.chat.global.toptoon.com",
       "showcase.chat.toptoon.net"
     ]);
-    const validPath = /^\/character\/\d+\/video-thumbnail\/[a-z0-9-]+\.mp4$/i.test(url.pathname);
+    const validPath = [
+      /^\/character\/\d+\/video-thumbnail\/[a-z0-9-]+\.mp4$/i,
+      /^\/banner\/main-top\/[a-z0-9-]+\.mp4$/i
+    ].some((pattern) => pattern.test(url.pathname));
     return url.protocol === "https:" && allowedHosts.has(url.hostname) && validPath && !url.search
       ? `/media-proxy?src=${encodeURIComponent(url.href)}`
       : "";

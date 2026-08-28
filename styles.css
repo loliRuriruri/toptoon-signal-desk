@@ -5983,3 +5983,112 @@ tbody tr:last-child td {
     grid-template-columns: 1fr;
   }
 }
+
+/* Keep official media compact until a title/card is hovered or focused. */
+[data-hover-preview] {
+  position: relative;
+}
+
+[data-hover-preview]:hover,
+[data-hover-preview].is-preview-open,
+[data-hover-preview]:focus-within {
+  z-index: 12;
+}
+
+.media-hover-preview {
+  position: absolute;
+  z-index: 10;
+  overflow: hidden;
+  border: 1px solid rgba(98, 168, 255, 0.65);
+  border-radius: inherit;
+  background: #060b13;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.66), 0 0 18px rgba(37, 99, 235, 0.22);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px) scale(0.98);
+  transition: opacity 150ms ease, transform 150ms ease, visibility 150ms ease;
+  pointer-events: none;
+}
+
+[data-hover-preview]:hover > .media-hover-preview,
+[data-hover-preview].is-preview-open > .media-hover-preview,
+[data-hover-preview]:focus-within > .media-hover-preview {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.media-hover-preview::after {
+  position: absolute;
+  inset: 45% 0 0;
+  background: linear-gradient(180deg, transparent, rgba(3, 7, 13, 0.75));
+  content: "";
+}
+
+.media-hover-preview-image,
+.media-hover-preview-video {
+  position: absolute;
+  inset: 0;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: auto !important;
+  object-fit: cover;
+  background: #111827;
+}
+
+.media-hover-preview-image {
+  opacity: 0.94;
+}
+
+.media-hover-preview-video {
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.media-hover-preview-video.is-ready {
+  opacity: 1;
+}
+
+.media-hover-preview-video.is-error {
+  display: none !important;
+}
+
+.media-hover-preview-note {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  z-index: 2;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(5, 10, 18, 0.74);
+  padding: 2px 6px;
+  color: #e2e8f0;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.official-home-banner-item > .media-hover-preview {
+  inset: 0;
+}
+
+.promotion-item.has-hover-preview {
+  position: relative;
+}
+
+.promotion-item.has-hover-preview > .media-hover-preview {
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(300px, calc(100vw - 40px));
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+}
+
+@media (max-width: 600px) {
+  .promotion-item.has-hover-preview > .media-hover-preview {
+    right: auto;
+    left: 0;
+  }
+}
