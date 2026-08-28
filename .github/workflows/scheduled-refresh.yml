@@ -3,6 +3,7 @@ name: Scheduled Data Refresh & Auto Deploy
 on:
   schedule:
     # 15분마다 자동 실행 (정각 00/30분 트래픽 혼잡을 피해 7,22,37,52분에 실행)
+    # 예약 트리거 복구 확인: 2026-08-28
     - cron: "7,22,37,52 * * * *"
   # GitHub 웹 Actions 탭에서 Run workflow 버튼으로 즉시 수동 실행 가능
   workflow_dispatch:
