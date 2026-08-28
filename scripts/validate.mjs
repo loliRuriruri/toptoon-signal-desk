@@ -283,7 +283,6 @@ assert(html.includes("data/official-promotions.js"), "embedded official promotio
   "one_line_intro",
   "detailed_intro",
   "공식 카탈로그 소개",
-  "댓글·닉네임·회원 ID는 이 사이트에 저장하지 않습니다.",
   "프로필 이미지·지표가 함께 전환됩니다.",
   "renderPeerComparison",
   "renderMarketAlertGuide",

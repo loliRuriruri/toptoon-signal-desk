@@ -3607,7 +3607,7 @@ tbody tr:last-child td {
 }
 
 .dialog-hero {
-  align-items: start;
+  align-items: stretch;
   padding-right: 38px;
 }
 
@@ -3699,16 +3699,10 @@ tbody tr:last-child td {
   display: none;
 }
 
-.dialog-title-block .dialog-media-note {
-  max-width: 300px;
-  border-left: 2px solid var(--accent);
-  padding-left: 10px;
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.5;
-}
-
 .dialog-title-block {
+  display: flex;
+  flex-direction: column;
+  min-height: min(640px, 70vh);
   min-width: 0;
 }
 
@@ -3719,11 +3713,6 @@ tbody tr:last-child td {
 .dialog-title-block p {
   margin: 8px 0 0;
   color: var(--sub);
-}
-
-.dialog-open-link {
-  display: inline-flex;
-  margin-top: 12px;
 }
 
 .dialog-market-scope-note {
@@ -3795,9 +3784,12 @@ tbody tr:last-child td {
 }
 
 .dialog-profile-summary {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
   gap: 9px;
   min-width: 0;
+  min-height: 0;
   margin-top: 12px;
   border: 1px solid rgba(98, 168, 255, 0.26);
   border-radius: 10px;
@@ -3854,7 +3846,8 @@ tbody tr:last-child td {
 
 .dialog-profile-summary-copy,
 .dialog-profile-summary-empty {
-  max-height: 174px;
+  flex: 1 1 auto;
+  min-height: 0;
   margin: 0;
   overflow: auto;
   color: var(--sub);
@@ -3865,36 +3858,6 @@ tbody tr:last-child td {
 
 .dialog-profile-summary-empty {
   color: var(--muted);
-}
-
-.dialog-profile-facts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-  margin: 0;
-}
-
-.dialog-profile-facts > div {
-  min-width: 0;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 7px;
-  background: rgba(6, 11, 18, 0.42);
-  padding: 6px 7px;
-}
-
-.dialog-profile-facts dt {
-  color: var(--muted);
-  font-size: 9px;
-}
-
-.dialog-profile-facts dd {
-  margin: 2px 0 0;
-  overflow: hidden;
-  color: var(--text);
-  font-size: 10px;
-  font-weight: 750;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .dialog-profile-tags {
@@ -3917,27 +3880,6 @@ tbody tr:last-child td {
   padding: 3px 6px;
   color: var(--sub);
   font-size: 9px;
-}
-
-.dialog-profile-link {
-  width: fit-content;
-  color: #83bdff;
-  font-size: 10px;
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.dialog-profile-link:hover,
-.dialog-profile-link:focus-visible {
-  color: #d9ebff;
-  text-decoration: underline;
-}
-
-.dialog-profile-summary-note {
-  margin: 0;
-  color: var(--muted);
-  font-size: 9px;
-  line-height: 1.4;
 }
 
 .dialog-metrics {
@@ -4243,6 +4185,19 @@ tbody tr:last-child td {
     padding-right: 0;
   }
 
+  .dialog-title-block {
+    min-height: 0;
+  }
+
+  .dialog-profile-summary {
+    flex: 0 1 auto;
+  }
+
+  .dialog-profile-summary-copy,
+  .dialog-profile-summary-empty {
+    max-height: 360px;
+  }
+
   .dialog-image-frame {
     width: 100%;
     height: min(560px, 64vh);
@@ -4276,8 +4231,18 @@ tbody tr:last-child td {
     padding-left: 14px;
   }
 
+  .dialog-market-switcher-topline {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .dialog-market-switcher-topline .dialog-market-scope-note {
+    width: 100%;
+  }
+
   .dialog-market-switcher-label {
-    flex-basis: 100%;
+    flex-basis: auto;
   }
 }
 .market-session-strip {
@@ -4907,9 +4872,9 @@ tbody tr:last-child td {
   position: sticky;
   top: 0;
   z-index: 25;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  flex-wrap: wrap;
   gap: 8px 10px;
   margin: -20px -20px 16px;
   border-bottom: 1px solid rgba(98, 168, 255, 0.28);
@@ -4920,7 +4885,15 @@ tbody tr:last-child td {
   -webkit-backdrop-filter: blur(14px);
 }
 
+.dialog-market-switcher-topline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
 .dialog-market-switcher-label {
+  flex: 0 0 auto;
   color: #b9cae1;
   font-size: 10px;
   font-weight: 850;
@@ -4930,10 +4903,29 @@ tbody tr:last-child td {
 
 .dialog-market-switcher-chips {
   display: flex;
-  flex: 1 1 auto;
   flex-wrap: wrap;
+  width: 100%;
   gap: 6px;
   min-width: 0;
+}
+
+.dialog-market-switcher-topline .dialog-market-scope-note {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-top: 0;
+  padding: 6px 9px;
+}
+
+.dialog-market-switcher-topline .dialog-market-scope-note > span {
+  font-size: 13px;
+}
+
+.dialog-market-switcher-topline .dialog-market-scope-note p strong {
+  font-size: 10px;
+}
+
+.dialog-market-switcher-topline .dialog-market-scope-note p small {
+  font-size: 9px;
 }
 
 .motion-variation-switcher {
@@ -5330,4 +5322,29 @@ tbody tr:last-child td {
 
 .benchmark-key.is-warning strong {
   color: #f5a742;
+}
+
+/* The character dialog styles are declared after the shared responsive rules.
+   Keep their compact mobile layout after the base switcher rules so the
+   profile modal cannot introduce a horizontal scrollbar on narrow screens. */
+@media (max-width: 520px) {
+  .dialog-market-switcher {
+    gap: 6px;
+    margin: -20px -14px 16px;
+    padding: 9px 58px 9px 14px;
+  }
+
+  .dialog-market-switcher-topline {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .dialog-market-switcher-topline .dialog-market-scope-note {
+    width: 100%;
+  }
+
+  .dialog-market-switcher-label {
+    flex-basis: auto;
+  }
 }

@@ -77,7 +77,7 @@ npx.cmd wrangler pages deploy dist-public --project-name toptoon-signal-desk --b
 
 Cloudflare의 `public-worker.js`는 캐릭터 상세 화면에서 사용하는 공식 TOPTOON 영상 URL만 허용 목록 규칙으로 중계합니다. 임의 URL, API 키 저장, 금융 API 호출은 수행하지 않습니다.
 
-캐릭터 상세 모달의 소개 패널은 각 시장의 공개 카탈로그 API가 제공한 `oneLineIntro`·`detailedIntro`·해시태그를 스냅샷 갱신 때 함께 반영합니다. 공식 상세 페이지의 댓글은 CORS와 사용자 생성 콘텐츠 경계 때문에 복제하지 않고 원문 링크로만 연결합니다.
+캐릭터 상세 모달의 소개 패널은 각 시장의 공개 카탈로그 API가 제공한 `oneLineIntro`·`detailedIntro`·해시태그를 스냅샷 갱신 때 함께 반영합니다. 지역별 공식 캐릭터 페이지 링크로 원문에 접근할 수 있게 하며, 공식 상세 페이지의 댓글은 CORS와 사용자 생성 콘텐츠 경계 때문에 복제하지 않습니다.
 
 ### 로컬 API 기반 자동 갱신
 

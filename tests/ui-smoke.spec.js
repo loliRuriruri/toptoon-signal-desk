@@ -71,7 +71,8 @@ test("signal, validation, and character flows render without console errors", as
   const profileSummary = characterDialog.locator(".dialog-profile-summary");
   await expect(profileSummary).toBeVisible();
   await expect(profileSummary).toContainText("공식 카탈로그 소개");
-  await expect(profileSummary.locator(".dialog-profile-link")).toHaveAttribute("href", /^https:\/\/chat\.toptoon\./);
+  await expect(characterDialog.locator(".dialog-media-note, .dialog-open-link, .dialog-profile-facts, .dialog-profile-summary-note")).toHaveCount(0);
+  await expect(characterDialog.locator(".dialog-market-switcher .dialog-market-scope-note")).toBeVisible();
   const linkedProfileSummary = await profileSummary.innerText();
   const dialogMarketSwitcher = characterDialog.locator(".dialog-market-switcher");
   await expect(dialogMarketSwitcher).toBeVisible();

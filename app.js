@@ -2937,12 +2937,26 @@ function renderCharacterMotion(group, selected) {
   `;
 }
 
-function renderDialogMarketSwitcher(group, selected) {
+function renderDialogMarketSwitcher(group, selected, dialogState = null) {
   const motions = characterMotionVariations(group);
   if (motions.length <= 1) return "";
+  const isDialogOverride = Boolean(dialogState?.override);
+  const linkedScope = MARKET_META[dialogState?.linkedScope] ? dialogState.linkedScope : selected.market;
+  const scopeMeta = MARKET_META[isDialogOverride ? selected.market : linkedScope] || MARKET_META[selected.market];
+  const scopeLabel = isDialogOverride ? `${scopeMeta.label} 프로필 단독 선택` : `${scopeMeta.label} 상단 선택 적용 중`;
+  const scopeDetail = isDialogOverride
+    ? "상단 국가와 별도로 이 프로필만 보는 중입니다."
+    : "상단 국가 선택과 프로필 이미지·지표가 함께 전환됩니다.";
   return `
     <nav class="dialog-market-switcher" aria-label="프로필 국가 및 모션 전환">
-      <span class="dialog-market-switcher-label">프로필 국가·지표</span>
+      <div class="dialog-market-switcher-topline">
+        <span class="dialog-market-switcher-label">프로필 국가·지표</span>
+        <div class="dialog-market-scope-note${isDialogOverride ? " is-overridden" : " is-linked"}" aria-live="polite">
+          <span aria-hidden="true">${isDialogOverride ? "🎯" : "🔗"}</span>
+          <p><strong>${escapeHtml(scopeMeta.flag)} ${escapeHtml(scopeLabel)}</strong><small>${escapeHtml(scopeDetail)}</small></p>
+          ${isDialogOverride ? `<button type="button" class="dialog-market-sync" data-dialog-sync>상단 선택으로 돌아가기</button>` : ""}
+        </div>
+      </div>
       <div class="dialog-market-switcher-chips">
         ${motions.map((m) => `
           <button type="button" class="motion-chip${m.market === selected.market ? " active" : ""}" data-dialog-market="${escapeAttr(m.market)}" data-motion-src="${escapeAttr(m.videoUrl)}" data-motion-poster="${escapeAttr(m.poster)}" data-motion-market="${escapeAttr(m.label)}" aria-pressed="${String(m.market === selected.market)}" aria-label="${escapeAttr(`${m.label} 프로필 및 모션 전환`)}" title="${escapeAttr(`${m.label} 프로필 및 모션 전환`)}">
@@ -3119,12 +3133,6 @@ function normalizeProfileIntro(value) {
     .trim();
 }
 
-function truncateProfileIntro(value, limit = 420) {
-  const text = normalizeProfileIntro(value);
-  if (text.length <= limit) return text;
-  return `${text.slice(0, limit).trimEnd()}…`;
-}
-
 function renderMultilineText(value) {
   return escapeHtml(value).replace(/\n/g, "<br>");
 }
@@ -3132,27 +3140,12 @@ function renderMultilineText(value) {
 function renderDialogProfileSummary(selected) {
   const oneLineIntro = normalizeProfileIntro(selected.one_line_intro || selected.oneLineIntro);
   const detailedIntro = normalizeProfileIntro(selected.detailed_intro || selected.detailedIntro || selected.custom_world_summary || selected.customWorldSummary);
-  const introExcerpt = truncateProfileIntro(detailedIntro);
   const tags = (Array.isArray(selected.hashtags) ? selected.hashtags : [])
     .map((tag) => typeof tag === "string" ? tag : tag?.hashtag)
     .map((tag) => String(tag || "").trim())
     .filter(Boolean)
     .slice(0, 6);
-  const genreLabels = {
-    drama: "드라마",
-    romance: "로맨스",
-    fantasy: "판타지",
-    daily: "일상",
-    comedy: "코미디",
-    thriller: "스릴러",
-    modern: "현대",
-    other: "기타"
-  };
-  const genreLabel = genreLabels[String(selected.genre || "other").trim().toLowerCase()] || selected.genre || "기타";
   const updatedAt = selected.source_updated_at ? formatActivityTimestamp(selected.source_updated_at) : "이번 스냅샷";
-  const detailLink = selected.detail_url
-    ? `<a class="dialog-profile-link" href="${escapeAttr(selected.detail_url)}" target="_blank" rel="noopener noreferrer">공식 페이지에서 소개·댓글 확인 ↗</a>`
-    : "";
   return `
     <section class="dialog-profile-summary" aria-label="공식 카탈로그 소개">
       <div class="dialog-profile-summary-head">
@@ -3163,18 +3156,10 @@ function renderDialogProfileSummary(selected) {
         <span class="dialog-profile-summary-source">${escapeHtml(MARKET_META[selected.market].short)}</span>
       </div>
       ${oneLineIntro ? `<blockquote>${renderMultilineText(oneLineIntro)}</blockquote>` : ""}
-      ${introExcerpt
-        ? `<p class="dialog-profile-summary-copy">${renderMultilineText(introExcerpt)}</p>`
+      ${detailedIntro
+        ? `<p class="dialog-profile-summary-copy">${renderMultilineText(detailedIntro)}</p>`
         : `<p class="dialog-profile-summary-empty">이 스냅샷에 소개 문구가 없어 작품·시장 메타데이터만 표시합니다.</p>`}
-      <dl class="dialog-profile-facts">
-        <div><dt>시장</dt><dd>${escapeHtml(MARKET_META[selected.market].flag)} ${escapeHtml(MARKET_META[selected.market].label)}</dd></div>
-        <div><dt>장르</dt><dd>${escapeHtml(genreLabel)}</dd></div>
-        <div><dt>공개 ID</dt><dd>${escapeHtml(selected.character_id)}</dd></div>
-        <div><dt>원문 갱신</dt><dd>${escapeHtml(updatedAt)}</dd></div>
-      </dl>
       ${tags.length ? `<div class="dialog-profile-tags"><span>태그</span><div>${tags.map((tag) => `<span>#${escapeHtml(tag)}</span>`).join("")}</div></div>` : ""}
-      ${detailLink}
-      <p class="dialog-profile-summary-note">소개·카운터는 ${escapeHtml(MARKET_META[selected.market].label)} 공개 카탈로그 기준입니다. 댓글·닉네임·회원 ID는 이 사이트에 저장하지 않습니다.</p>
     </section>
   `;
 }
@@ -3188,29 +3173,18 @@ function closeDialog() {
 }
 
 function renderDialogContent(group, selected, dialogState = null) {
-  const model = viewModel(selected);
   const activity = characterActivityForMarket(selected, selected.market);
   const hourlyMetrics = characterHourlyMetrics(selected);
   const periodMetrics = characterPeriodMetrics(selected, hourlyMetrics);
   const hourlyViewsPopover = renderCharacterHourlyPopover(selected, "views", hourlyMetrics);
   const hourlyChatsPopover = renderCharacterHourlyPopover(selected, "chats", hourlyMetrics);
   const hourlyHelp = hourlyMetrics ? `${hourlyMetrics.coverageLabel} · 🔍 호버 시 추이` : "시간대 이력 수집 대기";
-  const officialLink = selected.detail_url
-    ? `<a class="ghost-button dialog-open-link" href="${escapeAttr(selected.detail_url)}" target="_blank" rel="noopener noreferrer">공식 캐릭터 페이지</a>`
-    : "";
   const estimatedRevenue = formatWonBig(selected.chatsNumber * 2354);
   const idDisplay = selected.character_id !== group.id
     ? `${group.id} <small style="font-size:11px;color:var(--muted)">(${MARKET_META[selected.market].short} ID ${selected.character_id})</small>`
     : `${group.id}`;
-  const isDialogOverride = Boolean(dialogState?.override);
-  const linkedScope = MARKET_META[dialogState?.linkedScope] ? dialogState.linkedScope : selected.market;
-  const scopeMeta = MARKET_META[isDialogOverride ? selected.market : linkedScope] || MARKET_META[selected.market];
-  const scopeLabel = isDialogOverride ? `${scopeMeta.label} 프로필 단독 선택` : `${scopeMeta.label} 상단 선택 적용 중`;
-  const scopeDetail = isDialogOverride
-    ? "상단 국가와 별도로 이 프로필만 보는 중입니다."
-    : "상단 국가 선택과 프로필 이미지·지표가 함께 전환됩니다.";
   return `
-    ${renderDialogMarketSwitcher(group, selected)}
+    ${renderDialogMarketSwitcher(group, selected, dialogState)}
     <div class="dialog-hero">
       <div class="dialog-image-frame">
         ${renderCharacterMotion(group, selected)}
@@ -3219,14 +3193,6 @@ function renderDialogContent(group, selected, dialogState = null) {
         <p class="section-kicker">${escapeHtml(MARKET_META[selected.market].label)}</p>
         <h2 id="dialog-title">${escapeHtml(selected.character_name)}</h2>
         <p>${escapeHtml(selected.workSafe)}</p>
-        <p class="dialog-media-note">${model.videoSrc ? "공식 소개 페이지의 안전 모션 미리보기를 자동 재생합니다." : "모션 미리보기가 없는 캐릭터는 전체 이미지를 표시합니다."}</p>
-        ${officialLink}
-        <div class="pill-list">${renderMarketPills(group.markets, selected.market)}</div>
-        <div class="dialog-market-scope-note${isDialogOverride ? " is-overridden" : " is-linked"}" aria-live="polite">
-          <span aria-hidden="true">${isDialogOverride ? "🎯" : "🔗"}</span>
-          <p><strong>${escapeHtml(scopeMeta.flag)} ${escapeHtml(scopeLabel)}</strong><small>${escapeHtml(scopeDetail)}</small></p>
-          ${isDialogOverride ? `<button type="button" class="dialog-market-sync" data-dialog-sync>상단 선택으로 돌아가기</button>` : ""}
-        </div>
         ${renderDialogProfileSummary(selected)}
       </div>
     </div>
