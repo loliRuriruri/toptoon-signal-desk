@@ -68,6 +68,11 @@ test("signal, validation, and character flows render without console errors", as
   const characterDialog = page.locator("#character-dialog");
   await expect(characterDialog).toBeVisible();
   await expect(characterDialog.locator(".character-motion, .thumb-full").first()).toBeVisible();
+  const profileSummary = characterDialog.locator(".dialog-profile-summary");
+  await expect(profileSummary).toBeVisible();
+  await expect(profileSummary).toContainText("공식 카탈로그 소개");
+  await expect(profileSummary.locator(".dialog-profile-link")).toHaveAttribute("href", /^https:\/\/chat\.toptoon\./);
+  const linkedProfileSummary = await profileSummary.innerText();
   const dialogMarketSwitcher = characterDialog.locator(".dialog-market-switcher");
   await expect(dialogMarketSwitcher).toBeVisible();
   await expect(characterDialog.locator('.motion-chip[data-dialog-market="jp"]')).toHaveCount(1);
@@ -88,6 +93,8 @@ test("signal, validation, and character flows render without console errors", as
   await expect(characterDialog.locator(".dialog-market-scope-note")).toContainText("日本 프로필 단독 선택");
   await expect(characterDialog.locator(".dialog-metrics")).toContainText("日本 시간당 평균 조회");
   await expect(characterDialog.locator(".dialog-metrics")).not.toHaveText(linkedDialogMetrics);
+  await expect(profileSummary).toContainText("日本");
+  await expect(profileSummary).not.toHaveText(linkedProfileSummary);
   await expect(characterDialog.locator('.motion-chip[data-dialog-market="jp"]')).toHaveAttribute("aria-pressed", "true");
   await characterDialog.getByRole("button", { name: "상단 선택으로 돌아가기" }).click();
   await expect(characterDialog.locator(".dialog-market-scope-note")).toContainText("통합 상단 선택 적용 중");

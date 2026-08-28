@@ -56,6 +56,11 @@ assert(bySite.get("GLOBAL") === data.counts?.global, "Global record count mismat
 assert(bySite.get("TW") === data.counts?.tw, "Taiwan record count mismatch");
 assert(records.every((record) => /^https:\/\/showcase\.chat\.(?:toptoon\.(?:com|jp|net)|global\.toptoon\.com)\/character\/\d+\/video-thumbnail\/[a-z0-9-]+\.mp4$/i.test(record.safe_video_url || "")), "every locale record should have a validated official motion URL");
 assert(records.every((record) => typeof record.genre === "string" && record.genre.trim()), "every locale record should retain the official genre field");
+assert(records.every((record) => record.one_line_intro == null || typeof record.one_line_intro === "string"), "character one-line introductions must remain strings when present");
+assert(records.every((record) => record.detailed_intro == null || typeof record.detailed_intro === "string"), "character detailed introductions must remain strings when present");
+assert(records.every((record) => record.custom_world_summary == null || typeof record.custom_world_summary === "string"), "character world summaries must remain strings when present");
+assert(records.every((record) => Array.isArray(record.hashtags)), "character hashtag metadata must remain arrays");
+assert(records.some((record) => record.one_line_intro || record.detailed_intro || record.custom_world_summary), "character introduction metadata is missing from the public snapshot");
 assert(records.every((record) => /^\d{4}-\d{2}-\d{2}T/.test(record.created_at || "")), "every locale record should retain the official creation timestamp");
 assert(records.every((record) => /^\d{4}-\d{2}-\d{2}T/.test(record.published_at || "")), "every locale record should have a public-start timestamp or documented creation fallback");
 assert((officialSignals.providers?.kis?.peers || []).filter((peer) => ["ok", "cached"].includes(peer.status)).length >= 1, "KIS peer valuation screen is incomplete");
@@ -265,6 +270,7 @@ assert(html.includes("data/official-promotions.js"), "embedded official promotio
   "시장 내 대화 비중",
   "renderCharacterMotion",
   "renderDialogMarketSwitcher",
+  "renderDialogProfileSummary",
   "renderActiveDialog",
   "syncOpenDialogToSource",
   "switchDialogMarket",
@@ -273,6 +279,11 @@ assert(html.includes("data/official-promotions.js"), "embedded official promotio
   "data-dialog-sync",
   "dialog-market-scope-note",
   "dialog-market-switcher",
+  "dialog-profile-summary",
+  "one_line_intro",
+  "detailed_intro",
+  "공식 카탈로그 소개",
+  "댓글·닉네임·회원 ID는 이 사이트에 저장하지 않습니다.",
   "프로필 이미지·지표가 함께 전환됩니다.",
   "renderPeerComparison",
   "renderMarketAlertGuide",

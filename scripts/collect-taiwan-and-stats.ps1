@@ -70,6 +70,11 @@ foreach ($character in $twCharacters) {
     character_id = $id
     character_name = [string]$character.name
     work_title = $workTitle
+    genre = if ($character.genre) { [string]$character.genre } else { 'other' }
+    one_line_intro = if ($character.oneLineIntro) { [string]$character.oneLineIntro } else { $null }
+    detailed_intro = if ($character.detailedIntro) { [string]$character.detailedIntro } else { $null }
+    custom_world_summary = if ($character.customWorldSummary) { [string]$character.customWorldSummary } else { $null }
+    hashtags = @($tags | Where-Object { $_ })
     views = $character.viewCount
     chats = $character.chatCount
     thumbnail_url = $imageUrl
@@ -96,12 +101,12 @@ $counts = [ordered]@{
 }
 $payload = [ordered]@{
   generated_at = (Get-Date).ToString('o')
-  source_note = 'Public catalog snapshot; series/work title is inferred from the first sorted hashtag for JP, Global, and Taiwan.'
+  source_note = 'Public catalog snapshot; character introduction fields are copied from the official catalog API and series/work title is inferred from the first sorted hashtag for JP, Global, and Taiwan.'
   counts = $counts
   records = $records
 }
 Write-Utf8NoBom -Path $charactersPath -Value ($payload | ConvertTo-Json -Depth 8)
-$slimRecords = @($records | Select-Object locale, site, character_id, character_name, work_title, views, chats, local_image, safe_video_url, detail_url)
+$slimRecords = @($records | Select-Object locale, site, character_id, character_name, work_title, genre, one_line_intro, detailed_intro, custom_world_summary, hashtags, views, chats, local_image, safe_video_url, detail_url, source_id, created_at, start_at, published_at, source_updated_at)
 $slimPayload = [ordered]@{ generated_at=$payload.generated_at; counts=$counts; records=$slimRecords } | ConvertTo-Json -Depth 6 -Compress
 Write-Utf8NoBom -Path (Join-Path $dataDir 'characters.js') -Value "window.TOPTOON_DATA=$slimPayload;document.documentElement.dataset.dataReady='true';`n"
 

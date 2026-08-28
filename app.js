@@ -3112,6 +3112,73 @@ function bindMotionControls(root) {
   });
 }
 
+function normalizeProfileIntro(value) {
+  return String(value || "")
+    .replace(/\{user\}/gi, "사용자")
+    .replace(/\r\n?/g, "\n")
+    .trim();
+}
+
+function truncateProfileIntro(value, limit = 420) {
+  const text = normalizeProfileIntro(value);
+  if (text.length <= limit) return text;
+  return `${text.slice(0, limit).trimEnd()}…`;
+}
+
+function renderMultilineText(value) {
+  return escapeHtml(value).replace(/\n/g, "<br>");
+}
+
+function renderDialogProfileSummary(selected) {
+  const oneLineIntro = normalizeProfileIntro(selected.one_line_intro || selected.oneLineIntro);
+  const detailedIntro = normalizeProfileIntro(selected.detailed_intro || selected.detailedIntro || selected.custom_world_summary || selected.customWorldSummary);
+  const introExcerpt = truncateProfileIntro(detailedIntro);
+  const tags = (Array.isArray(selected.hashtags) ? selected.hashtags : [])
+    .map((tag) => typeof tag === "string" ? tag : tag?.hashtag)
+    .map((tag) => String(tag || "").trim())
+    .filter(Boolean)
+    .slice(0, 6);
+  const genreLabels = {
+    drama: "드라마",
+    romance: "로맨스",
+    fantasy: "판타지",
+    daily: "일상",
+    comedy: "코미디",
+    thriller: "스릴러",
+    modern: "현대",
+    other: "기타"
+  };
+  const genreLabel = genreLabels[String(selected.genre || "other").trim().toLowerCase()] || selected.genre || "기타";
+  const updatedAt = selected.source_updated_at ? formatActivityTimestamp(selected.source_updated_at) : "이번 스냅샷";
+  const detailLink = selected.detail_url
+    ? `<a class="dialog-profile-link" href="${escapeAttr(selected.detail_url)}" target="_blank" rel="noopener noreferrer">공식 페이지에서 소개·댓글 확인 ↗</a>`
+    : "";
+  return `
+    <section class="dialog-profile-summary" aria-label="공식 카탈로그 소개">
+      <div class="dialog-profile-summary-head">
+        <div>
+          <span class="dialog-profile-summary-kicker">📖 공식 카탈로그 소개</span>
+          <small>공개 API 원문 · ${escapeHtml(updatedAt)}</small>
+        </div>
+        <span class="dialog-profile-summary-source">${escapeHtml(MARKET_META[selected.market].short)}</span>
+      </div>
+      ${oneLineIntro ? `<blockquote>${renderMultilineText(oneLineIntro)}</blockquote>` : ""}
+      ${introExcerpt
+        ? `<p class="dialog-profile-summary-copy">${renderMultilineText(introExcerpt)}</p>`
+        : `<p class="dialog-profile-summary-empty">이 스냅샷에 소개 문구가 없어 작품·시장 메타데이터만 표시합니다.</p>`}
+      <dl class="dialog-profile-facts">
+        <div><dt>시장</dt><dd>${escapeHtml(MARKET_META[selected.market].flag)} ${escapeHtml(MARKET_META[selected.market].label)}</dd></div>
+        <div><dt>장르</dt><dd>${escapeHtml(genreLabel)}</dd></div>
+        <div><dt>공개 ID</dt><dd>${escapeHtml(selected.character_id)}</dd></div>
+        <div><dt>원문 갱신</dt><dd>${escapeHtml(updatedAt)}</dd></div>
+      </dl>
+      ${tags.length ? `<div class="dialog-profile-tags"><span>태그</span><div>${tags.map((tag) => `<span>#${escapeHtml(tag)}</span>`).join("")}</div></div>` : ""}
+      ${detailLink}
+      <p class="dialog-profile-summary-note">소개·카운터는 ${escapeHtml(MARKET_META[selected.market].label)} 공개 카탈로그 기준입니다. 댓글·닉네임·회원 ID는 이 사이트에 저장하지 않습니다.</p>
+    </section>
+  `;
+}
+
 function closeDialog() {
   if (els.dialog.open && typeof els.dialog.close === "function") {
     els.dialog.close();
@@ -3160,6 +3227,7 @@ function renderDialogContent(group, selected, dialogState = null) {
           <p><strong>${escapeHtml(scopeMeta.flag)} ${escapeHtml(scopeLabel)}</strong><small>${escapeHtml(scopeDetail)}</small></p>
           ${isDialogOverride ? `<button type="button" class="dialog-market-sync" data-dialog-sync>상단 선택으로 돌아가기</button>` : ""}
         </div>
+        ${renderDialogProfileSummary(selected)}
       </div>
     </div>
     <div class="dialog-metrics">

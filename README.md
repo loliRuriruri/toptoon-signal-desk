@@ -17,8 +17,8 @@
 
 - `index.html` - 사업 요약/공시·주가 검증/캐릭터/API 설정 화면, 검증 우선순위와 OpenRouter 보조검토 위치, 4개 시장 탭
 - `styles.css` - 캐릭터 이미지 TOP6, 시작값→현재값 비교, 기간별 증감 행을 포함한 반응형 대시보드
-- `app.js` - 통계·검증·캐릭터 화면, 검색·정렬, 공식 안전 모션 dialog, KIS 동종기업 비교
-- `data/characters.json` - 4개 시장의 2026-08-24 공개 캐릭터 스냅샷
+- `app.js` - 통계·검증·캐릭터 화면, 검색·정렬, 공식 안전 모션 dialog, 국가별 소개 요약, KIS 동종기업 비교
+- `data/characters.json` - 4개 시장의 공개 캐릭터·소개 메타데이터 스냅샷
 - `data/characters.js` - 동일 데이터에서 런타임 필드만 추린 브라우저 번들
 - `data/stats.json`, `data/stats.js` - 원본 Worker 공개 통계 API의 로컬 스냅샷
 - `data/validation.json`, `data/validation.js` - 원본 API·모델 계산·공시를 대조한 검증 스냅샷
@@ -76,6 +76,8 @@ npx.cmd wrangler pages deploy dist-public --project-name toptoon-signal-desk --b
 6. 방문자는 Cloudflare에 저장된 마지막 정상 스냅샷을 읽습니다. 방문 시 사용자의 브라우저가 증권사 API나 로컬 PC에 접속하지 않습니다.
 
 Cloudflare의 `public-worker.js`는 캐릭터 상세 화면에서 사용하는 공식 TOPTOON 영상 URL만 허용 목록 규칙으로 중계합니다. 임의 URL, API 키 저장, 금융 API 호출은 수행하지 않습니다.
+
+캐릭터 상세 모달의 소개 패널은 각 시장의 공개 카탈로그 API가 제공한 `oneLineIntro`·`detailedIntro`·해시태그를 스냅샷 갱신 때 함께 반영합니다. 공식 상세 페이지의 댓글은 CORS와 사용자 생성 콘텐츠 경계 때문에 복제하지 않고 원문 링크로만 연결합니다.
 
 ### 로컬 API 기반 자동 갱신
 

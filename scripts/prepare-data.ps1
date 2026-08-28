@@ -11,7 +11,7 @@ New-Item -ItemType Directory -Force -Path $assetDir | Out-Null
 Copy-Item -LiteralPath (Join-Path $sourceRoot 'characters_combined.json') -Destination (Join-Path $dataDir 'characters.json') -Force
 $jsonText = Get-Content (Join-Path $dataDir 'characters.json') -Raw -Encoding UTF8
 $payload = $jsonText | ConvertFrom-Json
-$slimRecords = @($payload.records | Select-Object locale, site, character_id, character_name, work_title, views, chats, local_image, safe_video_url, detail_url)
+$slimRecords = @($payload.records | Select-Object locale, site, character_id, character_name, work_title, genre, one_line_intro, detailed_intro, custom_world_summary, hashtags, views, chats, local_image, safe_video_url, detail_url, source_id, created_at, start_at, published_at, source_updated_at)
 $slimPayload = [ordered]@{
     generated_at = $payload.generated_at
     counts = $payload.counts

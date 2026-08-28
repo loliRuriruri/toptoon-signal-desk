@@ -180,6 +180,13 @@ async function collectMarket(market) {
         writeFileSync(destination, Buffer.from(await imageResponse.arrayBuffer()));
       }
     }
+    const oneLineIntro = String(character.oneLineIntro || "").trim() || null;
+    const detailedIntro = String(character.detailedIntro || "").trim() || null;
+    const customWorldSummary = String(character.customWorldSummary || "").trim() || null;
+    const hashtags = sortedTags
+      .map((tag) => String(tag?.hashtag || "").trim())
+      .filter(Boolean)
+      .slice(0, 8);
     records.push({
       locale: market.locale,
       site: market.site,
@@ -187,6 +194,10 @@ async function collectMarket(market) {
       character_name: String(character.name || ""),
       work_title: sortedTags[0]?.hashtag || null,
       genre: String(character.genre || "other"),
+      one_line_intro: oneLineIntro,
+      detailed_intro: detailedIntro,
+      custom_world_summary: customWorldSummary,
+      hashtags,
       views: Number(character.viewCount || 0),
       chats: Number(character.chatCount || 0),
       thumbnail_url: imageUrl || null,
@@ -295,7 +306,7 @@ const counts = {
 };
 const catalogPayload = {
   generated_at: capturedAt,
-  source_note: "Four public catalogs collected in one run. Work title is inferred from the first sorted hashtag. Genre and public start timestamp are direct public API fields; published_at falls back to createdAt only when startAt is absent.",
+  source_note: "Four public catalogs collected in one run. Work title, genre, and character introduction fields are direct public API fields; published_at falls back to createdAt only when startAt is absent.",
   market_snapshots: Object.fromEntries(marketResults.map((result) => [result.market.key, { captured_at: capturedAt, source: result.apiUrl, count: result.total }])),
   counts,
   records
@@ -421,8 +432,8 @@ const activityPayload = {
 };
 
 writeFileSync(path.join(dataDir, "characters.json"), `${JSON.stringify(catalogPayload, null, 2)}\n`, "utf8");
-const slimRecords = records.map(({ locale, site, character_id, character_name, work_title, genre, views, chats, local_image, safe_video_url, detail_url, source_id, created_at, start_at, published_at, source_updated_at }) => ({
-  locale, site, character_id, character_name, work_title, genre, views, chats, local_image, safe_video_url, detail_url, source_id, created_at, start_at, published_at, source_updated_at
+const slimRecords = records.map(({ locale, site, character_id, character_name, work_title, genre, one_line_intro, detailed_intro, custom_world_summary, hashtags, views, chats, local_image, safe_video_url, detail_url, source_id, created_at, start_at, published_at, source_updated_at }) => ({
+  locale, site, character_id, character_name, work_title, genre, one_line_intro, detailed_intro, custom_world_summary, hashtags, views, chats, local_image, safe_video_url, detail_url, source_id, created_at, start_at, published_at, source_updated_at
 }));
 writeFileSync(path.join(dataDir, "characters.js"), `window.TOPTOON_DATA=${JSON.stringify({ generated_at: capturedAt, market_snapshots: catalogPayload.market_snapshots, counts, records: slimRecords })};document.documentElement.dataset.dataReady='true';\n`, "utf8");
 writeFileSync(path.join(dataDir, "character-activity.json"), `${JSON.stringify(activityPayload, null, 2)}\n`, "utf8");
