@@ -2550,11 +2550,11 @@ function renderMoverChips(market, field) {
   return `
     <div class="mover-chip-list">
       ${rows.map((row, idx) => `
-        <div class="mover-chip-badge ${isView ? "is-view" : "is-chat"}">
+        <button class="mover-chip-badge ${isView ? "is-view" : "is-chat"}" type="button" data-character-id="${escapeAttr(row.character_id)}" data-character-market="${escapeAttr(market)}" aria-label="${escapeAttr(`${row.character_name} 캐릭터 정보 열기`)}">
           <span class="mover-badge-rank">${idx + 1}</span>
           <span class="mover-badge-name">${escapeHtml(row.character_name)}</span>
           <strong class="mover-badge-val">${signedNumber(row[field])}</strong>
-        </div>
+        </button>
       `).join("")}
     </div>
   `;
