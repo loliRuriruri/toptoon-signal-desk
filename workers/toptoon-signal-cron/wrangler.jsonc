@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/wrangler.json",
+  "name": "toptoon-signal-cron",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-28",
+  "workers_dev": true,
+  "triggers": {
+    "crons": ["*/15 * * * *"]
+  },
+  "vars": {
+    "GITHUB_REPOSITORY": "loliRuriruri/toptoon-signal-desk",
+    "GITHUB_WORKFLOW": "scheduled-refresh.yml",
+    "GITHUB_REF": "main"
+  }
+}
