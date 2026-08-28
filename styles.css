@@ -5315,6 +5315,133 @@ tbody tr:last-child td {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.revenue-model-selector {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.9fr) minmax(360px, 1.6fr) minmax(210px, 0.9fr);
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0;
+  padding: 12px;
+  border: 1px solid rgba(245, 167, 66, 0.42);
+  border-radius: 13px;
+  background: linear-gradient(110deg, rgba(245, 167, 66, 0.1), rgba(12, 18, 29, 0.78));
+}
+
+.revenue-model-selector-copy,
+.revenue-model-selector-gap {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.revenue-model-selector-copy > span,
+.revenue-model-selector-gap > span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.revenue-model-selector-copy > strong,
+.revenue-model-selector-gap > strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.revenue-model-selector-copy > small,
+.revenue-model-selector-gap > small {
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.revenue-model-selector-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  min-width: 0;
+}
+
+.revenue-model-option {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: rgba(7, 12, 21, 0.68);
+  padding: 8px 9px;
+  color: var(--sub);
+  text-align: left;
+}
+
+.revenue-model-option span {
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.revenue-model-option small {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.revenue-model-option:hover,
+.revenue-model-option:focus-visible {
+  border-color: rgba(98, 168, 255, 0.62);
+  outline: none;
+}
+
+.revenue-model-option.is-active {
+  border-color: var(--accent);
+  background: rgba(57, 135, 229, 0.2);
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(98, 168, 255, 0.18);
+}
+
+.revenue-model-card.is-selected {
+  box-shadow: 0 0 0 2px rgba(98, 168, 255, 0.48), 0 10px 24px rgba(0, 0, 0, 0.24);
+}
+
+.revenue-pending-card {
+  border-color: rgba(232, 99, 99, 0.42);
+}
+
+.revenue-pending-body {
+  display: flex;
+  min-height: 210px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+  border: 1px dashed rgba(232, 99, 99, 0.42);
+  border-radius: 12px;
+  background: rgba(232, 99, 99, 0.05);
+  padding: 24px;
+  text-align: center;
+}
+
+.revenue-pending-body > span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.revenue-pending-body > strong {
+  color: #ff9b9b;
+  font-size: clamp(24px, 3vw, 38px);
+}
+
+.revenue-pending-body > p {
+  max-width: 600px;
+  margin: 0;
+  color: var(--sub);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
 .revenue-model-crosscheck {
   margin: 14px 0;
   padding: 16px;
@@ -5426,6 +5553,10 @@ tbody tr:last-child td {
 }
 
 @media (max-width: 980px) {
+  .revenue-model-selector {
+    grid-template-columns: 1fr;
+  }
+
   .revenue-model-compare-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -5439,6 +5570,10 @@ tbody tr:last-child td {
   }
 
   .revenue-model-compare-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .revenue-model-selector-buttons {
     grid-template-columns: 1fr;
   }
 }

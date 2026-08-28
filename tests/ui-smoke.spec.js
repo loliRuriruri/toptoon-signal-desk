@@ -20,6 +20,22 @@ test("signal, validation, and character flows render without console errors", as
   await expect(revenueCrosscheck).toContainText("산출 불가");
   await expect(revenueCrosscheck).toContainText(/모델 선택만으로 [+-]\d+\.\d% 차이/);
   await expect(page.getByText("참여자 증가당 2,000~2,700원 가정", { exact: false })).toHaveCount(0);
+  const revenueSelector = page.getByTestId("revenue-model-selector");
+  const pendingModel = revenueSelector.locator('[data-revenue-model="pending"]');
+  const legacyModel = revenueSelector.locator('[data-revenue-model="legacy"]');
+  const workerModel = revenueSelector.locator('[data-revenue-model="worker"]');
+  const allMarketRevenueCard = page.locator("#main-kpi-grid .stat-card").filter({ hasText: "통합 최근 금액 프록시" });
+  await expect(pendingModel).toHaveAttribute("aria-checked", "true");
+  await expect(allMarketRevenueCard).toContainText("산출 보류");
+  await legacyModel.click();
+  await expect(legacyModel).toHaveAttribute("aria-checked", "true");
+  const legacyAllMarketText = await allMarketRevenueCard.innerText();
+  await expect(page.locator(".rank-revenue").first()).toContainText("기존 2,354원");
+  await workerModel.click();
+  await expect(workerModel).toHaveAttribute("aria-checked", "true");
+  const workerAllMarketText = await allMarketRevenueCard.innerText();
+  expect(workerAllMarketText).not.toBe(legacyAllMarketText);
+  await expect(page.locator(".rank-revenue").first()).toContainText("Worker 3,000원");
   await expect(page.locator(".character-rank-item")).toHaveCount(6);
   await expect(page.locator(".business-scope-bar")).toBeVisible();
   await expect(page.locator("[data-leaderboard-market]")).toHaveCount(5);
@@ -51,6 +67,7 @@ test("signal, validation, and character flows render without console errors", as
   await expect(page.locator(".rank-tooltip").first()).toBeVisible();
   await page.locator(".character-rank-item").first().click();
   await expect(page.locator("#character-dialog")).toBeVisible();
+  await expect(page.locator("#character-dialog .dialog-metrics")).toContainText("Worker 3,000원");
   await page.locator("#dialog-close").click();
   await page.locator("section").filter({ hasText: "최근 관측 변화" }).last().screenshot({ path: "output/playwright/observation-desktop.png" });
 

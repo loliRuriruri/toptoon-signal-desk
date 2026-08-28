@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-28T16:34:55.107Z",
+  "generated_at": "2026-08-28T16:52:45.330Z",
   "mode": "live-crosscheck",
   "overall_status": "share-with-caveats",
   "summary": {
-    "pass": 18,
+    "pass": 20,
     "warn": 11,
     "block": 0
   },
@@ -22,8 +22,8 @@
       "views": 52393982,
       "live": {
         "count": 88,
-        "chats": 1547703,
-        "views": 52395348
+        "chats": 1547908,
+        "views": 52398522
       }
     },
     "jp": {
@@ -33,8 +33,8 @@
       "views": 20781248,
       "live": {
         "count": 78,
-        "chats": 236631,
-        "views": 20788088
+        "chats": 236703,
+        "views": 20804623
       }
     },
     "global": {
@@ -44,8 +44,8 @@
       "views": 336090,
       "live": {
         "count": 85,
-        "chats": 18097,
-        "views": 336097
+        "chats": 18102,
+        "views": 336154
       }
     },
     "tw": {
@@ -55,8 +55,8 @@
       "views": 3337354,
       "live": {
         "count": 81,
-        "chats": 99225,
-        "views": 3337601
+        "chats": 99247,
+        "views": 3338176
       }
     }
   },
@@ -111,8 +111,8 @@
       "label": "한국 누적 채팅 시차",
       "status": "pass",
       "observed": 1547610,
-      "expected": 1547703,
-      "note": "수집 이후 변동 0.006% (누적 수치는 실시간 증가 가능)",
+      "expected": 1547908,
+      "note": "수집 이후 변동 0.019% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -129,8 +129,8 @@
       "label": "일본 누적 채팅 시차",
       "status": "pass",
       "observed": 236603,
-      "expected": 236631,
-      "note": "수집 이후 변동 0.012% (누적 수치는 실시간 증가 가능)",
+      "expected": 236703,
+      "note": "수집 이후 변동 0.042% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -147,8 +147,8 @@
       "label": "글로벌 누적 채팅 시차",
       "status": "pass",
       "observed": 18096,
-      "expected": 18097,
-      "note": "수집 이후 변동 0.006% (누적 수치는 실시간 증가 가능)",
+      "expected": 18102,
+      "note": "수집 이후 변동 0.033% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -165,8 +165,8 @@
       "label": "대만 누적 채팅 시차",
       "status": "pass",
       "observed": 99214,
-      "expected": 99225,
-      "note": "수집 이후 변동 0.011% (누적 수치는 실시간 증가 가능)",
+      "expected": 99247,
+      "note": "수집 이후 변동 0.033% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -235,6 +235,30 @@
       "expected": "동일 관측창·동일 역산계수",
       "note": "구형 API는 7일 평균×2,354원, 현재 Worker 메인은 최신 1일×3,000원을 사용해 모델 선택만으로 결과가 달라짐",
       "severity": "high"
+    },
+    {
+      "id": "revenue-worker-latest-market-coverage",
+      "label": "Worker 최신 1일 4개 시장 입력",
+      "status": "pass",
+      "observed": {
+        "date": "2026-08-28",
+        "missing": []
+      },
+      "expected": "동일 날짜의 kr·jp·global·tw delta",
+      "note": "최신 1일 4개 시장 delta가 모두 존재",
+      "severity": "none"
+    },
+    {
+      "id": "revenue-model-global-propagation",
+      "label": "전역 매출 모델 연동",
+      "status": "pass",
+      "observed": {
+        "missing_markers": [],
+        "hardcoded_legacy_paths": []
+      },
+      "expected": "메인 KPI·국가별 밴드·TOP6·캐릭터 팝업 공통 계산기",
+      "note": "공통 모델 상태와 계산기 사용",
+      "severity": "none"
     },
     {
       "id": "profit-nowcast-formula",

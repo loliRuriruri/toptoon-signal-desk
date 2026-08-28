@@ -54,6 +54,35 @@ const SETTING_FIELD_LABELS = {
 const MARKET_ORDER = ["kr", "jp", "global", "tw"];
 const MARKET_BY_SITE = { KR: "kr", JP: "jp", GLOBAL: "global", TW: "tw" };
 const MISSING_WORK = "작품 정보 없음";
+const REVENUE_MODELS = {
+  pending: {
+    label: "검증 보류",
+    short: "검증 보류",
+    mid: null,
+    low: null,
+    high: null,
+    window: "none",
+    note: "유료 턴·결제율·무상 코인·해금 매출이 없어 실제 매출을 산출하지 않습니다."
+  },
+  legacy: {
+    label: "기존 Signal Desk",
+    short: "기존 2,354원",
+    mid: 2354,
+    low: 2000,
+    high: 2700,
+    window: "rolling",
+    note: "최근 시장별 평균 × 30일 × 구형 IR 역산계수 2,354원"
+  },
+  worker: {
+    label: "Worker 현재",
+    short: "Worker 3,000원",
+    mid: 3000,
+    low: 2000,
+    high: 4000,
+    window: "latest",
+    note: "최신 1일 × 30일 × 임의 중심계수 3,000원"
+  }
+};
 const state = {
   view: "stats",
   market: "all",
@@ -63,6 +92,7 @@ const state = {
   selectedSupplyMonth: null,
   simulatedPrice: null,
   revenueViewMode: "recent",
+  revenueModel: "pending",
   q: "",
   work: "",
   sort: "views-desc"
@@ -82,6 +112,73 @@ let records = [];
 let groups = [];
 let lastTrigger = null;
 let activeDialog = null;
+
+function activeRevenueModel() {
+  return REVENUE_MODELS[state.revenueModel] || REVENUE_MODELS.pending;
+}
+
+function revenueModelAmount(count, band = "mid") {
+  const model = activeRevenueModel();
+  const coefficient = Number(model[band]);
+  return Number.isFinite(coefficient) ? Number(count || 0) * coefficient : null;
+}
+
+function formatRevenueModelAmount(value, prefix = "") {
+  return state.revenueModel === "pending" || !Number.isFinite(Number(value))
+    ? "산출 보류"
+    : `${prefix}${formatWonBig(Number(value))}`;
+}
+
+function latestTractionRow() {
+  return statsData?.site_traction?.daily?.at(-1) || {};
+}
+
+function marketDeltaFromRow(row, market) {
+  if (market === "all") {
+    return MARKET_ORDER.reduce((sum, key) => sum + Number(row?.[`${key}_delta`] || 0), 0);
+  }
+  return Number(row?.[`${market}_delta`] || 0);
+}
+
+function recentRevenueScenario(market) {
+  const model = activeRevenueModel();
+  if (state.revenueModel === "pending") {
+    return { mid: null, low: null, high: null, delta: marketDeltaFromRow(latestTractionRow(), market), source: "검증 보류" };
+  }
+
+  if (state.revenueModel === "worker") {
+    const delta = marketDeltaFromRow(latestTractionRow(), market);
+    return {
+      mid: delta * 30 * model.mid,
+      low: delta * 30 * model.low,
+      high: delta * 30 * model.high,
+      delta,
+      source: "최신 1일"
+    };
+  }
+
+  const siteRevenue = statsData?.site_revenue || {};
+  const perSite = siteRevenue.per_site || {};
+  const mid = market === "all"
+    ? Number(siteRevenue.grand_total_mid || 0)
+    : Number(perSite[market]?.revenue_mid || 0);
+  const delta = model.mid ? mid / (30 * model.mid) : 0;
+  return {
+    mid,
+    low: model.mid ? mid * model.low / model.mid : 0,
+    high: model.mid ? mid * model.high / model.mid : 0,
+    delta,
+    source: market === "kr" ? "최근 7일 평균" : "최근 6일 평균"
+  };
+}
+
+function revenueScenarioForCount(count) {
+  return {
+    mid: revenueModelAmount(count, "mid"),
+    low: revenueModelAmount(count, "low"),
+    high: revenueModelAmount(count, "high")
+  };
+}
 
 function syncSiteHeaderOffset() {
   const header = els.siteHeader || document.querySelector(".site-header");
@@ -288,6 +385,19 @@ function bindEvents() {
       state.selectedSupplyMonth = monthButton.dataset.supplyMonth;
       renderStatsDashboard();
       bindResultButtons();
+      return;
+    }
+
+    const revenueModelButton = event.target.closest("[data-revenue-model]");
+    if (revenueModelButton) {
+      const model = revenueModelButton.dataset.revenueModel;
+      if (REVENUE_MODELS[model] && state.revenueModel !== model) {
+        state.revenueModel = model;
+        renderStatsDashboard();
+        bindResultButtons();
+        if (activeDialog) renderActiveDialog();
+        writeHash();
+      }
       return;
     }
 
@@ -593,6 +703,8 @@ function readHash() {
   state.q = params.get("q") || "";
   state.work = params.get("work") || "";
   state.sort = params.get("sort") || state.sort;
+  const nextRevenueModel = params.get("revenue-model");
+  state.revenueModel = REVENUE_MODELS[nextRevenueModel] ? nextRevenueModel : state.revenueModel;
 }
 
 function writeHash() {
@@ -604,6 +716,7 @@ function writeHash() {
   if (state.q) params.set("q", state.q);
   if (state.work) params.set("work", state.work);
   if (state.sort !== "views-desc") params.set("sort", state.sort);
+  if (state.revenueModel !== "pending") params.set("revenue-model", state.revenueModel);
   const next = `#${params.toString()}`;
   if (window.location.hash !== next) history.replaceState(null, "", next);
 }
@@ -768,32 +881,35 @@ function renderStatsDashboard() {
   const elapsedMonths = elapsedDays / 30;
   const elapsedMonthLabel = `${elapsedMonths.toFixed(1)}개월`;
 
-  const revPerSession = Number(statsData.revenue_nowcast?.constants?.rev_per_session || 2354);
-  const revPerSessionRange = statsData.revenue_nowcast?.constants?.rev_per_session_range || [2000, 2700];
+  const revenueModel = activeRevenueModel();
 
-  // 론칭 누적 추정 총매출
-  const cumulativeGrossMid = allTotals.chats * revPerSession;
-  const cumulativeGrossLow = allTotals.chats * revPerSessionRange[0];
-  const cumulativeGrossHigh = allTotals.chats * revPerSessionRange[1];
+  // 선택 모델별 론칭 누적 활동 프록시
+  const cumulativeScenario = revenueScenarioForCount(allTotals.chats);
+  const cumulativeGrossMid = cumulativeScenario.mid;
+  const cumulativeGrossLow = cumulativeScenario.low;
+  const cumulativeGrossHigh = cumulativeScenario.high;
 
   // 론칭 누적 월평균 환산 매출 (7개월 평균 런레이트)
-  const cumulativeMonthlyAvg = cumulativeGrossMid / elapsedMonths;
+  const cumulativeMonthlyAvg = cumulativeGrossMid == null ? null : cumulativeGrossMid / elapsedMonths;
   const krTotals = statsMarketTotals("kr");
-  const krCumulativeMid = krTotals.chats * 2354;
-  const overseasCumulativeMid = Math.max(0, cumulativeGrossMid - krCumulativeMid);
-  const krMonthlyAvg = krCumulativeMid / elapsedMonths;
-  const overseasMonthlyAvg = overseasCumulativeMid / elapsedMonths;
+  const overseasCumulativeChats = Math.max(0, allTotals.chats - krTotals.chats);
+  const overseasCumulativeSharePct = allTotals.chats > 0 ? (overseasCumulativeChats / allTotals.chats) * 100 : null;
+  const krCumulativeMid = revenueModelAmount(krTotals.chats);
+  const overseasCumulativeMid = cumulativeGrossMid == null || krCumulativeMid == null ? null : Math.max(0, cumulativeGrossMid - krCumulativeMid);
+  const krMonthlyAvg = krCumulativeMid == null ? null : krCumulativeMid / elapsedMonths;
+  const overseasMonthlyAvg = overseasCumulativeMid == null ? null : overseasCumulativeMid / elapsedMonths;
 
   // 2. 최근 일일 델타 기준 속도 관측 (Nowcast 런레이트)
-  const latest = statsData.revenue_nowcast?.latest || {};
-  const siteRevenue = statsData.site_revenue || {};
   const siteOverall = statsData.site_comparison?.overall || {};
-  const recentAllMarketMid = Number(siteRevenue.grand_total_mid || 0);
-  const recentAllMarketLow = revPerSession > 0 ? recentAllMarketMid * Number(revPerSessionRange[0] || 0) / revPerSession : 0;
-  const recentAllMarketHigh = revPerSession > 0 ? recentAllMarketMid * Number(revPerSessionRange[1] || 0) / revPerSession : 0;
-  const krRecentMid = Number(latest.revenue_mid || siteRevenue.per_site?.kr?.revenue_mid || 0);
-  const overseasRecentMid = Math.max(0, recentAllMarketMid - krRecentMid);
-  const krShareOfRecentPct = recentAllMarketMid > 0 ? (krRecentMid / recentAllMarketMid) * 100 : null;
+  const recentAllScenario = recentRevenueScenario("all");
+  const recentKrScenario = recentRevenueScenario("kr");
+  const recentAllMarketMid = recentAllScenario.mid;
+  const recentAllMarketLow = recentAllScenario.low;
+  const recentAllMarketHigh = recentAllScenario.high;
+  const krRecentMid = recentKrScenario.mid;
+  const overseasRecentMid = recentAllMarketMid == null || krRecentMid == null ? null : Math.max(0, recentAllMarketMid - krRecentMid);
+  const krShareOfRecentPct = recentAllScenario.delta > 0 ? (recentKrScenario.delta / recentAllScenario.delta) * 100 : null;
+  const overseasShareOfRecentPct = krShareOfRecentPct == null ? null : Math.max(0, 100 - krShareOfRecentPct);
   const velocityVsCumulativePct = cumulativeMonthlyAvg > 0 && recentAllMarketMid > 0
     ? ((recentAllMarketMid / cumulativeMonthlyAvg) - 1) * 100
     : null;
@@ -804,7 +920,9 @@ function renderStatsDashboard() {
 
   els.statsCapturedAt.textContent = `${formatDateTime(statsData.captured_at)} 수집 스냅샷`;
   els.statsCaveat.textContent =
-    `공개 대화 참여자 카운터에 역산계수를 적용한 활동 프록시입니다. 누적 평균과 최근 4~${accumulatedDays}일 속도를 분리해 표시합니다.`;
+    state.revenueModel === "pending"
+      ? "공개 chatCount는 유료 턴·세션 수가 아니므로 금액 산출을 보류합니다. 모델을 선택하면 모든 금액 프록시가 함께 변경됩니다."
+      : `${revenueModel.label} 시나리오를 적용한 활동 프록시입니다. 실제 매출이 아니며 누적 평균과 최근 속도를 분리합니다.`;
 
   els.mainKpiGrid.innerHTML = `
     <div class="kpi-dual-container">
@@ -817,9 +935,9 @@ function renderStatsDashboard() {
         </div>
         <div class="kpi-card-subgrid">
           ${renderStatCards([
-            ["🌐 통합 누적 IR 보정 프록시", `약 ${formatWonBig(cumulativeGrossMid)}`, `🇰🇷 한국 ${formatWonBig(krCumulativeMid)} + 🌏 해외 ${formatWonBig(overseasCumulativeMid)}`, "signal"],
-            ["🌐 프록시 장기 월평균", `월 약 ${formatWonBig(cumulativeMonthlyAvg)}`, `🇰🇷 한국 월 ${formatWonBig(krMonthlyAvg)} + 🌏 해외 월 ${formatWonBig(overseasMonthlyAvg)} · 실제 매출 아님`, "neutral"],
-            ["🌏 해외 누적 활동 비중", siteRevenue.overseas_contribution_pct != null ? `${siteRevenue.overseas_contribution_pct.toFixed(1)}%` : "-", `해외 대화 참여자 카운터 ${formatNumber(siteOverall.overseas_total || 0)}`, "positive"],
+            ["🌐 통합 누적 금액 프록시", formatRevenueModelAmount(cumulativeGrossMid, "약 "), state.revenueModel === "pending" ? "유료 턴·결제율·실질단가 미공개" : `🇰🇷 한국 ${formatWonBig(krCumulativeMid)} + 🌏 해외 ${formatWonBig(overseasCumulativeMid)}`, "signal"],
+            ["🌐 프록시 장기 월평균", formatRevenueModelAmount(cumulativeMonthlyAvg, "월 약 "), state.revenueModel === "pending" ? "모델 선택 시 표시" : `🇰🇷 한국 월 ${formatWonBig(krMonthlyAvg)} + 🌏 해외 월 ${formatWonBig(overseasMonthlyAvg)} · 실제 매출 아님`, "neutral"],
+            ["🌏 해외 누적 활동 비중", overseasCumulativeSharePct == null ? "-" : `${overseasCumulativeSharePct.toFixed(1)}%`, `해외 공개 chatCount ${formatNumber(overseasCumulativeChats || siteOverall.overseas_total || 0)}`, "positive"],
             ["서비스 운영 기간", `${elapsedDays}일차 (${elapsedMonthLabel})`, `2026.02.01 기준 계산`, "neutral"]
           ])}
         </div>
@@ -834,14 +952,14 @@ function renderStatsDashboard() {
         </div>
         <div class="kpi-card-subgrid kpi-scope-split-grid">
           ${renderStatCards([
-            ["🌐 통합 최근 매출 프록시", recentAllMarketMid ? `월 약 ${formatWonBig(recentAllMarketMid)}` : "-", recentAllMarketMid ? `${formatWonBig(recentAllMarketLow)}–${formatWonBig(recentAllMarketHigh)} · 한국+해외` : "시장별 델타 수집 대기", "signal"],
-            ["🇰🇷 한국 최근 매출 프록시", krRecentMid ? `월 약 ${formatWonBig(krRecentMid)}` : "-", krShareOfRecentPct == null ? "한국 델타 수집 대기" : `통합 최근 속도의 ${krShareOfRecentPct.toFixed(1)}%`, "positive"],
-            ["🌏 해외 합산 매출 프록시", overseasRecentMid ? `월 약 ${formatWonBig(overseasRecentMid)}` : "-", siteRevenue.overseas_contribution_pct == null ? "해외 델타 수집 대기" : `통합 최근 속도의 ${siteRevenue.overseas_contribution_pct.toFixed(1)}% · 한국 역산계수 임시 적용`, "neutral"],
-            ["🇰🇷 한국 9억 가정 대비", latest.ir_ratio_pct != null ? `${latest.ir_ratio_pct.toFixed(1)}%` : "-", "한국만 비교 · 9억원 원문 출처·범위 미확인", "warning"]
+            ["🌐 통합 최근 금액 프록시", formatRevenueModelAmount(recentAllMarketMid, "월 약 "), state.revenueModel === "pending" ? "실제 매출 입력 부재" : `${formatWonBig(recentAllMarketLow)}–${formatWonBig(recentAllMarketHigh)} · ${recentAllScenario.source}`, "signal"],
+            ["🇰🇷 한국 최근 금액 프록시", formatRevenueModelAmount(krRecentMid, "월 약 "), krShareOfRecentPct == null ? "한국 델타 수집 대기" : `통합 최근 활동의 ${krShareOfRecentPct.toFixed(1)}%`, "positive"],
+            ["🌏 해외 합산 금액 프록시", formatRevenueModelAmount(overseasRecentMid, "월 약 "), overseasShareOfRecentPct == null ? "해외 델타 수집 대기" : `통합 최근 활동의 ${overseasShareOfRecentPct.toFixed(1)}% · 현지 ASP 미검증`, "neutral"],
+            ["🇰🇷 한국 9억 가정 대비", state.revenueModel === "pending" || !krRecentMid ? "산출 보류" : `${((krRecentMid / 900000000) * 100).toFixed(1)}%`, "한국만 비교 · 9억원 원문 출처·범위 미확인", "warning"]
           ])}
         </div>
         <div class="kpi-scope-footnote">
-          <span><strong>기간 차이</strong> 장기 평균 ${formatWonBig(cumulativeMonthlyAvg)} ↔ 최근 속도 ${formatWonBig(recentAllMarketMid)}</span>
+          <span><strong>기간 차이</strong> 장기 평균 ${formatRevenueModelAmount(cumulativeMonthlyAvg)} ↔ 최근 속도 ${formatRevenueModelAmount(recentAllMarketMid)}</span>
           <span><strong>속도 변화</strong> ${velocityVsCumulativePct == null ? "비교 대기" : `${velocityDirection} ${velocityVsCumulativePct >= 0 ? "+" : ""}${velocityVsCumulativePct.toFixed(1)}%`}</span>
           <span><strong>표본</strong> 시장별 4~${accumulatedDays}일 · 14일 이상 권장</span>
         </div>
@@ -1795,6 +1913,37 @@ function formatValidationValue(value) {
   return String(value);
 }
 
+function renderRevenueModelSelector(revenue) {
+  const selected = activeRevenueModel();
+  const deltaRows = statsData?.daily_chat_totals?.rows || [];
+  const latestDelta = Number(deltaRows.at(-1)?.delta || 0);
+  const legacyMid = Number(revenue.latest?.revenue_mid || 0);
+  const workerMid = latestDelta * 30 * REVENUE_MODELS.worker.mid;
+  const gapPct = legacyMid ? ((workerMid / legacyMid) - 1) * 100 : null;
+  return `
+    <section class="revenue-model-selector" data-testid="revenue-model-selector" aria-label="전역 매출 프록시 모델 선택">
+      <div class="revenue-model-selector-copy">
+        <span>전역 매출 프록시 모델</span>
+        <strong>${escapeHtml(selected.label)}</strong>
+        <small>${escapeHtml(selected.note)}</small>
+      </div>
+      <div class="revenue-model-selector-buttons" role="radiogroup" aria-label="매출 프록시 모델">
+        ${Object.entries(REVENUE_MODELS).map(([key, model]) => `
+          <button type="button" data-revenue-model="${key}" role="radio" aria-checked="${String(state.revenueModel === key)}" class="revenue-model-option${state.revenueModel === key ? " is-active" : ""}">
+            <span>${escapeHtml(model.short)}</span>
+            <small>${key === "pending" ? "금액 숨김" : key === "legacy" ? `한국 ${formatWonBig(legacyMid)}` : `한국 ${formatWonBig(workerMid)}`}</small>
+          </button>
+        `).join("")}
+      </div>
+      <div class="revenue-model-selector-gap">
+        <span>한국 최근 기준</span>
+        <strong>${gapPct == null ? "비교 대기" : `기존 대비 Worker ${gapPct >= 0 ? "+" : ""}${gapPct.toFixed(1)}%`}</strong>
+        <small>선택 시 메인 KPI·국가별 밴드·TOP6·캐릭터 팝업이 함께 변경됩니다.</small>
+      </div>
+    </section>
+  `;
+}
+
 function renderRevenueModelCrosscheck(revenue) {
   const deltaRows = statsData.daily_chat_totals?.rows || [];
   const latestDeltaRow = deltaRows.at(-1) || {};
@@ -1823,19 +1972,19 @@ function renderRevenueModelCrosscheck(revenue) {
           <strong>${latestParticipantDelta ? signedNumber(latestParticipantDelta) : "—"}</strong>
           <small>${escapeHtml(latestDeltaRow.date || "관측일 없음")} · 공개 chatCount 합계의 일간 증가</small>
         </div>
-        <div class="revenue-model-card is-legacy">
+        <div class="revenue-model-card is-legacy${state.revenueModel === "legacy" ? " is-selected" : ""}">
           <span>기존 Signal Desk</span>
           <strong>${legacyMid ? formatWonBig(legacyMid) : "—"}</strong>
           <small>7일 평균 × 30일 × IR 역산계수 2,354원</small>
           <em>${legacyLow && legacyHigh ? `${formatWonBig(legacyLow)}–${formatWonBig(legacyHigh)}` : "범위 없음"}</em>
         </div>
-        <div class="revenue-model-card is-worker-current">
+        <div class="revenue-model-card is-worker-current${state.revenueModel === "worker" ? " is-selected" : ""}">
           <span>Worker 현재 메인</span>
           <strong>${workerCurrentMid ? formatWonBig(workerCurrentMid) : "—"}</strong>
           <small>최신 1일 × 30일 × 임의 중심계수 3,000원</small>
           <em>${workerCurrentLow && workerCurrentHigh ? `${formatWonBig(workerCurrentLow)}–${formatWonBig(workerCurrentHigh)}` : "범위 없음"}</em>
         </div>
-        <div class="revenue-model-card is-verified">
+        <div class="revenue-model-card is-verified${state.revenueModel === "pending" ? " is-selected" : ""}">
           <span>검증된 실제 매출</span>
           <strong>산출 불가</strong>
           <small>유료 턴·결제율·무상 코인·해금 매출 미공개</small>
@@ -1865,9 +2014,10 @@ function renderRevenuePanel() {
           <p class="section-kicker">01 · 매출 가능성</p>
           <h2>추정 매출 범위와 인기 캐릭터</h2>
         </div>
-        <span class="data-pill warning">${extrapolationDays ? `${extrapolationDays}일 외삽` : "표본 대기"} · 가정 시나리오</span>
+        <span class="data-pill warning">${state.revenueModel === "pending" ? "금액 검증 보류" : state.revenueModel === "worker" ? "최신 1일 · Worker 시나리오" : `${extrapolationDays ? `${extrapolationDays}일 외삽` : "표본 대기"} · 기존 시나리오`}</span>
       </div>
-      <p class="section-note metric-definition"><strong>공개 지표 정의:</strong> API의 chatCount는 캐릭터별 대화 참여자 카운터로 보이지만 중복제거 규칙은 미공개입니다. 유료 턴·세션 수가 아니며, 원화 환산액은 IR 역산계수를 적용한 활동 프록시입니다.</p>
+      <p class="section-note metric-definition"><strong>공개 지표 정의:</strong> API의 chatCount는 캐릭터별 대화 참여자 카운터로 보이지만 중복제거 규칙은 미공개입니다. 유료 턴·세션 수가 아니며, 모델 선택값은 실제 매출이 아닌 활동 프록시에만 적용됩니다.</p>
+      ${renderRevenueModelSelector(revenue)}
       ${renderRevenueModelCrosscheck(revenue)}
       <div class="chart-grid chart-grid-primary">
         ${renderRevenueBand(revenue)}
@@ -1893,13 +2043,17 @@ function renderGlobalPanel() {
   const comparison = statsData.site_comparison || {};
   const traction = statsData.site_traction || {};
   const revenue = statsData.site_revenue || {};
-  const perSite = revenue.per_site || {};
   const overall = comparison.overall || {};
+  const observedTotals = Object.fromEntries(MARKET_ORDER.map((market) => [market, statsMarketTotals(market).chats]));
+  const scenarios = Object.fromEntries(MARKET_ORDER.map((market) => [market, recentRevenueScenario(market)]));
   const siteRows = MARKET_ORDER.map((market) => ({
     label: MARKET_META[market].label,
-    value: perSite[market]?.revenue_mid || 0,
-    sub: market === "kr" ? "한국" : `KR 대비 ${formatPercent(overall.per_site_pct?.[market])}`
+    value: scenarios[market].mid,
+    sub: state.revenueModel === "pending" ? "금액 검증 보류" : `${scenarios[market].source} · 공개 chatCount 기반`
   }));
+  const recentAll = recentRevenueScenario("all");
+  const recentOverseasDelta = MARKET_ORDER.slice(1).reduce((sum, market) => sum + scenarios[market].delta, 0);
+  const recentOverseasPct = recentAll.delta > 0 ? (recentOverseasDelta / recentAll.delta) * 100 : null;
   return `
     <section class="panel stats-panel signal-section">
       <div class="panel-heading compact-heading">
@@ -1909,15 +2063,15 @@ function renderGlobalPanel() {
         </div>
         <span class="data-pill neutral">단가 미검증</span>
       </div>
-      <p class="section-note">한국·일본·Global·대만 공개 목록을 같은 시점에 수집했습니다. 해외 금액 프록시에는 한국 공개 chatCount 기반의 구형 역산계수를 임시 적용했습니다.</p>
+      <p class="section-note">한국·일본·Global·대만 공개 목록을 같은 시점에 수집했습니다. ${state.revenueModel === "pending" ? "국가별 실제 ASP가 없어 금액 산출을 보류합니다." : `${escapeHtml(activeRevenueModel().label)} 계수를 네 시장에 동일 적용한 시나리오입니다.`}</p>
       <div class="chart-grid chart-grid-primary">
-        ${renderMarketComposition(overall.totals || {}, revenue.overseas_contribution_pct)}
+        ${renderMarketComposition(observedTotals, recentOverseasPct)}
         ${renderStackedDaily("최근 하루 대화 증가량", traction.daily || [])}
       </div>
       <div class="chart-grid chart-grid-secondary">
-        ${renderBarChart("사이트별 월매출 프록시", "동일 역산계수 적용 · 투자 판단 전 현지 ASP 확인 필요", siteRows, formatWonBig, "#27c499", "full-span")}
+        ${renderBarChart("사이트별 월 금액 프록시", state.revenueModel === "pending" ? "검증 보류 · 모델 선택 시 전체 숫자 연동" : `${activeRevenueModel().label} · 투자 판단 전 현지 ASP 확인 필요`, siteRows, formatRevenueModelAmount, "#27c499", "full-span")}
       </div>
-      <p class="section-note footnote">${escapeHtml(revenue.assumption_note || "")}</p>
+      <p class="section-note footnote">${state.revenueModel === "pending" ? "공시 또는 결제 원장이 연결되기 전에는 실제 매출을 산출하지 않습니다." : escapeHtml(revenue.assumption_note || "")}</p>
     </section>
   `;
 }
@@ -3425,7 +3579,10 @@ function renderDialogContent(group, selected, dialogState = null) {
   const hourlyViewsPopover = renderCharacterHourlyPopover(selected, "views", hourlyMetrics);
   const hourlyChatsPopover = renderCharacterHourlyPopover(selected, "chats", hourlyMetrics);
   const hourlyHelp = hourlyMetrics ? `${hourlyMetrics.coverageLabel} · 🔍 호버 시 추이` : "시간대 이력 수집 대기";
-  const estimatedRevenue = formatWonBig(selected.chatsNumber * 2354);
+  const estimatedRevenue = formatRevenueModelAmount(revenueModelAmount(selected.chatsNumber));
+  const revenueModelHelp = state.revenueModel === "pending"
+    ? "유료 턴·결제율·실질단가 미공개"
+    : `공개 chatCount × ${formatNumber(activeRevenueModel().mid)}원 시나리오 · 실제 매출 아님`;
   const idDisplay = selected.character_id !== group.id
     ? `${group.id} <small style="font-size:11px;color:var(--muted)">(${MARKET_META[selected.market].short} ID ${selected.character_id})</small>`
     : `${group.id}`;
@@ -3446,7 +3603,7 @@ function renderDialogContent(group, selected, dialogState = null) {
       <div><span>Character ID</span><strong>${idDisplay}</strong></div>
       <div><span>누적 조회수</span><strong>${formatNumber(selected.viewsNumber)}</strong></div>
       <div><span>대화 참여자 카운터</span><strong>${formatNumber(selected.chatsNumber)}</strong><small>공개 API chatCount</small></div>
-      <div><span>IR 보정 프록시</span><strong style="color:#f6c87d">${estimatedRevenue}</strong><small>참여자 카운터 × 역산계수 2,354원 · 실제 매출 아님</small></div>
+      <div><span>금액 프록시 · ${escapeHtml(activeRevenueModel().short)}</span><strong style="color:#f6c87d">${estimatedRevenue}</strong><small>${escapeHtml(revenueModelHelp)}</small></div>
       <div class="is-daily-metric${selected.market === "kr" ? "" : " is-observed-metric"}"><span>${escapeHtml(periodMetrics.label)} 조회 증가</span><strong>${renderActivityDelta(periodMetrics.viewsDelta, "관측 데이터 없음")}</strong><small>${escapeHtml(periodMetrics.help)}</small></div>
       <div class="is-daily-metric${selected.market === "kr" ? "" : " is-observed-metric"}"><span>${escapeHtml(periodMetrics.label)} 대화 증가</span><strong>${renderActivityDelta(periodMetrics.chatsDelta, "관측 데이터 없음")}</strong><small>${escapeHtml(periodMetrics.help)}</small></div>
       <div class="character-rate-metric metric-views has-popover" tabindex="0">
@@ -3558,7 +3715,7 @@ function renderCharacterLeaderboard(byCharacter) {
           const marketLabels = (item.markets || group?.markets || []).map((market) => MARKET_META[market].short).join(" · ") || MARKET_META[selectedMarket].short;
           const tooltipId = `rank-tooltip-${selectedMarket}-${item.character_id}`;
           const views = Number(item.viewsNumber || 0);
-          const estimatedWon = formatWonBig(item.chatsNumber * 2354);
+          const estimatedWon = formatRevenueModelAmount(revenueModelAmount(item.chatsNumber));
           return `
             <button class="character-rank-item rank-${index + 1}" type="button" data-character-id="${item.character_id}" data-character-market="${selectedMarket}" aria-describedby="${tooltipId}">
               <span class="rank-number">${index + 1}</span>
@@ -3574,7 +3731,7 @@ function renderCharacterLeaderboard(byCharacter) {
               </span>
               <div class="rank-metrics-dual rank-revenue">
                 <span class="rank-metric-item"><small>시장 내 참여자 비중</small><strong>${share.toFixed(1)}%</strong></span>
-                <span class="rank-metric-item is-revenue"><small>IR 보정 프록시</small><strong>${estimatedWon}</strong></span>
+                <span class="rank-metric-item is-revenue"><small>${escapeHtml(activeRevenueModel().short)}</small><strong>${estimatedWon}</strong></span>
               </div>
               <span class="rank-tooltip" id="${tooltipId}" role="tooltip">
                 <strong>${escapeHtml(item.character_name || `#${item.character_id}`)}</strong>
@@ -3582,22 +3739,22 @@ function renderCharacterLeaderboard(byCharacter) {
                 <span>누적 조회 · ${formatNumber(item.viewsNumber)}회</span>
                 <span>대화 참여자 카운터 · ${formatNumber(item.chatsNumber)}</span>
                 <span>${escapeHtml(scopeLabel)} 참여자 비중 · ${share.toFixed(1)}%</span>
-                <span>IR 보정 프록시 · ${estimatedWon}</span>
+                <span>금액 프록시 · ${estimatedWon}</span>
                 <span>확인 시장 · ${escapeHtml(marketLabels)}</span>
-                <small>참여자 카운터 × 2,354원 역산계수이며 유료 결제·매출 순위가 아님</small>
+                <small>${state.revenueModel === "pending" ? "유료 턴·결제율·실질단가 미공개로 금액 산출 보류" : `공개 chatCount × ${formatNumber(activeRevenueModel().mid)}원 시나리오이며 유료 결제·매출 순위가 아님`}</small>
               </span>
             </button>
           `;
         }).join("")}
           </div>
-          <p class="chart-tail">통합·국가별 순위는 공개 chatCount 기준이며, 원화값은 참여자 카운터 × 2,354원 IR 보정 프록시(실제 매출 아님)입니다. 클릭하면 전체 이미지와 국가별 정보가 열립니다.</p>
+          <p class="chart-tail">통합·국가별 순위는 공개 chatCount 기준입니다. ${state.revenueModel === "pending" ? "금액은 검증 보류 상태입니다." : `${escapeHtml(activeRevenueModel().label)} 계수로 환산한 프록시이며 실제 매출이 아닙니다.`} 클릭하면 전체 이미지와 국가별 정보가 열립니다.</p>
         </div>
         <aside class="full-rank-panel" hidden aria-label="${escapeAttr(scopeLabel)} 전체 캐릭터 공개 대화 순위">
           <div class="full-rank-header"><div><strong>${escapeHtml(MARKET_META[selectedMarket].label)} 전체 캐릭터 순위</strong><small>${escapeHtml(scopeLabel)} 대화 참여자 카운터 기준 · ${formatNumber(fullRanking.length)}명</small></div><span>최신 ${escapeHtml(formatDateTime(dataset.generated_at))}</span></div>
           <div class="full-rank-list">
             ${fullRanking.map((record, index) => {
               const share = (record.chatsNumber / totalChats) * 100;
-              const estimatedRowWon = formatWonBig(record.chatsNumber * 2354);
+              const estimatedRowWon = formatRevenueModelAmount(revenueModelAmount(record.chatsNumber));
               return `<button class="full-rank-row" type="button" data-character-id="${record.character_id}" data-character-market="${selectedMarket}">
                 <span class="full-rank-number ${index < 3 ? `is-top-${index + 1}` : ""}">${index + 1}</span>
                 ${record.imageSrc ? `<img class="thumb" src="${escapeAttr(record.imageSrc)}" alt="" loading="lazy" data-fallback="${escapeAttr(record.character_name.slice(0, 1))}" />` : `<span class="thumb-fallback">${escapeHtml(record.character_name.slice(0, 1))}</span>`}
@@ -3734,25 +3891,54 @@ function renderRevenueBand(revenue) {
   const captureDate = new Date(statsData?.captured_at || Date.now());
   const elapsedDays = Math.max(1, Math.floor((captureDate - launchDate) / (1000 * 60 * 60 * 24)));
   const elapsedMonths = elapsedDays / 30;
-  const revPerSession = Number(revenue.constants?.rev_per_session || 2354);
-  const cumulativeMonthlyAverage = elapsedMonths > 0 ? (allTotals.chats * revPerSession) / elapsedMonths : 0;
+  const model = activeRevenueModel();
+  const cumulativeMonthlyAverage = elapsedMonths > 0 && model.mid != null ? (allTotals.chats * model.mid) / elapsedMonths : null;
+  const rangeLabel = `${formatNumber(model.low)}~${formatNumber(model.high)}원`;
+
+  if (state.revenueModel === "pending") {
+    const observedDelta = marketDeltaFromRow(latestTractionRow(), market);
+    return `
+      <article class="chart-card span-7 revenue-range-card revenue-pending-card" data-testid="revenue-pending-card">
+        <div class="chart-heading">
+          <div>
+            <h3>${mode === "cumulative" ? "론칭 누적" : "최근"} 금액 프록시: ${meta.flag} ${escapeHtml(meta.label)}</h3>
+            <p class="stat-help">실제 매출 산출에 필요한 유료 턴·결제율·무상 코인·해금 매출이 공개되지 않았습니다.</p>
+          </div>
+          <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
+            <button type="button" class="rev-tab-btn${mode === "recent" ? " active" : ""}" data-revenue-mode="recent">⚡ 최근 런레이트</button>
+            <button type="button" class="rev-tab-btn${mode === "cumulative" ? " active" : ""}" data-revenue-mode="cumulative">🏛️ 2026.02 론칭 누적</button>
+          </div>
+        </div>
+        <div class="revenue-pending-body">
+          <span>검증된 실제 매출</span>
+          <strong>산출 보류</strong>
+          <p>공개 chatCount는 유료 턴·세션 수가 아닙니다. 위 모델 선택에서 시나리오를 고르면 모든 금액 프록시가 함께 바뀝니다.</p>
+        </div>
+        <div class="revenue-confidence-grid">
+          <div><span>${mode === "cumulative" ? "공개 chatCount 합계" : "최신 공개 chatCount 증감"}</span><strong>${mode === "cumulative" ? formatNumber(currentTotals.chats) : `${observedDelta >= 0 ? "+" : ""}${formatNumber(observedDelta)}`}</strong><small>관측 입력만 표시</small></div>
+          <div><span>실제 결제 원장</span><strong>미연결</strong><small>유료 턴·결제액 필요</small></div>
+          <div class="is-caution"><span>판정</span><strong>경제적 의미 검증 전</strong><small>투자 판단용 실매출 아님</small></div>
+        </div>
+      </article>
+    `;
+  }
 
   if (mode === "cumulative") {
     // 2026.02 론칭 누적 실적 뷰
     if (market === "all") {
       const totalChats = allTotals.chats;
-      const grossMid = totalChats * 2354;
-      const grossLow = totalChats * 2000;
-      const grossHigh = totalChats * 2700;
+      const grossMid = totalChats * model.mid;
+      const grossLow = totalChats * model.low;
+      const grossHigh = totalChats * model.high;
       const monthlyAvg = grossMid / elapsedMonths;
 
       // 4개 시장별 누적 데이터 행 구성
       const marketRows = MARKET_ORDER.map((mKey) => {
         const mTotals = statsMarketTotals(mKey);
         const mChats = mTotals.chats;
-        const mMid = mChats * 2354;
-        const mLow = mChats * 2000;
-        const mHigh = mChats * 2700;
+        const mMid = mChats * model.mid;
+        const mLow = mChats * model.low;
+        const mHigh = mChats * model.high;
         const share = totalChats ? (mChats / totalChats) * 100 : 0;
         return {
           key: mKey,
@@ -3772,8 +3958,8 @@ function renderRevenueBand(revenue) {
         <article class="chart-card span-7 revenue-range-card">
           <div class="chart-heading">
             <div>
-              <h3>론칭 누적 활동의 IR 보정 프록시</h3>
-              <p class="stat-help">구형 IR 역산 모델: 2026년 2월 이후 공개 chatCount ${formatNumber(totalChats)}에 2,000~2,700원 계수 적용 · 실제 매출 아님</p>
+              <h3>론칭 누적 활동 금액 프록시 · ${escapeHtml(model.label)}</h3>
+              <p class="stat-help">2026년 2월 이후 공개 chatCount ${formatNumber(totalChats)}에 ${rangeLabel} 시나리오 적용 · 실제 매출 아님</p>
             </div>
             <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
               <button type="button" class="rev-tab-btn" data-revenue-mode="recent">⚡ 최근 런레이트</button>
@@ -3781,7 +3967,7 @@ function renderRevenueBand(revenue) {
             </div>
           </div>
           <div class="revenue-headline">
-            <div><span>4개국 누적 IR 보정 프록시</span><strong>${formatWonBig(grossMid)}</strong><small>참여자 카운터 합계 ${formatNumber(totalChats)} 환산 · 실제 매출 아님</small></div>
+            <div><span>4개국 누적 금액 프록시</span><strong>${formatWonBig(grossMid)}</strong><small>${escapeHtml(model.short)} · 공개 chatCount ${formatNumber(totalChats)} 환산</small></div>
             <div class="revenue-range-summary">
               <span><small>낮게 보면</small><strong>${formatWonBig(grossLow)}</strong></span>
               <span class="is-focus"><small>누적 기준값</small><strong>${formatWonBig(grossMid)}</strong></span>
@@ -3811,7 +3997,7 @@ function renderRevenueBand(revenue) {
               })
               .join("")}
           </div>
-          <div class="benchmark-key"><span></span><strong>4개국 누적 활동의 ${elapsedDays}일 환산 월평균 프록시는 약 ${formatWonBig(monthlyAvg)}</strong><small>해외는 한국 역산계수 2,354원 임시 적용</small></div>
+          <div class="benchmark-key"><span></span><strong>4개국 누적 활동의 ${elapsedDays}일 환산 월평균 프록시는 약 ${formatWonBig(monthlyAvg)}</strong><small>${escapeHtml(model.label)} 계수를 네 시장에 동일 적용</small></div>
           <div class="revenue-confidence-grid">
             <div><span>누적 운영 기간</span><strong>${elapsedDays}일 (7개월)</strong><small>2026.02.01 론칭</small></div>
             <div><span>누적 월평균</span><strong>월 약 ${formatWonBig(monthlyAvg)}</strong><small>4개국 누적 환산치</small></div>
@@ -3823,9 +4009,9 @@ function renderRevenueBand(revenue) {
 
     // 개별 국가 누적 뷰 (kr, jp, global, tw)
     const mChats = currentTotals.chats;
-    const mGrossMid = mChats * 2354;
-    const mGrossLow = mChats * 2000;
-    const mGrossHigh = mChats * 2700;
+    const mGrossMid = mChats * model.mid;
+    const mGrossLow = mChats * model.low;
+    const mGrossHigh = mChats * model.high;
     const mMonthlyAvg = mGrossMid / elapsedMonths;
     const isKr = market === "kr";
 
@@ -3834,7 +4020,7 @@ function renderRevenueBand(revenue) {
         <div class="chart-heading">
           <div>
             <h3>론칭 누적 활동 프록시: ${meta.flag} ${escapeHtml(meta.label)}</h3>
-            <p class="stat-help">구형 IR 역산 모델: ${escapeHtml(meta.label)} 공개 chatCount ${formatNumber(mChats)}에 2,000~2,700원 계수 적용 · 실제 매출 아님</p>
+            <p class="stat-help">${escapeHtml(model.label)}: ${escapeHtml(meta.label)} 공개 chatCount ${formatNumber(mChats)}에 ${rangeLabel} 시나리오 적용 · 실제 매출 아님</p>
           </div>
           <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
             <button type="button" class="rev-tab-btn" data-revenue-mode="recent">⚡ 최근 런레이트</button>
@@ -3850,7 +4036,7 @@ function renderRevenueBand(revenue) {
           </div>
         </div>
         ${!isKr ? `
-          <div class="benchmark-key is-warning" style="margin:12px 0 6px"><span>⚠️</span><strong>한국 공개 chatCount 기반 구형 역산계수(2,354원) 임시 적용</strong><small>${escapeHtml(meta.label)} 현지 ASP와 결제율 미확인</small></div>
+          <div class="benchmark-key is-warning" style="margin:12px 0 6px"><span>⚠️</span><strong>${escapeHtml(model.label)} 계수를 해외에도 임시 적용</strong><small>${escapeHtml(meta.label)} 현지 ASP와 결제율 미확인</small></div>
         ` : `
           <div class="benchmark-key" style="margin:12px 0 6px"><span></span><strong>한국 누적 활동의 환산 월평균 프록시는 약 ${formatWonBig(mMonthlyAvg)}</strong><small>대화 참여자 카운터 기반</small></div>
         `}
@@ -3865,12 +4051,13 @@ function renderRevenueBand(revenue) {
 
   // 최근 일일 런레이트 뷰 (recent)
   if (market === "all") {
-    // 4개국 전체 합산 런레이트 (약 10.8억원)
-    const grandMid = siteRevenue.grand_total_mid || 1076298234;
-    const grandLow = Math.round(grandMid * (2000 / 2354));
-    const grandHigh = Math.round(grandMid * (2700 / 2354));
-    const krMid = Number(siteRevenue.per_site?.kr?.revenue_mid || revenue.latest?.revenue_mid || 0);
-    const overseasMid = Number(siteRevenue.overseas_total_mid || Math.max(0, grandMid - krMid));
+    const grandScenario = recentRevenueScenario("all");
+    const krScenario = recentRevenueScenario("kr");
+    const grandMid = grandScenario.mid;
+    const grandLow = grandScenario.low;
+    const grandHigh = grandScenario.high;
+    const krMid = krScenario.mid;
+    const overseasMid = Math.max(0, grandMid - krMid);
     const velocityVsAveragePct = cumulativeMonthlyAverage > 0
       ? ((grandMid / cumulativeMonthlyAverage) - 1) * 100
       : null;
@@ -3879,9 +4066,9 @@ function renderRevenueBand(revenue) {
     const dailyKeys = MARKET_ORDER.map((m) => `${m}_delta`);
     const allMarketRows = dailyHistory.map((dRow) => {
       const dayTotalDelta = dailyKeys.reduce((sum, k) => sum + Number(dRow[k] || 0), 0);
-      const dayMid = dayTotalDelta * 30 * 2354;
-      const dayLow = dayTotalDelta * 30 * 2000;
-      const dayHigh = dayTotalDelta * 30 * 2700;
+      const dayMid = dayTotalDelta * 30 * model.mid;
+      const dayLow = dayTotalDelta * 30 * model.low;
+      const dayHigh = dayTotalDelta * 30 * model.high;
       return {
         date: dRow.date,
         delta: dayTotalDelta,
@@ -3897,8 +4084,8 @@ function renderRevenueBand(revenue) {
       <article class="chart-card span-7 revenue-range-card">
         <div class="chart-heading">
           <div>
-            <h3>월매출 프록시: 4개국 통합 활동 시나리오</h3>
-            <p class="stat-help">최근 공개 chatCount 증감을 30일로 환산한 구형 모델 참고값 · 2,000~2,700원 계수 · 실제 매출 아님</p>
+            <h3>월 금액 프록시: 4개국 통합 · ${escapeHtml(model.label)}</h3>
+            <p class="stat-help">${escapeHtml(grandScenario.source)} 공개 chatCount 증감을 30일로 환산 · ${rangeLabel} 시나리오 · 실제 매출 아님</p>
           </div>
           <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
             <button type="button" class="rev-tab-btn active" data-revenue-mode="recent">⚡ 최근 4개국 런레이트</button>
@@ -3922,12 +4109,12 @@ function renderRevenueBand(revenue) {
           <div class="scope-card is-kr">
             <span>🇰🇷 한국</span>
             <strong>${formatWonBig(krMid)}</strong>
-            <small>한국 최근 ${revenue.daily?.length || 0}일 평균</small>
+            <small>한국 ${escapeHtml(krScenario.source)}</small>
           </div>
           <div class="scope-card is-overseas">
             <span>🌏 해외 합산</span>
             <strong>${formatWonBig(overseasMid)}</strong>
-            <small>일본·Global·대만 · 한국 역산계수 임시 적용</small>
+            <small>일본·Global·대만 · 동일 시나리오 계수</small>
           </div>
         </div>
         <div class="band-list revenue-day-list">
@@ -3953,7 +4140,7 @@ function renderRevenueBand(revenue) {
             })
             .join("")}
         </div>
-        <div class="benchmark-key is-warning"><span>⚠️</span><strong>${formatWonBig(grandMid)}은 공개 참여자 카운터 증가의 30일 환산 프록시입니다.</strong></div>
+        <div class="benchmark-key is-warning"><span>⚠️</span><strong>${formatWonBig(grandMid)}은 ${escapeHtml(model.label)}의 공개 chatCount 30일 환산 프록시입니다.</strong></div>
         <div class="revenue-confidence-grid">
           <div><span>관측 표본</span><strong>시장별 4~5일</strong><small>최소 14일 권장</small></div>
           <div><span>통합 장기 월평균 대비</span><strong>${velocityVsAveragePct == null ? "-" : `${velocityVsAveragePct >= 0 ? "+" : ""}${velocityVsAveragePct.toFixed(1)}%`}</strong><small>장기 평균 ${formatWonBig(cumulativeMonthlyAverage)} ↔ 최근 속도 ${formatWonBig(grandMid)}</small></div>
@@ -3964,10 +4151,16 @@ function renderRevenueBand(revenue) {
   }
 
   if (market === "kr") {
-    // 한국 단독 런레이트 뷰 (약 6.7억원)
-    const rows = revenue.daily || [];
+    const rows = state.revenueModel === "legacy"
+      ? (revenue.daily || [])
+      : (statsData.daily_chat_totals?.rows || []).map((row) => ({
+          date: row.date,
+          revenue_mid: Number(row.delta || 0) * 30 * model.mid,
+          revenue_low: Number(row.delta || 0) * 30 * model.low,
+          revenue_high: Number(row.delta || 0) * 30 * model.high
+        }));
     const benchmark = revenue.ir_benchmark?.monthly || 900000000;
-    const latest = revenue.latest || rows.at(-1) || {};
+    const latest = state.revenueModel === "legacy" ? (revenue.latest || rows.at(-1) || {}) : (rows.at(-1) || {});
     const values = rows.flatMap((row) => [row.revenue_low, row.revenue_mid, row.revenue_high]);
     if (benchmark) values.push(benchmark);
     const max = Math.max(...values.map(Number), 1);
@@ -3976,8 +4169,8 @@ function renderRevenueBand(revenue) {
       <article class="chart-card span-7 revenue-range-card">
         <div class="chart-heading">
           <div>
-            <h3>월매출 프록시: 한국(KR) 활동 시나리오</h3>
-            <p class="stat-help">한국 최근 공개 chatCount 증감을 30일로 환산한 구형 모델 참고값 · 2,000~2,700원 계수 · 실제 매출 아님</p>
+            <h3>월 금액 프록시: 한국(KR) · ${escapeHtml(model.label)}</h3>
+            <p class="stat-help">한국 ${state.revenueModel === "legacy" ? "최근 7일 평균" : "최신 1일"} 공개 chatCount 증감을 30일로 환산 · ${rangeLabel} 시나리오 · 실제 매출 아님</p>
           </div>
           <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
             <button type="button" class="rev-tab-btn active" data-revenue-mode="recent">⚡ 최근 ${rows.length}일 런레이트</button>
@@ -4028,16 +4221,16 @@ function renderRevenueBand(revenue) {
   }
 
   // 개별 해외 시장 런레이트 뷰 (jp, tw, global)
-  const siteInfo = siteRevenue.per_site?.[market] || {};
-  const mRecentMid = siteInfo.revenue_mid || 0;
-  const mRecentLow = Math.round(mRecentMid * (2000 / 2354));
-  const mRecentHigh = Math.round(mRecentMid * (2700 / 2354));
+  const marketScenario = recentRevenueScenario(market);
+  const mRecentMid = marketScenario.mid;
+  const mRecentLow = marketScenario.low;
+  const mRecentHigh = marketScenario.high;
   const deltaKey = `${market}_delta`;
   const mRows = dailyHistory.map((dRow) => {
     const dVal = Number(dRow[deltaKey] || 0);
-    const dMid = dVal * 30 * 2354;
-    const dLow = dVal * 30 * 2000;
-    const dHigh = dVal * 30 * 2700;
+    const dMid = dVal * 30 * model.mid;
+    const dLow = dVal * 30 * model.low;
+    const dHigh = dVal * 30 * model.high;
     return { date: dRow.date, delta: dVal, revenue_mid: dMid, revenue_low: dLow, revenue_high: dHigh };
   });
 
@@ -4047,8 +4240,8 @@ function renderRevenueBand(revenue) {
     <article class="chart-card span-7 revenue-range-card">
       <div class="chart-heading">
         <div>
-          <h3>월매출 프록시: ${meta.flag} ${escapeHtml(meta.label)} 활동 시나리오</h3>
-          <p class="stat-help">${escapeHtml(meta.label)} 최근 참여자 카운터 증가를 30일로 환산 · 한국 역산계수(2,354원) 임시 적용</p>
+          <h3>월 금액 프록시: ${meta.flag} ${escapeHtml(meta.label)} · ${escapeHtml(model.label)}</h3>
+          <p class="stat-help">${escapeHtml(meta.label)} ${escapeHtml(marketScenario.source)} 공개 chatCount 증감을 30일로 환산 · ${rangeLabel} 시나리오</p>
         </div>
         <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
           <button type="button" class="rev-tab-btn active" data-revenue-mode="recent">⚡ 최근 런레이트</button>
@@ -4086,7 +4279,7 @@ function renderRevenueBand(revenue) {
           })
           .join("")}
       </div>
-      <div class="benchmark-key is-warning"><span>⚠️</span><strong>한국 공개 chatCount 기반 구형 역산계수(2,354원) 임시 적용</strong><small>${escapeHtml(meta.label)} 현지 ASP 및 결제율 미공시 상태 · IR 9억 비교 제외</small></div>
+      <div class="benchmark-key is-warning"><span>⚠️</span><strong>${escapeHtml(model.label)} 계수를 해외에도 임시 적용</strong><small>${escapeHtml(meta.label)} 현지 ASP 및 결제율 미공시 상태 · IR 9억 비교 제외</small></div>
       <div class="revenue-confidence-grid">
         <div><span>관측 표본</span><strong>최근 ${mRows.length}일</strong><small>일간 델타 연속 기록</small></div>
         <div><span>${escapeHtml(meta.label)} 런레이트</span><strong>월 약 ${formatWonBig(mRecentMid)}</strong><small>임시 단가 기준</small></div>
@@ -4214,7 +4407,7 @@ function renderMarketComposition(totals, overseasContribution) {
       <div class="composition-summary">
         <div class="composition-primary"><span>한국</span><strong>${koreaShare.toFixed(1)}%</strong><small>${formatNumber(totals.kr)}회</small></div>
         <div><span>해외 참여자 비중</span><strong>${overseasChatShare.toFixed(1)}%</strong><small>일본·Global·대만 합계</small></div>
-        <div><span>해외 매출 프록시 비중</span><strong>${formatPercent(overseasContribution)}</strong><small>한국 역산계수 임시 적용</small></div>
+        <div><span>해외 금액 프록시 비중</span><strong>${state.revenueModel === "pending" ? "산출 보류" : formatPercent(overseasContribution)}</strong><small>${state.revenueModel === "pending" ? "국가별 실질단가 미공개" : `${escapeHtml(activeRevenueModel().short)} · 동일 계수 적용`}</small></div>
       </div>
       <div class="composition-track" aria-label="시장별 대화 참여자 카운터 구성">
         ${MARKET_ORDER.map((market) => {
@@ -4230,7 +4423,7 @@ function renderMarketComposition(totals, overseasContribution) {
           return `<div><span><i style="background:${MARKET_META[market].color}"></i>${MARKET_META[market].label}</span><strong>${formatNumber(value)}회</strong><small>전체의 ${share.toFixed(1)}%</small></div>`;
         }).join("")}
       </div>
-      <p class="chart-tail">대화 비중과 가정 매출 비중은 서로 다른 지표입니다. 매출 비중은 국가별 실제 결제 단가가 확인되기 전 임시 추정입니다.</p>
+      <p class="chart-tail">대화 비중과 금액 프록시 비중은 서로 다른 지표입니다. 국가별 실제 결제 단가가 확인되기 전에는 시나리오로만 봅니다.</p>
     </article>
   `;
 }

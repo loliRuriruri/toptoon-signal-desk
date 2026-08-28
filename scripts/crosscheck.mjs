@@ -119,6 +119,38 @@ addCheck(
   "high"
 );
 
+const latestTraction = stats.site_traction?.daily?.at(-1) || {};
+const missingLatestMarketDeltas = ["kr", "jp", "global", "tw"]
+  .filter((market) => !Number.isFinite(Number(latestTraction[`${market}_delta`])));
+addCheck(
+  "revenue-worker-latest-market-coverage",
+  "Worker 최신 1일 4개 시장 입력",
+  missingLatestMarketDeltas.length ? "block" : "pass",
+  { date: latestTraction.date || null, missing: missingLatestMarketDeltas },
+  "동일 날짜의 kr·jp·global·tw delta",
+  missingLatestMarketDeltas.length ? "Worker 모델의 국가별·통합 금액을 일관되게 계산할 수 없음" : "최신 1일 4개 시장 delta가 모두 존재",
+  missingLatestMarketDeltas.length ? "critical" : "none"
+);
+
+const revenuePropagationMarkers = [
+  "data-revenue-model",
+  "revenueModelAmount",
+  "recentRevenueScenario",
+  "revenue-pending-card"
+];
+const missingRevenuePropagationMarkers = revenuePropagationMarkers.filter((marker) => !appSource.includes(marker));
+const hardcodedLegacyMultipliers = ["chatsNumber * 2354", "chats * 2354", "mChats * 2354", "dayTotalDelta * 30 * 2354"]
+  .filter((marker) => appSource.includes(marker));
+addCheck(
+  "revenue-model-global-propagation",
+  "전역 매출 모델 연동",
+  missingRevenuePropagationMarkers.length || hardcodedLegacyMultipliers.length ? "block" : "pass",
+  { missing_markers: missingRevenuePropagationMarkers, hardcoded_legacy_paths: hardcodedLegacyMultipliers },
+  "메인 KPI·국가별 밴드·TOP6·캐릭터 팝업 공통 계산기",
+  missingRevenuePropagationMarkers.length || hardcodedLegacyMultipliers.length ? "전역 선택과 무관하게 남는 금액 경로가 있음" : "공통 모델 상태와 계산기 사용",
+  missingRevenuePropagationMarkers.length || hardcodedLegacyMultipliers.length ? "critical" : "none"
+);
+
 const margin = Number(constants.net_margin || 0);
 const recomputedProfit = reportedRevenue * margin;
 const reportedProfit = Number(stats.revenue_nowcast?.latest?.profit_mid || 0);
