@@ -2520,23 +2520,6 @@ function recentMarketMovers(market, field, limit = 3) {
     .slice(0, limit);
 }
 
-function renderMoverChips(market, field) {
-  const rows = recentMarketMovers(market, field, 3);
-  if (!rows.length) return `<div class="mover-chip-empty">—</div>`;
-  const isView = field === "delta";
-  return `
-    <div class="mover-chip-list">
-      ${rows.map((row, idx) => `
-        <div class="mover-chip-badge ${isView ? "is-view" : "is-chat"}">
-          <span class="mover-badge-rank">${idx + 1}</span>
-          <span class="mover-badge-name">${escapeHtml(row.character_name)}</span>
-          <strong class="mover-badge-val">${signedNumber(row[field])}</strong>
-        </div>
-      `).join("")}
-    </div>
-  `;
-}
-
 function renderMoverNames(market, field) {
   const rows = recentMarketMovers(market, field);
   if (!rows.length) return "증가 항목 없음";
@@ -2557,41 +2540,15 @@ function renderObservedMarketCard(market, allDailyDeltas) {
   return `
     <article class="event-feed-card market-${escapeHtml(market)}">
       <div class="event-feed-top">
-        <div class="event-feed-title-block">
-          <span class="event-pill ${escapeHtml(market)}-pill">${meta.flag} ${escapeHtml(meta.label)} API 실측</span>
-          <span class="event-feed-window">최근 ${escapeHtml(activity.windowLabel)}</span>
-        </div>
-        <div class="event-feed-metrics-pill">
-          <span class="daily-stat-chip view-stat"><small>24h 조회</small> <strong>${signedNumber(daily.viewsDelta)}</strong></span>
-          <span class="daily-stat-chip chat-stat"><small>24h 대화</small> <strong>${signedNumber(daily.chatsDelta)}</strong></span>
-        </div>
+        <span class="event-pill ${escapeHtml(market)}-pill">${meta.flag} ${escapeHtml(meta.label)} API 실측</span>
+        <strong class="event-reason">24시간 환산 조회 ${signedNumber(daily.viewsDelta)} · 대화 ${signedNumber(daily.chatsDelta)}</strong>
       </div>
-      <div class="event-share-gauges">
-        <div class="event-gauge-col">
-          <div class="gauge-head">
-            <span>4개국 조회 증가 비중</span>
-            <strong class="gauge-view-text">${viewShare.toFixed(1)}%</strong>
-          </div>
-          <div class="gauge-track"><div class="gauge-fill view-fill" style="width:${Math.min(100, Math.max(3, viewShare))}%"></div></div>
-        </div>
-        <div class="event-gauge-col">
-          <div class="gauge-head">
-            <span>4개국 대화 증가 비중</span>
-            <strong class="gauge-chat-text">${chatShare.toFixed(1)}%</strong>
-          </div>
-          <div class="gauge-track"><div class="gauge-fill chat-fill" style="width:${Math.min(100, Math.max(3, chatShare))}%"></div></div>
-        </div>
-      </div>
-      <div class="event-movers-dual-grid">
-        <div class="mover-section">
-          <div class="mover-section-title">📈 조회 급상승 TOP 3</div>
-          ${renderMoverChips(market, "delta")}
-        </div>
-        <div class="mover-section">
-          <div class="mover-section-title">💬 대화 급상승 TOP 3</div>
-          ${renderMoverChips(market, "chat_delta")}
-        </div>
-      </div>
+      <p class="event-share-line">
+        <span>4개국 조회 증가 비중 <b>${viewShare.toFixed(1)}%</b></span>
+        <span>4개국 대화 증가 비중 <b>${chatShare.toFixed(1)}%</b></span>
+      </p>
+      <p class="event-feed-text"><strong>최근 ${escapeHtml(activity.windowLabel)} 조회 증가 상위:</strong> ${renderMoverNames(market, "delta")}</p>
+      <p class="event-feed-text"><strong>최근 ${escapeHtml(activity.windowLabel)} 대화 증가 상위:</strong> ${renderMoverNames(market, "chat_delta")}</p>
       <p class="event-metric-note">누적 상위가 아닌 최근 수집 간 델타 순위입니다. 증가 원인은 공개 API만으로 판단하지 않습니다.</p>
     </article>
   `;
