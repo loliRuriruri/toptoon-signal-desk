@@ -92,7 +92,10 @@ const state = {
   selectedSupplyMonth: null,
   simulatedPrice: null,
   revenueViewMode: "recent",
-  revenueModel: "pending",
+  // Show the most recent observable scenario on first load so the dashboard
+  // remains useful without pretending that proxy revenue is audited revenue.
+  // Users can still switch to the legacy comparison or the verification hold.
+  revenueModel: "worker",
   q: "",
   work: "",
   sort: "views-desc"
@@ -716,7 +719,9 @@ function writeHash() {
   if (state.q) params.set("q", state.q);
   if (state.work) params.set("work", state.work);
   if (state.sort !== "views-desc") params.set("sort", state.sort);
-  if (state.revenueModel !== "pending") params.set("revenue-model", state.revenueModel);
+  // Worker is the dashboard default. Persist every explicit alternative so a
+  // pending/legacy selection survives refresh and shared links.
+  if (state.revenueModel !== "worker") params.set("revenue-model", state.revenueModel);
   const next = `#${params.toString()}`;
   if (window.location.hash !== next) history.replaceState(null, "", next);
 }

@@ -25,8 +25,8 @@ test("signal, validation, and character flows render without console errors", as
   const legacyModel = revenueSelector.locator('[data-revenue-model="legacy"]');
   const workerModel = revenueSelector.locator('[data-revenue-model="worker"]');
   const allMarketRevenueCard = page.locator("#main-kpi-grid .stat-card").filter({ hasText: "통합 최근 금액 프록시" });
-  await expect(pendingModel).toHaveAttribute("aria-checked", "true");
-  await expect(allMarketRevenueCard).toContainText("산출 보류");
+  await expect(workerModel).toHaveAttribute("aria-checked", "true");
+  await expect(allMarketRevenueCard).toContainText("월 약");
   await legacyModel.click();
   await expect(legacyModel).toHaveAttribute("aria-checked", "true");
   const legacyAllMarketText = await allMarketRevenueCard.innerText();
@@ -36,6 +36,11 @@ test("signal, validation, and character flows render without console errors", as
   const workerAllMarketText = await allMarketRevenueCard.innerText();
   expect(workerAllMarketText).not.toBe(legacyAllMarketText);
   await expect(page.locator(".rank-revenue").first()).toContainText("Worker 3,000원");
+  await pendingModel.click();
+  await expect(pendingModel).toHaveAttribute("aria-checked", "true");
+  await expect(allMarketRevenueCard).toContainText("산출 보류");
+  await workerModel.click();
+  await expect(workerModel).toHaveAttribute("aria-checked", "true");
   await expect(page.locator(".character-rank-item")).toHaveCount(6);
   await expect(page.locator(".business-scope-bar")).toBeVisible();
   await expect(page.locator("[data-leaderboard-market]")).toHaveCount(5);
