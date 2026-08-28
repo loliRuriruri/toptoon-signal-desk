@@ -14,7 +14,7 @@ test("signal, validation, and character flows render without console errors", as
   await expect(page.locator(".period-comparison-card")).toHaveCount(3);
   await expect(page.locator(".character-rank-item")).toHaveCount(6);
   await expect(page.locator("[data-leaderboard-market]")).toHaveCount(5);
-  await expect(page.locator(".leaderboard-scope-note")).toContainText("통합 선택 적용 중");
+  await expect(page.locator(".leaderboard-scope-note")).toContainText("통합 상단 선택 적용 중");
   const japanRankingTab = page.locator('[data-leaderboard-market="jp"]');
   await japanRankingTab.click();
   await expect(japanRankingTab).toHaveAttribute("aria-pressed", "true");
@@ -23,7 +23,7 @@ test("signal, validation, and character flows render without console errors", as
   await expect(page.locator(".character-rank-item")).toHaveCount(6);
   await expect(page.locator('[data-stats-market="all"]')).toHaveAttribute("aria-selected", "true");
   await page.getByRole("button", { name: "상단 선택으로 돌아가기" }).click();
-  await expect(page.locator(".leaderboard-scope-note")).toContainText("통합 선택 적용 중");
+  await expect(page.locator(".leaderboard-scope-note")).toContainText("통합 상단 선택 적용 중");
   await page.locator('[data-stats-market="jp"]').click();
   await expect(page.locator(".leaderboard-scope-note")).toContainText("日本 상단 선택 적용 중");
   await expect(page.locator('[data-leaderboard-market="jp"]')).toHaveAttribute("aria-pressed", "true");
@@ -63,9 +63,21 @@ test("signal, validation, and character flows render without console errors", as
 
   await page.getByRole("button", { name: "캐릭터" }).click();
   await expect(page.getByText("전체 104명 표시")).toBeVisible();
-  await page.locator("[data-character-id]:visible").first().click();
-  await expect(page.locator("#character-dialog")).toBeVisible();
-  await expect(page.locator(".character-motion, .thumb-full").first()).toBeVisible();
+  await page.locator('[data-character-id="1"]:visible').first().click();
+  const characterDialog = page.locator("#character-dialog");
+  await expect(characterDialog).toBeVisible();
+  await expect(characterDialog.locator(".character-motion, .thumb-full").first()).toBeVisible();
+  await expect(characterDialog.locator('.motion-chip[data-dialog-market="jp"]')).toHaveCount(1);
+  const linkedDialogMetrics = await characterDialog.locator(".dialog-metrics").innerText();
+  await characterDialog.locator('.motion-chip[data-dialog-market="jp"]').click();
+  await expect(characterDialog.locator(".dialog-title-block .section-kicker")).toHaveText("日本");
+  await expect(characterDialog.locator(".dialog-market-scope-note")).toContainText("日本 프로필 단독 선택");
+  await expect(characterDialog.locator(".dialog-metrics")).toContainText("日本 시간당 평균 조회");
+  await expect(characterDialog.locator(".dialog-metrics")).not.toHaveText(linkedDialogMetrics);
+  await expect(characterDialog.locator('.motion-chip[data-dialog-market="jp"]')).toHaveAttribute("aria-pressed", "true");
+  await characterDialog.getByRole("button", { name: "상단 선택으로 돌아가기" }).click();
+  await expect(characterDialog.locator(".dialog-market-scope-note")).toContainText("통합 상단 선택 적용 중");
+  await expect(characterDialog.locator(".dialog-title-block .section-kicker")).toHaveText("한국");
   await page.locator("#dialog-close").click();
 
   await page.getByRole("button", { name: "API 설정" }).click();

@@ -79,6 +79,7 @@ let aiDiagnosisData = null;
 let records = [];
 let groups = [];
 let lastTrigger = null;
+let activeDialog = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   bindElements();
@@ -162,6 +163,7 @@ function bindEvents() {
       state.work = "";
       syncControls();
       render();
+      syncOpenDialogToSource("characters");
       writeHash();
     });
   });
@@ -174,6 +176,7 @@ function bindEvents() {
       syncControls();
       renderStatsDashboard();
       bindResultButtons();
+      syncOpenDialogToSource("stats");
       writeHash();
     });
   });
@@ -302,6 +305,7 @@ function bindEvents() {
   els.dialog.addEventListener("close", () => {
     if (lastTrigger) lastTrigger.focus();
     lastTrigger = null;
+    activeDialog = null;
   });
 
   els.apiSettingsForm?.addEventListener("submit", saveApiSettings);
@@ -2919,9 +2923,9 @@ function renderCharacterMotion(group, selected) {
       </div>
       <span class="motion-badge"><i></i> 공식 모션${motionCount > 1 ? ` · ${motionCount}개 바리에이션` : ""}</span>
       ${motionCount > 1 ? `
-        <div class="motion-variation-switcher" aria-label="모션 영상 바리에이션">
+        <div class="motion-variation-switcher" aria-label="프로필 국가 및 모션 전환">
           ${motions.map((m) => `
-            <button type="button" class="motion-chip${m.market === (currentMotion?.market || selected.market) ? " active" : ""}" data-motion-src="${escapeAttr(m.videoUrl)}" data-motion-poster="${escapeAttr(m.poster)}" data-motion-market="${escapeAttr(m.label)}" title="${escapeAttr(`${m.label} 버전 모션 재생`)}">
+            <button type="button" class="motion-chip${m.market === selected.market ? " active" : ""}" data-dialog-market="${escapeAttr(m.market)}" data-motion-src="${escapeAttr(m.videoUrl)}" data-motion-poster="${escapeAttr(m.poster)}" data-motion-market="${escapeAttr(m.label)}" aria-pressed="${String(m.market === selected.market)}" aria-label="${escapeAttr(`${m.label} 프로필 및 모션 전환`)}" title="${escapeAttr(`${m.label} 프로필 및 모션 전환`)}">
               <span class="motion-chip-dot"></span>
               <span>${MARKET_FLAGS[m.market] || ""} ${escapeHtml(m.label)}</span>
             </button>
@@ -2961,23 +2965,97 @@ function renderMarketPills(markets, activeMarket) {
   `;
 }
 
+function resolveDialogSelection(group, scopeMarket) {
+  const requestedScope = MARKET_META[scopeMarket] ? scopeMarket : "all";
+  const record = requestedScope === "all"
+    ? group.primary
+    : group.locales[requestedScope] || group.primary;
+  const resolvedMarket = record?.market || "kr";
+  return {
+    scope: requestedScope !== "all" && !group.locales[requestedScope] ? resolvedMarket : requestedScope,
+    record
+  };
+}
+
+function renderActiveDialog() {
+  if (!activeDialog?.group || !els.dialogContent) return;
+  const selected = activeDialog.group.locales[activeDialog.market] || activeDialog.group.primary;
+  if (!selected) return;
+  activeDialog.market = selected.market;
+  activeDialog.override = selected.market !== activeDialog.linkedMarket;
+  els.dialogContent.innerHTML = renderDialogContent(activeDialog.group, selected, activeDialog);
+  bindDialogContent(els.dialogContent);
+}
+
+function syncOpenDialogToSource(source) {
+  if (!activeDialog || activeDialog.source !== source) return;
+  const linkedScope = source === "stats" ? state.statsMarket : state.market;
+  const resolved = resolveDialogSelection(activeDialog.group, linkedScope);
+  if (!resolved.record) return;
+  activeDialog.linkedScope = resolved.scope;
+  activeDialog.linkedMarket = resolved.record.market;
+  activeDialog.market = resolved.record.market;
+  activeDialog.override = false;
+  renderActiveDialog();
+}
+
+function resetDialogToLinkedMarket() {
+  if (!activeDialog) return false;
+  const linkedScope = activeDialog.source === "stats" ? state.statsMarket : state.market;
+  const resolved = resolveDialogSelection(activeDialog.group, linkedScope);
+  if (!resolved.record) return false;
+  activeDialog.linkedScope = resolved.scope;
+  activeDialog.linkedMarket = resolved.record.market;
+  activeDialog.market = resolved.record.market;
+  activeDialog.override = false;
+  renderActiveDialog();
+  return true;
+}
+
+function switchDialogMarket(nextMarket) {
+  if (!activeDialog?.group?.locales?.[nextMarket]) return false;
+  activeDialog.market = nextMarket;
+  activeDialog.override = nextMarket !== activeDialog.linkedMarket;
+  renderActiveDialog();
+  return true;
+}
+
 function openDialog(characterId, trigger, preferredMarket = null) {
   const idNum = Number(characterId);
   const group = groups.find((candidate) => candidate.id === idNum || candidate.allRecords.some((r) => Number(r.character_id) === idNum || Number(r.canonicalId) === idNum));
   if (!group) return;
-  const selected =
-    preferredMarket && preferredMarket !== "all"
-      ? group.locales[preferredMarket] || group.primary
-      : state.market === "all" ? group.primary : group.locales[state.market] || group.primary;
+  const hasPreferredMarket = Boolean(MARKET_META[preferredMarket]);
+  const source = hasPreferredMarket ? "stats" : "characters";
+  const requestedScope = hasPreferredMarket
+    ? preferredMarket
+    : MARKET_META[state.market] ? state.market : "all";
+  const resolved = resolveDialogSelection(group, requestedScope);
+  const selected = resolved.record;
+  if (!selected) return;
+  activeDialog = {
+    group,
+    source,
+    linkedScope: resolved.scope,
+    linkedMarket: selected.market,
+    market: selected.market,
+    override: false
+  };
   lastTrigger = trigger;
-  els.dialogContent.innerHTML = renderDialogContent(group, selected);
-  bindImageFallbacks(els.dialogContent);
-  bindMotionControls(els.dialogContent);
+  renderActiveDialog();
   if (typeof els.dialog.showModal === "function") {
     els.dialog.showModal();
   } else {
     els.dialog.setAttribute("open", "");
   }
+}
+
+function bindDialogContent(root) {
+  bindImageFallbacks(root);
+  bindMotionControls(root);
+  root.querySelector("[data-dialog-sync]")?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    resetDialogToLinkedMarket();
+  });
 }
 
 function bindMotionControls(root) {
@@ -2988,6 +3066,8 @@ function bindMotionControls(root) {
   chips.forEach((chip) => {
     chip.addEventListener("click", (e) => {
       e.stopPropagation();
+      const marketKey = chip.dataset.dialogMarket;
+      if (marketKey && switchDialogMarket(marketKey)) return;
       const nextSrc = chip.dataset.motionSrc;
       const nextPoster = chip.dataset.motionPoster;
       const marketLabel = chip.dataset.motionMarket;
@@ -3021,7 +3101,7 @@ function closeDialog() {
   }
 }
 
-function renderDialogContent(group, selected) {
+function renderDialogContent(group, selected, dialogState = null) {
   const model = viewModel(selected);
   const activity = characterActivityForMarket(selected, selected.market);
   const hourlyMetrics = characterHourlyMetrics(selected);
@@ -3036,6 +3116,13 @@ function renderDialogContent(group, selected) {
   const idDisplay = selected.character_id !== group.id
     ? `${group.id} <small style="font-size:11px;color:var(--muted)">(${MARKET_META[selected.market].short} ID ${selected.character_id})</small>`
     : `${group.id}`;
+  const isDialogOverride = Boolean(dialogState?.override);
+  const linkedScope = MARKET_META[dialogState?.linkedScope] ? dialogState.linkedScope : selected.market;
+  const scopeMeta = MARKET_META[isDialogOverride ? selected.market : linkedScope] || MARKET_META[selected.market];
+  const scopeLabel = isDialogOverride ? `${scopeMeta.label} 프로필 단독 선택` : `${scopeMeta.label} 상단 선택 적용 중`;
+  const scopeDetail = isDialogOverride
+    ? "상단 국가와 별도로 이 프로필만 보는 중입니다."
+    : "상단 국가 선택과 프로필 이미지·지표가 함께 전환됩니다.";
   return `
     <div class="dialog-hero">
       <div class="dialog-image-frame">
@@ -3048,6 +3135,11 @@ function renderDialogContent(group, selected) {
         <p class="dialog-media-note">${model.videoSrc ? "공식 소개 페이지의 안전 모션 미리보기를 자동 재생합니다." : "모션 미리보기가 없는 캐릭터는 전체 이미지를 표시합니다."}</p>
         ${officialLink}
         <div class="pill-list">${renderMarketPills(group.markets, selected.market)}</div>
+        <div class="dialog-market-scope-note${isDialogOverride ? " is-overridden" : " is-linked"}" aria-live="polite">
+          <span aria-hidden="true">${isDialogOverride ? "🎯" : "🔗"}</span>
+          <p><strong>${escapeHtml(scopeMeta.flag)} ${escapeHtml(scopeLabel)}</strong><small>${escapeHtml(scopeDetail)}</small></p>
+          ${isDialogOverride ? `<button type="button" class="dialog-market-sync" data-dialog-sync>상단 선택으로 돌아가기</button>` : ""}
+        </div>
       </div>
     </div>
     <div class="dialog-metrics">
