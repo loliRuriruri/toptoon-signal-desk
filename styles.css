@@ -5489,3 +5489,323 @@ tbody tr:last-child td {
 .dialog-market-status-pill .dialog-market-sync:hover {
   background: rgba(245, 167, 66, 0.4);
 }
+
+/* ==========================================================================
+   4-Market Observed Cards & Promotion Cards Visual Upgrade
+   ========================================================================== */
+.event-feed-card {
+  padding: 12px 14px !important;
+  border-radius: 10px !important;
+  background: rgba(14, 20, 31, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+  transition: transform 140ms ease, border-color 140ms ease !important;
+}
+
+.event-feed-card:hover {
+  transform: translateY(-1px);
+}
+
+.event-feed-card.market-kr { border-color: rgba(59, 130, 246, 0.45) !important; background: linear-gradient(145deg, rgba(59, 130, 246, 0.08), rgba(14, 20, 31, 0.96)) !important; }
+.event-feed-card.market-jp { border-color: rgba(239, 68, 68, 0.45) !important; background: linear-gradient(145deg, rgba(239, 68, 68, 0.08), rgba(14, 20, 31, 0.96)) !important; }
+.event-feed-card.market-global { border-color: rgba(16, 185, 129, 0.45) !important; background: linear-gradient(145deg, rgba(16, 185, 129, 0.08), rgba(14, 20, 31, 0.96)) !important; }
+.event-feed-card.market-tw { border-color: rgba(245, 158, 11, 0.45) !important; background: linear-gradient(145deg, rgba(245, 158, 11, 0.08), rgba(14, 20, 31, 0.96)) !important; }
+
+.event-feed-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding-bottom: 8px;
+}
+
+.event-feed-title-block {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.event-feed-window {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 750;
+}
+
+.event-feed-metrics-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.daily-stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 10.5px;
+}
+
+.daily-stat-chip small {
+  color: var(--muted);
+  font-size: 9.5px;
+}
+
+.daily-stat-chip.view-stat {
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #93c5fd;
+}
+
+.daily-stat-chip.chat-stat {
+  background: rgba(39, 196, 153, 0.12);
+  border: 1px solid rgba(39, 196, 153, 0.3);
+  color: #56d364;
+}
+
+.event-share-gauges {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 8px 10px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.event-gauge-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gauge-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.gauge-view-text { color: #60a5fa; font-size: 11px; font-weight: 850; }
+.gauge-chat-text { color: #34d399; font-size: 11px; font-weight: 850; }
+
+.gauge-track {
+  width: 100%;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.gauge-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 400ms ease;
+}
+
+.gauge-fill.view-fill { background: linear-gradient(90deg, #2563eb, #60a5fa); box-shadow: 0 0 6px rgba(37, 99, 235, 0.5); }
+.gauge-fill.chat-fill { background: linear-gradient(90deg, #059669, #34d399); box-shadow: 0 0 6px rgba(16, 185, 129, 0.5); }
+
+.event-movers-dual-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.mover-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.025);
+  padding: 7px 9px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mover-section-title {
+  font-size: 10px;
+  font-weight: 800;
+  color: #cbd5e1;
+  margin-bottom: 2px;
+}
+
+.mover-chip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mover-chip-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 10.5px;
+}
+
+.mover-chip-badge.is-view { border-left: 2px solid #3b82f6; }
+.mover-chip-badge.is-chat { border-left: 2px solid #10b981; }
+
+.mover-badge-rank {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 850;
+  width: 10px;
+}
+
+.mover-badge-name {
+  flex: 1 1 auto;
+  color: #e2e8f0;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mover-badge-val {
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.mover-chip-badge.is-view .mover-badge-val { color: #93c5fd; }
+.mover-chip-badge.is-chat .mover-badge-val { color: #6ee7b7; }
+.mover-chip-empty { font-size: 10px; color: var(--muted); padding: 4px; }
+
+/* Promotion Cards Refined Theme */
+.promotion-card {
+  min-width: 0 !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+  border-radius: 10px !important;
+  background: rgba(14, 20, 31, 0.95) !important;
+  padding: 12px 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+  transition: border-color 140ms ease !important;
+}
+
+.promotion-card.is-verified {
+  border-color: rgba(16, 185, 129, 0.45) !important;
+  background: linear-gradient(145deg, rgba(16, 185, 129, 0.07), rgba(14, 20, 31, 0.96)) !important;
+}
+.promotion-card.is-partial {
+  border-color: rgba(245, 158, 11, 0.45) !important;
+  background: linear-gradient(145deg, rgba(245, 158, 11, 0.07), rgba(14, 20, 31, 0.96)) !important;
+}
+.promotion-card.is-none {
+  border-color: rgba(148, 163, 184, 0.18) !important;
+  background: rgba(14, 20, 31, 0.75) !important;
+}
+.promotion-card.is-unavailable {
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  background: linear-gradient(145deg, rgba(239, 68, 68, 0.07), rgba(14, 20, 31, 0.96)) !important;
+}
+
+.promotion-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 750;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding-bottom: 6px;
+}
+
+.promotion-market-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #f1f5f9;
+}
+
+.promotion-status-badge {
+  border-radius: 999px;
+  background: rgba(98, 168, 255, 0.15);
+  border: 1px solid rgba(98, 168, 255, 0.3);
+  padding: 2px 8px;
+  color: #9fc5ff;
+  font-size: 9.5px;
+  font-weight: 800;
+}
+
+.promotion-card.is-verified .promotion-status-badge {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+}
+
+.promotion-card.is-partial .promotion-status-badge {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fcd34d;
+}
+
+.promotion-empty-msg {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+.promotion-items-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.promotion-item {
+  display: grid;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 7px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.promotion-item-title {
+  color: #f1f5f9;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.promotion-item-verify {
+  color: #94a3b8;
+  font-size: 9.5px;
+}
+
+.promotion-link-btn {
+  color: #60a5fa !important;
+  font-size: 9.5px;
+  font-weight: 750;
+  text-decoration: none;
+  width: fit-content;
+  transition: color 140ms ease;
+}
+
+.promotion-link-btn:hover {
+  text-decoration: underline;
+  color: #93c5fd !important;
+}
+
+.promotion-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 4px;
+  font-size: 9px;
+  color: #64748b;
+}

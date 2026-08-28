@@ -2520,6 +2520,23 @@ function recentMarketMovers(market, field, limit = 3) {
     .slice(0, limit);
 }
 
+function renderMoverChips(market, field) {
+  const rows = recentMarketMovers(market, field, 3);
+  if (!rows.length) return '<div class="mover-chip-empty">—</div>';
+  const isView = field === 'delta';
+  return `
+    <div class="mover-chip-list">
+      ${rows.map((row, idx) => `
+        <div class="mover-chip-badge ${isView ? "is-view" : "is-chat"}">
+          <span class="mover-badge-rank">${idx + 1}</span>
+          <span class="mover-badge-name">${escapeHtml(row.character_name)}</span>
+          <strong class="mover-badge-val">${signedNumber(row[field])}</strong>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
 function renderMoverNames(market, field) {
   const rows = recentMarketMovers(market, field);
   if (!rows.length) return "증가 항목 없음";
@@ -2540,15 +2557,41 @@ function renderObservedMarketCard(market, allDailyDeltas) {
   return `
     <article class="event-feed-card market-${escapeHtml(market)}">
       <div class="event-feed-top">
-        <span class="event-pill ${escapeHtml(market)}-pill">${meta.flag} ${escapeHtml(meta.label)} API 실측</span>
-        <strong class="event-reason">24시간 환산 조회 ${signedNumber(daily.viewsDelta)} · 대화 ${signedNumber(daily.chatsDelta)}</strong>
+        <div class="event-feed-title-block">
+          <span class="event-pill ${escapeHtml(market)}-pill">${meta.flag} ${escapeHtml(meta.label)} API 실측</span>
+          <span class="event-feed-window">최근 ${escapeHtml(activity.windowLabel)}</span>
+        </div>
+        <div class="event-feed-metrics-pill">
+          <span class="daily-stat-chip view-stat"><small>24h 조회</small> <strong>${signedNumber(daily.viewsDelta)}</strong></span>
+          <span class="daily-stat-chip chat-stat"><small>24h 대화</small> <strong>${signedNumber(daily.chatsDelta)}</strong></span>
+        </div>
       </div>
-      <p class="event-share-line">
-        <span>4개국 조회 증가 비중 <b>${viewShare.toFixed(1)}%</b></span>
-        <span>4개국 대화 증가 비중 <b>${chatShare.toFixed(1)}%</b></span>
-      </p>
-      <p class="event-feed-text"><strong>최근 ${escapeHtml(activity.windowLabel)} 조회 증가 상위:</strong> ${renderMoverNames(market, "delta")}</p>
-      <p class="event-feed-text"><strong>최근 ${escapeHtml(activity.windowLabel)} 대화 증가 상위:</strong> ${renderMoverNames(market, "chat_delta")}</p>
+      <div class="event-share-gauges">
+        <div class="event-gauge-col">
+          <div class="gauge-head">
+            <span>4개국 조회 증가 비중</span>
+            <strong class="gauge-view-text">${viewShare.toFixed(1)}%</strong>
+          </div>
+          <div class="gauge-track"><div class="gauge-fill view-fill" style="width:${Math.min(100, Math.max(3, viewShare))}%"></div></div>
+        </div>
+        <div class="event-gauge-col">
+          <div class="gauge-head">
+            <span>4개국 대화 증가 비중</span>
+            <strong class="gauge-chat-text">${chatShare.toFixed(1)}%</strong>
+          </div>
+          <div class="gauge-track"><div class="gauge-fill chat-fill" style="width:${Math.min(100, Math.max(3, chatShare))}%"></div></div>
+        </div>
+      </div>
+      <div class="event-movers-dual-grid">
+        <div class="mover-section">
+          <div class="mover-section-title">📈 최근 ${escapeHtml(activity.windowLabel)} 조회 증가 TOP 3</div>
+          ${renderMoverChips(market, "delta")}
+        </div>
+        <div class="mover-section">
+          <div class="mover-section-title">💬 최근 ${escapeHtml(activity.windowLabel)} 대화 증가 TOP 3</div>
+          ${renderMoverChips(market, "chat_delta")}
+        </div>
+      </div>
       <p class="event-metric-note">누적 상위가 아닌 최근 수집 간 델타 순위입니다. 증가 원인은 공개 API만으로 판단하지 않습니다.</p>
     </article>
   `;
@@ -2579,13 +2622,13 @@ function renderOfficialPromotionCard(market) {
     return `
       <article class="promotion-card is-${statusClass}">
         <div class="promotion-card-head">
-          <span>${meta.flag} ${escapeHtml(meta.label)}</span>
-          <b>${status === "none" ? "공식 프로모션 미감지" : "출처 확인 불가"}</b>
+          <span class="promotion-market-label">${meta.flag} ${escapeHtml(meta.label)}</span>
+          <b class="promotion-status-badge is-none">${status === "none" ? "공식 프로모션 미감지" : "출처 확인 불가"}</b>
         </div>
-        <p>${message}</p>
+        <p class="promotion-empty-msg">${message}</p>
         <div class="promotion-card-meta">
           <span>${observedAt ? `${escapeHtml(formatShortTimestamp(observedAt))} 확인` : "확인 시각 없음"}</span>
-          ${observation?.homepage_url ? `<a href="${escapeHtml(observation.homepage_url)}" target="_blank" rel="noopener noreferrer">공식 홈 열기 ↗</a>` : ""}
+          ${observation?.homepage_url ? `<a class="promotion-link-btn" href="${escapeHtml(observation.homepage_url)}" target="_blank" rel="noopener noreferrer">공식 홈 열기 ↗</a>` : ""}
         </div>
       </article>
     `;
@@ -2598,9 +2641,9 @@ function renderOfficialPromotionCard(market) {
       : "API 배지만 확인 · 홈 문구 미확인";
     return `
       <div class="promotion-item">
-        <strong>${escapeHtml(title)}</strong>
-        <span>${escapeHtml(verificationLabel)}</span>
-        <a href="${escapeHtml(item.detail_url)}" target="_blank" rel="noopener noreferrer">공식 캐릭터 페이지 ↗</a>
+        <strong class="promotion-item-title">${escapeHtml(title)}</strong>
+        <span class="promotion-item-verify">${escapeHtml(verificationLabel)}</span>
+        <a class="promotion-link-btn" href="${escapeHtml(item.detail_url)}" target="_blank" rel="noopener noreferrer">공식 캐릭터 페이지 ↗</a>
       </div>
     `;
   }).join("");
@@ -2608,13 +2651,15 @@ function renderOfficialPromotionCard(market) {
   return `
     <article class="promotion-card is-${statusClass}">
       <div class="promotion-card-head">
-        <span>${meta.flag} ${escapeHtml(meta.label)}</span>
-        <b>${escapeHtml(promotionChangeLabel(observation.change))}</b>
+        <span class="promotion-market-label">${meta.flag} ${escapeHtml(meta.label)}</span>
+        <b class="promotion-status-badge is-${escapeHtml(observation.change || "active")}">${escapeHtml(promotionChangeLabel(observation.change))}</b>
       </div>
-      ${itemHtml}
+      <div class="promotion-items-wrap">
+        ${itemHtml}
+      </div>
       <div class="promotion-card-meta">
         <span>${observedAt ? `${escapeHtml(formatShortTimestamp(observedAt))} 확인` : "확인 시각 없음"}</span>
-        <a href="${escapeHtml(observation.homepage_url)}" target="_blank" rel="noopener noreferrer">출처 홈 ↗</a>
+        <a class="promotion-link-btn" href="${escapeHtml(observation.homepage_url)}" target="_blank" rel="noopener noreferrer">출처 홈 ↗</a>
       </div>
     </article>
   `;
