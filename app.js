@@ -3214,7 +3214,6 @@ function renderDialogContent(group, selected, dialogState = null) {
         <small>${escapeHtml(hourlyHelp)}</small>
         <div class="stat-card-popover character-metric-popover">${hourlyChatsPopover}</div>
       </div>
-      <div class="collection-time-metric"><span>수집 기준 시각</span><strong>${activity || hourlyMetrics ? escapeHtml(formatActivityTimestamp(hourlyMetrics?.latestAt || activity?.last_seen)) : "다음 수집 후 계산"}</strong><small>공식 공개 API 카운터 · 고유 이용자/결제/매출 아님</small></div>
     </div>
     <h3>지역별 캐릭터 정보 (4개국 연동)</h3>
     <div class="locale-list">
