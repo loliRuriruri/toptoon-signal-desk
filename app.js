@@ -114,7 +114,6 @@ function bindElements() {
   els.statsCaveat = document.querySelector("#stats-caveat");
   els.mainKpiGrid = document.querySelector("#main-kpi-grid");
   els.statsMarketTabs = [...document.querySelectorAll("[data-stats-market]")];
-  els.statsMarketNote = document.querySelector("#stats-market-note");
   els.statsMarketKpiGrid = document.querySelector("#stats-market-kpi-grid");
   els.statsMarketDefinition = document.querySelector("#stats-market-definition");
   els.statsDashboard = document.querySelector("#stats-dashboard");
@@ -779,7 +778,7 @@ function renderStatsDashboard() {
 
   els.statsCapturedAt.textContent = `${formatDateTime(statsData.captured_at)} 수집 스냅샷`;
   els.statsCaveat.textContent =
-    `관측 채팅수에 미검증 단가를 적용한 참고 시나리오입니다. 2026.02 론칭 후 4개국 누적 추정(${elapsedMonthLabel} · ${elapsedDays}일)과 최근 시장별 4~${accumulatedDays}일 증가 속도를 같은 4개국 범위로 비교합니다.`;
+    `공개 대화수에 단가를 적용한 참고 환산입니다. 누적 평균과 최근 4~${accumulatedDays}일 속도를 분리해 표시합니다.`;
 
   els.mainKpiGrid.innerHTML = `
     <div class="kpi-dual-container">
@@ -789,7 +788,6 @@ function renderStatsDashboard() {
             <span class="kpi-group-tag tag-cumulative">🏛️ 서비스 론칭 누적 관측</span>
             <strong>🌐 4개국 통합 · 2026.02 이후 ${elapsedMonthLabel} 장기 평균</strong>
           </div>
-          <span class="stat-help">4개국 누적 대화 ${formatNumber(allTotals.chats)}회 × 결제 단가 2,354원 기준</span>
         </div>
         <div class="kpi-card-subgrid">
           ${renderStatCards([
@@ -807,7 +805,6 @@ function renderStatsDashboard() {
             <span class="kpi-group-tag tag-velocity">⚡ 최근 일일 속도 관측 (현재 런레이트)</span>
             <strong>🌐 4개국 통합 속도 및 시장별 기여 (최근 4~${accumulatedDays}일 런레이트)</strong>
           </div>
-          <span class="stat-help">최근 일평균 증가량 × 30일 환산 (통합 10.8억 = 한국 6.7억 + 해외 4.1억)</span>
         </div>
         <div class="kpi-card-subgrid kpi-scope-split-grid">
           ${renderStatCards([
@@ -969,9 +966,6 @@ function renderStatsMarketSummary() {
   const meta = MARKET_META[market];
   const totals = statsMarketTotals(market);
   const activity = activitySummaryForMarket(market);
-  const capturedAt = market === "all"
-    ? dataset?.generated_at
-    : dataset?.market_snapshots?.[market]?.captured_at || dataset?.generated_at;
 
   // 1. 일간(24h) 델타 계산 (4개 시장 각각의 24h 실측 합산)
   const dailyDeltas = getDailyMarketDeltas(market);
@@ -979,9 +973,6 @@ function renderStatsMarketSummary() {
   const dailyChatsDelta = dailyDeltas.chatsDelta;
   const dailyDateLabel = dailyDeltas.dateLabel;
 
-  els.statsMarketNote.textContent = market === "all"
-    ? "4개 시장 공식 공개 카탈로그 합계 · 중복 ID는 캐릭터 수에서 통합"
-    : `${meta.label} 공식 공개 카탈로그 원본`;
   els.statsMarketTabs.forEach((button) => {
     const buttonMarket = button.dataset.statsMarket;
     if (buttonMarket === "all") {
@@ -1005,13 +996,10 @@ function renderStatsMarketSummary() {
   const viewsPopover = renderHourlyTrafficPopover(market, "views");
   const chatsPopover = renderHourlyTrafficPopover(market, "chats");
 
-  const cleanCapturedAt = formatShortTimestamp(capturedAt);
-
   els.statsMarketKpiGrid.innerHTML = renderStatCards([
     [`${meta.label} 캐릭터`, `${formatNumber(totals.characters)}명`, market === "all" ? `${formatNumber(totals.localeRecords)}개 지역 레코드` : "시장 원본 목록", "signal"],
     ["누적 조회수", formatNumber(totals.views), "공개 카운터 합계", "neutral"],
     ["누적 대화수", formatNumber(totals.chats), "공개 카운터 합계", "neutral"],
-    ["최신 수집", cleanCapturedAt, `${formatFreshnessAge(capturedAt)} · ${activity.sourceLabel}`, "neutral"],
     ["일간(24h) 조회 증가", signedNumber(dailyViewsDelta), `${dailyDateLabel}`, dailyViewsDelta >= 0 ? "positive" : "warning"],
     ["일간(24h) 대화 증가", signedNumber(dailyChatsDelta), `${dailyDateLabel}`, dailyChatsDelta >= 0 ? "positive" : "warning"],
     [`${marketPrefix} 시간당 조회 증가`, signedNumber(avgHourlyViews), `시간당 평균 · 🔍 호버 시 24h 추이`, avgHourlyViews >= 0 ? "positive" : "warning", viewsPopover],
@@ -1041,7 +1029,7 @@ function renderStatsMarketSummary() {
       <section class="event-promotion-section" aria-label="공식 프로모션 감지">
         <div class="event-section-heading">
           <strong>공식 프로모션 감지</strong>
-          <span>카탈로그 <code>price_promotion</code> 배지와 공식 홈페이지의 동일 캐릭터 링크를 교차확인</span>
+          <span>카탈로그 배지와 공식 홈페이지 링크 확인 상태</span>
         </div>
         <div class="promotion-feed-grid${market === "all" ? "" : " single-col"}">${promotionCards}</div>
       </section>
@@ -1361,11 +1349,9 @@ function calculateDynamicKrxAlerts(price, history = []) {
 function renderFreshnessStrip(validation, investor, marketView) {
   const filing = investor.filing_snapshot || {};
   const ownership = investor.ownership_snapshot || {};
-  const catalogAt = dataset?.generated_at || validation.generated_at;
   return `
     <section class="freshness-strip" aria-label="데이터 최신성">
       <div><span class="freshness-dot is-live"></span><p><strong>주가</strong><small>${escapeHtml(marketView.sourceLabel)} · ${formatDateTime(marketView.refreshedAt)}</small></p></div>
-      <div><span class="freshness-dot is-live"></span><p><strong>캐릭터 지표</strong><small>${formatDateTime(catalogAt)} 수집</small></p></div>
       <div><span class="freshness-dot"></span><p><strong>재무실적</strong><small>${escapeHtml(filing.as_of || "-")} 기준 · ${formatDateTime(filing.filed_at)} 제출</small></p></div>
       <div><span class="freshness-dot is-caution"></span><p><strong>지분</strong><small>${escapeHtml(ownership.as_of || "-")} 공시 기준</small></p></div>
     </section>
@@ -2158,7 +2144,6 @@ function renderTableRow(item) {
       <td class="metric">${renderDualDeltaBadge(activity?.delta, daily?.delta, "조회 증가 데이터 없음")}</td>
       <td class="metric">${formatNumber(model.chats)}</td>
       <td class="metric">${renderDualDeltaBadge(activity?.chat_delta, daily?.chat_delta, "대화 증가 데이터 없음")}</td>
-      <td class="metric collection-date">${activity ? `<strong>${escapeHtml(formatActivityTimestamp(activity.last_seen))}</strong><small>${escapeHtml(activity.sourceLabel)}</small>` : `<span class="activity-unavailable">—</span>`}</td>
       <td>${escapeHtml(model.counterparts)}</td>
     </tr>
   `;
@@ -2185,7 +2170,6 @@ function renderCard(item) {
           <span>누적 대화수<strong>${formatNumber(model.chats)}</strong></span>
           <span>대화 증가 (갱신/일간)<strong>${renderDualDeltaBadge(activity?.chat_delta, daily?.chat_delta, "미수집")}</strong></span>
         </span>
-        <span class="card-collection">${activity ? `최근 수집 ${escapeHtml(formatActivityTimestamp(activity.last_seen))} · ${escapeHtml(activity.sourceLabel)}` : "직전 비교 데이터 없음"}</span>
       </button>
     </article>
   `;
@@ -2559,7 +2543,6 @@ function renderObservedMarketCard(market, allDailyDeltas) {
       <div class="event-feed-top">
         <div class="event-feed-title-block">
           <span class="event-pill ${escapeHtml(market)}-pill">${meta.flag} ${escapeHtml(meta.label)} API 실측</span>
-          <span class="event-feed-window">최근 ${escapeHtml(activity.windowLabel)}</span>
         </div>
         <div class="event-feed-metrics-pill">
           <span class="daily-stat-chip view-stat"><small>24h 조회</small> <strong>${signedNumber(daily.viewsDelta)}</strong></span>
@@ -2582,17 +2565,16 @@ function renderObservedMarketCard(market, allDailyDeltas) {
           <div class="gauge-track"><div class="gauge-fill chat-fill" style="width:${Math.min(100, Math.max(3, chatShare))}%"></div></div>
         </div>
       </div>
-      <div class="event-movers-dual-grid">
+      <div class="event-movers-dual-grid" aria-label="최근 수집 간 변화">
         <div class="mover-section">
-          <div class="mover-section-title">📈 최근 ${escapeHtml(activity.windowLabel)} 조회 증가 TOP 3</div>
+          <div class="mover-section-title">📈 조회 증가 TOP 3</div>
           ${renderMoverChips(market, "delta")}
         </div>
         <div class="mover-section">
-          <div class="mover-section-title">💬 최근 ${escapeHtml(activity.windowLabel)} 대화 증가 TOP 3</div>
+          <div class="mover-section-title">💬 대화 증가 TOP 3</div>
           ${renderMoverChips(market, "chat_delta")}
         </div>
       </div>
-      <p class="event-metric-note">누적 상위가 아닌 최근 수집 간 델타 순위입니다. 증가 원인은 공개 API만으로 판단하지 않습니다.</p>
     </article>
   `;
 }
@@ -2612,7 +2594,6 @@ function renderOfficialPromotionCard(market) {
   const observation = officialPromotionsData?.markets?.[market] || null;
   const items = observation?.items || [];
   const status = observation?.status || "unavailable";
-  const observedAt = observation?.observed_at || officialPromotionsData?.generated_at;
   const statusClass = ["verified", "partial", "none"].includes(status) ? status : "unavailable";
 
   if (!items.length) {
@@ -2627,7 +2608,6 @@ function renderOfficialPromotionCard(market) {
         </div>
         <p class="promotion-empty-msg">${message}</p>
         <div class="promotion-card-meta">
-          <span>${observedAt ? `${escapeHtml(formatShortTimestamp(observedAt))} 확인` : "확인 시각 없음"}</span>
           ${observation?.homepage_url ? `<a class="promotion-link-btn" href="${escapeHtml(observation.homepage_url)}" target="_blank" rel="noopener noreferrer">공식 홈 열기 ↗</a>` : ""}
         </div>
       </article>
@@ -2635,14 +2615,13 @@ function renderOfficialPromotionCard(market) {
   }
 
   const itemHtml = items.map((item) => {
-    const title = item.headline || `${item.character_name} · 공식 API 프로모션 배지 확인`;
-    const verificationLabel = item.verification === "api-and-homepage"
-      ? "API 배지 + 공식 홈 교차확인"
-      : "API 배지만 확인 · 홈 문구 미확인";
+    const title = item.headline || `${item.character_name} · 프로모션 배지 감지`;
+    const verificationHint = item.verification === "api-and-homepage"
+      ? "카탈로그 배지와 공식 홈페이지 링크를 함께 확인"
+      : "카탈로그 API 배지만 확인";
     return `
       <div class="promotion-item">
-        <strong class="promotion-item-title">${escapeHtml(title)}</strong>
-        <span class="promotion-item-verify">${escapeHtml(verificationLabel)}</span>
+        <strong class="promotion-item-title" title="${escapeAttr(verificationHint)}">${escapeHtml(title)}</strong>
         <a class="promotion-link-btn" href="${escapeHtml(item.detail_url)}" target="_blank" rel="noopener noreferrer">공식 캐릭터 페이지 ↗</a>
       </div>
     `;
@@ -2658,7 +2637,6 @@ function renderOfficialPromotionCard(market) {
         ${itemHtml}
       </div>
       <div class="promotion-card-meta">
-        <span>${observedAt ? `${escapeHtml(formatShortTimestamp(observedAt))} 확인` : "확인 시각 없음"}</span>
         <a class="promotion-link-btn" href="${escapeHtml(observation.homepage_url)}" target="_blank" rel="noopener noreferrer">출처 홈 ↗</a>
       </div>
     </article>

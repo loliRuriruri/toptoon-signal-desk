@@ -998,35 +998,12 @@ h3 {
   font-weight: 850;
 }
 
-.scope-title-wrap span#stats-market-note {
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.scope-sync-guide {
-  margin: 4px 0 0;
-  color: #94a3b8;
-  font-size: 11px;
-  line-height: 1.45;
-}
-
-.scope-sync-guide b {
-  color: #60a5fa;
-}
-
 .scope-nav-wrap {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 6px;
   flex-shrink: 0;
-}
-
-.scope-click-hint {
-  color: #f5a742;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
 }
 
 .scope-market-tabs {
@@ -1129,6 +1106,13 @@ h3 {
   white-space: nowrap;
   word-break: keep-all;
 }
+
+/* Seven metrics now fit without leaving a blank desktop cell after the
+   duplicate freshness card is removed. */
+.market-kpi-grid > .stat-card:last-child {
+  grid-column: span 2;
+}
+
 .market-data-definition {
   margin: 0;
   border: 1px solid rgba(98, 168, 255, 0.25);
@@ -1334,7 +1318,6 @@ h3 {
   color: #e5edf8;
 }
 
-.event-metric-note,
 .event-source-caveat {
   margin: 0;
   color: #71849f;
@@ -1416,7 +1399,6 @@ h3 {
   font-size: 10.5px;
 }
 
-.promotion-item span,
 .promotion-card-meta {
   color: #71849f;
   font-size: 9px;
@@ -3485,10 +3467,6 @@ tbody tr:last-child td {
   background: rgba(39, 196, 153, 0.18);
   color: #78ddbf;
 }
-.collection-date { display: grid; gap: 3px; }
-.collection-date strong { color: var(--sub); font-size: 12px; }
-.collection-date small { color: var(--muted); font-size: 9px; }
-
 .pill-list {
   display: flex;
   flex-wrap: wrap;
@@ -3554,8 +3532,6 @@ tbody tr:last-child td {
 }
 
 .card-meta .activity-delta { width: fit-content; min-height: 22px; padding: 2px 7px; font-size: 11px; }
-.card-collection { display: block; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 9px; color: var(--muted); font-size: 10px; }
-
 .empty-state {
   display: grid;
   justify-items: center;
@@ -4062,6 +4038,7 @@ tbody tr:last-child td {
   }
 
   .market-kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .market-kpi-grid > .stat-card:last-child { grid-column: span 3; }
 
   .toolbar {
     grid-template-columns: minmax(0, 1fr);
@@ -4110,6 +4087,7 @@ tbody tr:last-child td {
   .business-scope-bar .market-tabs { display: grid; width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; }
   .business-scope-bar .tab-button { justify-content: center; padding-inline: 7px; }
   .market-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .market-kpi-grid > .stat-card:last-child { grid-column: span 2; }
   .full-rank-row { grid-template-columns: 25px 36px minmax(0, 1fr) auto; gap: 7px; padding-inline: 8px; }
 
   .snapshot-note,
@@ -5530,12 +5508,6 @@ tbody tr:last-child td {
   gap: 7px;
 }
 
-.event-feed-window {
-  font-size: 10px;
-  color: var(--muted);
-  font-weight: 750;
-}
-
 .event-feed-metrics-pill {
   display: flex;
   align-items: center;
@@ -5778,11 +5750,6 @@ tbody tr:last-child td {
   color: #f1f5f9;
   font-size: 11px;
   font-weight: 800;
-}
-
-.promotion-item-verify {
-  color: #94a3b8;
-  font-size: 9.5px;
 }
 
 .promotion-link-btn {
