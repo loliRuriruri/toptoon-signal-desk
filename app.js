@@ -2077,7 +2077,6 @@ function renderCatalogSummary() {
     ? [
         ["최근 조회 증가", signedNumber(activitySummary.viewsDelta), `${activitySummary.windowLabel} · ${formatNumber(activitySummary.comparableCount)}개 비교`, activitySummary.viewsDelta >= 0 ? "positive" : "warning"],
         ["최근 대화 증가", signedNumber(activitySummary.chatsDelta), activitySummary.definitionLabel, activitySummary.chatsDelta >= 0 ? "positive" : "warning"],
-        ["증가 데이터 수집일", formatActivityTimestamp(activitySummary.capturedAt), activitySummary.sourceLabel, "signal"]
       ]
     : [["증가 데이터", "비교 기준 대기", "다음 수집부터 조회·대화 증가를 계산합니다", "warning"]];
   els.catalogKpiGrid.innerHTML = renderStatCards([

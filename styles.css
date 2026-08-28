@@ -5348,3 +5348,22 @@ tbody tr:last-child td {
     flex-basis: auto;
   }
 }
+
+.catalog-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 1200px) {
+  .catalog-kpi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .catalog-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
