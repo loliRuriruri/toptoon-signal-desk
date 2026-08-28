@@ -273,6 +273,9 @@ assert(html.includes("data/official-home-banners.js"), "embedded official home b
   ".business-scope-bar",
   ".market-kpi-grid",
   ".media-hover-preview",
+  "--official-home-banner-frame-width",
+  "--official-home-banner-frame-ratio",
+  "aspect-ratio: var(--official-home-banner-frame-ratio)",
   "object-fit: contain"
 ].forEach((marker) => assert(css.includes(marker), `missing CSS marker: ${marker}`));
 

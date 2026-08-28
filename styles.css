@@ -12,6 +12,8 @@
   --up: #27c499;
   --down: #e66767;
   --violet: #b18cff;
+  --official-home-banner-frame-width: 178px;
+  --official-home-banner-frame-ratio: 16 / 8.6;
   --shadow: 0 20px 60px rgba(0, 0, 0, 0.24);
 }
 
@@ -5904,7 +5906,7 @@ tbody tr:last-child td {
 
 .official-home-banner-item {
   position: relative;
-  flex: 0 0 178px;
+  flex: 0 0 var(--official-home-banner-frame-width);
   min-width: 0;
   overflow: hidden;
   border: 1px solid rgba(148, 163, 184, 0.16);
@@ -5921,7 +5923,7 @@ tbody tr:last-child td {
 .official-home-banner-item img {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 8.6;
+  aspect-ratio: var(--official-home-banner-frame-ratio);
   object-fit: cover;
   background: #111827;
 }
@@ -6081,9 +6083,9 @@ tbody tr:last-child td {
 .promotion-item.has-hover-preview > .media-hover-preview {
   top: calc(100% + 8px);
   right: 0;
-  width: min(300px, calc(100vw - 40px));
-  aspect-ratio: 16 / 9;
-  border-radius: 8px;
+  width: min(var(--official-home-banner-frame-width), calc(100vw - 40px));
+  aspect-ratio: var(--official-home-banner-frame-ratio);
+  border-radius: 7px;
 }
 
 @media (max-width: 600px) {
