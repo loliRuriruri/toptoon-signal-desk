@@ -2942,27 +2942,24 @@ function renderDialogMarketSwitcher(group, selected, dialogState = null) {
   const isDialogOverride = Boolean(dialogState?.override);
   const linkedScope = MARKET_META[dialogState?.linkedScope] ? dialogState.linkedScope : selected.market;
   const scopeMeta = MARKET_META[isDialogOverride ? selected.market : linkedScope] || MARKET_META[selected.market];
-  const scopeLabel = isDialogOverride ? `${scopeMeta.label} 프로필 단독 선택` : `${scopeMeta.label} 상단 선택 적용 중`;
-  const scopeDetail = isDialogOverride
-    ? "상단 국가와 별도로 이 프로필만 보는 중입니다."
-    : "상단 국가 선택과 프로필 이미지·지표가 함께 전환됩니다.";
+  const scopeLabel = isDialogOverride ? `${scopeMeta.label} 단독` : `${scopeMeta.label} 연동`;
+
   return `
     <nav class="dialog-market-switcher" aria-label="프로필 국가 및 모션 전환">
-      <div class="dialog-market-switcher-topline">
-        <span class="dialog-market-switcher-label">프로필 국가·지표</span>
-        <div class="dialog-market-scope-note${isDialogOverride ? " is-overridden" : " is-linked"}" aria-live="polite">
-          <span aria-hidden="true">${isDialogOverride ? "🎯" : "🔗"}</span>
-          <p><strong>${escapeHtml(scopeMeta.flag)} ${escapeHtml(scopeLabel)}</strong><small>${escapeHtml(scopeDetail)}</small></p>
-          ${isDialogOverride ? `<button type="button" class="dialog-market-sync" data-dialog-sync>상단 선택으로 돌아가기</button>` : ""}
+      <div class="dialog-market-nav-main">
+        <div class="dialog-market-chips-group">
+          ${motions.map((m) => `
+            <button type="button" class="motion-chip${m.market === selected.market ? " active" : ""}" data-dialog-market="${escapeAttr(m.market)}" data-motion-src="${escapeAttr(m.videoUrl)}" data-motion-poster="${escapeAttr(m.poster)}" data-motion-market="${escapeAttr(m.label)}" aria-pressed="${String(m.market === selected.market)}" title="${escapeAttr(`${m.label} 프로필 및 모션 전환`)}">
+              <span class="motion-chip-flag">${MARKET_FLAGS[m.market] || ""}</span>
+              <span>${escapeHtml(m.label)}</span>
+            </button>
+          `).join("")}
         </div>
-      </div>
-      <div class="dialog-market-switcher-chips">
-        ${motions.map((m) => `
-          <button type="button" class="motion-chip${m.market === selected.market ? " active" : ""}" data-dialog-market="${escapeAttr(m.market)}" data-motion-src="${escapeAttr(m.videoUrl)}" data-motion-poster="${escapeAttr(m.poster)}" data-motion-market="${escapeAttr(m.label)}" aria-pressed="${String(m.market === selected.market)}" aria-label="${escapeAttr(`${m.label} 프로필 및 모션 전환`)}" title="${escapeAttr(`${m.label} 프로필 및 모션 전환`)}">
-            <span class="motion-chip-dot"></span>
-            <span>${MARKET_FLAGS[m.market] || ""} ${escapeHtml(m.label)}</span>
-          </button>
-        `).join("")}
+        <div class="dialog-market-status-pill${isDialogOverride ? " is-overridden" : ""}" title="${isDialogOverride ? "상단 국가와 별도로 이 프로필만 보는 중입니다." : "상단 국가 선택과 함께 전환됩니다."}">
+          <span class="status-icon">${isDialogOverride ? "🎯" : "🔗"}</span>
+          <span class="status-text">${escapeHtml(scopeLabel)}</span>
+          ${isDialogOverride ? `<button type="button" class="dialog-market-sync" data-dialog-sync title="상단 선택으로 돌아가기">연동 복귀</button>` : ""}
+        </div>
       </div>
     </nav>
   `;
