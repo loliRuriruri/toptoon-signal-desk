@@ -82,8 +82,8 @@ for (const filename of ["styles.css", "app.js", "data/stats.js", "data/validatio
 }
 const publicVersion = versionHash.digest("hex").slice(0, 12);
 let versionedIndex = index.replace(
-  '<script src="data/characters.js"></script>',
-  '<script src="data/image-map.js"></script>\n    <script src="data/characters.js"></script>'
+  /<script src="data\/characters\.js"(?: defer)?><\/script>/,
+  '<script src="data/image-map.js" defer></script>\n    <script src="data/characters.js" defer></script>'
 );
 for (const asset of ["styles.css", "app.js", "data/stats.js", "data/validation.js", "data/official-signals.js", "data/official-promotions.js", "data/official-home-banners.js", "data/ai-diagnosis.js", "data/character-activity.js", "data/image-map.js", "data/characters.js"]) {
   versionedIndex = versionedIndex.replaceAll(`="${asset}"`, `="${asset}?v=${publicVersion}"`);

@@ -184,17 +184,32 @@ async function refreshKis() {
   if (!appKey || !appSecret) return { status: "skipped", note: "KIS_APP_KEY와 KIS_APP_SECRET 필요" };
 
   const previousKis = previousProviders?.kis;
-  const configuredMinimumHours = Number(process.env.KIS_REFRESH_MIN_HOURS || 20);
-  const minimumHours = Number.isFinite(configuredMinimumHours) ? Math.max(0, configuredMinimumHours) : 20;
+  const configuredMinimumHours = Number(process.env.KIS_REFRESH_MIN_HOURS || 0);
+  const minimumHours = Number.isFinite(configuredMinimumHours) ? Math.max(0, configuredMinimumHours) : 0;
   const previousObservedAt = Date.parse(previousKis?.observed_at || "");
   const previousAgeMs = Number.isFinite(previousObservedAt) ? Date.now() - previousObservedAt : Infinity;
+
+  // 로컬 .cache에 유효한(만료되지 않은) 토큰이 있는지 확인
+  const cacheDir = join(process.cwd(), ".cache");
+  const cachePath = join(cacheDir, "kis-token.json");
+  let hasValidCachedToken = false;
+  try {
+    const cached = JSON.parse(await readFile(cachePath, "utf8"));
+    const now = Date.now();
+    if (cached.appkey === appKey && cached.access_token && cached.expires_at && (cached.expires_at - now > 15 * 60 * 1000)) {
+      hasValidCachedToken = true;
+    }
+  } catch {}
+
+  // 토큰 캐시가 없는 환경(예: GitHub Actions 새 컨테이너)에서만 불필요한 토큰 재발급 방지를 위해 이전 스냅샷 재사용
   const canReusePrevious = ["ok", "cached"].includes(previousKis?.status)
     && previousKis?.ticker === ticker
     && Number(previousKis?.quote?.price || 0) > 0
     && previousAgeMs >= 0
+    && minimumHours > 0
     && previousAgeMs < minimumHours * 60 * 60 * 1000;
 
-  if (process.env.KIS_REFRESH_FORCE !== "1" && canReusePrevious) {
+  if (!hasValidCachedToken && process.env.KIS_REFRESH_FORCE !== "1" && canReusePrevious) {
     const ageHours = previousAgeMs / (60 * 60 * 1000);
     return {
       ...previousKis,

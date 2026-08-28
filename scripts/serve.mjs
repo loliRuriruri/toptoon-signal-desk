@@ -90,7 +90,7 @@ await loadLocalEnvironment();
 
 const integrationDefinitions = [
   { id: "opendart", label: "OpenDART", keys: ["OPENDART_API_KEY"], optional: ["OPENDART_CORP_CODE"], adapter: true },
-  { id: "kis", label: "한국투자증권", keys: ["KIS_APP_KEY", "KIS_APP_SECRET"], optional: ["KIS_STOCK_CODE"], adapter: true },
+  { id: "kis", label: "한국투자증권", keys: ["KIS_APP_KEY", "KIS_APP_SECRET"], optional: ["KIS_STOCK_CODE", "KIS_REFRESH_MIN_HOURS"], adapter: true },
   { id: "ecos", label: "한국은행 ECOS", keys: ["ECOS_API_KEY"] },
   { id: "krx", label: "KRX", keys: ["KRX_API_KEY"] },
   { id: "fred", label: "FRED", keys: ["FRED_API_KEY"], adapter: true },

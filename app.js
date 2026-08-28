@@ -30,6 +30,7 @@ const SETTING_FIELD_LABELS = {
   KIS_APP_KEY: "App Key",
   KIS_APP_SECRET: "App Secret",
   KIS_STOCK_CODE: "종목코드",
+  KIS_REFRESH_MIN_HOURS: "시세 캐시 간격 (시간, 0=실시간)",
   ECOS_API_KEY: "API 키",
   KRX_API_KEY: "API 키",
   FRED_API_KEY: "API 키",

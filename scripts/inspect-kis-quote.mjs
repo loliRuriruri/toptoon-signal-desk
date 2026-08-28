@@ -13,18 +13,43 @@ const ticker = process.argv[2] || process.env.KIS_STOCK_CODE || "134580";
 
 if (!appKey || !appSecret) throw new Error("KIS credentials are not configured");
 
-const tokenResponse = await fetch(`${base}/oauth2/tokenP`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ grant_type: "client_credentials", appkey: appKey, appsecret: appSecret })
-});
-const token = await tokenResponse.json();
-if (!token.access_token) throw new Error(`KIS token error: ${token.msg1 || token.error_code || "unknown"}`);
+const cacheDir = new URL("../.cache", import.meta.url);
+const cachePath = new URL("../.cache/kis-token.json", import.meta.url);
+
+let accessToken = null;
+try {
+  const cached = JSON.parse(fs.readFileSync(cachePath, "utf8"));
+  const now = Date.now();
+  if (cached.appkey === appKey && cached.access_token && cached.expires_at && (cached.expires_at - now > 15 * 60 * 1000)) {
+    accessToken = cached.access_token;
+  }
+} catch {}
+
+if (!accessToken) {
+  const tokenResponse = await fetch(`${base}/oauth2/tokenP`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ grant_type: "client_credentials", appkey: appKey, appsecret: appSecret })
+  });
+  const token = await tokenResponse.json();
+  if (!token.access_token) throw new Error(`KIS token error: ${token.msg1 || token.error_code || "unknown"}`);
+  accessToken = token.access_token;
+  const expiresInSec = Number(token.expires_in || 86400);
+  try {
+    fs.mkdirSync(cacheDir, { recursive: true });
+    fs.writeFileSync(cachePath, JSON.stringify({
+      appkey: appKey,
+      access_token: accessToken,
+      expires_at: Date.now() + expiresInSec * 1000,
+      created_at: new Date().toISOString()
+    }, null, 2), "utf8");
+  } catch {}
+}
 
 const params = new URLSearchParams({ fid_cond_mrkt_div_code: "J", fid_input_iscd: ticker });
 const quoteResponse = await fetch(`${base}/uapi/domestic-stock/v1/quotations/inquire-price?${params}`, {
   headers: {
-    authorization: `Bearer ${token.access_token}`,
+    authorization: `Bearer ${accessToken}`,
     appkey: appKey,
     appsecret: appSecret,
     tr_id: "FHKST01010100"
