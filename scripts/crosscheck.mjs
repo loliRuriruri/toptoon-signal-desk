@@ -95,7 +95,29 @@ const constants = stats.revenue_nowcast?.constants || {};
 const meanDelta = dailyChatRows.length ? sum(dailyChatRows, "delta") / dailyChatRows.length : 0;
 const recomputedRevenue = meanDelta * 30 * Number(constants.rev_per_session || 0);
 const reportedRevenue = Number(stats.revenue_nowcast?.latest?.revenue_mid || 0);
-addCheck("revenue-nowcast-formula", "한국 월매출 런레이트 재계산", nearlyEqual(recomputedRevenue, reportedRevenue, 1) ? "pass" : "block", Math.round(recomputedRevenue), reportedRevenue, "평균 일간 채팅 증가×30일×세션당매출 가정", nearlyEqual(recomputedRevenue, reportedRevenue, 1) ? "none" : "critical");
+addCheck("revenue-nowcast-formula", "한국 IR 보정 프록시 재계산", nearlyEqual(recomputedRevenue, reportedRevenue, 1) ? "pass" : "block", Math.round(recomputedRevenue), reportedRevenue, "평균 일간 chatCount 증가×30일×참여자 증가당 역산계수", nearlyEqual(recomputedRevenue, reportedRevenue, 1) ? "none" : "critical");
+
+const latestDelta = Number(dailyChatRows.at(-1)?.delta || 0);
+const workerCurrentMid = latestDelta * 30 * 3000;
+const modelGapPct = reportedRevenue ? ((workerCurrentMid / reportedRevenue) - 1) * 100 : null;
+addCheck(
+  "revenue-model-unit",
+  "매출 모델 분모 검증",
+  "warn",
+  "공개 chatCount 증가",
+  "유료 턴·유료 세션 또는 결제자",
+  "공개 chatCount는 유료 턴 수가 아니므로 원화 결과는 매출 실측이 아닌 활동 프록시로만 표시",
+  "high"
+);
+addCheck(
+  "revenue-model-version-conflict",
+  "Worker 매출 모델 버전 일치",
+  "warn",
+  { legacy_7d_mid: Math.round(reportedRevenue), current_1d_mid: Math.round(workerCurrentMid), gap_pct: modelGapPct == null ? null : Number(modelGapPct.toFixed(1)) },
+  "동일 관측창·동일 역산계수",
+  "구형 API는 7일 평균×2,354원, 현재 Worker 메인은 최신 1일×3,000원을 사용해 모델 선택만으로 결과가 달라짐",
+  "high"
+);
 
 const margin = Number(constants.net_margin || 0);
 const recomputedProfit = reportedRevenue * margin;
@@ -127,6 +149,18 @@ const forbiddenDisplayClaims = [
 const leakedClaims = forbiddenDisplayClaims.filter((text) => `${appSource}\n${indexSource}`.includes(text));
 addCheck("display-semantic-guard", "근거 없는 화면 수치 차단", leakedClaims.length ? "block" : "pass", leakedClaims, [], leakedClaims.length ? "근거가 없거나 현재 데이터와 다른 고정 문구 발견" : "금지된 고정 수치 없음", leakedClaims.length ? "critical" : "none");
 
+const misleadingRevenueLabels = ["세션당 단가", "누적 총매출", "얼마를 벌었나?", "가정 환산액"]
+  .filter((text) => `${appSource}\n${indexSource}`.includes(text));
+addCheck(
+  "revenue-label-semantic-guard",
+  "매출 프록시 표시 명칭",
+  misleadingRevenueLabels.length ? "block" : "pass",
+  misleadingRevenueLabels,
+  [],
+  misleadingRevenueLabels.length ? "공개 chatCount를 실측 세션·매출처럼 오해시킬 표현 발견" : "참여자 카운터·역산계수·프록시로 구분 표시",
+  misleadingRevenueLabels.length ? "critical" : "none"
+);
+
 const kisProvider = officialSignals.providers?.kis || {};
 const halt = kisProvider.market_alert?.trading_halt || {};
 const haltDate = String(halt.judgment_date || "").replaceAll("-", "");
@@ -144,7 +178,7 @@ const cachedWithoutTimestamp = Object.entries(officialSignals.providers || {})
 addCheck("cached-provider-freshness", "캐시 관측시각 보존", cachedWithoutTimestamp.length ? "block" : "pass", cachedWithoutTimestamp, [], "캐시 재사용 시 실제 관측시각과 갱신 시도시각을 분리", cachedWithoutTimestamp.length ? "high" : "none");
 
 addCheck("ai-chat-revenue-tieout", "AI챗 매출 공시 연결", "warn", "별도 공시 없음", "별도 매출·유료 이용자·ASP", "반기보고서는 플랫폼 매출만 제시하며 AI챗 매출을 분리하지 않음. 트래커 넛캐스트를 공시 매출로 간주할 수 없음", "high");
-addCheck("overseas-asp", "해외 결제단가 검증", "warn", "한국 단가 임시 적용", "국가별 실제 ASP", "일본·글로벌·대만 매출 넛캐스트는 한국 세션당매출을 그대로 적용", "high");
+addCheck("overseas-asp", "해외 결제단가 검증", "warn", "한국 역산계수 임시 적용", "국가별 실제 ASP", "일본·글로벌·대만 매출 프록시는 한국의 참여자 증가당 역산계수를 그대로 적용", "high");
 addCheck("profit-margin-basis", "AI챗 순이익률 검증", "warn", `${(margin * 100).toFixed(0)}% 가정`, "공시된 AI챗 원가·마진", "연결 영업이익률과 AI챗 단위경제를 분리할 수 없음", "high");
 
 const filing = evidence.filing_snapshot;
@@ -165,8 +199,8 @@ const payload = {
   definitions: {
     grain: "시장×캐릭터 공개 누적 스냅샷",
     timezone: "Asia/Seoul display; source APIs may store UTC timestamps",
-    observed_metrics: "공개 API의 누적 조회수·누적 채팅수",
-    modeled_metrics: "누적 채팅 델타에 가정 단가·마진을 적용한 넛캐스트"
+    observed_metrics: "공개 API의 누적 조회수·캐릭터별 chatCount",
+    modeled_metrics: "chatCount 델타에 역산계수·마진을 적용한 활동 기반 매출 프록시"
   },
   catalogs: localCatalogs,
   checks,
@@ -181,7 +215,8 @@ const payload = {
     }
   },
   required_caveats: [
-    "조회수와 채팅수는 유료 결제·유료 세션·순매출이 아니다.",
+    "viewCount와 chatCount는 유료 턴·유료 세션·순매출이 아니다.",
+    "캐릭터별 chatCount 합계는 동일 이용자의 캐릭터 간 중복을 포함할 수 있다.",
     "작품명은 공개 API의 첫 번째 해시태그에서 추론하며 정식 작품명 필드가 아니다.",
     "Worker 통계와 직접 관측 카탈로그는 수집 시각과 파이프라인이 달라 누적 합계가 일치하지 않을 수 있다.",
     "AI챗 별도 매출, 결제자 비율, 국가별 ASP, API 비용, IP 정산, 순이익률은 공시로 검증되지 않았다.",

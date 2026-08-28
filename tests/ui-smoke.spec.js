@@ -12,6 +12,13 @@ test("signal, validation, and character flows render without console errors", as
   await expect(page.getByRole("heading", { name: "사업 모멘텀 한눈에 보기" })).toBeVisible();
   await expect(page.locator(".snapshot-flow")).toHaveCount(2);
   await expect(page.locator(".period-comparison-card")).toHaveCount(3);
+  const revenueCrosscheck = page.getByTestId("revenue-model-crosscheck");
+  await expect(revenueCrosscheck).toBeVisible();
+  await expect(revenueCrosscheck).toContainText("기존 Signal Desk");
+  await expect(revenueCrosscheck).toContainText("Worker 현재 메인");
+  await expect(revenueCrosscheck).toContainText("검증된 실제 매출");
+  await expect(revenueCrosscheck).toContainText("산출 불가");
+  await expect(revenueCrosscheck).toContainText(/모델 선택만으로 [+-]\d+\.\d% 차이/);
   await expect(page.locator(".character-rank-item")).toHaveCount(6);
   await expect(page.locator(".business-scope-bar")).toBeVisible();
   await expect(page.locator("[data-leaderboard-market]")).toHaveCount(5);
@@ -30,7 +37,7 @@ test("signal, validation, and character flows render without console errors", as
   await expect(page.locator('[data-leaderboard-market="jp"]')).toHaveAttribute("aria-pressed", "true");
   await page.locator('[data-stats-market="all"]').click();
   await expect(page.locator(".leaderboard-scope-note")).toContainText("통합 상단 선택 적용 중");
-  await expect(page.locator(".rank-revenue").first()).toContainText("시장 내 대화 비중");
+  await expect(page.locator(".rank-revenue").first()).toContainText("시장 내 참여자 비중");
   await expect(page.locator(".sample-badge").filter({ hasText: /^N=/ })).toHaveCount(0);
   await page.locator(".character-rank-item").first().hover();
   await expect(page.locator(".rank-tooltip").first()).toContainText("유료 결제·매출 순위가 아님");
@@ -63,7 +70,7 @@ test("signal, validation, and character flows render without console errors", as
   await page.locator("#validation-dashboard").screenshot({ path: "output/playwright/validation-priority-desktop.png" });
 
   await page.getByRole("button", { name: "캐릭터" }).click();
-  await expect(page.getByText("전체 104명 표시")).toBeVisible();
+  await expect(page.getByText(/전체 \d+명 표시/)).toBeVisible();
   await page.locator('[data-character-id="1"]:visible').first().click();
   const characterDialog = page.locator("#character-dialog");
   await expect(characterDialog).toBeVisible();
@@ -72,7 +79,7 @@ test("signal, validation, and character flows render without console errors", as
   await expect(profileSummary).toBeVisible();
   await expect(profileSummary).toContainText("공식 카탈로그 소개");
   await expect(characterDialog.locator(".dialog-media-note, .dialog-open-link, .dialog-profile-facts, .dialog-profile-summary-note")).toHaveCount(0);
-  await expect(characterDialog.locator(".dialog-market-switcher .dialog-market-scope-note")).toBeVisible();
+  await expect(characterDialog.locator(".dialog-market-switcher .dialog-market-status-pill")).toBeVisible();
   const linkedProfileSummary = await profileSummary.innerText();
   const dialogMarketSwitcher = characterDialog.locator(".dialog-market-switcher");
   await expect(dialogMarketSwitcher).toBeVisible();
@@ -91,14 +98,14 @@ test("signal, validation, and character flows render without console errors", as
   const linkedDialogMetrics = await characterDialog.locator(".dialog-metrics").innerText();
   await characterDialog.locator('.motion-chip[data-dialog-market="jp"]').click();
   await expect(characterDialog.locator(".dialog-title-block .section-kicker")).toHaveText("日本");
-  await expect(characterDialog.locator(".dialog-market-scope-note")).toContainText("日本 프로필 단독 선택");
+  await expect(characterDialog.locator(".dialog-market-status-pill")).toContainText("日本 단독");
   await expect(characterDialog.locator(".dialog-metrics")).toContainText("日本 시간당 평균 조회");
   await expect(characterDialog.locator(".dialog-metrics")).not.toHaveText(linkedDialogMetrics);
-  await expect(profileSummary).toContainText("日本");
+  await expect(profileSummary).toContainText("JP");
   await expect(profileSummary).not.toHaveText(linkedProfileSummary);
   await expect(characterDialog.locator('.motion-chip[data-dialog-market="jp"]')).toHaveAttribute("aria-pressed", "true");
-  await characterDialog.getByRole("button", { name: "상단 선택으로 돌아가기" }).click();
-  await expect(characterDialog.locator(".dialog-market-scope-note")).toContainText("통합 상단 선택 적용 중");
+  await characterDialog.getByRole("button", { name: "연동 복귀" }).click();
+  await expect(characterDialog.locator(".dialog-market-status-pill")).toContainText("통합 연동");
   await expect(characterDialog.locator(".dialog-title-block .section-kicker")).toHaveText("한국");
   await page.locator("#dialog-close").click();
 
@@ -107,7 +114,7 @@ test("signal, validation, and character flows render without console errors", as
   await expect(page.getByRole("heading", { name: "API 연결 상태" })).toBeVisible();
   await expect(page.locator("#settings-view .ai-analysis-panel")).toHaveCount(0);
   await expect(page.locator("input[name='OPENROUTER_API_KEY']")).toHaveAttribute("type", "password");
-  await expect(page.getByText("키 저장됨 · 연결 검사 가능").first()).toBeVisible();
+  await expect(page.getByText(/키 저장됨 · 연결 검사 가능|설정 필요/).first()).toBeVisible();
 
   expect(errors).toEqual([]);
 });

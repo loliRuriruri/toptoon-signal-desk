@@ -804,7 +804,7 @@ function renderStatsDashboard() {
 
   els.statsCapturedAt.textContent = `${formatDateTime(statsData.captured_at)} 수집 스냅샷`;
   els.statsCaveat.textContent =
-    `공개 대화수에 단가를 적용한 참고 환산입니다. 누적 평균과 최근 4~${accumulatedDays}일 속도를 분리해 표시합니다.`;
+    `공개 대화 참여자 카운터에 역산계수를 적용한 활동 프록시입니다. 누적 평균과 최근 4~${accumulatedDays}일 속도를 분리해 표시합니다.`;
 
   els.mainKpiGrid.innerHTML = `
     <div class="kpi-dual-container">
@@ -817,9 +817,9 @@ function renderStatsDashboard() {
         </div>
         <div class="kpi-card-subgrid">
           ${renderStatCards([
-            ["🌐 통합 누적 추정 총매출", `약 ${formatWonBig(cumulativeGrossMid)}`, `🇰🇷 한국 ${formatWonBig(krCumulativeMid)} + 🌏 해외 ${formatWonBig(overseasCumulativeMid)}`, "signal"],
-            ["🌐 통합 장기 월평균", `월 약 ${formatWonBig(cumulativeMonthlyAvg)}`, `🇰🇷 한국 월 ${formatWonBig(krMonthlyAvg)} + 🌏 해외 월 ${formatWonBig(overseasMonthlyAvg)} · 최근 속도 아님`, "neutral"],
-            ["🌏 해외 누적 활동 비중", siteRevenue.overseas_contribution_pct != null ? `${siteRevenue.overseas_contribution_pct.toFixed(1)}%` : "-", `해외 누적 대화 ${formatNumber(siteOverall.overseas_total || 0)}회`, "positive"],
+            ["🌐 통합 누적 IR 보정 프록시", `약 ${formatWonBig(cumulativeGrossMid)}`, `🇰🇷 한국 ${formatWonBig(krCumulativeMid)} + 🌏 해외 ${formatWonBig(overseasCumulativeMid)}`, "signal"],
+            ["🌐 프록시 장기 월평균", `월 약 ${formatWonBig(cumulativeMonthlyAvg)}`, `🇰🇷 한국 월 ${formatWonBig(krMonthlyAvg)} + 🌏 해외 월 ${formatWonBig(overseasMonthlyAvg)} · 실제 매출 아님`, "neutral"],
+            ["🌏 해외 누적 활동 비중", siteRevenue.overseas_contribution_pct != null ? `${siteRevenue.overseas_contribution_pct.toFixed(1)}%` : "-", `해외 대화 참여자 카운터 ${formatNumber(siteOverall.overseas_total || 0)}`, "positive"],
             ["서비스 운영 기간", `${elapsedDays}일차 (${elapsedMonthLabel})`, `2026.02.01 기준 계산`, "neutral"]
           ])}
         </div>
@@ -834,9 +834,9 @@ function renderStatsDashboard() {
         </div>
         <div class="kpi-card-subgrid kpi-scope-split-grid">
           ${renderStatCards([
-            ["🌐 통합 최근 런레이트", recentAllMarketMid ? `월 약 ${formatWonBig(recentAllMarketMid)}` : "-", recentAllMarketMid ? `${formatWonBig(recentAllMarketLow)}–${formatWonBig(recentAllMarketHigh)} · 한국+해외` : "시장별 델타 수집 대기", "signal"],
-            ["🇰🇷 한국 최근 런레이트", krRecentMid ? `월 약 ${formatWonBig(krRecentMid)}` : "-", krShareOfRecentPct == null ? "한국 델타 수집 대기" : `통합 최근 속도의 ${krShareOfRecentPct.toFixed(1)}%`, "positive"],
-            ["🌏 해외 합산 최근 런레이트", overseasRecentMid ? `월 약 ${formatWonBig(overseasRecentMid)}` : "-", siteRevenue.overseas_contribution_pct == null ? "해외 델타 수집 대기" : `통합 최근 속도의 ${siteRevenue.overseas_contribution_pct.toFixed(1)}% · 한국 단가 임시 적용`, "neutral"],
+            ["🌐 통합 최근 매출 프록시", recentAllMarketMid ? `월 약 ${formatWonBig(recentAllMarketMid)}` : "-", recentAllMarketMid ? `${formatWonBig(recentAllMarketLow)}–${formatWonBig(recentAllMarketHigh)} · 한국+해외` : "시장별 델타 수집 대기", "signal"],
+            ["🇰🇷 한국 최근 매출 프록시", krRecentMid ? `월 약 ${formatWonBig(krRecentMid)}` : "-", krShareOfRecentPct == null ? "한국 델타 수집 대기" : `통합 최근 속도의 ${krShareOfRecentPct.toFixed(1)}%`, "positive"],
+            ["🌏 해외 합산 매출 프록시", overseasRecentMid ? `월 약 ${formatWonBig(overseasRecentMid)}` : "-", siteRevenue.overseas_contribution_pct == null ? "해외 델타 수집 대기" : `통합 최근 속도의 ${siteRevenue.overseas_contribution_pct.toFixed(1)}% · 한국 역산계수 임시 적용`, "neutral"],
             ["🇰🇷 한국 9억 가정 대비", latest.ir_ratio_pct != null ? `${latest.ir_ratio_pct.toFixed(1)}%` : "-", "한국만 비교 · 9억원 원문 출처·범위 미확인", "warning"]
           ])}
         </div>
@@ -1025,7 +1025,7 @@ function renderStatsMarketSummary() {
   const summaryCards = renderStatCards([
     [`${meta.label} 캐릭터`, `${formatNumber(totals.characters)}명`, market === "all" ? `${formatNumber(totals.localeRecords)}개 지역 레코드` : "시장 원본 목록", "signal"],
     ["누적 조회수", formatNumber(totals.views), "공개 카운터 합계", "neutral"],
-    ["누적 대화수", formatNumber(totals.chats), "공개 카운터 합계", "neutral"]
+    ["대화 참여자 카운터", formatNumber(totals.chats), "캐릭터별 공개 chatCount 합계", "neutral"]
   ]);
   const growthCards = renderStatCards([
     ["일간(24h) 조회 증가", signedNumber(dailyViewsDelta), `${dailyDateLabel}`, dailyViewsDelta >= 0 ? "positive" : "warning"],
@@ -1795,6 +1795,61 @@ function formatValidationValue(value) {
   return String(value);
 }
 
+function renderRevenueModelCrosscheck(revenue) {
+  const deltaRows = statsData.daily_chat_totals?.rows || [];
+  const latestDeltaRow = deltaRows.at(-1) || {};
+  const latestParticipantDelta = Number(latestDeltaRow.delta || 0);
+  const legacyMid = Number(revenue.latest?.revenue_mid || 0);
+  const legacyLow = Number(revenue.latest?.revenue_low || 0);
+  const legacyHigh = Number(revenue.latest?.revenue_high || 0);
+  const workerCurrentLow = latestParticipantDelta * 30 * 2000;
+  const workerCurrentMid = latestParticipantDelta * 30 * 3000;
+  const workerCurrentHigh = latestParticipantDelta * 30 * 4000;
+  const modelGapPct = legacyMid > 0 ? ((workerCurrentMid / legacyMid) - 1) * 100 : null;
+
+  return `
+    <article class="revenue-model-crosscheck" data-testid="revenue-model-crosscheck">
+      <div class="revenue-model-crosscheck-heading">
+        <div>
+          <p class="section-kicker">TEST V2 · 모델 상호검증</p>
+          <h3>같은 공개 활동값, 다른 가정이면 얼마가 달라지나?</h3>
+          <p>아래 두 값은 매출 실측치가 아니라 서로 다른 Worker 모델의 결과입니다.</p>
+        </div>
+        <span class="data-pill warning">경제적 의미 검증 전</span>
+      </div>
+      <div class="revenue-model-compare-grid">
+        <div class="revenue-model-card is-observed">
+          <span>최신 관측 입력</span>
+          <strong>${latestParticipantDelta ? signedNumber(latestParticipantDelta) : "—"}</strong>
+          <small>${escapeHtml(latestDeltaRow.date || "관측일 없음")} · 공개 chatCount 합계의 일간 증가</small>
+        </div>
+        <div class="revenue-model-card is-legacy">
+          <span>기존 Signal Desk</span>
+          <strong>${legacyMid ? formatWonBig(legacyMid) : "—"}</strong>
+          <small>7일 평균 × 30일 × IR 역산계수 2,354원</small>
+          <em>${legacyLow && legacyHigh ? `${formatWonBig(legacyLow)}–${formatWonBig(legacyHigh)}` : "범위 없음"}</em>
+        </div>
+        <div class="revenue-model-card is-worker-current">
+          <span>Worker 현재 메인</span>
+          <strong>${workerCurrentMid ? formatWonBig(workerCurrentMid) : "—"}</strong>
+          <small>최신 1일 × 30일 × 임의 중심계수 3,000원</small>
+          <em>${workerCurrentLow && workerCurrentHigh ? `${formatWonBig(workerCurrentLow)}–${formatWonBig(workerCurrentHigh)}` : "범위 없음"}</em>
+        </div>
+        <div class="revenue-model-card is-verified">
+          <span>검증된 실제 매출</span>
+          <strong>산출 불가</strong>
+          <small>유료 턴·결제율·무상 코인·해금 매출 미공개</small>
+          <em>공시 또는 결제 원장이 필요</em>
+        </div>
+      </div>
+      <div class="revenue-model-gap">
+        <strong>모델 선택만으로 ${modelGapPct == null ? "차이 계산 대기" : `${modelGapPct >= 0 ? "+" : ""}${modelGapPct.toFixed(1)}% 차이`}</strong>
+        <span>숫자가 달라져도 정확도가 높아졌다는 뜻은 아닙니다. 공개 chatCount는 유료 턴 수가 아닙니다.</span>
+      </div>
+    </article>
+  `;
+}
+
 function renderRevenuePanel() {
   const revenue = statsData.revenue_nowcast || {};
   const extrapolationDays = revenue.daily?.length || 0;
@@ -1812,7 +1867,8 @@ function renderRevenuePanel() {
         </div>
         <span class="data-pill warning">${extrapolationDays ? `${extrapolationDays}일 외삽` : "표본 대기"} · 가정 시나리오</span>
       </div>
-      <p class="section-note metric-definition"><strong>캐릭터 기여도 정의:</strong> 캐릭터별 누적 공개 채팅수 ÷ 전체 누적 공개 채팅수입니다. 원화 환산액은 누적 chats × ₩2,354 가정이며, 실제 벌어온 금액이나 공시 매출이 아닙니다.</p>
+      <p class="section-note metric-definition"><strong>공개 지표 정의:</strong> API의 chatCount는 캐릭터별 대화 참여자 카운터로 보이지만 중복제거 규칙은 미공개입니다. 유료 턴·세션 수가 아니며, 원화 환산액은 IR 역산계수를 적용한 활동 프록시입니다.</p>
+      ${renderRevenueModelCrosscheck(revenue)}
       <div class="chart-grid chart-grid-primary">
         ${renderRevenueBand(revenue)}
         ${renderCharacterLeaderboard(byCharacter)}
@@ -1823,10 +1879,10 @@ function renderRevenuePanel() {
           value: item.pct,
           sub: item.label || item.month
         })), (value) => `${Number(value || 0).toFixed(1)}%`, "#f5a742")}
-        ${renderColumnChart(`공개 월별 현재 반응 · ${marketLabel}`, "해당 월 공개 캐릭터의 현재 평균 누적 대화수 · 4개 시장 동일 공식", cohortRows, (value) => `${formatNumber(Math.round(value))}회`, "#62a8ff", "", {
+        ${renderColumnChart(`공개 월별 현재 반응 · ${marketLabel}`, "해당 월 공개 캐릭터의 현재 평균 대화 참여자 카운터 · 4개 시장 동일 공식", cohortRows, (value) => formatNumber(Math.round(value)), "#62a8ff", "", {
           latestLabel: "최근 공개월 코호트",
           highLabel: "현재 평균 대화 최고",
-          contextNote: "현재 시점 누적 대화수의 코호트 평균입니다. 먼저 공개된 월은 누적 기간이 길어 직접적인 성장률 비교가 아닙니다."
+          contextNote: "현재 시점 공개 chatCount의 코호트 평균입니다. 먼저 공개된 월은 누적 기간이 길어 직접적인 성장률 비교가 아닙니다."
         })}
       </div>
     </section>
@@ -1853,13 +1909,13 @@ function renderGlobalPanel() {
         </div>
         <span class="data-pill neutral">단가 미검증</span>
       </div>
-      <p class="section-note">한국·일본·Global·대만 공개 목록을 같은 시점에 수집했습니다. 해외 매출 계산에는 한국 세션당 단가를 임시 적용했습니다.</p>
+      <p class="section-note">한국·일본·Global·대만 공개 목록을 같은 시점에 수집했습니다. 해외 매출 프록시에는 한국의 참여자 증가당 역산계수를 임시 적용했습니다.</p>
       <div class="chart-grid chart-grid-primary">
         ${renderMarketComposition(overall.totals || {}, revenue.overseas_contribution_pct)}
         ${renderStackedDaily("최근 하루 대화 증가량", traction.daily || [])}
       </div>
       <div class="chart-grid chart-grid-secondary">
-        ${renderBarChart("사이트별 월매출 가정치", "동일 단가 적용 · 투자 판단 전 현지 ASP 확인 필요", siteRows, formatWonBig, "#27c499", "full-span")}
+        ${renderBarChart("사이트별 월매출 프록시", "동일 역산계수 적용 · 투자 판단 전 현지 ASP 확인 필요", siteRows, formatWonBig, "#27c499", "full-span")}
       </div>
       <p class="section-note footnote">${escapeHtml(revenue.assumption_note || "")}</p>
     </section>
@@ -2028,13 +2084,13 @@ function renderTotalsPanel() {
       <p class="section-note">장기 추세가 아닙니다. 선택한 ${escapeHtml(marketLabel)} 공식 공개 API의 로컬 저장 시점끼리 누적값과 증가량을 비교합니다.</p>
       <div class="chart-grid chart-grid-primary">
         ${renderSnapshotJourney("누적 조회수", `${marketLabel} 공개 조회수 합계`, totals, "total_views", "#62a8ff")}
-        ${renderSnapshotJourney("누적 대화수", `${marketLabel} 공개 대화수 합계`, totals, "total_chats", "#27c499")}
+        ${renderSnapshotJourney("대화 참여자 카운터", `${marketLabel} 공개 chatCount 합계`, totals, "total_chats", "#27c499")}
       </div>
       <div class="chart-grid chart-grid-secondary">
         ${renderPeriodComparison("최근 수집 간 조회 증가", "직전 공식 API 수집본 대비", dailyViews, formatNumber, "#62a8ff", "", { latestLabel: "최근 구간", highLabel: "최대 증가 구간" })}
         ${renderPeriodComparison("최근 수집 간 대화 증가", "직전 공식 API 수집본 대비", dailyChats, formatNumber, "#27c499", "", { latestLabel: "최근 구간", highLabel: "최대 증가 구간" })}
       </div>
-      ${renderPeriodComparison(`공개 월별 현재 반응 · ${marketLabel}`, "해당 월 공개 캐릭터의 현재 평균 누적 대화수", cohortRows, (value) => `${formatNumber(Math.round(value))}회`, "#d95926", "", {
+      ${renderPeriodComparison(`공개 월별 현재 반응 · ${marketLabel}`, "해당 월 공개 캐릭터의 현재 평균 대화 참여자 카운터", cohortRows, (value) => formatNumber(Math.round(value)), "#d95926", "", {
         latestLabel: "최근 공개월 코호트",
         highLabel: "현재 평균 대화 최고",
         contextNote: "시장별 동일 공식입니다. 현재 누적값이므로 오래된 코호트가 더 긴 관측 기간을 가집니다."
@@ -2207,7 +2263,7 @@ function renderCard(item) {
         <span class="card-meta">
           <span>누적 조회수<strong>${formatNumber(model.views)}</strong></span>
           <span>조회 증가 (갱신/일간)<strong>${renderDualDeltaBadge(activity?.delta, daily?.delta, "미수집")}</strong></span>
-          <span>누적 대화수<strong>${formatNumber(model.chats)}</strong></span>
+          <span>대화 참여자 카운터<strong>${formatNumber(model.chats)}</strong></span>
           <span>대화 증가 (갱신/일간)<strong>${renderDualDeltaBadge(activity?.chat_delta, daily?.chat_delta, "미수집")}</strong></span>
         </span>
       </button>
@@ -3389,8 +3445,8 @@ function renderDialogContent(group, selected, dialogState = null) {
     <div class="dialog-metrics">
       <div><span>Character ID</span><strong>${idDisplay}</strong></div>
       <div><span>누적 조회수</span><strong>${formatNumber(selected.viewsNumber)}</strong></div>
-      <div><span>누적 대화수</span><strong>${formatNumber(selected.chatsNumber)}</strong></div>
-      <div><span>가정 환산액</span><strong style="color:#f6c87d">${estimatedRevenue}</strong><small>대화 × 2,354원</small></div>
+      <div><span>대화 참여자 카운터</span><strong>${formatNumber(selected.chatsNumber)}</strong><small>공개 API chatCount</small></div>
+      <div><span>IR 보정 프록시</span><strong style="color:#f6c87d">${estimatedRevenue}</strong><small>참여자 카운터 × 역산계수 2,354원 · 실제 매출 아님</small></div>
       <div class="is-daily-metric${selected.market === "kr" ? "" : " is-observed-metric"}"><span>${escapeHtml(periodMetrics.label)} 조회 증가</span><strong>${renderActivityDelta(periodMetrics.viewsDelta, "관측 데이터 없음")}</strong><small>${escapeHtml(periodMetrics.help)}</small></div>
       <div class="is-daily-metric${selected.market === "kr" ? "" : " is-observed-metric"}"><span>${escapeHtml(periodMetrics.label)} 대화 증가</span><strong>${renderActivityDelta(periodMetrics.chatsDelta, "관측 데이터 없음")}</strong><small>${escapeHtml(periodMetrics.help)}</small></div>
       <div class="character-rate-metric metric-views has-popover" tabindex="0">
@@ -3514,30 +3570,30 @@ function renderCharacterLeaderboard(byCharacter) {
               <span class="rank-name">${escapeHtml(item.character_name || `#${item.character_id}`)}</span>
               <span class="rank-traffic">
                 <span><small>조회수</small><strong>${formatCompact(views)}</strong></span>
-                <span><small>공개 대화</small><strong>${formatCompact(item.chatsNumber)}</strong></span>
+                <span><small>대화 참여자</small><strong>${formatCompact(item.chatsNumber)}</strong></span>
               </span>
               <div class="rank-metrics-dual rank-revenue">
-                <span class="rank-metric-item"><small>시장 내 대화 비중</small><strong>${share.toFixed(1)}%</strong></span>
-                <span class="rank-metric-item is-revenue"><small>가정 환산액</small><strong>${estimatedWon}</strong></span>
+                <span class="rank-metric-item"><small>시장 내 참여자 비중</small><strong>${share.toFixed(1)}%</strong></span>
+                <span class="rank-metric-item is-revenue"><small>IR 보정 프록시</small><strong>${estimatedWon}</strong></span>
               </div>
               <span class="rank-tooltip" id="${tooltipId}" role="tooltip">
                 <strong>${escapeHtml(item.character_name || `#${item.character_id}`)}</strong>
                 <span>작품 · ${escapeHtml(work)}</span>
                 <span>누적 조회 · ${formatNumber(item.viewsNumber)}회</span>
-                <span>누적 대화 · ${formatNumber(item.chatsNumber)}회</span>
-                <span>${escapeHtml(scopeLabel)} 대화 비중 · ${share.toFixed(1)}%</span>
-                <span>가정 환산액 · ${estimatedWon}</span>
+                <span>대화 참여자 카운터 · ${formatNumber(item.chatsNumber)}</span>
+                <span>${escapeHtml(scopeLabel)} 참여자 비중 · ${share.toFixed(1)}%</span>
+                <span>IR 보정 프록시 · ${estimatedWon}</span>
                 <span>확인 시장 · ${escapeHtml(marketLabels)}</span>
-                <small>누적 대화 × 2,354원 가정치이며 유료 결제·매출 순위가 아님</small>
+                <small>참여자 카운터 × 2,354원 역산계수이며 유료 결제·매출 순위가 아님</small>
               </span>
             </button>
           `;
         }).join("")}
           </div>
-          <p class="chart-tail">통합·국가별 순위는 공개 대화수 기준이며, 환산액은 누적 대화 × 2,354원 가정치(실제 매출 아님)입니다. 클릭하면 전체 이미지와 국가별 정보가 열립니다.</p>
+          <p class="chart-tail">통합·국가별 순위는 공개 chatCount 기준이며, 원화값은 참여자 카운터 × 2,354원 IR 보정 프록시(실제 매출 아님)입니다. 클릭하면 전체 이미지와 국가별 정보가 열립니다.</p>
         </div>
         <aside class="full-rank-panel" hidden aria-label="${escapeAttr(scopeLabel)} 전체 캐릭터 공개 대화 순위">
-          <div class="full-rank-header"><div><strong>${escapeHtml(MARKET_META[selectedMarket].label)} 전체 캐릭터 순위</strong><small>${escapeHtml(scopeLabel)} 공개 대화수 기준 · ${formatNumber(fullRanking.length)}명</small></div><span>최신 ${escapeHtml(formatDateTime(dataset.generated_at))}</span></div>
+          <div class="full-rank-header"><div><strong>${escapeHtml(MARKET_META[selectedMarket].label)} 전체 캐릭터 순위</strong><small>${escapeHtml(scopeLabel)} 대화 참여자 카운터 기준 · ${formatNumber(fullRanking.length)}명</small></div><span>최신 ${escapeHtml(formatDateTime(dataset.generated_at))}</span></div>
           <div class="full-rank-list">
             ${fullRanking.map((record, index) => {
               const share = (record.chatsNumber / totalChats) * 100;
@@ -3550,7 +3606,7 @@ function renderCharacterLeaderboard(byCharacter) {
               </button>`;
             }).join("")}
           </div>
-          <p class="full-rank-caveat">누적 공개 대화수 순위이며 유료 결제·매출 순위가 아닙니다.</p>
+          <p class="full-rank-caveat">공개 chatCount 순위이며 유료 결제·매출 순위가 아닙니다.</p>
         </aside>
       </div>
     </article>
@@ -3716,8 +3772,8 @@ function renderRevenueBand(revenue) {
         <article class="chart-card span-7 revenue-range-card">
           <div class="chart-heading">
             <div>
-              <h3>론칭 누적 실적 추정: 4개국 통합 얼마를 벌었나?</h3>
-              <p class="stat-help">2026년 2월 론칭 이후 4개국 누적 ${formatNumber(totalChats)}회 대화 × 세션당 2,000~2,700원 가정</p>
+              <h3>론칭 누적 활동의 IR 보정 프록시</h3>
+              <p class="stat-help">2026년 2월 이후 4개국 대화 참여자 카운터 ${formatNumber(totalChats)} × 참여자 증가당 2,000~2,700원 가정</p>
             </div>
             <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
               <button type="button" class="rev-tab-btn" data-revenue-mode="recent">⚡ 최근 런레이트</button>
@@ -3725,7 +3781,7 @@ function renderRevenueBand(revenue) {
             </div>
           </div>
           <div class="revenue-headline">
-            <div><span>4개국 7개월 누적 총매출</span><strong>${formatWonBig(grossMid)}</strong><small>누적 ${formatNumber(totalChats)}회 대화 환산</small></div>
+            <div><span>4개국 누적 IR 보정 프록시</span><strong>${formatWonBig(grossMid)}</strong><small>참여자 카운터 합계 ${formatNumber(totalChats)} 환산 · 실제 매출 아님</small></div>
             <div class="revenue-range-summary">
               <span><small>낮게 보면</small><strong>${formatWonBig(grossLow)}</strong></span>
               <span class="is-focus"><small>누적 기준값</small><strong>${formatWonBig(grossMid)}</strong></span>
@@ -3755,11 +3811,11 @@ function renderRevenueBand(revenue) {
               })
               .join("")}
           </div>
-          <div class="benchmark-key"><span></span><strong>4개국 누적 7개월(${elapsedDays}일) 환산 월평균은 월 약 ${formatWonBig(monthlyAvg)}</strong><small>해외는 한국 단가 2,354원 임시 적용</small></div>
+          <div class="benchmark-key"><span></span><strong>4개국 누적 활동의 ${elapsedDays}일 환산 월평균 프록시는 약 ${formatWonBig(monthlyAvg)}</strong><small>해외는 한국 역산계수 2,354원 임시 적용</small></div>
           <div class="revenue-confidence-grid">
             <div><span>누적 운영 기간</span><strong>${elapsedDays}일 (7개월)</strong><small>2026.02.01 론칭</small></div>
             <div><span>누적 월평균</span><strong>월 약 ${formatWonBig(monthlyAvg)}</strong><small>4개국 누적 환산치</small></div>
-            <div class="is-highlight"><span>누적 총 대화수</span><strong>${formatNumber(totalChats)}회</strong><small>4개국 합계</small></div>
+            <div class="is-highlight"><span>대화 참여자 카운터</span><strong>${formatNumber(totalChats)}</strong><small>캐릭터별 4개국 합계 · 중복 가능</small></div>
           </div>
         </article>
       `;
@@ -3777,8 +3833,8 @@ function renderRevenueBand(revenue) {
       <article class="chart-card span-7 revenue-range-card">
         <div class="chart-heading">
           <div>
-            <h3>론칭 누적 실적 추정: ${meta.flag} ${escapeHtml(meta.label)} 얼마를 벌었나?</h3>
-            <p class="stat-help">${escapeHtml(meta.label)} 누적 ${formatNumber(mChats)}회 대화 × 세션당 2,000~2,700원 가정</p>
+            <h3>론칭 누적 활동 프록시: ${meta.flag} ${escapeHtml(meta.label)}</h3>
+            <p class="stat-help">${escapeHtml(meta.label)} 대화 참여자 카운터 ${formatNumber(mChats)} × 참여자 증가당 2,000~2,700원 가정</p>
           </div>
           <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
             <button type="button" class="rev-tab-btn" data-revenue-mode="recent">⚡ 최근 런레이트</button>
@@ -3786,7 +3842,7 @@ function renderRevenueBand(revenue) {
           </div>
         </div>
         <div class="revenue-headline">
-          <div><span>${escapeHtml(meta.label)} 7개월 누적 매출</span><strong>${formatWonBig(mGrossMid)}</strong><small>누적 ${formatNumber(mChats)}회 대화 환산</small></div>
+          <div><span>${escapeHtml(meta.label)} 누적 IR 보정 프록시</span><strong>${formatWonBig(mGrossMid)}</strong><small>참여자 카운터 ${formatNumber(mChats)} 환산 · 실제 매출 아님</small></div>
           <div class="revenue-range-summary">
             <span><small>낮게 보면</small><strong>${formatWonBig(mGrossLow)}</strong></span>
             <span class="is-focus"><small>누적 기준값</small><strong>${formatWonBig(mGrossMid)}</strong></span>
@@ -3794,14 +3850,14 @@ function renderRevenueBand(revenue) {
           </div>
         </div>
         ${!isKr ? `
-          <div class="benchmark-key is-warning" style="margin:12px 0 6px"><span>⚠️</span><strong>한국 세션당 단가(2,354원) 임시 적용</strong><small>${escapeHtml(meta.label)} 현지 ASP와 결제율 미확인</small></div>
+          <div class="benchmark-key is-warning" style="margin:12px 0 6px"><span>⚠️</span><strong>한국 참여자 증가당 역산계수(2,354원) 임시 적용</strong><small>${escapeHtml(meta.label)} 현지 ASP와 결제율 미확인</small></div>
         ` : `
-          <div class="benchmark-key" style="margin:12px 0 6px"><span></span><strong>한국 누적 7개월 환산 월평균은 월 약 ${formatWonBig(mMonthlyAvg)}</strong><small>누적 대화수 기반 환산치</small></div>
+          <div class="benchmark-key" style="margin:12px 0 6px"><span></span><strong>한국 누적 활동의 환산 월평균 프록시는 약 ${formatWonBig(mMonthlyAvg)}</strong><small>대화 참여자 카운터 기반</small></div>
         `}
         <div class="revenue-confidence-grid">
           <div><span>누적 운영 기간</span><strong>${elapsedDays}일 (7개월)</strong><small>2026.02.01 론칭</small></div>
-          <div><span>${escapeHtml(meta.label)} 누적 월평균</span><strong>월 약 ${formatWonBig(mMonthlyAvg)}</strong><small>누적 총매출 ÷ 7개월</small></div>
-          <div class="is-highlight"><span>${escapeHtml(meta.label)} 누적 대화</span><strong>${formatNumber(mChats)}회</strong><small>공개 카운터 합계</small></div>
+          <div><span>${escapeHtml(meta.label)} 누적 월평균 프록시</span><strong>월 약 ${formatWonBig(mMonthlyAvg)}</strong><small>누적 IR 보정값 ÷ 운영개월</small></div>
+          <div class="is-highlight"><span>${escapeHtml(meta.label)} 참여자 카운터</span><strong>${formatNumber(mChats)}</strong><small>캐릭터별 공개 chatCount 합계</small></div>
         </div>
       </article>
     `;
@@ -3841,8 +3897,8 @@ function renderRevenueBand(revenue) {
       <article class="chart-card span-7 revenue-range-card">
         <div class="chart-heading">
           <div>
-            <h3>월매출 추정: 4개국 통합 얼마까지 볼 수 있나?</h3>
-            <p class="stat-help">4개국 최근 대화 증가 합산을 30일로 환산 · 세션당 2,000~2,700원 가정</p>
+            <h3>월매출 프록시: 4개국 통합 활동 시나리오</h3>
+            <p class="stat-help">4개국 최근 참여자 카운터 증가를 30일로 환산 · 참여자 증가당 2,000~2,700원 가정</p>
           </div>
           <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
             <button type="button" class="rev-tab-btn active" data-revenue-mode="recent">⚡ 최근 4개국 런레이트</button>
@@ -3850,7 +3906,7 @@ function renderRevenueBand(revenue) {
           </div>
         </div>
         <div class="revenue-headline">
-          <div><span>4개국 합산 기준 시나리오</span><strong>${formatWonBig(grandMid)}</strong><small>월 환산 · 공시 매출 아님</small></div>
+          <div><span>4개국 합산 IR 보정 프록시</span><strong>${formatWonBig(grandMid)}</strong><small>월 환산 · 공시·실측 매출 아님</small></div>
           <div class="revenue-range-summary">
             <span><small>낮게 보면</small><strong>${formatWonBig(grandLow)}</strong></span>
             <span class="is-focus"><small>4개국 기준값</small><strong>${formatWonBig(grandMid)}</strong></span>
@@ -3871,7 +3927,7 @@ function renderRevenueBand(revenue) {
           <div class="scope-card is-overseas">
             <span>🌏 해외 합산</span>
             <strong>${formatWonBig(overseasMid)}</strong>
-            <small>일본·Global·대만 · 한국 단가 임시 적용</small>
+            <small>일본·Global·대만 · 한국 역산계수 임시 적용</small>
           </div>
         </div>
         <div class="band-list revenue-day-list">
@@ -3897,7 +3953,7 @@ function renderRevenueBand(revenue) {
             })
             .join("")}
         </div>
-        <div class="benchmark-key is-warning"><span>⚠️</span><strong>${formatWonBig(grandMid)}은 최근 활동 속도의 30일 환산값입니다.</strong></div>
+        <div class="benchmark-key is-warning"><span>⚠️</span><strong>${formatWonBig(grandMid)}은 공개 참여자 카운터 증가의 30일 환산 프록시입니다.</strong></div>
         <div class="revenue-confidence-grid">
           <div><span>관측 표본</span><strong>시장별 4~5일</strong><small>최소 14일 권장</small></div>
           <div><span>통합 장기 월평균 대비</span><strong>${velocityVsAveragePct == null ? "-" : `${velocityVsAveragePct >= 0 ? "+" : ""}${velocityVsAveragePct.toFixed(1)}%`}</strong><small>장기 평균 ${formatWonBig(cumulativeMonthlyAverage)} ↔ 최근 속도 ${formatWonBig(grandMid)}</small></div>
@@ -3920,8 +3976,8 @@ function renderRevenueBand(revenue) {
       <article class="chart-card span-7 revenue-range-card">
         <div class="chart-heading">
           <div>
-            <h3>월매출 추정: 한국(KR) 얼마까지 볼 수 있나?</h3>
-            <p class="stat-help">한국 최근 대화 증가를 30일로 환산 · 세션당 2,000~2,700원 가정</p>
+            <h3>월매출 프록시: 한국(KR) 활동 시나리오</h3>
+            <p class="stat-help">한국 최근 참여자 카운터 증가를 30일로 환산 · 참여자 증가당 2,000~2,700원 가정</p>
           </div>
           <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
             <button type="button" class="rev-tab-btn active" data-revenue-mode="recent">⚡ 최근 ${rows.length}일 런레이트</button>
@@ -3929,7 +3985,7 @@ function renderRevenueBand(revenue) {
           </div>
         </div>
         <div class="revenue-headline">
-          <div><span>한국 기준 시나리오</span><strong>${formatWonBig(latest.revenue_mid)}</strong><small>월 환산 · 공시 매출 아님</small></div>
+          <div><span>한국 IR 보정 프록시</span><strong>${formatWonBig(latest.revenue_mid)}</strong><small>월 환산 · 공시·실측 매출 아님</small></div>
           <div class="revenue-range-summary">
             <span><small>낮게 보면</small><strong>${formatWonBig(latest.revenue_low)}</strong></span>
             <span class="is-focus"><small>기준값</small><strong>${formatWonBig(latest.revenue_mid)}</strong></span>
@@ -3991,8 +4047,8 @@ function renderRevenueBand(revenue) {
     <article class="chart-card span-7 revenue-range-card">
       <div class="chart-heading">
         <div>
-          <h3>월매출 추정: ${meta.flag} ${escapeHtml(meta.label)} 얼마까지 볼 수 있나?</h3>
-          <p class="stat-help">${escapeHtml(meta.label)} 최근 대화 증가를 30일로 환산 · 한국 단가(2,354원) 임시 적용</p>
+          <h3>월매출 프록시: ${meta.flag} ${escapeHtml(meta.label)} 활동 시나리오</h3>
+          <p class="stat-help">${escapeHtml(meta.label)} 최근 참여자 카운터 증가를 30일로 환산 · 한국 역산계수(2,354원) 임시 적용</p>
         </div>
         <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
           <button type="button" class="rev-tab-btn active" data-revenue-mode="recent">⚡ 최근 런레이트</button>
@@ -4000,7 +4056,7 @@ function renderRevenueBand(revenue) {
         </div>
       </div>
       <div class="revenue-headline">
-        <div><span>${escapeHtml(meta.label)} 기준 시나리오</span><strong>${formatWonBig(mRecentMid)}</strong><small>월 환산 · 임시 추정치</small></div>
+        <div><span>${escapeHtml(meta.label)} IR 보정 프록시</span><strong>${formatWonBig(mRecentMid)}</strong><small>월 환산 · 실측 매출 아님</small></div>
         <div class="revenue-range-summary">
           <span><small>낮게 보면</small><strong>${formatWonBig(mRecentLow)}</strong></span>
           <span class="is-focus"><small>기준값</small><strong>${formatWonBig(mRecentMid)}</strong></span>
@@ -4030,7 +4086,7 @@ function renderRevenueBand(revenue) {
           })
           .join("")}
       </div>
-      <div class="benchmark-key is-warning"><span>⚠️</span><strong>한국 세션당 단가(2,354원) 임시 적용</strong><small>${escapeHtml(meta.label)} 현지 ASP 및 결제율 미공시 상태 · IR 9억 비교 제외</small></div>
+      <div class="benchmark-key is-warning"><span>⚠️</span><strong>한국 참여자 증가당 역산계수(2,354원) 임시 적용</strong><small>${escapeHtml(meta.label)} 현지 ASP 및 결제율 미공시 상태 · IR 9억 비교 제외</small></div>
       <div class="revenue-confidence-grid">
         <div><span>관측 표본</span><strong>최근 ${mRows.length}일</strong><small>일간 델타 연속 기록</small></div>
         <div><span>${escapeHtml(meta.label)} 런레이트</span><strong>월 약 ${formatWonBig(mRecentMid)}</strong><small>임시 단가 기준</small></div>
@@ -4154,13 +4210,13 @@ function renderMarketComposition(totals, overseasContribution) {
   const overseasChatShare = 100 - koreaShare;
   return `
     <article class="chart-card span-7 market-composition-card">
-      <div class="chart-heading"><div><h3>전체 대화는 어느 시장에서 나오나?</h3><p class="stat-help">4개 시장 누적 공개 대화 ${formatNumber(grand)}회</p></div><span class="sample-badge">누적 기준</span></div>
+      <div class="chart-heading"><div><h3>대화 참여자 카운터는 어느 시장에서 나오나?</h3><p class="stat-help">4개 시장 캐릭터별 공개 chatCount 합계 ${formatNumber(grand)}</p></div><span class="sample-badge">누적 기준</span></div>
       <div class="composition-summary">
         <div class="composition-primary"><span>한국</span><strong>${koreaShare.toFixed(1)}%</strong><small>${formatNumber(totals.kr)}회</small></div>
-        <div><span>해외 대화 비중</span><strong>${overseasChatShare.toFixed(1)}%</strong><small>일본·Global·대만 합계</small></div>
-        <div><span>해외 가정 매출 비중</span><strong>${formatPercent(overseasContribution)}</strong><small>한국 단가 임시 적용</small></div>
+        <div><span>해외 참여자 비중</span><strong>${overseasChatShare.toFixed(1)}%</strong><small>일본·Global·대만 합계</small></div>
+        <div><span>해외 매출 프록시 비중</span><strong>${formatPercent(overseasContribution)}</strong><small>한국 역산계수 임시 적용</small></div>
       </div>
-      <div class="composition-track" aria-label="시장별 누적 대화수 구성">
+      <div class="composition-track" aria-label="시장별 대화 참여자 카운터 구성">
         ${MARKET_ORDER.map((market) => {
           const value = Number(totals[market] || 0);
           const width = (value / grand) * 100;
@@ -4232,7 +4288,7 @@ function renderGenreBars(rows, marketLabel = "한국", scopeLabel = "시장 원�
   const max = Math.max(...rows.map((row) => Number(row.total_chats || 0)), 1);
   return `
     <article class="chart-card full-span">
-      <div class="chart-heading"><div><h3>${escapeHtml(marketLabel)} 장르별 대화 구성</h3><p class="stat-help">공식 genre · 누적 대화수 기준 · ${escapeHtml(scopeLabel)}</p></div><span class="sample-badge">${rows.length}개 장르</span></div>
+      <div class="chart-heading"><div><h3>${escapeHtml(marketLabel)} 장르별 참여자 구성</h3><p class="stat-help">공식 genre · 공개 chatCount 기준 · ${escapeHtml(scopeLabel)}</p></div><span class="sample-badge">${rows.length}개 장르</span></div>
       <div class="genre-list">
         ${rows
           .map((row, index) => {

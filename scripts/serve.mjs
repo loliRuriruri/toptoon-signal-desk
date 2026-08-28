@@ -271,9 +271,9 @@ async function runOpenRouterAnalysis() {
       captured_at: stats.captured_at,
       revenue_nowcast: stats.revenue_nowcast,
       character_contribution_definition: {
-        formula: "cumulative public chat count multiplied by assumed KRW 2,354 per session",
+        formula: "cumulative public character chatCount multiplied by the IR-calibrated KRW 2,354 proxy coefficient",
         is_reported_revenue: false,
-        limitations: ["chat count may not equal paid sessions", "free usage and repeated chats are unknown", "per-character payment data is unavailable"]
+        limitations: ["chatCount is not a paid-turn count", "cross-character user duplication is unknown", "free usage and repeated chats are unknown", "per-character payment data is unavailable"]
       },
       geographic_mix: stats.site_comparison?.overall,
       daily_traction: stats.site_traction?.daily,

@@ -1,62 +1,62 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-28T10:24:44.079Z",
+  "generated_at": "2026-08-28T16:27:37.386Z",
   "mode": "live-crosscheck",
   "overall_status": "share-with-caveats",
   "summary": {
-    "pass": 17,
-    "warn": 9,
+    "pass": 18,
+    "warn": 11,
     "block": 0
   },
   "definitions": {
     "grain": "시장×캐릭터 공개 누적 스냅샷",
     "timezone": "Asia/Seoul display; source APIs may store UTC timestamps",
-    "observed_metrics": "공개 API의 누적 조회수·누적 채팅수",
-    "modeled_metrics": "누적 채팅 델타에 가정 단가·마진을 적용한 넛캐스트"
+    "observed_metrics": "공개 API의 누적 조회수·캐릭터별 chatCount",
+    "modeled_metrics": "chatCount 델타에 역산계수·마진을 적용한 활동 기반 매출 프록시"
   },
   "catalogs": {
     "kr": {
       "label": "한국",
       "count": 88,
-      "chats": 1544334,
-      "views": 52316847,
+      "chats": 1547610,
+      "views": 52393982,
       "live": {
         "count": 88,
-        "chats": 1544334,
-        "views": 52316853
+        "chats": 1547610,
+        "views": 52393994
       }
     },
     "jp": {
       "label": "일본",
-      "count": 77,
-      "chats": 235211,
-      "views": 20458882,
+      "count": 78,
+      "chats": 236603,
+      "views": 20781248,
       "live": {
-        "count": 77,
-        "chats": 235211,
-        "views": 20458925
+        "count": 78,
+        "chats": 236604,
+        "views": 20781304
       }
     },
     "global": {
       "label": "글로벌",
       "count": 85,
-      "chats": 18023,
-      "views": 335276,
+      "chats": 18096,
+      "views": 336090,
       "live": {
         "count": 85,
-        "chats": 18023,
-        "views": 335276
+        "chats": 18096,
+        "views": 336090
       }
     },
     "tw": {
       "label": "대만",
       "count": 81,
-      "chats": 98932,
-      "views": 3330203,
+      "chats": 99214,
+      "views": 3337354,
       "live": {
         "count": 81,
-        "chats": 98932,
-        "views": 3330204
+        "chats": 99214,
+        "views": 3337354
       }
     }
   },
@@ -74,8 +74,8 @@
       "id": "asset-coverage",
       "label": "로컬 이미지 참조",
       "status": "pass",
-      "observed": 331,
-      "expected": 331,
+      "observed": 332,
+      "expected": 332,
       "note": "모든 레코드에 로컬 이미지 존재",
       "severity": "none"
     },
@@ -83,8 +83,8 @@
       "id": "work-title-completeness",
       "label": "작품명 후보 필드",
       "status": "warn",
-      "observed": 329,
-      "expected": 331,
+      "observed": 330,
+      "expected": 332,
       "note": "첫 번째 해시태그를 작품명 후보로 사용하므로 정식 작품명과 다를 수 있음",
       "severity": "medium"
     },
@@ -110,8 +110,8 @@
       "id": "live-chats-kr",
       "label": "한국 누적 채팅 시차",
       "status": "pass",
-      "observed": 1544334,
-      "expected": 1544334,
+      "observed": 1547610,
+      "expected": 1547610,
       "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
@@ -119,8 +119,8 @@
       "id": "live-count-jp",
       "label": "일본 원본 목록 수",
       "status": "pass",
-      "observed": 77,
-      "expected": 77,
+      "observed": 78,
+      "expected": 78,
       "note": "로컬 스냅샷과 공개 API의 캐릭터 수 대조",
       "severity": "none"
     },
@@ -128,8 +128,8 @@
       "id": "live-chats-jp",
       "label": "일본 누적 채팅 시차",
       "status": "pass",
-      "observed": 235211,
-      "expected": 235211,
+      "observed": 236603,
+      "expected": 236604,
       "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
@@ -146,8 +146,8 @@
       "id": "live-chats-global",
       "label": "글로벌 누적 채팅 시차",
       "status": "pass",
-      "observed": 18023,
-      "expected": 18023,
+      "observed": 18096,
+      "expected": 18096,
       "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
@@ -164,8 +164,8 @@
       "id": "live-chats-tw",
       "label": "대만 누적 채팅 시차",
       "status": "pass",
-      "observed": 98932,
-      "expected": 98932,
+      "observed": 99214,
+      "expected": 99214,
       "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
@@ -174,8 +174,8 @@
       "label": "한국 Worker↔직접 관측",
       "status": "warn",
       "observed": 1543672,
-      "expected": 1544334,
-      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 0.043%",
+      "expected": 1547610,
+      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 0.254%",
       "severity": "medium"
     },
     {
@@ -183,8 +183,8 @@
       "label": "일본 Worker↔직접 관측",
       "status": "warn",
       "observed": 226063,
-      "expected": 235211,
-      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 3.889%",
+      "expected": 236603,
+      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 4.455%",
       "severity": "medium"
     },
     {
@@ -192,8 +192,8 @@
       "label": "글로벌 Worker↔직접 관측",
       "status": "warn",
       "observed": 16684,
-      "expected": 18023,
-      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 7.429%",
+      "expected": 18096,
+      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 7.803%",
       "severity": "medium"
     },
     {
@@ -201,18 +201,40 @@
       "label": "대만 Worker↔직접 관측",
       "status": "warn",
       "observed": 95817,
-      "expected": 98932,
-      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 3.149%",
+      "expected": 99214,
+      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 3.424%",
       "severity": "medium"
     },
     {
       "id": "revenue-nowcast-formula",
-      "label": "한국 월매출 런레이트 재계산",
+      "label": "한국 IR 보정 프록시 재계산",
       "status": "pass",
       "observed": 643882894,
       "expected": 643882894,
-      "note": "평균 일간 채팅 증가×30일×세션당매출 가정",
+      "note": "평균 일간 chatCount 증가×30일×참여자 증가당 역산계수",
       "severity": "none"
+    },
+    {
+      "id": "revenue-model-unit",
+      "label": "매출 모델 분모 검증",
+      "status": "warn",
+      "observed": "공개 chatCount 증가",
+      "expected": "유료 턴·유료 세션 또는 결제자",
+      "note": "공개 chatCount는 유료 턴 수가 아니므로 원화 결과는 매출 실측이 아닌 활동 프록시로만 표시",
+      "severity": "high"
+    },
+    {
+      "id": "revenue-model-version-conflict",
+      "label": "Worker 매출 모델 버전 일치",
+      "status": "warn",
+      "observed": {
+        "legacy_7d_mid": 643882894,
+        "current_1d_mid": 828990000,
+        "gap_pct": 28.7
+      },
+      "expected": "동일 관측창·동일 역산계수",
+      "note": "구형 API는 7일 평균×2,354원, 현재 Worker 메인은 최신 1일×3,000원을 사용해 모델 선택만으로 결과가 달라짐",
+      "severity": "high"
     },
     {
       "id": "profit-nowcast-formula",
@@ -251,6 +273,15 @@
       "severity": "none"
     },
     {
+      "id": "revenue-label-semantic-guard",
+      "label": "매출 프록시 표시 명칭",
+      "status": "pass",
+      "observed": [],
+      "expected": [],
+      "note": "참여자 카운터·역산계수·프록시로 구분 표시",
+      "severity": "none"
+    },
+    {
       "id": "krx-halt-date-tieout",
       "label": "거래정지 판단일 종가 대조",
       "status": "pass",
@@ -281,9 +312,9 @@
       "id": "overseas-asp",
       "label": "해외 결제단가 검증",
       "status": "warn",
-      "observed": "한국 단가 임시 적용",
+      "observed": "한국 역산계수 임시 적용",
       "expected": "국가별 실제 ASP",
-      "note": "일본·글로벌·대만 매출 넛캐스트는 한국 세션당매출을 그대로 적용",
+      "note": "일본·글로벌·대만 매출 프록시는 한국의 참여자 증가당 역산계수를 그대로 적용",
       "severity": "high"
     },
     {
@@ -451,7 +482,8 @@
     }
   },
   "required_caveats": [
-    "조회수와 채팅수는 유료 결제·유료 세션·순매출이 아니다.",
+    "viewCount와 chatCount는 유료 턴·유료 세션·순매출이 아니다.",
+    "캐릭터별 chatCount 합계는 동일 이용자의 캐릭터 간 중복을 포함할 수 있다.",
     "작품명은 공개 API의 첫 번째 해시태그에서 추론하며 정식 작품명 필드가 아니다.",
     "Worker 통계와 직접 관측 카탈로그는 수집 시각과 파이프라인이 달라 누적 합계가 일치하지 않을 수 있다.",
     "AI챗 별도 매출, 결제자 비율, 국가별 ASP, API 비용, IP 정산, 순이익률은 공시로 검증되지 않았다.",
