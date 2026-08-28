@@ -19,6 +19,7 @@ for (const filename of ["index.html", "app.js", "styles.css"]) {
 await cp(join(projectRoot, "public-worker.js"), join(outputRoot, "_worker.js"));
 
 const characterData = JSON.parse(await readFile(join(projectRoot, "data", "characters.json"), "utf8"));
+const homeBannerData = JSON.parse(await readFile(join(projectRoot, "data", "official-home-banners.json"), "utf8"));
 const marketBySite = { KR: "kr", JP: "jp", GLOBAL: "global", TW: "tw" };
 const imageMap = {};
 const copiedImages = new Set();
@@ -38,8 +39,19 @@ for (const record of characterData.records || []) {
     copiedImages.add(publicName);
   }
 }
+const copiedHomeBanners = new Set();
+for (const item of Object.values(homeBannerData.markets || {}).flatMap((observation) => observation?.items || [])) {
+  const relativePath = String(item.image_url || "");
+  if (!relativePath.startsWith("assets/home-banners/")) throw new Error(`Unexpected home banner asset path: ${relativePath}`);
+  const source = join(projectRoot, relativePath);
+  const destination = join(outputRoot, relativePath);
+  if (copiedHomeBanners.has(relativePath)) continue;
+  await mkdir(join(outputRoot, "assets", "home-banners", pathSegment(relativePath, 2)), { recursive: true });
+  await cp(source, destination);
+  copiedHomeBanners.add(relativePath);
+}
 await mkdir(join(outputRoot, "data"), { recursive: true });
-for (const filename of ["characters.js", "character-activity.js", "stats.js", "validation.js", "official-signals.js", "official-promotions.js", "ai-diagnosis.js"]) {
+for (const filename of ["characters.js", "character-activity.js", "stats.js", "validation.js", "official-signals.js", "official-promotions.js", "official-home-banners.js", "ai-diagnosis.js"]) {
   await cp(join(projectRoot, "data", filename), join(outputRoot, "data", filename));
 }
 
@@ -65,7 +77,7 @@ const indexPath = join(outputRoot, "index.html");
 const index = await readFile(indexPath, "utf8");
 if (!index.includes("TOPTOON CHAT TRACKER")) throw new Error("Public index validation failed");
 const versionHash = createHash("sha256");
-for (const filename of ["styles.css", "app.js", "data/stats.js", "data/validation.js", "data/official-signals.js", "data/official-promotions.js", "data/ai-diagnosis.js", "data/character-activity.js", "data/characters.js", "data/image-map.js"]) {
+for (const filename of ["styles.css", "app.js", "data/stats.js", "data/validation.js", "data/official-signals.js", "data/official-promotions.js", "data/official-home-banners.js", "data/ai-diagnosis.js", "data/character-activity.js", "data/characters.js", "data/image-map.js"]) {
   versionHash.update(await readFile(join(outputRoot, filename)));
 }
 const publicVersion = versionHash.digest("hex").slice(0, 12);
@@ -73,9 +85,13 @@ let versionedIndex = index.replace(
   '<script src="data/characters.js"></script>',
   '<script src="data/image-map.js"></script>\n    <script src="data/characters.js"></script>'
 );
-for (const asset of ["styles.css", "app.js", "data/stats.js", "data/validation.js", "data/official-signals.js", "data/official-promotions.js", "data/ai-diagnosis.js", "data/character-activity.js", "data/image-map.js", "data/characters.js"]) {
+for (const asset of ["styles.css", "app.js", "data/stats.js", "data/validation.js", "data/official-signals.js", "data/official-promotions.js", "data/official-home-banners.js", "data/ai-diagnosis.js", "data/character-activity.js", "data/image-map.js", "data/characters.js"]) {
   versionedIndex = versionedIndex.replaceAll(`="${asset}"`, `="${asset}?v=${publicVersion}"`);
 }
 await writeFile(indexPath, versionedIndex, "utf8");
 
-console.log(`Public read-only build created: ${outputRoot} (${copiedImages.size} unique images, version ${publicVersion})`);
+console.log(`Public read-only build created: ${outputRoot} (${copiedImages.size} character images, ${copiedHomeBanners.size} home banners, version ${publicVersion})`);
+
+function pathSegment(relativePath, index) {
+  return relativePath.split("/")[index] || "shared";
+}

@@ -75,6 +75,7 @@ let validationData = null;
 let integrationsData = null;
 let officialSignalsData = null;
 let officialPromotionsData = null;
+let officialHomeBannersData = null;
 let aiDiagnosisData = null;
 let records = [];
 let groups = [];
@@ -336,6 +337,7 @@ async function load() {
     validationData = window.TOPTOON_VALIDATION || null;
     officialSignalsData = window.TOPTOON_OFFICIAL_SIGNALS || null;
     officialPromotionsData = window.TOPTOON_OFFICIAL_PROMOTIONS || null;
+    officialHomeBannersData = window.TOPTOON_OFFICIAL_HOME_BANNERS || null;
     aiDiagnosisData = window.TOPTOON_AI_DIAGNOSIS || null;
     if (!PUBLIC_READ_ONLY) {
       try {
@@ -1008,6 +1010,7 @@ function renderStatsMarketSummary() {
   const targetMarkets = market === "all" ? MARKET_ORDER : [market];
   const allDailyDeltas = getDailyMarketDeltas("all");
   const observedCards = targetMarkets.map((key) => renderObservedMarketCard(key, allDailyDeltas)).join("");
+  const homeBannerCards = targetMarkets.map(renderOfficialHomeBannerCard).join("");
   const promotionCards = targetMarkets.map(renderOfficialPromotionCard).join("");
 
   els.statsMarketDefinition.innerHTML = `
@@ -1025,6 +1028,13 @@ function renderStatsMarketSummary() {
           <span>24시간 환산 시장 비중과 최근 수집 간 실제 증가 상위</span>
         </div>
         <div class="event-feed-grid${market === "all" ? "" : " single-col"}">${observedCards}</div>
+      </section>
+      <section class="event-home-banner-section" aria-label="공식 홈 상단 배너">
+        <div class="event-section-heading">
+          <strong>공식 홈 상단 배너</strong>
+          <span>각국 공식 홈에서 이번 갱신에 확인된 제목·이미지·배지</span>
+        </div>
+        <div class="official-home-banner-grid${market === "all" ? "" : " single-col"}">${homeBannerCards}</div>
       </section>
       <section class="event-promotion-section" aria-label="공식 프로모션 감지">
         <div class="event-section-heading">
@@ -2589,6 +2599,69 @@ function promotionChangeLabel(change) {
   }[change] || "확인 상태";
 }
 
+const HOME_BANNER_BADGE_LABELS = {
+  popular: "인기 캐릭터",
+  newScenario: "신규 시나리오",
+  new: "신규 캐릭터",
+  promotion: "오늘특가"
+};
+
+function renderOfficialHomeBannerCard(market) {
+  const meta = MARKET_META[market];
+  const observation = officialHomeBannersData?.markets?.[market] || null;
+  const items = observation?.items || [];
+  const sourceLink = observation?.homepage_url
+    ? `<a class="promotion-link-btn" href="${escapeAttr(observation.homepage_url)}" target="_blank" rel="noopener noreferrer">출처 홈 ↗</a>`
+    : "";
+
+  if (!items.length) {
+    const message = observation?.status === "empty"
+      ? "이번 갱신에서 공식 홈 상단 배너를 확인하지 못했습니다."
+      : "공식 홈 배너 출처를 확인하지 못했습니다. 이전 문구를 추정으로 대체하지 않습니다.";
+    return `
+      <article class="official-home-banner-card is-empty">
+        <div class="official-home-banner-head">
+          <div class="official-home-banner-market"><span>${meta.flag}</span><strong>${escapeHtml(meta.label)}</strong></div>
+          ${sourceLink}
+        </div>
+        <p class="official-home-banner-empty">${message}</p>
+      </article>
+    `;
+  }
+
+  const bannerItems = items.map((item, index) => {
+    const badges = (item.badges || [])
+      .map((badge) => HOME_BANNER_BADGE_LABELS[badge] || badge)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((badge) => `<span class="official-home-banner-badge">${escapeHtml(badge)}</span>`)
+      .join("");
+    const title = item.title || item.info_text || `공식 홈 배너 ${index + 1}`;
+    const info = item.info_text && item.info_text !== item.title ? item.info_text : "";
+    const href = item.detail_url || observation.homepage_url;
+    return `
+      <a class="official-home-banner-item" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer">
+        <img src="${escapeAttr(item.image_url)}" alt="${escapeAttr(`${meta.label} 공식 홈 배너 ${index + 1}: ${title}`)}" loading="lazy" />
+        <span class="official-home-banner-caption">
+          <span class="official-home-banner-badges">${badges}</span>
+          <strong>${escapeHtml(title)}</strong>
+          ${info ? `<small>${escapeHtml(info)}</small>` : ""}
+        </span>
+      </a>
+    `;
+  }).join("");
+
+  return `
+    <article class="official-home-banner-card">
+      <div class="official-home-banner-head">
+        <div class="official-home-banner-market"><span>${meta.flag}</span><strong>${escapeHtml(meta.label)}</strong></div>
+        <div class="official-home-banner-actions"><span class="official-home-banner-count">${formatNumber(items.length)}개 확인</span>${sourceLink}</div>
+      </div>
+      <div class="official-home-banner-strip">${bannerItems}</div>
+    </article>
+  `;
+}
+
 function renderOfficialPromotionCard(market) {
   const meta = MARKET_META[market];
   const observation = officialPromotionsData?.markets?.[market] || null;
@@ -2603,13 +2676,13 @@ function renderOfficialPromotionCard(market) {
     return `
       <article class="promotion-card is-${statusClass}">
         <div class="promotion-card-head">
-          <span class="promotion-market-label">${meta.flag} ${escapeHtml(meta.label)}</span>
+          <div class="promotion-market-actions">
+            <span class="promotion-market-label">${meta.flag} ${escapeHtml(meta.label)}</span>
+            ${observation?.homepage_url ? `<a class="promotion-link-btn" href="${escapeAttr(observation.homepage_url)}" target="_blank" rel="noopener noreferrer">출처 홈 ↗</a>` : ""}
+          </div>
           <b class="promotion-status-badge is-none">${status === "none" ? "공식 프로모션 미감지" : "출처 확인 불가"}</b>
         </div>
         <p class="promotion-empty-msg">${message}</p>
-        <div class="promotion-card-meta">
-          ${observation?.homepage_url ? `<a class="promotion-link-btn" href="${escapeHtml(observation.homepage_url)}" target="_blank" rel="noopener noreferrer">공식 홈 열기 ↗</a>` : ""}
-        </div>
       </article>
     `;
   }
@@ -2622,7 +2695,7 @@ function renderOfficialPromotionCard(market) {
     return `
       <div class="promotion-item">
         <strong class="promotion-item-title" title="${escapeAttr(verificationHint)}">${escapeHtml(title)}</strong>
-        <a class="promotion-link-btn" href="${escapeHtml(item.detail_url)}" target="_blank" rel="noopener noreferrer">공식 캐릭터 페이지 ↗</a>
+        <a class="promotion-link-btn" href="${escapeAttr(item.detail_url)}" target="_blank" rel="noopener noreferrer">공식 캐릭터 페이지 ↗</a>
       </div>
     `;
   }).join("");
@@ -2630,14 +2703,14 @@ function renderOfficialPromotionCard(market) {
   return `
     <article class="promotion-card is-${statusClass}">
       <div class="promotion-card-head">
-        <span class="promotion-market-label">${meta.flag} ${escapeHtml(meta.label)}</span>
+        <div class="promotion-market-actions">
+          <span class="promotion-market-label">${meta.flag} ${escapeHtml(meta.label)}</span>
+          <a class="promotion-link-btn" href="${escapeAttr(observation.homepage_url)}" target="_blank" rel="noopener noreferrer">출처 홈 ↗</a>
+        </div>
         <b class="promotion-status-badge is-${escapeHtml(observation.change || "active")}">${escapeHtml(promotionChangeLabel(observation.change))}</b>
       </div>
       <div class="promotion-items-wrap">
         ${itemHtml}
-      </div>
-      <div class="promotion-card-meta">
-        <a class="promotion-link-btn" href="${escapeHtml(observation.homepage_url)}" target="_blank" rel="noopener noreferrer">출처 홈 ↗</a>
       </div>
     </article>
   `;

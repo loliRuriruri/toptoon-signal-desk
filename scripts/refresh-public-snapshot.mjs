@@ -35,9 +35,11 @@ mkdirSync(assetRoot, { recursive: true });
 const previousCatalogPath = path.join(dataDir, "characters.json");
 const previousActivityPath = path.join(dataDir, "character-activity.json");
 const previousPromotionsPath = path.join(dataDir, "official-promotions.json");
+const previousHomeBannersPath = path.join(dataDir, "official-home-banners.json");
 let previousCatalog = null;
 let previousActivity = null;
 let previousPromotions = null;
+let previousHomeBanners = null;
 if (existsSync(previousCatalogPath)) {
   try {
     previousCatalog = JSON.parse(readFileSync(previousCatalogPath, "utf8"));
@@ -57,6 +59,13 @@ if (existsSync(previousPromotionsPath)) {
     previousPromotions = JSON.parse(readFileSync(previousPromotionsPath, "utf8"));
   } catch (error) {
     console.warn(`Previous promotion snapshot could not be read: ${error.message}`);
+  }
+}
+if (existsSync(previousHomeBannersPath)) {
+  try {
+    previousHomeBanners = JSON.parse(readFileSync(previousHomeBannersPath, "utf8"));
+  } catch (error) {
+    console.warn(`Previous official home banner snapshot could not be read: ${error.message}`);
   }
 }
 
@@ -148,6 +157,148 @@ function extractPromotionHeadline(homepageHtml, route, characterName) {
   const headline = htmlText(headlineMatch?.[1] || anchorMatch[1]);
   if (!headline || !headline.includes(String(characterName || ""))) return null;
   return headline;
+}
+
+function extractInitialBanners(homepageHtml) {
+  if (!homepageHtml) return [];
+
+  // The public home pages stream the carousel state in a Next.js flight
+  // payload. Decode that string first so escaped quotes inside a banner title
+  // cannot be mistaken for the end of the JSON string.
+  for (const scriptMatch of homepageHtml.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) {
+    const scriptBody = scriptMatch[1];
+    const pushIndex = scriptBody.indexOf("self.__next_f.push([1,");
+    if (pushIndex < 0) continue;
+    const stringStart = scriptBody.indexOf('"', pushIndex);
+    if (stringStart < 0) continue;
+
+    let stringEnd = stringStart + 1;
+    let escaped = false;
+    for (; stringEnd < scriptBody.length; stringEnd += 1) {
+      const character = scriptBody[stringEnd];
+      if (escaped) {
+        escaped = false;
+      } else if (character === "\\") {
+        escaped = true;
+      } else if (character === '"') {
+        break;
+      }
+    }
+    if (stringEnd >= scriptBody.length) continue;
+
+    let flightText;
+    try {
+      flightText = JSON.parse(scriptBody.slice(stringStart, stringEnd + 1));
+    } catch {
+      continue;
+    }
+
+    const marker = 'initialBanners":';
+    const markerIndex = flightText.indexOf(marker);
+    if (markerIndex < 0) continue;
+    const arrayStart = flightText.indexOf("[", markerIndex + marker.length);
+    if (arrayStart < 0) continue;
+
+    let depth = 0;
+    let inString = false;
+    let stringEscaped = false;
+    let arrayEnd = -1;
+    for (let index = arrayStart; index < flightText.length; index += 1) {
+      const character = flightText[index];
+      if (inString) {
+        if (stringEscaped) stringEscaped = false;
+        else if (character === "\\") stringEscaped = true;
+        else if (character === '"') inString = false;
+        continue;
+      }
+      if (character === '"') {
+        inString = true;
+      } else if (character === "[") {
+        depth += 1;
+      } else if (character === "]") {
+        depth -= 1;
+        if (depth === 0) {
+          arrayEnd = index + 1;
+          break;
+        }
+      }
+    }
+    if (arrayEnd < 0) continue;
+
+    try {
+      const banners = JSON.parse(flightText.slice(arrayStart, arrayEnd));
+      return Array.isArray(banners) ? banners : [];
+    } catch {
+      continue;
+    }
+  }
+  return [];
+}
+
+function bannerImageUrl(assetsUrl, homepageUrl) {
+  try {
+    const url = new URL(String(assetsUrl || ""), homepageUrl);
+    if (/\.mp4$/i.test(url.pathname)) url.pathname = url.pathname.replace(/\.mp4$/i, "_thumb.webp");
+    return url.href;
+  } catch {
+    return "";
+  }
+}
+
+function extractOfficialHomeBannerItems(homepageHtml, homepageUrl) {
+  return extractInitialBanners(homepageHtml)
+    .filter((banner) => banner && (banner.title || banner.infoText || Array.isArray(banner.badge) && banner.badge.length))
+    .map((banner, index) => {
+      let detailUrl = null;
+      try {
+        detailUrl = banner.linkUrl ? new URL(String(banner.linkUrl), homepageUrl).href : null;
+      } catch {
+        detailUrl = null;
+      }
+      const characterIdMatch = String(banner.linkUrl || "").match(/\/character\/(\d+)/i);
+      const imageUrl = bannerImageUrl(banner.assetsUrl, homepageUrl);
+      return {
+        position: index + 1,
+        banner_id: Number.isFinite(Number(banner.id)) ? Number(banner.id) : null,
+        title: String(banner.title || "").replace(/\s+/g, " ").trim() || null,
+        info_text: String(banner.infoText || "").replace(/\s+/g, " ").trim() || null,
+        badges: Array.isArray(banner.badge) ? banner.badge.map((value) => String(value || "").trim()).filter(Boolean) : [],
+        character_id: characterIdMatch ? Number(characterIdMatch[1]) : null,
+        detail_url: detailUrl,
+        asset_url: String(banner.assetsUrl || "").trim() || null,
+        image_url: imageUrl || null,
+        source_url: homepageUrl
+      };
+    })
+    .filter((item) => item.image_url)
+    .slice(0, 8);
+}
+
+async function cacheOfficialHomeBannerImages(items, market) {
+  const assetDir = path.join(assetRoot, "home-banners", market.key);
+  mkdirSync(assetDir, { recursive: true });
+  const cachedItems = [];
+  for (const item of items) {
+    const remoteImageUrl = item.image_url;
+    if (!remoteImageUrl) continue;
+    const remotePath = new URL(remoteImageUrl).pathname;
+    const baseName = safeFilename(path.basename(remotePath) || `banner-${item.position}.webp`);
+    const fileName = `${String(item.banner_id || item.position).padStart(3, "0")}_${baseName}`;
+    const destination = path.join(assetDir, fileName);
+    if (!existsSync(destination)) {
+      const imageResponse = await fetch(remoteImageUrl, {
+        headers: { "user-agent": "Mozilla/5.0 (compatible; ToptoonTrackerValidation/1.0)", referer: `${market.host}/` }
+      });
+      if (!imageResponse.ok) throw new Error(`${remoteImageUrl} returned HTTP ${imageResponse.status}`);
+      writeFileSync(destination, Buffer.from(await imageResponse.arrayBuffer()));
+    }
+    cachedItems.push({
+      ...item,
+      image_url: `assets/home-banners/${market.key}/${fileName}`,
+      source_image_url: remoteImageUrl
+    });
+  }
+  return cachedItems;
 }
 
 async function collectMarket(market) {
@@ -259,7 +410,30 @@ async function collectOfficialPromotions(result) {
       ? (previousSignature ? "changed" : "new")
       : (previousSignature ? "ended" : "none");
 
-  return [market.key, {
+  const homeBannerItems = await cacheOfficialHomeBannerImages(
+    extractOfficialHomeBannerItems(homepageHtml, `${market.host}/`),
+    market
+  );
+  const bannerSignature = homeBannerItems
+    .map((item) => `${item.banner_id || ""}:${item.title || ""}:${item.source_image_url || item.image_url || ""}`)
+    .sort()
+    .join("|");
+  const previousBannerMarket = previousHomeBanners?.markets?.[market.key] || null;
+  const previousBannerSignature = previousBannerMarket?.items?.length
+    ? previousBannerMarket.items
+      .map((item) => `${item.banner_id || ""}:${item.title || ""}:${item.source_image_url || item.image_url || ""}`)
+      .sort()
+      .join("|")
+    : String(previousBannerMarket?.signature || "");
+  const bannerChange = bannerSignature === previousBannerSignature
+    ? (bannerSignature ? "continuing" : "none")
+    : bannerSignature
+      ? (previousBannerSignature ? "changed" : "new")
+      : (previousBannerSignature ? "ended" : "none");
+
+  return {
+    key: market.key,
+    promotion: {
     market: market.key,
     label: market.site,
     observed_at: capturedAt,
@@ -270,10 +444,24 @@ async function collectOfficialPromotions(result) {
     signature,
     homepage_error: homepageError,
     items
-  }];
+    },
+    homeBanners: {
+      market: market.key,
+      label: market.site,
+      observed_at: capturedAt,
+      homepage_url: `${market.host}/`,
+      status: homepageError ? (homeBannerItems.length ? "partial" : "unavailable") : homeBannerItems.length ? "ok" : "empty",
+      change: bannerChange,
+      signature: bannerSignature,
+      homepage_error: homepageError,
+      items: homeBannerItems
+    }
+  };
 }
 
-const promotionMarkets = Object.fromEntries(await Promise.all(marketResults.map(collectOfficialPromotions)));
+const officialHomeObservations = await Promise.all(marketResults.map(collectOfficialPromotions));
+const promotionMarkets = Object.fromEntries(officialHomeObservations.map((observation) => [observation.key, observation.promotion]));
+const homeBannerMarkets = Object.fromEntries(officialHomeObservations.map((observation) => [observation.key, observation.homeBanners]));
 const promotionHistory = [
   ...(previousPromotions?.history || []),
   {
@@ -294,6 +482,13 @@ const promotionsPayload = {
   caveat: "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
   markets: promotionMarkets,
   history: promotionHistory
+};
+const homeBannersPayload = {
+  generated_at: capturedAt,
+  source_tier: "A",
+  definition: "Each item is a title, image and optional badge observed in the market's official home-page hero payload. It is not a traffic, conversion or event-causality signal.",
+  caveat: "Only the official home payload is shown. A banner's presence does not prove why viewCount or chatCount changed.",
+  markets: homeBannerMarkets
 };
 const records = marketResults.flatMap((result) => result.records);
 const counts = {
@@ -440,6 +635,8 @@ writeFileSync(path.join(dataDir, "character-activity.json"), `${JSON.stringify(a
 writeFileSync(path.join(dataDir, "character-activity.js"), `window.TOPTOON_CHARACTER_ACTIVITY=${JSON.stringify(activityPayload)};\n`, "utf8");
 writeFileSync(path.join(dataDir, "official-promotions.json"), `${JSON.stringify(promotionsPayload, null, 2)}\n`, "utf8");
 writeFileSync(path.join(dataDir, "official-promotions.js"), `window.TOPTOON_OFFICIAL_PROMOTIONS=${JSON.stringify(promotionsPayload)};\n`, "utf8");
+writeFileSync(path.join(dataDir, "official-home-banners.json"), `${JSON.stringify(homeBannersPayload, null, 2)}\n`, "utf8");
+writeFileSync(path.join(dataDir, "official-home-banners.js"), `window.TOPTOON_OFFICIAL_HOME_BANNERS=${JSON.stringify(homeBannersPayload)};\n`, "utf8");
 
 const workerBase = "https://toptoon-tracker.john6428.workers.dev";
 const statsPairs = await Promise.all(Object.entries(statsEndpoints).map(async ([key, endpoint]) => [key, await fetchJson(`${workerBase}/api/${endpoint}`, `${workerBase}/`)]));
@@ -461,6 +658,8 @@ console.log(JSON.stringify({
   activity_history_snapshots: history.length,
   character_history_intervals: characterHistory.length,
   promotion_statuses: Object.fromEntries(Object.entries(promotionMarkets).map(([key, value]) => [key, value.status])),
+  home_banner_statuses: Object.fromEntries(Object.entries(homeBannerMarkets).map(([key, value]) => [key, value.status])),
+  home_banner_counts: Object.fromEntries(Object.entries(homeBannerMarkets).map(([key, value]) => [key, value.items.length])),
   counts,
   downloaded_asset_folders: markets.map((market) => market.key),
   stats_endpoints: Object.keys(statsEndpoints).length

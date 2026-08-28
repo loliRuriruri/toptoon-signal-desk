@@ -22,6 +22,7 @@ const stats = readJson("data/stats.json");
 const validation = readJson("data/validation.json");
 const officialSignals = readJson("data/official-signals.json");
 const officialPromotions = readJson("data/official-promotions.json");
+const officialHomeBanners = readJson("data/official-home-banners.json");
 const aiDiagnosis = readJson("data/ai-diagnosis.json");
 const characterActivity = readJson("data/character-activity.json");
 const embeddedData = readFileSync(path.join(root, "data", "characters.js"), "utf8");
@@ -29,6 +30,7 @@ const embeddedStats = readFileSync(path.join(root, "data", "stats.js"), "utf8");
 const embeddedValidation = readFileSync(path.join(root, "data", "validation.js"), "utf8");
 const embeddedOfficialSignals = readFileSync(path.join(root, "data", "official-signals.js"), "utf8");
 const embeddedOfficialPromotions = readFileSync(path.join(root, "data", "official-promotions.js"), "utf8");
+const embeddedOfficialHomeBanners = readFileSync(path.join(root, "data", "official-home-banners.js"), "utf8");
 const embeddedAiDiagnosis = readFileSync(path.join(root, "data", "ai-diagnosis.js"), "utf8");
 const embeddedCharacterActivity = readFileSync(path.join(root, "data", "character-activity.js"), "utf8");
 const records = data.records || [];
@@ -47,6 +49,7 @@ assert(/^window\.TOPTOON_STATS\s*=\s*\{/.test(embeddedStats), "embedded statisti
 assert(/^window\.TOPTOON_VALIDATION\s*=\s*\{/.test(embeddedValidation), "embedded validation should be available without fetch");
 assert(/^window\.TOPTOON_OFFICIAL_SIGNALS\s*=\s*\{/.test(embeddedOfficialSignals), "embedded official signal state should be available without fetch");
 assert(/^window\.TOPTOON_OFFICIAL_PROMOTIONS\s*=\s*\{/.test(embeddedOfficialPromotions), "embedded official promotion state should be available without fetch");
+assert(/^window\.TOPTOON_OFFICIAL_HOME_BANNERS\s*=\s*\{/.test(embeddedOfficialHomeBanners), "embedded official home banner state should be available without fetch");
 assert(/^window\.TOPTOON_AI_DIAGNOSIS\s*=\s*\{/.test(embeddedAiDiagnosis), "embedded scheduled AI diagnosis should be available without fetch");
 assert(/^window\.TOPTOON_CHARACTER_ACTIVITY\s*=\s*\{/.test(embeddedCharacterActivity), "embedded four-market activity should be available without fetch");
 assert(new Set(records.map((record) => `${record.site}:${record.character_id}`)).size === records.length, "duplicate character ID per market detected");
@@ -94,6 +97,23 @@ for (const market of ["kr", "jp", "global", "tw"]) {
     assert(item.api_badge === "price_promotion", `${market} promotion item lacks the official API badge`);
     assert(["api-and-homepage", "api-badge-only"].includes(item.verification), `${market} promotion verification state is invalid`);
     if (item.verification === "api-and-homepage") assert(typeof item.headline === "string" && item.headline.includes(item.character_name), `${market} verified promotion headline does not match its character`);
+  }
+}
+assert(officialHomeBanners.source_tier === "A", "official home banners should retain first-party source tier");
+assert(/^\d{4}-\d{2}-\d{2}T/.test(officialHomeBanners.generated_at || ""), "official home banner observation timestamp is missing");
+for (const market of ["kr", "jp", "global", "tw"]) {
+  const observation = officialHomeBanners.markets?.[market];
+  assert(observation, `${market} official home banner observation is missing`);
+  assert(["ok", "partial", "empty", "unavailable"].includes(observation?.status), `${market} official home banner status is invalid`);
+  assert(/^https:\/\/chat\.(?:toptoon\.(?:com|jp|net)|global\.toptoon\.com)\/$/.test(observation?.homepage_url || ""), `${market} official home banner homepage URL is invalid`);
+  for (const item of observation?.items || []) {
+    assert(/^assets\/home-banners\/(?:kr|jp|global|tw)\/.+\.(?:webp|png|jpe?g)$/i.test(item.image_url || ""), `${market} home banner image must use the cached public asset`);
+    assert(existsSync(path.join(root, item.image_url)), `${market} home banner cached asset is missing: ${item.image_url}`);
+    assert(/^https:\/\/showcase\.chat\.(?:toptoon\.(?:com|jp|net)|global\.toptoon\.com)\/banner\/main-top\//.test(item.source_image_url || ""), `${market} home banner source image must come from the official showcase host`);
+    assert(item.source_url === observation.homepage_url, `${market} home banner source URL must match the official homepage`);
+    assert(Array.isArray(item.badges), `${market} home banner badges must remain an array`);
+    assert(item.title || item.info_text, `${market} home banner must retain an observed title or info text`);
+    if (item.detail_url) assert(/^https:\/\/chat\.(?:toptoon\.(?:com|jp|net)|global\.toptoon\.com)\//.test(item.detail_url), `${market} home banner detail URL is invalid`);
   }
 }
 
@@ -198,6 +218,7 @@ assert(!js.includes("최근 갱신 조회</span>") && !js.includes("최근 갱�
 assert(html.includes("data/characters.js"), "embedded dataset script must be referenced");
 assert(html.includes("data/character-activity.js"), "embedded activity script must be referenced");
 assert(html.includes("data/official-promotions.js"), "embedded official promotion script must be referenced");
+assert(html.includes("data/official-home-banners.js"), "embedded official home banner script must be referenced");
 
 [
   "data-view=\"stats\"",
@@ -220,6 +241,7 @@ assert(html.includes("data/official-promotions.js"), "embedded official promotio
   "data/validation.js"
   ,"data/official-signals.js"
   ,"data/official-promotions.js"
+  ,"data/official-home-banners.js"
   ,"data/ai-diagnosis.js"
 ].forEach((marker) => assert(html.includes(marker), `missing HTML marker: ${marker}`));
 
