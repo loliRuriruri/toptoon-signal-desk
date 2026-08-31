@@ -209,7 +209,9 @@ const js = readFileSync(path.join(root, "app.js"), "utf8");
   "일간 조회수 +110만 회"
 ].forEach((claim) => assert(!`${js}\n${html}`.includes(claim), `unsupported or stale numeric display claim: ${claim}`));
 assert(/id="ai-analysis-output" hidden><\/pre>/.test(html), "preset analysis output should be generated from the current snapshot");
-assert(js.includes("siteRevenue.grand_total_mid"), "headline recent run-rate must use the all-market total");
+assert(js.includes('recentRevenueForMarket("all")'), "headline recent run-rate must recompute the all-market total from observed deltas");
+assert(js.includes("REVENUE_ASSUMPTION_STORAGE_KEY") && js.includes("revenueFromChats"), "shared revenue assumption model is missing");
+assert(!/chatsNumber\s*\*\s*2354/.test(js), "character estimates must use the shared revenue assumption");
 assert(js.includes("haltJudgmentClose"), "KRX halt UI must use the judgment-date close");
 assert(js.includes("characterHourlyMetrics"), "character detail must calculate normalized hourly metrics");
 assert(js.includes("characterPeriodMetrics"), "character detail must expose a source-aware observed/24h period metric");
