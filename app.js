@@ -761,24 +761,29 @@ function renderStatsDashboard() {
   const accumulatedDays = dailyRows.length > 0 ? dailyRows.length : (catalogActivityData?.history?.length || 4);
   const allTotals = statsMarketTotals("all");
 
-  // 1. 서비스 론칭(2026.02.01) 기준 누적 계산
-  const launchDate = new Date("2026-02-01T00:00:00+09:00");
+  // 1. 공식 공개 오픈일(2026.03.13) 기준 누적 계산
+  const launchDate = new Date("2026-03-13T00:00:00+09:00");
   const captureDate = new Date(statsData.captured_at || Date.now());
   const elapsedDays = Math.max(1, Math.floor((captureDate - launchDate) / (1000 * 60 * 60 * 24)));
+  const serviceDay = elapsedDays + 1;
   const elapsedMonths = elapsedDays / 30;
   const elapsedMonthLabel = `${elapsedMonths.toFixed(1)}개월`;
 
   const revPerSession = Number(statsData.revenue_nowcast?.constants?.rev_per_session || 2354);
   const revPerSessionRange = statsData.revenue_nowcast?.constants?.rev_per_session_range || [2000, 2700];
 
-  // 론칭 누적 추정 총매출
+  // 공개 오픈 이후 누적 추정 총매출
   const cumulativeGrossMid = allTotals.chats * revPerSession;
   const cumulativeGrossLow = allTotals.chats * revPerSessionRange[0];
   const cumulativeGrossHigh = allTotals.chats * revPerSessionRange[1];
 
-  // 론칭 누적 월평균 환산 매출 (7개월 평균 런레이트)
+  // 공개 오픈 이후 누적 월평균 환산 매출
   const cumulativeMonthlyAvg = cumulativeGrossMid / elapsedMonths;
   const krTotals = statsMarketTotals("kr");
+  const overseasCumulativeChats = Math.max(0, allTotals.chats - krTotals.chats);
+  const overseasCumulativeSharePct = allTotals.chats > 0
+    ? (overseasCumulativeChats / allTotals.chats) * 100
+    : null;
   const krCumulativeMid = krTotals.chats * 2354;
   const overseasCumulativeMid = Math.max(0, cumulativeGrossMid - krCumulativeMid);
   const krMonthlyAvg = krCumulativeMid / elapsedMonths;
@@ -787,7 +792,6 @@ function renderStatsDashboard() {
   // 2. 최근 일일 델타 기준 속도 관측 (Nowcast 런레이트)
   const latest = statsData.revenue_nowcast?.latest || {};
   const siteRevenue = statsData.site_revenue || {};
-  const siteOverall = statsData.site_comparison?.overall || {};
   const recentAllMarketMid = Number(siteRevenue.grand_total_mid || 0);
   const recentAllMarketLow = revPerSession > 0 ? recentAllMarketMid * Number(revPerSessionRange[0] || 0) / revPerSession : 0;
   const recentAllMarketHigh = revPerSession > 0 ? recentAllMarketMid * Number(revPerSessionRange[1] || 0) / revPerSession : 0;
@@ -811,16 +815,16 @@ function renderStatsDashboard() {
       <div class="kpi-group-card group-cumulative">
         <div class="kpi-group-header">
           <div class="kpi-group-title">
-            <span class="kpi-group-tag tag-cumulative">🏛️ 서비스 론칭 누적 관측</span>
-            <strong>🌐 4개국 통합 · 2026.02 이후 ${elapsedMonthLabel} 장기 평균</strong>
+            <span class="kpi-group-tag tag-cumulative">🏛️ 서비스 공개 오픈 이후 누적 관측</span>
+            <strong>🌐 4개국 통합 · 2026.03.13 이후 ${elapsedMonthLabel} 환산 장기 평균</strong>
           </div>
         </div>
         <div class="kpi-card-subgrid">
           ${renderStatCards([
             ["🌐 통합 누적 추정 총매출", `약 ${formatWonBig(cumulativeGrossMid)}`, `🇰🇷 한국 ${formatWonBig(krCumulativeMid)} + 🌏 해외 ${formatWonBig(overseasCumulativeMid)}`, "signal"],
             ["🌐 통합 장기 월평균", `월 약 ${formatWonBig(cumulativeMonthlyAvg)}`, `🇰🇷 한국 월 ${formatWonBig(krMonthlyAvg)} + 🌏 해외 월 ${formatWonBig(overseasMonthlyAvg)} · 최근 속도 아님`, "neutral"],
-            ["🌏 해외 누적 활동 비중", siteRevenue.overseas_contribution_pct != null ? `${siteRevenue.overseas_contribution_pct.toFixed(1)}%` : "-", `해외 누적 대화 ${formatNumber(siteOverall.overseas_total || 0)}회`, "positive"],
-            ["서비스 운영 기간", `${elapsedDays}일차 (${elapsedMonthLabel})`, `2026.02.01 기준 계산`, "neutral"]
+            ["🌏 해외 누적 대화 비중", overseasCumulativeSharePct == null ? "-" : `${overseasCumulativeSharePct.toFixed(1)}%`, `4개국 누적 대화 중 해외 ${formatNumber(overseasCumulativeChats)}회`, "positive"],
+            ["서비스 운영 기간", `${serviceDay}일차 (${elapsedMonthLabel} 환산)`, `${elapsedDays}일 경과 · 2026.03.13 공개 오픈`, "neutral"]
           ])}
         </div>
       </div>
@@ -3674,15 +3678,17 @@ function renderRevenueBand(revenue) {
   const siteTraction = statsData.site_traction || {};
   const dailyHistory = siteTraction.daily || [];
 
-  const launchDate = new Date("2026-02-01T00:00:00+09:00");
+  const launchDate = new Date("2026-03-13T00:00:00+09:00");
   const captureDate = new Date(statsData?.captured_at || Date.now());
   const elapsedDays = Math.max(1, Math.floor((captureDate - launchDate) / (1000 * 60 * 60 * 24)));
+  const serviceDay = elapsedDays + 1;
   const elapsedMonths = elapsedDays / 30;
+  const elapsedMonthLabel = `${elapsedMonths.toFixed(1)}개월`;
   const revPerSession = Number(revenue.constants?.rev_per_session || 2354);
   const cumulativeMonthlyAverage = elapsedMonths > 0 ? (allTotals.chats * revPerSession) / elapsedMonths : 0;
 
   if (mode === "cumulative") {
-    // 2026.02 론칭 누적 실적 뷰
+    // 2026.03.13 공개 오픈 이후 누적 실적 뷰
     if (market === "all") {
       const totalChats = allTotals.chats;
       const grossMid = totalChats * 2354;
@@ -3716,16 +3722,16 @@ function renderRevenueBand(revenue) {
         <article class="chart-card span-7 revenue-range-card">
           <div class="chart-heading">
             <div>
-              <h3>론칭 누적 실적 추정: 4개국 통합 얼마를 벌었나?</h3>
-              <p class="stat-help">2026년 2월 론칭 이후 4개국 누적 ${formatNumber(totalChats)}회 대화 × 세션당 2,000~2,700원 가정</p>
+              <h3>공개 오픈 이후 누적 실적 추정: 4개국 통합 얼마를 벌었나?</h3>
+              <p class="stat-help">2026년 3월 13일 공개 오픈 이후 4개국 누적 ${formatNumber(totalChats)}회 대화 × 세션당 2,000~2,700원 가정</p>
             </div>
             <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
               <button type="button" class="rev-tab-btn" data-revenue-mode="recent">⚡ 최근 런레이트</button>
-              <button type="button" class="rev-tab-btn active" data-revenue-mode="cumulative">🏛️ 2026.02 론칭 누적</button>
+              <button type="button" class="rev-tab-btn active" data-revenue-mode="cumulative">🏛️ 공개 오픈 이후 누적</button>
             </div>
           </div>
           <div class="revenue-headline">
-            <div><span>4개국 7개월 누적 총매출</span><strong>${formatWonBig(grossMid)}</strong><small>누적 ${formatNumber(totalChats)}회 대화 환산</small></div>
+            <div><span>4개국 누적 대화 환산 총매출</span><strong>${formatWonBig(grossMid)}</strong><small>누적 ${formatNumber(totalChats)}회 대화 환산</small></div>
             <div class="revenue-range-summary">
               <span><small>낮게 보면</small><strong>${formatWonBig(grossLow)}</strong></span>
               <span class="is-focus"><small>누적 기준값</small><strong>${formatWonBig(grossMid)}</strong></span>
@@ -3755,9 +3761,9 @@ function renderRevenueBand(revenue) {
               })
               .join("")}
           </div>
-          <div class="benchmark-key"><span></span><strong>4개국 누적 7개월(${elapsedDays}일) 환산 월평균은 월 약 ${formatWonBig(monthlyAvg)}</strong><small>해외는 한국 단가 2,354원 임시 적용</small></div>
+          <div class="benchmark-key"><span></span><strong>4개국 공개 오픈 이후 ${elapsedMonthLabel}(${elapsedDays}일 경과) 환산 월평균은 월 약 ${formatWonBig(monthlyAvg)}</strong><small>해외는 한국 단가 2,354원 임시 적용</small></div>
           <div class="revenue-confidence-grid">
-            <div><span>누적 운영 기간</span><strong>${elapsedDays}일 (7개월)</strong><small>2026.02.01 론칭</small></div>
+            <div><span>누적 운영 기간</span><strong>${serviceDay}일차 (${elapsedMonthLabel} 환산)</strong><small>${elapsedDays}일 경과 · 2026.03.13 공개 오픈</small></div>
             <div><span>누적 월평균</span><strong>월 약 ${formatWonBig(monthlyAvg)}</strong><small>4개국 누적 환산치</small></div>
             <div class="is-highlight"><span>누적 총 대화수</span><strong>${formatNumber(totalChats)}회</strong><small>4개국 합계</small></div>
           </div>
@@ -3777,16 +3783,16 @@ function renderRevenueBand(revenue) {
       <article class="chart-card span-7 revenue-range-card">
         <div class="chart-heading">
           <div>
-            <h3>론칭 누적 실적 추정: ${meta.flag} ${escapeHtml(meta.label)} 얼마를 벌었나?</h3>
+            <h3>공개 오픈 이후 누적 실적 추정: ${meta.flag} ${escapeHtml(meta.label)} 얼마를 벌었나?</h3>
             <p class="stat-help">${escapeHtml(meta.label)} 누적 ${formatNumber(mChats)}회 대화 × 세션당 2,000~2,700원 가정</p>
           </div>
           <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
             <button type="button" class="rev-tab-btn" data-revenue-mode="recent">⚡ 최근 런레이트</button>
-            <button type="button" class="rev-tab-btn active" data-revenue-mode="cumulative">🏛️ 2026.02 론칭 누적</button>
+            <button type="button" class="rev-tab-btn active" data-revenue-mode="cumulative">🏛️ 공개 오픈 이후 누적</button>
           </div>
         </div>
         <div class="revenue-headline">
-          <div><span>${escapeHtml(meta.label)} 7개월 누적 매출</span><strong>${formatWonBig(mGrossMid)}</strong><small>누적 ${formatNumber(mChats)}회 대화 환산</small></div>
+          <div><span>${escapeHtml(meta.label)} 누적 대화 환산 매출</span><strong>${formatWonBig(mGrossMid)}</strong><small>누적 ${formatNumber(mChats)}회 대화 환산</small></div>
           <div class="revenue-range-summary">
             <span><small>낮게 보면</small><strong>${formatWonBig(mGrossLow)}</strong></span>
             <span class="is-focus"><small>누적 기준값</small><strong>${formatWonBig(mGrossMid)}</strong></span>
@@ -3796,11 +3802,11 @@ function renderRevenueBand(revenue) {
         ${!isKr ? `
           <div class="benchmark-key is-warning" style="margin:12px 0 6px"><span>⚠️</span><strong>한국 세션당 단가(2,354원) 임시 적용</strong><small>${escapeHtml(meta.label)} 현지 ASP와 결제율 미확인</small></div>
         ` : `
-          <div class="benchmark-key" style="margin:12px 0 6px"><span></span><strong>한국 누적 7개월 환산 월평균은 월 약 ${formatWonBig(mMonthlyAvg)}</strong><small>누적 대화수 기반 환산치</small></div>
+          <div class="benchmark-key" style="margin:12px 0 6px"><span></span><strong>한국 공개 오픈 이후 ${elapsedMonthLabel} 환산 월평균은 월 약 ${formatWonBig(mMonthlyAvg)}</strong><small>누적 대화수 기반 환산치</small></div>
         `}
         <div class="revenue-confidence-grid">
-          <div><span>누적 운영 기간</span><strong>${elapsedDays}일 (7개월)</strong><small>2026.02.01 론칭</small></div>
-          <div><span>${escapeHtml(meta.label)} 누적 월평균</span><strong>월 약 ${formatWonBig(mMonthlyAvg)}</strong><small>누적 총매출 ÷ 7개월</small></div>
+          <div><span>누적 운영 기간</span><strong>${serviceDay}일차 (${elapsedMonthLabel} 환산)</strong><small>${elapsedDays}일 경과 · 2026.03.13 공개 오픈</small></div>
+          <div><span>${escapeHtml(meta.label)} 누적 월평균</span><strong>월 약 ${formatWonBig(mMonthlyAvg)}</strong><small>누적 총매출 ÷ ${elapsedMonthLabel}</small></div>
           <div class="is-highlight"><span>${escapeHtml(meta.label)} 누적 대화</span><strong>${formatNumber(mChats)}회</strong><small>공개 카운터 합계</small></div>
         </div>
       </article>
@@ -3846,7 +3852,7 @@ function renderRevenueBand(revenue) {
           </div>
           <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
             <button type="button" class="rev-tab-btn active" data-revenue-mode="recent">⚡ 최근 4개국 런레이트</button>
-            <button type="button" class="rev-tab-btn" data-revenue-mode="cumulative">🏛️ 2026.02 론칭 누적</button>
+            <button type="button" class="rev-tab-btn" data-revenue-mode="cumulative">🏛️ 공개 오픈 이후 누적</button>
           </div>
         </div>
         <div class="revenue-headline">
@@ -3925,7 +3931,7 @@ function renderRevenueBand(revenue) {
           </div>
           <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
             <button type="button" class="rev-tab-btn active" data-revenue-mode="recent">⚡ 최근 ${rows.length}일 런레이트</button>
-            <button type="button" class="rev-tab-btn" data-revenue-mode="cumulative">🏛️ 2026.02 론칭 누적</button>
+            <button type="button" class="rev-tab-btn" data-revenue-mode="cumulative">🏛️ 공개 오픈 이후 누적</button>
           </div>
         </div>
         <div class="revenue-headline">
@@ -3996,7 +4002,7 @@ function renderRevenueBand(revenue) {
         </div>
         <div class="revenue-mode-tabs" role="tablist" aria-label="매출 추정 모드">
           <button type="button" class="rev-tab-btn active" data-revenue-mode="recent">⚡ 최근 런레이트</button>
-          <button type="button" class="rev-tab-btn" data-revenue-mode="cumulative">🏛️ 2026.02 론칭 누적</button>
+          <button type="button" class="rev-tab-btn" data-revenue-mode="cumulative">🏛️ 공개 오픈 이후 누적</button>
         </div>
       </div>
       <div class="revenue-headline">
