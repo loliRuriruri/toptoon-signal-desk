@@ -2021,6 +2021,12 @@ function renderGlobalPanel() {
   const allRecent = recentRevenueForMarket("all").revenue_mid;
   const krRecent = recentRevenueForMarket("kr").revenue_mid;
   const overseasShare = allRecent > 0 ? ((allRecent - krRecent) / allRecent) * 100 : null;
+  const marketTotals = {
+    kr: statsMarketTotals("kr").chats || overall.per_site?.kr?.chats || 0,
+    jp: statsMarketTotals("jp").chats || overall.per_site?.jp?.chats || 0,
+    global: statsMarketTotals("global").chats || overall.per_site?.global?.chats || 0,
+    tw: statsMarketTotals("tw").chats || overall.per_site?.tw?.chats || 0
+  };
   return `
     <section class="panel stats-panel signal-section">
       <div class="panel-heading compact-heading">
@@ -2032,7 +2038,7 @@ function renderGlobalPanel() {
       </div>
       <p class="section-note">한국·일본·Global·대만 공개 목록을 같은 시점에 수집했습니다. 모든 환산액은 위에서 선택한 공통 단가를 적용하며 현지 결제단가가 아닙니다.</p>
       <div class="chart-grid chart-grid-primary">
-        ${renderMarketComposition(overall.totals || {}, overseasShare)}
+        ${renderMarketComposition(marketTotals, overseasShare)}
         ${renderStackedDaily("최근 하루 대화 증가량", traction.daily || [])}
       </div>
       <div class="chart-grid chart-grid-secondary">

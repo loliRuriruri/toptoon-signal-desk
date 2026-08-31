@@ -69,9 +69,22 @@ for (const [key, config] of Object.entries(marketConfig)) {
 
 if (live) {
   const results = await Promise.all(Object.entries(marketConfig).map(async ([key, config]) => {
-    const payload = await fetchJson(config.url);
-    const rows = payload?.data?.data || [];
-    return [key, { count: Number(payload?.data?.pagination?.total ?? rows.length), chats: sum(rows, "chatCount"), views: sum(rows, "viewCount") }];
+    let page = 1;
+    const limit = 50;
+    const rows = [];
+    let total = 0;
+    let totalPages = 1;
+    const baseUrl = config.url.split("?")[0];
+    while (page <= totalPages) {
+      const payload = await fetchJson(`${baseUrl}?page=${page}&limit=${limit}`);
+      const pageRows = payload?.data?.data || [];
+      rows.push(...pageRows);
+      total = Number(payload?.data?.pagination?.total ?? rows.length);
+      totalPages = Number(payload?.data?.pagination?.totalPages ?? 1);
+      if (!pageRows.length || rows.length >= total) break;
+      page++;
+    }
+    return [key, { count: total || rows.length, chats: sum(rows, "chatCount"), views: sum(rows, "viewCount") }];
   }));
   for (const [key, current] of results) {
     localCatalogs[key].live = current;

@@ -302,12 +302,28 @@ async function cacheOfficialHomeBannerImages(items, market) {
 }
 
 async function collectMarket(market) {
-  const apiUrl = `${market.host}/api/characters?limit=500`;
-  const payload = await fetchJson(apiUrl, `${market.host}/`);
-  const rows = payload?.data?.data || [];
-  const expected = Number(payload?.data?.pagination?.total ?? rows.length);
-  if (payload?.success !== true || rows.length !== expected) {
-    throw new Error(`${market.site} pagination mismatch: ${rows.length}/${expected}`);
+  let page = 1;
+  const limit = 50;
+  const rows = [];
+  let total = 0;
+  let totalPages = 1;
+
+  while (page <= totalPages) {
+    const apiUrl = `${market.host}/api/characters?page=${page}&limit=${limit}`;
+    const payload = await fetchJson(apiUrl, `${market.host}/`);
+    if (payload?.success !== true) {
+      throw new Error(`${market.site} API returned success=false`);
+    }
+    const pageRows = payload?.data?.data || [];
+    rows.push(...pageRows);
+    total = Number(payload?.data?.pagination?.total ?? rows.length);
+    totalPages = Number(payload?.data?.pagination?.totalPages ?? 1);
+    if (!pageRows.length || rows.length >= total) break;
+    page++;
+  }
+
+  if (rows.length !== total) {
+    throw new Error(`${market.site} pagination mismatch: ${rows.length}/${total}`);
   }
 
   const assetDir = path.join(assetRoot, market.key);
@@ -370,7 +386,8 @@ async function collectMarket(market) {
       api_badge: "price_promotion",
       detail_url: `${market.host}/detail/character/${character.id}`
     }));
-  return { market, apiUrl, records, total: expected, promotionCandidates };
+  const apiUrl = `${market.host}/api/characters`;
+  return { market, apiUrl, records, total, promotionCandidates };
 }
 
 const marketResults = await Promise.all(markets.map(collectMarket));
