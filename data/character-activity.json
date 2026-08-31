@@ -1,36 +1,11 @@
 {
-  "captured_at": "2026-08-31T22:55:03.431Z",
-  "baseline_at": "2026-08-31T22:45:51.925Z",
-  "interval_seconds": 552,
+  "captured_at": "2026-08-31T23:00:57.284Z",
+  "baseline_at": "2026-08-31T22:55:03.431Z",
+  "interval_seconds": 354,
   "source_tier": "B",
   "definition": "For each site and character ID, current public cumulative counter minus the immediately previous locally stored public catalog snapshot.",
   "caveat": "Character hourly rates normalize comparable collection intervals within a rolling 24-hour window. They are public counter changes, not unique users, payments or revenue. New characters without a prior row have null deltas; negative values are retained as source corrections or counter resets.",
   "history": [
-    {
-      "captured_at": "2026-08-25T06:53:12.379Z",
-      "markets": {
-        "kr": {
-          "characters": 87,
-          "views": 51654972,
-          "chats": 1515599
-        },
-        "jp": {
-          "characters": 77,
-          "views": 16998737,
-          "chats": 223713
-        },
-        "global": {
-          "characters": 84,
-          "views": 320874,
-          "chats": 16765
-        },
-        "tw": {
-          "characters": 81,
-          "views": 3235397,
-          "chats": 95759
-        }
-      }
-    },
     {
       "captured_at": "2026-08-25T07:15:21.677Z",
       "markets": {
@@ -3003,6 +2978,31 @@
           "characters": 82,
           "views": 3435137,
           "chats": 102974
+        }
+      }
+    },
+    {
+      "captured_at": "2026-08-31T23:00:57.284Z",
+      "markets": {
+        "kr": {
+          "characters": 88,
+          "views": 53157739,
+          "chats": 1573063
+        },
+        "jp": {
+          "characters": 79,
+          "views": 24550218,
+          "chats": 248987
+        },
+        "global": {
+          "characters": 86,
+          "views": 348100,
+          "chats": 19537
+        },
+        "tw": {
+          "characters": 82,
+          "views": 3435236,
+          "chats": 102976
         }
       }
     }
@@ -79874,307 +79874,1662 @@
           ]
         }
       }
+    },
+    {
+      "captured_at": "2026-08-31T23:00:57.284Z",
+      "baseline_at": "2026-08-31T22:55:03.431Z",
+      "interval_seconds": 354,
+      "markets": {
+        "kr": {
+          "1": [
+            12,
+            0
+          ],
+          "2": [
+            0,
+            0
+          ],
+          "8": [
+            8,
+            2
+          ],
+          "38": [
+            8,
+            0
+          ],
+          "60": [
+            0,
+            0
+          ],
+          "61": [
+            90,
+            1
+          ],
+          "62": [
+            1,
+            0
+          ],
+          "70": [
+            16,
+            0
+          ],
+          "71": [
+            1,
+            0
+          ],
+          "72": [
+            2,
+            0
+          ],
+          "73": [
+            0,
+            0
+          ],
+          "74": [
+            0,
+            0
+          ],
+          "75": [
+            1,
+            0
+          ],
+          "76": [
+            6,
+            0
+          ],
+          "77": [
+            1,
+            0
+          ],
+          "78": [
+            0,
+            0
+          ],
+          "80": [
+            2,
+            0
+          ],
+          "81": [
+            0,
+            0
+          ],
+          "89": [
+            1,
+            1
+          ],
+          "91": [
+            0,
+            0
+          ],
+          "93": [
+            3,
+            0
+          ],
+          "94": [
+            0,
+            0
+          ],
+          "96": [
+            1,
+            0
+          ],
+          "97": [
+            9,
+            0
+          ],
+          "99": [
+            2,
+            0
+          ],
+          "100": [
+            21,
+            0
+          ],
+          "118": [
+            17,
+            0
+          ],
+          "119": [
+            8,
+            0
+          ],
+          "121": [
+            0,
+            0
+          ],
+          "129": [
+            0,
+            0
+          ],
+          "130": [
+            0,
+            0
+          ],
+          "131": [
+            1,
+            0
+          ],
+          "132": [
+            0,
+            0
+          ],
+          "133": [
+            69,
+            0
+          ],
+          "134": [
+            0,
+            0
+          ],
+          "137": [
+            0,
+            0
+          ],
+          "139": [
+            2,
+            0
+          ],
+          "146": [
+            0,
+            0
+          ],
+          "154": [
+            0,
+            0
+          ],
+          "162": [
+            0,
+            0
+          ],
+          "165": [
+            0,
+            0
+          ],
+          "167": [
+            0,
+            0
+          ],
+          "169": [
+            0,
+            0
+          ],
+          "170": [
+            0,
+            0
+          ],
+          "173": [
+            0,
+            0
+          ],
+          "174": [
+            0,
+            0
+          ],
+          "176": [
+            14,
+            1
+          ],
+          "177": [
+            1,
+            0
+          ],
+          "179": [
+            0,
+            0
+          ],
+          "182": [
+            1,
+            0
+          ],
+          "202": [
+            0,
+            0
+          ],
+          "220": [
+            0,
+            0
+          ],
+          "221": [
+            6,
+            1
+          ],
+          "226": [
+            0,
+            0
+          ],
+          "227": [
+            1,
+            0
+          ],
+          "228": [
+            1,
+            0
+          ],
+          "229": [
+            1,
+            0
+          ],
+          "235": [
+            0,
+            0
+          ],
+          "236": [
+            0,
+            0
+          ],
+          "240": [
+            1,
+            0
+          ],
+          "247": [
+            0,
+            0
+          ],
+          "248": [
+            1,
+            0
+          ],
+          "249": [
+            2,
+            0
+          ],
+          "253": [
+            155,
+            0
+          ],
+          "254": [
+            0,
+            0
+          ],
+          "255": [
+            0,
+            0
+          ],
+          "256": [
+            1,
+            0
+          ],
+          "258": [
+            19,
+            0
+          ],
+          "260": [
+            0,
+            0
+          ],
+          "261": [
+            1,
+            1
+          ],
+          "262": [
+            2,
+            1
+          ],
+          "263": [
+            0,
+            0
+          ],
+          "264": [
+            1,
+            0
+          ],
+          "265": [
+            4,
+            0
+          ],
+          "268": [
+            0,
+            0
+          ],
+          "284": [
+            24,
+            0
+          ],
+          "290": [
+            2,
+            0
+          ],
+          "291": [
+            21,
+            0
+          ],
+          "292": [
+            3,
+            1
+          ],
+          "296": [
+            0,
+            0
+          ],
+          "297": [
+            34,
+            0
+          ],
+          "299": [
+            2,
+            0
+          ],
+          "303": [
+            2,
+            0
+          ],
+          "306": [
+            2,
+            0
+          ],
+          "314": [
+            32,
+            1
+          ],
+          "316": [
+            0,
+            0
+          ],
+          "317": [
+            3,
+            0
+          ],
+          "329": [
+            2,
+            0
+          ]
+        },
+        "jp": {
+          "1": [
+            9,
+            1
+          ],
+          "2": [
+            0,
+            0
+          ],
+          "8": [
+            26,
+            0
+          ],
+          "38": [
+            418,
+            0
+          ],
+          "60": [
+            0,
+            0
+          ],
+          "61": [
+            41,
+            0
+          ],
+          "62": [
+            0,
+            0
+          ],
+          "70": [
+            1,
+            1
+          ],
+          "71": [
+            0,
+            0
+          ],
+          "72": [
+            0,
+            0
+          ],
+          "73": [
+            0,
+            0
+          ],
+          "74": [
+            0,
+            0
+          ],
+          "75": [
+            0,
+            0
+          ],
+          "76": [
+            2,
+            0
+          ],
+          "77": [
+            31,
+            0
+          ],
+          "78": [
+            0,
+            0
+          ],
+          "80": [
+            1,
+            0
+          ],
+          "81": [
+            0,
+            0
+          ],
+          "89": [
+            0,
+            0
+          ],
+          "91": [
+            0,
+            0
+          ],
+          "93": [
+            0,
+            0
+          ],
+          "94": [
+            0,
+            0
+          ],
+          "96": [
+            0,
+            0
+          ],
+          "97": [
+            0,
+            0
+          ],
+          "99": [
+            0,
+            0
+          ],
+          "100": [
+            0,
+            0
+          ],
+          "118": [
+            2,
+            0
+          ],
+          "119": [
+            1,
+            0
+          ],
+          "121": [
+            0,
+            0
+          ],
+          "129": [
+            0,
+            0
+          ],
+          "130": [
+            34,
+            0
+          ],
+          "131": [
+            0,
+            0
+          ],
+          "133": [
+            1013,
+            1
+          ],
+          "134": [
+            0,
+            0
+          ],
+          "137": [
+            0,
+            0
+          ],
+          "139": [
+            0,
+            0
+          ],
+          "146": [
+            1,
+            0
+          ],
+          "154": [
+            0,
+            0
+          ],
+          "162": [
+            0,
+            0
+          ],
+          "165": [
+            0,
+            0
+          ],
+          "167": [
+            0,
+            0
+          ],
+          "169": [
+            0,
+            0
+          ],
+          "170": [
+            0,
+            0
+          ],
+          "173": [
+            0,
+            0
+          ],
+          "174": [
+            0,
+            0
+          ],
+          "176": [
+            0,
+            0
+          ],
+          "177": [
+            0,
+            0
+          ],
+          "182": [
+            0,
+            0
+          ],
+          "221": [
+            0,
+            0
+          ],
+          "226": [
+            0,
+            0
+          ],
+          "227": [
+            0,
+            0
+          ],
+          "228": [
+            0,
+            0
+          ],
+          "229": [
+            0,
+            0
+          ],
+          "235": [
+            0,
+            0
+          ],
+          "240": [
+            0,
+            0
+          ],
+          "249": [
+            0,
+            0
+          ],
+          "253": [
+            0,
+            0
+          ],
+          "254": [
+            0,
+            0
+          ],
+          "256": [
+            1571,
+            0
+          ],
+          "257": [
+            0,
+            0
+          ],
+          "258": [
+            36,
+            0
+          ],
+          "262": [
+            0,
+            0
+          ],
+          "264": [
+            0,
+            0
+          ],
+          "265": [
+            604,
+            0
+          ],
+          "268": [
+            0,
+            0
+          ],
+          "290": [
+            2,
+            0
+          ],
+          "291": [
+            745,
+            0
+          ],
+          "292": [
+            0,
+            0
+          ],
+          "293": [
+            27,
+            0
+          ],
+          "294": [
+            1,
+            0
+          ],
+          "295": [
+            0,
+            0
+          ],
+          "297": [
+            183,
+            0
+          ],
+          "299": [
+            0,
+            0
+          ],
+          "303": [
+            0,
+            0
+          ],
+          "306": [
+            0,
+            0
+          ],
+          "316": [
+            1,
+            0
+          ],
+          "317": [
+            0,
+            0
+          ],
+          "329": [
+            187,
+            1
+          ],
+          "10000000": [
+            2,
+            0
+          ]
+        },
+        "global": {
+          "1": [
+            0,
+            0
+          ],
+          "2": [
+            0,
+            0
+          ],
+          "8": [
+            0,
+            0
+          ],
+          "38": [
+            1,
+            0
+          ],
+          "60": [
+            0,
+            0
+          ],
+          "61": [
+            0,
+            0
+          ],
+          "62": [
+            1,
+            0
+          ],
+          "70": [
+            0,
+            0
+          ],
+          "71": [
+            0,
+            0
+          ],
+          "72": [
+            0,
+            0
+          ],
+          "73": [
+            0,
+            0
+          ],
+          "74": [
+            0,
+            0
+          ],
+          "75": [
+            0,
+            0
+          ],
+          "76": [
+            0,
+            0
+          ],
+          "77": [
+            0,
+            0
+          ],
+          "78": [
+            1,
+            0
+          ],
+          "80": [
+            0,
+            0
+          ],
+          "81": [
+            0,
+            0
+          ],
+          "89": [
+            0,
+            0
+          ],
+          "91": [
+            0,
+            1
+          ],
+          "93": [
+            0,
+            0
+          ],
+          "94": [
+            0,
+            0
+          ],
+          "96": [
+            0,
+            0
+          ],
+          "97": [
+            1,
+            0
+          ],
+          "99": [
+            0,
+            0
+          ],
+          "100": [
+            0,
+            0
+          ],
+          "118": [
+            0,
+            0
+          ],
+          "119": [
+            0,
+            0
+          ],
+          "121": [
+            0,
+            0
+          ],
+          "129": [
+            0,
+            0
+          ],
+          "130": [
+            0,
+            0
+          ],
+          "131": [
+            1,
+            0
+          ],
+          "132": [
+            0,
+            0
+          ],
+          "133": [
+            2,
+            0
+          ],
+          "134": [
+            0,
+            0
+          ],
+          "137": [
+            0,
+            0
+          ],
+          "139": [
+            0,
+            0
+          ],
+          "146": [
+            0,
+            0
+          ],
+          "154": [
+            0,
+            0
+          ],
+          "162": [
+            0,
+            0
+          ],
+          "165": [
+            0,
+            0
+          ],
+          "167": [
+            0,
+            0
+          ],
+          "169": [
+            0,
+            0
+          ],
+          "170": [
+            0,
+            0
+          ],
+          "173": [
+            0,
+            0
+          ],
+          "174": [
+            0,
+            0
+          ],
+          "176": [
+            0,
+            0
+          ],
+          "177": [
+            0,
+            0
+          ],
+          "179": [
+            0,
+            0
+          ],
+          "182": [
+            0,
+            0
+          ],
+          "202": [
+            0,
+            0
+          ],
+          "220": [
+            0,
+            0
+          ],
+          "221": [
+            0,
+            0
+          ],
+          "226": [
+            0,
+            0
+          ],
+          "227": [
+            0,
+            0
+          ],
+          "228": [
+            0,
+            0
+          ],
+          "229": [
+            0,
+            0
+          ],
+          "235": [
+            0,
+            0
+          ],
+          "236": [
+            0,
+            0
+          ],
+          "240": [
+            0,
+            0
+          ],
+          "247": [
+            0,
+            0
+          ],
+          "248": [
+            0,
+            0
+          ],
+          "249": [
+            1,
+            0
+          ],
+          "253": [
+            1,
+            0
+          ],
+          "254": [
+            0,
+            0
+          ],
+          "255": [
+            0,
+            0
+          ],
+          "256": [
+            0,
+            0
+          ],
+          "258": [
+            1,
+            0
+          ],
+          "260": [
+            0,
+            0
+          ],
+          "262": [
+            0,
+            0
+          ],
+          "265": [
+            1,
+            0
+          ],
+          "268": [
+            0,
+            0
+          ],
+          "270": [
+            0,
+            0
+          ],
+          "271": [
+            0,
+            0
+          ],
+          "276": [
+            0,
+            0
+          ],
+          "280": [
+            0,
+            0
+          ],
+          "281": [
+            0,
+            0
+          ],
+          "283": [
+            0,
+            0
+          ],
+          "284": [
+            0,
+            0
+          ],
+          "285": [
+            0,
+            0
+          ],
+          "286": [
+            0,
+            0
+          ],
+          "297": [
+            0,
+            0
+          ],
+          "316": [
+            0,
+            0
+          ],
+          "317": [
+            0,
+            0
+          ],
+          "318": [
+            0,
+            0
+          ],
+          "319": [
+            1,
+            0
+          ]
+        },
+        "tw": {
+          "1": [
+            12,
+            0
+          ],
+          "2": [
+            1,
+            0
+          ],
+          "8": [
+            0,
+            0
+          ],
+          "38": [
+            2,
+            0
+          ],
+          "60": [
+            0,
+            0
+          ],
+          "61": [
+            2,
+            0
+          ],
+          "62": [
+            0,
+            0
+          ],
+          "70": [
+            0,
+            0
+          ],
+          "71": [
+            0,
+            0
+          ],
+          "72": [
+            0,
+            0
+          ],
+          "73": [
+            0,
+            0
+          ],
+          "74": [
+            0,
+            0
+          ],
+          "75": [
+            0,
+            0
+          ],
+          "76": [
+            2,
+            0
+          ],
+          "77": [
+            1,
+            0
+          ],
+          "78": [
+            1,
+            0
+          ],
+          "80": [
+            1,
+            0
+          ],
+          "81": [
+            0,
+            0
+          ],
+          "89": [
+            0,
+            0
+          ],
+          "91": [
+            0,
+            0
+          ],
+          "93": [
+            1,
+            0
+          ],
+          "94": [
+            0,
+            0
+          ],
+          "96": [
+            0,
+            0
+          ],
+          "97": [
+            0,
+            1
+          ],
+          "99": [
+            1,
+            0
+          ],
+          "100": [
+            27,
+            0
+          ],
+          "118": [
+            0,
+            0
+          ],
+          "119": [
+            1,
+            0
+          ],
+          "121": [
+            0,
+            0
+          ],
+          "129": [
+            0,
+            0
+          ],
+          "130": [
+            0,
+            0
+          ],
+          "131": [
+            0,
+            0
+          ],
+          "132": [
+            0,
+            0
+          ],
+          "133": [
+            7,
+            0
+          ],
+          "134": [
+            0,
+            0
+          ],
+          "137": [
+            0,
+            0
+          ],
+          "139": [
+            0,
+            0
+          ],
+          "146": [
+            0,
+            0
+          ],
+          "154": [
+            1,
+            0
+          ],
+          "162": [
+            0,
+            0
+          ],
+          "165": [
+            0,
+            0
+          ],
+          "167": [
+            0,
+            0
+          ],
+          "169": [
+            0,
+            0
+          ],
+          "170": [
+            1,
+            0
+          ],
+          "173": [
+            0,
+            0
+          ],
+          "174": [
+            0,
+            0
+          ],
+          "176": [
+            0,
+            0
+          ],
+          "177": [
+            0,
+            0
+          ],
+          "179": [
+            0,
+            0
+          ],
+          "202": [
+            0,
+            0
+          ],
+          "220": [
+            0,
+            0
+          ],
+          "221": [
+            11,
+            0
+          ],
+          "226": [
+            0,
+            0
+          ],
+          "227": [
+            0,
+            0
+          ],
+          "228": [
+            0,
+            0
+          ],
+          "229": [
+            0,
+            0
+          ],
+          "235": [
+            3,
+            0
+          ],
+          "236": [
+            0,
+            0
+          ],
+          "240": [
+            1,
+            0
+          ],
+          "248": [
+            0,
+            0
+          ],
+          "250": [
+            1,
+            0
+          ],
+          "251": [
+            1,
+            0
+          ],
+          "253": [
+            0,
+            0
+          ],
+          "254": [
+            0,
+            0
+          ],
+          "256": [
+            0,
+            0
+          ],
+          "257": [
+            0,
+            0
+          ],
+          "258": [
+            2,
+            0
+          ],
+          "260": [
+            1,
+            0
+          ],
+          "261": [
+            1,
+            0
+          ],
+          "262": [
+            0,
+            0
+          ],
+          "268": [
+            0,
+            0
+          ],
+          "269": [
+            0,
+            0
+          ],
+          "273": [
+            0,
+            0
+          ],
+          "284": [
+            3,
+            0
+          ],
+          "290": [
+            0,
+            0
+          ],
+          "296": [
+            0,
+            0
+          ],
+          "297": [
+            10,
+            0
+          ],
+          "303": [
+            3,
+            0
+          ],
+          "306": [
+            0,
+            0
+          ],
+          "316": [
+            0,
+            0
+          ],
+          "317": [
+            0,
+            0
+          ],
+          "329": [
+            1,
+            1
+          ]
+        }
+      }
     }
   ],
   "markets": {
     "kr": {
       "site": "KR",
       "source": "https://chat.toptoon.com/api/characters",
-      "baseline_at": "2026-08-31T22:45:51.925Z",
-      "captured_at": "2026-08-31T22:55:03.431Z",
-      "interval_seconds": 552,
+      "baseline_at": "2026-08-31T22:55:03.431Z",
+      "captured_at": "2026-08-31T23:00:57.284Z",
+      "interval_seconds": 354,
       "record_count": 88,
       "comparable_count": 88,
       "new_count": 0,
-      "views_delta": 902,
-      "chats_delta": 11,
+      "views_delta": 621,
+      "chats_delta": 10,
       "negative_views_count": 0,
       "negative_chats_count": 0,
       "rows": [
         {
           "character_id": 1,
           "character_name": "신아영",
-          "current_views": 5785553,
-          "previous_views": 5785532,
-          "delta": 21,
+          "current_views": 5785565,
+          "previous_views": 5785553,
+          "delta": 12,
           "current_chats": 163840,
           "previous_chats": 163840,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 61,
           "character_name": "한나리",
-          "current_views": 3946338,
-          "previous_views": 3946225,
-          "delta": 113,
-          "current_chats": 129759,
-          "previous_chats": 129758,
+          "current_views": 3946428,
+          "previous_views": 3946338,
+          "delta": 90,
+          "current_chats": 129760,
+          "previous_chats": 129759,
           "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 100,
           "character_name": "장선영",
-          "current_views": 2812910,
-          "previous_views": 2812880,
-          "delta": 30,
+          "current_views": 2812931,
+          "previous_views": 2812910,
+          "delta": 21,
           "current_chats": 89139,
           "previous_chats": 89139,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 118,
           "character_name": "박채원",
-          "current_views": 2082980,
-          "previous_views": 2082960,
-          "delta": 20,
+          "current_views": 2082997,
+          "previous_views": 2082980,
+          "delta": 17,
           "current_chats": 43188,
-          "previous_chats": 43186,
-          "chat_delta": 2,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 43188,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 73,
           "character_name": "서나리",
           "current_views": 1430842,
-          "previous_views": 1430839,
-          "delta": 3,
+          "previous_views": 1430842,
+          "delta": 0,
           "current_chats": 40465,
           "previous_chats": 40465,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 132,
           "character_name": "정소은",
           "current_views": 891692,
-          "previous_views": 891690,
-          "delta": 2,
+          "previous_views": 891692,
+          "delta": 0,
           "current_chats": 39954,
           "previous_chats": 39954,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 97,
           "character_name": "차수민",
-          "current_views": 1781436,
-          "previous_views": 1781407,
-          "delta": 29,
+          "current_views": 1781445,
+          "previous_views": 1781436,
+          "delta": 9,
           "current_chats": 38908,
           "previous_chats": 38908,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 133,
           "character_name": "김고은",
-          "current_views": 3398223,
-          "previous_views": 3398124,
-          "delta": 99,
+          "current_views": 3398292,
+          "previous_views": 3398223,
+          "delta": 69,
           "current_chats": 38181,
           "previous_chats": 38181,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 70,
           "character_name": "박다영",
-          "current_views": 866333,
-          "previous_views": 866311,
-          "delta": 22,
+          "current_views": 866349,
+          "previous_views": 866333,
+          "delta": 16,
           "current_chats": 37484,
           "previous_chats": 37484,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 129,
           "character_name": "은혜",
           "current_views": 2273470,
-          "previous_views": 2273468,
-          "delta": 2,
+          "previous_views": 2273470,
+          "delta": 0,
           "current_chats": 35011,
           "previous_chats": 35011,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 76,
           "character_name": "배현주",
-          "current_views": 1199228,
-          "previous_views": 1199222,
+          "current_views": 1199234,
+          "previous_views": 1199228,
           "delta": 6,
           "current_chats": 31417,
-          "previous_chats": 31416,
-          "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 31417,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 72,
           "character_name": "이예린",
-          "current_views": 949980,
-          "previous_views": 949978,
+          "current_views": 949982,
+          "previous_views": 949980,
           "delta": 2,
           "current_chats": 31227,
           "previous_chats": 31227,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 93,
           "character_name": "한수진",
-          "current_views": 1310494,
-          "previous_views": 1310482,
-          "delta": 12,
+          "current_views": 1310497,
+          "previous_views": 1310494,
+          "delta": 3,
           "current_chats": 30507,
           "previous_chats": 30507,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 8,
           "character_name": "윤혜윤",
-          "current_views": 572078,
-          "previous_views": 572065,
-          "delta": 13,
-          "current_chats": 28376,
-          "previous_chats": 28375,
-          "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "current_views": 572086,
+          "previous_views": 572078,
+          "delta": 8,
+          "current_chats": 28378,
+          "previous_chats": 28376,
+          "chat_delta": 2,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 265,
           "character_name": "한서현",
-          "current_views": 501193,
-          "previous_views": 501188,
-          "delta": 5,
+          "current_views": 501197,
+          "previous_views": 501193,
+          "delta": 4,
           "current_chats": 27747,
           "previous_chats": 27747,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 119,
           "character_name": "서민희",
-          "current_views": 965911,
-          "previous_views": 965902,
-          "delta": 9,
+          "current_views": 965919,
+          "previous_views": 965911,
+          "delta": 8,
           "current_chats": 27361,
           "previous_chats": 27361,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 71,
           "character_name": "김가을",
-          "current_views": 705836,
-          "previous_views": 705834,
-          "delta": 2,
+          "current_views": 705837,
+          "previous_views": 705836,
+          "delta": 1,
           "current_chats": 26867,
           "previous_chats": 26867,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 221,
           "character_name": "정은애",
-          "current_views": 1188855,
-          "previous_views": 1188849,
+          "current_views": 1188861,
+          "previous_views": 1188855,
           "delta": 6,
-          "current_chats": 24248,
+          "current_chats": 24249,
           "previous_chats": 24248,
-          "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "chat_delta": 1,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 258,
           "character_name": "고유미",
-          "current_views": 1386727,
-          "previous_views": 1386688,
-          "delta": 39,
+          "current_views": 1386746,
+          "previous_views": 1386727,
+          "delta": 19,
           "current_chats": 21793,
           "previous_chats": 21793,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 177,
           "character_name": "백가인",
-          "current_views": 393901,
-          "previous_views": 393898,
-          "delta": 3,
+          "current_views": 393902,
+          "previous_views": 393901,
+          "delta": 1,
           "current_chats": 20537,
           "previous_chats": 20537,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 99,
           "character_name": "조미경",
-          "current_views": 916390,
-          "previous_views": 916387,
-          "delta": 3,
+          "current_views": 916392,
+          "previous_views": 916390,
+          "delta": 2,
           "current_chats": 19022,
           "previous_chats": 19022,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 262,
           "character_name": "도예은",
-          "current_views": 533049,
-          "previous_views": 533046,
-          "delta": 3,
-          "current_chats": 18951,
+          "current_views": 533051,
+          "previous_views": 533049,
+          "delta": 2,
+          "current_chats": 18952,
           "previous_chats": 18951,
-          "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "chat_delta": 1,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80186,125 +81541,125 @@
           "current_chats": 18597,
           "previous_chats": 18597,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 170,
           "character_name": "서도연",
           "current_views": 478117,
-          "previous_views": 478115,
-          "delta": 2,
+          "previous_views": 478117,
+          "delta": 0,
           "current_chats": 18447,
           "previous_chats": 18447,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 62,
           "character_name": "유은희",
-          "current_views": 524934,
-          "previous_views": 524933,
+          "current_views": 524935,
+          "previous_views": 524934,
           "delta": 1,
           "current_chats": 17856,
           "previous_chats": 17856,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 38,
           "character_name": "한채아",
-          "current_views": 568830,
-          "previous_views": 568810,
-          "delta": 20,
+          "current_views": 568838,
+          "previous_views": 568830,
+          "delta": 8,
           "current_chats": 17482,
           "previous_chats": 17482,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 78,
           "character_name": "유세하",
           "current_views": 430019,
-          "previous_views": 430018,
-          "delta": 1,
+          "previous_views": 430019,
+          "delta": 0,
           "current_chats": 17412,
           "previous_chats": 17412,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 248,
           "character_name": "홍단비",
-          "current_views": 314666,
-          "previous_views": 314664,
-          "delta": 2,
+          "current_views": 314667,
+          "previous_views": 314666,
+          "delta": 1,
           "current_chats": 16967,
-          "previous_chats": 16965,
-          "chat_delta": 2,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 16967,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 284,
           "character_name": "오유리",
-          "current_views": 761756,
-          "previous_views": 761729,
-          "delta": 27,
+          "current_views": 761780,
+          "previous_views": 761756,
+          "delta": 24,
           "current_chats": 16007,
           "previous_chats": 16007,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 182,
           "character_name": "이지연",
-          "current_views": 439414,
+          "current_views": 439415,
           "previous_views": 439414,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 15823,
           "previous_chats": 15823,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 154,
           "character_name": "곽도임",
           "current_views": 529839,
-          "previous_views": 529838,
-          "delta": 1,
+          "previous_views": 529839,
+          "delta": 0,
           "current_chats": 14831,
           "previous_chats": 14831,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 77,
           "character_name": "서미나",
-          "current_views": 321450,
+          "current_views": 321451,
           "previous_views": 321450,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 14637,
           "previous_chats": 14637,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80316,125 +81671,125 @@
           "current_chats": 14340,
           "previous_chats": 14340,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 314,
           "character_name": "한유라",
-          "current_views": 330503,
-          "previous_views": 330461,
-          "delta": 42,
-          "current_chats": 14200,
+          "current_views": 330535,
+          "previous_views": 330503,
+          "delta": 32,
+          "current_chats": 14201,
           "previous_chats": 14200,
-          "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "chat_delta": 1,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 80,
           "character_name": "베르디아",
-          "current_views": 364244,
-          "previous_views": 364242,
+          "current_views": 364246,
+          "previous_views": 364244,
           "delta": 2,
           "current_chats": 13902,
           "previous_chats": 13902,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 130,
           "character_name": "레이",
           "current_views": 380554,
-          "previous_views": 380553,
-          "delta": 1,
+          "previous_views": 380554,
+          "delta": 0,
           "current_chats": 13285,
           "previous_chats": 13285,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 290,
           "character_name": "박소민",
-          "current_views": 254941,
-          "previous_views": 254940,
-          "delta": 1,
+          "current_views": 254943,
+          "previous_views": 254941,
+          "delta": 2,
           "current_chats": 12616,
           "previous_chats": 12616,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 292,
           "character_name": "조민주",
-          "current_views": 236455,
-          "previous_views": 236453,
-          "delta": 2,
-          "current_chats": 12487,
-          "previous_chats": 12486,
+          "current_views": 236458,
+          "previous_views": 236455,
+          "delta": 3,
+          "current_chats": 12488,
+          "previous_chats": 12487,
           "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 256,
           "character_name": "김민지",
-          "current_views": 231321,
-          "previous_views": 231319,
-          "delta": 2,
+          "current_views": 231322,
+          "previous_views": 231321,
+          "delta": 1,
           "current_chats": 11989,
           "previous_chats": 11989,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 91,
           "character_name": "허민",
           "current_views": 283798,
-          "previous_views": 283796,
-          "delta": 2,
+          "previous_views": 283798,
+          "delta": 0,
           "current_chats": 11908,
           "previous_chats": 11908,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 75,
           "character_name": "서하리",
-          "current_views": 282866,
+          "current_views": 282867,
           "previous_views": 282866,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 11769,
           "previous_chats": 11769,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 249,
           "character_name": "박유미",
-          "current_views": 235530,
-          "previous_views": 235528,
+          "current_views": 235532,
+          "previous_views": 235530,
           "delta": 2,
           "current_chats": 10995,
           "previous_chats": 10995,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80446,47 +81801,47 @@
           "current_chats": 10979,
           "previous_chats": 10979,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 176,
           "character_name": "한가영",
-          "current_views": 173165,
-          "previous_views": 173145,
-          "delta": 20,
-          "current_chats": 10669,
-          "previous_chats": 10667,
-          "chat_delta": 2,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "current_views": 173179,
+          "previous_views": 173165,
+          "delta": 14,
+          "current_chats": 10670,
+          "previous_chats": 10669,
+          "chat_delta": 1,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 96,
           "character_name": "정고은",
-          "current_views": 368085,
-          "previous_views": 368084,
+          "current_views": 368086,
+          "previous_views": 368085,
           "delta": 1,
           "current_chats": 10605,
           "previous_chats": 10605,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 240,
           "character_name": "이소희",
-          "current_views": 252281,
-          "previous_views": 252279,
-          "delta": 2,
+          "current_views": 252282,
+          "previous_views": 252281,
+          "delta": 1,
           "current_chats": 10551,
           "previous_chats": 10551,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80498,8 +81853,8 @@
           "current_chats": 10306,
           "previous_chats": 10306,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80511,60 +81866,60 @@
           "current_chats": 10098,
           "previous_chats": 10098,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 229,
           "character_name": "유정원",
-          "current_views": 196909,
-          "previous_views": 196907,
-          "delta": 2,
+          "current_views": 196910,
+          "previous_views": 196909,
+          "delta": 1,
           "current_chats": 10043,
           "previous_chats": 10043,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 89,
           "character_name": "유달리",
-          "current_views": 172306,
-          "previous_views": 172302,
-          "delta": 4,
-          "current_chats": 9598,
+          "current_views": 172307,
+          "previous_views": 172306,
+          "delta": 1,
+          "current_chats": 9599,
           "previous_chats": 9598,
-          "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "chat_delta": 1,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 60,
           "character_name": "한희진",
           "current_views": 296699,
-          "previous_views": 296696,
-          "delta": 3,
+          "previous_views": 296699,
+          "delta": 0,
           "current_chats": 9517,
           "previous_chats": 9517,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 291,
           "character_name": "차진희",
-          "current_views": 391023,
-          "previous_views": 390995,
-          "delta": 28,
+          "current_views": 391044,
+          "previous_views": 391023,
+          "delta": 21,
           "current_chats": 9372,
           "previous_chats": 9372,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80576,112 +81931,112 @@
           "current_chats": 9181,
           "previous_chats": 9181,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 226,
           "character_name": "이미예",
           "current_views": 202485,
-          "previous_views": 202482,
-          "delta": 3,
+          "previous_views": 202485,
+          "delta": 0,
           "current_chats": 8857,
           "previous_chats": 8857,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 94,
           "character_name": "박민아",
           "current_views": 295663,
-          "previous_views": 295662,
-          "delta": 1,
+          "previous_views": 295663,
+          "delta": 0,
           "current_chats": 8409,
           "previous_chats": 8409,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 139,
           "character_name": "엄자영",
-          "current_views": 375914,
+          "current_views": 375916,
           "previous_views": 375914,
-          "delta": 0,
+          "delta": 2,
           "current_chats": 8279,
           "previous_chats": 8279,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 297,
           "character_name": "이다미",
-          "current_views": 938665,
-          "previous_views": 938613,
-          "delta": 52,
+          "current_views": 938699,
+          "previous_views": 938665,
+          "delta": 34,
           "current_chats": 8013,
           "previous_chats": 8013,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 317,
           "character_name": "피오나",
-          "current_views": 212027,
-          "previous_views": 212019,
-          "delta": 8,
+          "current_views": 212030,
+          "previous_views": 212027,
+          "delta": 3,
           "current_chats": 7876,
           "previous_chats": 7876,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 296,
           "character_name": "김지민",
           "current_views": 170769,
-          "previous_views": 170767,
-          "delta": 2,
+          "previous_views": 170769,
+          "delta": 0,
           "current_chats": 7831,
           "previous_chats": 7831,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 253,
           "character_name": "한유리",
-          "current_views": 385509,
-          "previous_views": 385309,
-          "delta": 200,
+          "current_views": 385664,
+          "previous_views": 385509,
+          "delta": 155,
           "current_chats": 7693,
           "previous_chats": 7693,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 261,
           "character_name": "나연아",
-          "current_views": 174326,
-          "previous_views": 174324,
-          "delta": 2,
-          "current_chats": 7447,
+          "current_views": 174327,
+          "previous_views": 174326,
+          "delta": 1,
+          "current_chats": 7448,
           "previous_chats": 7447,
-          "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "chat_delta": 1,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80693,47 +82048,47 @@
           "current_chats": 7300,
           "previous_chats": 7300,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 174,
           "character_name": "고수연",
           "current_views": 185677,
-          "previous_views": 185676,
-          "delta": 1,
+          "previous_views": 185677,
+          "delta": 0,
           "current_chats": 7269,
           "previous_chats": 7269,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 228,
           "character_name": "오다현",
-          "current_views": 113720,
-          "previous_views": 113719,
+          "current_views": 113721,
+          "previous_views": 113720,
           "delta": 1,
           "current_chats": 7202,
           "previous_chats": 7202,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 220,
           "character_name": "민소다",
           "current_views": 101139,
-          "previous_views": 101138,
-          "delta": 1,
+          "previous_views": 101139,
+          "delta": 0,
           "current_chats": 6374,
           "previous_chats": 6374,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80745,8 +82100,8 @@
           "current_chats": 6334,
           "previous_chats": 6334,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80758,34 +82113,34 @@
           "current_chats": 6068,
           "previous_chats": 6068,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 329,
           "character_name": "최진희",
-          "current_views": 108473,
-          "previous_views": 108472,
-          "delta": 1,
+          "current_views": 108475,
+          "previous_views": 108473,
+          "delta": 2,
           "current_chats": 6038,
           "previous_chats": 6038,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 137,
           "character_name": "이선아",
           "current_views": 276245,
-          "previous_views": 276244,
-          "delta": 1,
+          "previous_views": 276245,
+          "delta": 0,
           "current_chats": 5936,
           "previous_chats": 5936,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80797,8 +82152,8 @@
           "current_chats": 5873,
           "previous_chats": 5873,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80810,21 +82165,21 @@
           "current_chats": 5718,
           "previous_chats": 5718,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 303,
           "character_name": "최고은",
-          "current_views": 181366,
-          "previous_views": 181357,
-          "delta": 9,
+          "current_views": 181368,
+          "previous_views": 181366,
+          "delta": 2,
           "current_chats": 5352,
           "previous_chats": 5352,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80836,34 +82191,34 @@
           "current_chats": 5043,
           "previous_chats": 5043,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 131,
           "character_name": "엘리스",
-          "current_views": 185060,
+          "current_views": 185061,
           "previous_views": 185060,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 5041,
           "previous_chats": 5041,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 173,
           "character_name": "유소담",
           "current_views": 92482,
-          "previous_views": 92481,
-          "delta": 1,
+          "previous_views": 92482,
+          "delta": 0,
           "current_chats": 4907,
           "previous_chats": 4907,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80875,8 +82230,8 @@
           "current_chats": 4833,
           "previous_chats": 4833,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80888,47 +82243,47 @@
           "current_chats": 4816,
           "previous_chats": 4816,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 227,
           "character_name": "성유나",
-          "current_views": 85982,
+          "current_views": 85983,
           "previous_views": 85982,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 4528,
           "previous_chats": 4528,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 306,
           "character_name": "김은주",
-          "current_views": 120915,
-          "previous_views": 120914,
-          "delta": 1,
+          "current_views": 120917,
+          "previous_views": 120915,
+          "delta": 2,
           "current_chats": 4383,
           "previous_chats": 4383,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 260,
           "character_name": "서혜정",
           "current_views": 76917,
-          "previous_views": 76916,
-          "delta": 1,
+          "previous_views": 76917,
+          "delta": 0,
           "current_chats": 4381,
-          "previous_chats": 4380,
-          "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 4381,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80940,21 +82295,21 @@
           "current_chats": 4343,
           "previous_chats": 4343,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 264,
           "character_name": "서우진",
-          "current_views": 134215,
+          "current_views": 134216,
           "previous_views": 134215,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 4187,
           "previous_chats": 4187,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80966,8 +82321,8 @@
           "current_chats": 4139,
           "previous_chats": 4139,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -80979,34 +82334,34 @@
           "current_chats": 4090,
           "previous_chats": 4090,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 81,
           "character_name": "세실리아",
           "current_views": 170811,
-          "previous_views": 170810,
-          "delta": 1,
+          "previous_views": 170811,
+          "delta": 0,
           "current_chats": 3918,
           "previous_chats": 3918,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 299,
           "character_name": "한가연",
-          "current_views": 28766,
-          "previous_views": 28763,
-          "delta": 3,
+          "current_views": 28768,
+          "previous_views": 28766,
+          "delta": 2,
           "current_chats": 3899,
           "previous_chats": 3899,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81018,21 +82373,21 @@
           "current_chats": 3211,
           "previous_chats": 3211,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 179,
           "character_name": "오춘화",
           "current_views": 222805,
-          "previous_views": 222804,
-          "delta": 1,
+          "previous_views": 222805,
+          "delta": 0,
           "current_chats": 3014,
           "previous_chats": 3014,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         }
       ]
@@ -81040,210 +82395,210 @@
     "jp": {
       "site": "JP",
       "source": "https://chat.toptoon.jp/api/characters",
-      "baseline_at": "2026-08-31T22:45:51.925Z",
-      "captured_at": "2026-08-31T22:55:03.431Z",
-      "interval_seconds": 552,
+      "baseline_at": "2026-08-31T22:55:03.431Z",
+      "captured_at": "2026-08-31T23:00:57.284Z",
+      "interval_seconds": 354,
       "record_count": 79,
       "comparable_count": 79,
       "new_count": 0,
-      "views_delta": 7732,
-      "chats_delta": 18,
+      "views_delta": 4939,
+      "chats_delta": 4,
       "negative_views_count": 0,
       "negative_chats_count": 0,
       "rows": [
         {
           "character_id": 133,
           "character_name": "矢野 栄子",
-          "current_views": 3502069,
-          "previous_views": 3500501,
-          "delta": 1568,
-          "current_chats": 47673,
-          "previous_chats": 47672,
+          "current_views": 3503082,
+          "previous_views": 3502069,
+          "delta": 1013,
+          "current_chats": 47674,
+          "previous_chats": 47673,
           "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 1,
           "character_name": "下北愛梨",
-          "current_views": 888258,
-          "previous_views": 888244,
-          "delta": 14,
-          "current_chats": 28327,
+          "current_views": 888267,
+          "previous_views": 888258,
+          "delta": 9,
+          "current_chats": 28328,
           "previous_chats": 28327,
-          "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "chat_delta": 1,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 38,
           "character_name": "橋本美華",
-          "current_views": 1200523,
-          "previous_views": 1199855,
-          "delta": 668,
+          "current_views": 1200941,
+          "previous_views": 1200523,
+          "delta": 418,
           "current_chats": 15345,
-          "previous_chats": 15344,
-          "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 15345,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 291,
           "character_name": "竹田千夏",
-          "current_views": 3041684,
-          "previous_views": 3040495,
-          "delta": 1189,
+          "current_views": 3042429,
+          "previous_views": 3041684,
+          "delta": 745,
           "current_chats": 6865,
-          "previous_chats": 6863,
-          "chat_delta": 2,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 6865,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 258,
           "character_name": "板野由美",
-          "current_views": 2527899,
-          "previous_views": 2527839,
-          "delta": 60,
+          "current_views": 2527935,
+          "previous_views": 2527899,
+          "delta": 36,
           "current_chats": 6715,
-          "previous_chats": 6713,
-          "chat_delta": 2,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 6715,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 78,
           "character_name": "渡辺りん",
           "current_views": 111861,
-          "previous_views": 111860,
-          "delta": 1,
+          "previous_views": 111861,
+          "delta": 0,
           "current_chats": 6379,
           "previous_chats": 6379,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 8,
           "character_name": "近藤結花",
-          "current_views": 214145,
-          "previous_views": 214124,
-          "delta": 21,
+          "current_views": 214171,
+          "previous_views": 214145,
+          "delta": 26,
           "current_chats": 6012,
           "previous_chats": 6012,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 77,
           "character_name": "西沢みな",
-          "current_views": 212478,
-          "previous_views": 212452,
-          "delta": 26,
+          "current_views": 212509,
+          "previous_views": 212478,
+          "delta": 31,
           "current_chats": 5925,
           "previous_chats": 5925,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 76,
           "character_name": "保坂白雪",
-          "current_views": 185763,
-          "previous_views": 185757,
-          "delta": 6,
+          "current_views": 185765,
+          "previous_views": 185763,
+          "delta": 2,
           "current_chats": 5770,
           "previous_chats": 5770,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 293,
           "character_name": "高橋夕里",
-          "current_views": 1766376,
-          "previous_views": 1766337,
-          "delta": 39,
+          "current_views": 1766403,
+          "previous_views": 1766376,
+          "delta": 27,
           "current_chats": 5737,
           "previous_chats": 5737,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 61,
           "character_name": "池上朱里",
-          "current_views": 897858,
-          "previous_views": 897798,
-          "delta": 60,
+          "current_views": 897899,
+          "previous_views": 897858,
+          "delta": 41,
           "current_chats": 4785,
-          "previous_chats": 4783,
-          "chat_delta": 2,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 4785,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 297,
           "character_name": "西本美幸",
-          "current_views": 1983935,
-          "previous_views": 1983640,
-          "delta": 295,
+          "current_views": 1984118,
+          "previous_views": 1983935,
+          "delta": 183,
           "current_chats": 4444,
           "previous_chats": 4444,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 256,
           "character_name": "飯村香澄",
-          "current_views": 3667975,
-          "previous_views": 3665582,
-          "delta": 2393,
+          "current_views": 3669546,
+          "previous_views": 3667975,
+          "delta": 1571,
           "current_chats": 4063,
           "previous_chats": 4063,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 130,
           "character_name": "レイ",
-          "current_views": 168706,
-          "previous_views": 168650,
-          "delta": 56,
+          "current_views": 168740,
+          "previous_views": 168706,
+          "delta": 34,
           "current_chats": 4019,
           "previous_chats": 4019,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 265,
           "character_name": "西村美嘉",
-          "current_views": 1360100,
-          "previous_views": 1359118,
-          "delta": 982,
+          "current_views": 1360704,
+          "previous_views": 1360100,
+          "delta": 604,
           "current_chats": 4006,
-          "previous_chats": 4005,
-          "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 4006,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81255,34 +82610,34 @@
           "current_chats": 3953,
           "previous_chats": 3953,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 162,
           "character_name": "白石祐里",
           "current_views": 86259,
-          "previous_views": 86258,
-          "delta": 1,
+          "previous_views": 86259,
+          "delta": 0,
           "current_chats": 3569,
           "previous_chats": 3569,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 97,
           "character_name": "島田美里",
           "current_views": 113285,
-          "previous_views": 113284,
-          "delta": 1,
+          "previous_views": 113285,
+          "delta": 0,
           "current_chats": 3488,
           "previous_chats": 3488,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81294,47 +82649,47 @@
           "current_chats": 3225,
           "previous_chats": 3225,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 60,
           "character_name": "橋本美優",
           "current_views": 69642,
-          "previous_views": 69640,
-          "delta": 2,
+          "previous_views": 69642,
+          "delta": 0,
           "current_chats": 2813,
-          "previous_chats": 2812,
-          "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 2813,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 93,
           "character_name": "市村紗季",
           "current_views": 68782,
-          "previous_views": 68781,
-          "delta": 1,
+          "previous_views": 68782,
+          "delta": 0,
           "current_chats": 2799,
           "previous_chats": 2799,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 80,
           "character_name": "ベルディア",
-          "current_views": 52507,
-          "previous_views": 52505,
-          "delta": 2,
+          "current_views": 52508,
+          "previous_views": 52507,
+          "delta": 1,
           "current_chats": 2578,
           "previous_chats": 2578,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81346,21 +82701,21 @@
           "current_chats": 2504,
           "previous_chats": 2504,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 170,
           "character_name": "曾川麗奈",
           "current_views": 78994,
-          "previous_views": 78992,
-          "delta": 2,
+          "previous_views": 78994,
+          "delta": 0,
           "current_chats": 2268,
-          "previous_chats": 2267,
-          "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 2268,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81372,8 +82727,8 @@
           "current_chats": 2148,
           "previous_chats": 2148,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81385,21 +82740,21 @@
           "current_chats": 2062,
           "previous_chats": 2062,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 290,
           "character_name": "浅田由麻",
-          "current_views": 36208,
-          "previous_views": 36201,
-          "delta": 7,
+          "current_views": 36210,
+          "previous_views": 36208,
+          "delta": 2,
           "current_chats": 1998,
-          "previous_chats": 1995,
-          "chat_delta": 3,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 1998,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81411,21 +82766,21 @@
           "current_chats": 1978,
           "previous_chats": 1978,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 131,
           "character_name": "エリス",
           "current_views": 34118,
-          "previous_views": 34117,
-          "delta": 1,
+          "previous_views": 34118,
+          "delta": 0,
           "current_chats": 1965,
           "previous_chats": 1965,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81437,8 +82792,8 @@
           "current_chats": 1920,
           "previous_chats": 1920,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81450,8 +82805,8 @@
           "current_chats": 1833,
           "previous_chats": 1833,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81463,21 +82818,21 @@
           "current_chats": 1812,
           "previous_chats": 1812,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 118,
           "character_name": "坂本凪咲",
-          "current_views": 44377,
-          "previous_views": 44372,
-          "delta": 5,
+          "current_views": 44379,
+          "previous_views": 44377,
+          "delta": 2,
           "current_chats": 1806,
           "previous_chats": 1806,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81489,47 +82844,47 @@
           "current_chats": 1792,
           "previous_chats": 1792,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 182,
           "character_name": "倖田梓",
           "current_views": 43682,
-          "previous_views": 43681,
-          "delta": 1,
+          "previous_views": 43682,
+          "delta": 0,
           "current_chats": 1744,
           "previous_chats": 1744,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 146,
           "character_name": "堂本美結",
-          "current_views": 25843,
+          "current_views": 25844,
           "previous_views": 25843,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 1614,
           "previous_chats": 1614,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 139,
           "character_name": "高橋真美",
           "current_views": 59256,
-          "previous_views": 59255,
-          "delta": 1,
+          "previous_views": 59256,
+          "delta": 0,
           "current_chats": 1585,
           "previous_chats": 1585,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81541,8 +82896,8 @@
           "current_chats": 1571,
           "previous_chats": 1571,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81554,47 +82909,47 @@
           "current_chats": 1571,
           "previous_chats": 1571,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 167,
           "character_name": "武田京子",
           "current_views": 40254,
-          "previous_views": 40253,
-          "delta": 1,
+          "previous_views": 40254,
+          "delta": 0,
           "current_chats": 1522,
           "previous_chats": 1522,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 169,
           "character_name": "金子里沙",
           "current_views": 58355,
-          "previous_views": 58354,
-          "delta": 1,
+          "previous_views": 58355,
+          "delta": 0,
           "current_chats": 1519,
-          "previous_chats": 1518,
-          "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 1519,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 119,
           "character_name": "藤田瑠華",
-          "current_views": 27526,
-          "previous_views": 27523,
-          "delta": 3,
+          "current_views": 27527,
+          "previous_views": 27526,
+          "delta": 1,
           "current_chats": 1514,
           "previous_chats": 1514,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81606,8 +82961,8 @@
           "current_chats": 1504,
           "previous_chats": 1504,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81619,8 +82974,8 @@
           "current_chats": 1434,
           "previous_chats": 1434,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81632,21 +82987,21 @@
           "current_chats": 1404,
           "previous_chats": 1404,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 294,
           "character_name": "葛西陽菜乃",
-          "current_views": 26161,
+          "current_views": 26162,
           "previous_views": 26161,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 1380,
           "previous_chats": 1380,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81658,21 +83013,21 @@
           "current_chats": 1377,
           "previous_chats": 1377,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 10000000,
           "character_name": "新庄まりな",
-          "current_views": 28007,
-          "previous_views": 28002,
-          "delta": 5,
+          "current_views": 28009,
+          "previous_views": 28007,
+          "delta": 2,
           "current_chats": 1368,
           "previous_chats": 1368,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81684,8 +83039,8 @@
           "current_chats": 1297,
           "previous_chats": 1297,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81697,34 +83052,34 @@
           "current_chats": 1185,
           "previous_chats": 1185,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
-          "comparison_status": "matched"
-        },
-        {
-          "character_id": 316,
-          "character_name": "青木里香",
-          "current_views": 32068,
-          "previous_views": 32068,
-          "delta": 0,
-          "current_chats": 1043,
-          "previous_chats": 1043,
-          "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 70,
           "character_name": "坂口美帆",
-          "current_views": 26340,
+          "current_views": 26341,
           "previous_views": 26340,
-          "delta": 0,
+          "delta": 1,
+          "current_chats": 1044,
+          "previous_chats": 1043,
+          "chat_delta": 1,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
+          "comparison_status": "matched"
+        },
+        {
+          "character_id": 316,
+          "character_name": "青木里香",
+          "current_views": 32069,
+          "previous_views": 32068,
+          "delta": 1,
           "current_chats": 1043,
           "previous_chats": 1043,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81736,8 +83091,8 @@
           "current_chats": 1028,
           "previous_chats": 1028,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81749,8 +83104,8 @@
           "current_chats": 1023,
           "previous_chats": 1023,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81762,8 +83117,8 @@
           "current_chats": 996,
           "previous_chats": 996,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81775,8 +83130,8 @@
           "current_chats": 959,
           "previous_chats": 959,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81788,8 +83143,8 @@
           "current_chats": 954,
           "previous_chats": 954,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81801,8 +83156,8 @@
           "current_chats": 941,
           "previous_chats": 941,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81814,8 +83169,8 @@
           "current_chats": 937,
           "previous_chats": 937,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81827,8 +83182,8 @@
           "current_chats": 927,
           "previous_chats": 927,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81840,8 +83195,8 @@
           "current_chats": 923,
           "previous_chats": 923,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81853,21 +83208,21 @@
           "current_chats": 908,
           "previous_chats": 908,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 329,
           "character_name": "竿田真由美",
-          "current_views": 89454,
-          "previous_views": 89138,
-          "delta": 316,
-          "current_chats": 872,
-          "previous_chats": 869,
-          "chat_delta": 3,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "current_views": 89641,
+          "previous_views": 89454,
+          "delta": 187,
+          "current_chats": 873,
+          "previous_chats": 872,
+          "chat_delta": 1,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81879,8 +83234,8 @@
           "current_chats": 869,
           "previous_chats": 869,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81892,8 +83247,8 @@
           "current_chats": 849,
           "previous_chats": 849,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81905,8 +83260,8 @@
           "current_chats": 847,
           "previous_chats": 847,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81918,8 +83273,8 @@
           "current_chats": 846,
           "previous_chats": 846,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81931,8 +83286,8 @@
           "current_chats": 768,
           "previous_chats": 768,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81944,8 +83299,8 @@
           "current_chats": 697,
           "previous_chats": 697,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81957,8 +83312,8 @@
           "current_chats": 693,
           "previous_chats": 693,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81970,8 +83325,8 @@
           "current_chats": 625,
           "previous_chats": 625,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81983,8 +83338,8 @@
           "current_chats": 589,
           "previous_chats": 589,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -81996,8 +83351,8 @@
           "current_chats": 577,
           "previous_chats": 577,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82009,8 +83364,8 @@
           "current_chats": 543,
           "previous_chats": 543,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82022,34 +83377,34 @@
           "current_chats": 524,
           "previous_chats": 524,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 303,
           "character_name": "浜辺涼子",
           "current_views": 6345,
-          "previous_views": 6343,
-          "delta": 2,
+          "previous_views": 6345,
+          "delta": 0,
           "current_chats": 499,
           "previous_chats": 499,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 299,
           "character_name": "霧島真紀",
           "current_views": 2689,
-          "previous_views": 2688,
-          "delta": 1,
+          "previous_views": 2689,
+          "delta": 0,
           "current_chats": 494,
           "previous_chats": 494,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82061,21 +83416,21 @@
           "current_chats": 423,
           "previous_chats": 423,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 154,
           "character_name": "クァク・ドイム",
           "current_views": 9797,
-          "previous_views": 9796,
-          "delta": 1,
+          "previous_views": 9797,
+          "delta": 0,
           "current_chats": 421,
           "previous_chats": 421,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         }
       ]
@@ -82083,14 +83438,14 @@
     "global": {
       "site": "GLOBAL",
       "source": "https://chat.global.toptoon.com/api/characters",
-      "baseline_at": "2026-08-31T22:45:51.925Z",
-      "captured_at": "2026-08-31T22:55:03.431Z",
-      "interval_seconds": 552,
+      "baseline_at": "2026-08-31T22:55:03.431Z",
+      "captured_at": "2026-08-31T23:00:57.284Z",
+      "interval_seconds": 354,
       "record_count": 86,
       "comparable_count": 86,
       "new_count": 0,
-      "views_delta": 19,
-      "chats_delta": 4,
+      "views_delta": 12,
+      "chats_delta": 1,
       "negative_views_count": 0,
       "negative_chats_count": 0,
       "rows": [
@@ -82098,78 +83453,78 @@
           "character_id": 221,
           "character_name": "Eun-ae Cha",
           "current_views": 61826,
-          "previous_views": 61825,
-          "delta": 1,
+          "previous_views": 61826,
+          "delta": 0,
           "current_chats": 2811,
           "previous_chats": 2811,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 133,
           "character_name": "Grace Kim",
-          "current_views": 45576,
-          "previous_views": 45574,
+          "current_views": 45578,
+          "previous_views": 45576,
           "delta": 2,
           "current_chats": 1834,
           "previous_chats": 1834,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 265,
           "character_name": "Seo-hyun Han",
-          "current_views": 21288,
-          "previous_views": 21285,
-          "delta": 3,
+          "current_views": 21289,
+          "previous_views": 21288,
+          "delta": 1,
           "current_chats": 1289,
           "previous_chats": 1289,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 1,
           "character_name": "Ah-yeong Shin",
           "current_views": 12845,
-          "previous_views": 12844,
-          "delta": 1,
+          "previous_views": 12845,
+          "delta": 0,
           "current_chats": 873,
-          "previous_chats": 872,
-          "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 873,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 258,
           "character_name": "Yara Ko",
-          "current_views": 10839,
+          "current_views": 10840,
           "previous_views": 10839,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 677,
           "previous_chats": 677,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 62,
           "character_name": "Eun-hee Yu",
-          "current_views": 10270,
+          "current_views": 10271,
           "previous_views": 10270,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 668,
           "previous_chats": 668,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82181,47 +83536,47 @@
           "current_chats": 643,
           "previous_chats": 643,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 249,
           "character_name": "Jessica Park",
-          "current_views": 10607,
+          "current_views": 10608,
           "previous_views": 10607,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 602,
           "previous_chats": 602,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 61,
           "character_name": "Na-ri Han",
           "current_views": 7417,
-          "previous_views": 7416,
-          "delta": 1,
+          "previous_views": 7417,
+          "delta": 0,
           "current_chats": 571,
           "previous_chats": 571,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 130,
           "character_name": "Ray",
           "current_views": 19470,
-          "previous_views": 19469,
-          "delta": 1,
+          "previous_views": 19470,
+          "delta": 0,
           "current_chats": 471,
           "previous_chats": 471,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82233,8 +83588,8 @@
           "current_chats": 462,
           "previous_chats": 462,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82246,8 +83601,8 @@
           "current_chats": 394,
           "previous_chats": 394,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82259,8 +83614,8 @@
           "current_chats": 323,
           "previous_chats": 323,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82272,8 +83627,8 @@
           "current_chats": 319,
           "previous_chats": 319,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82285,34 +83640,34 @@
           "current_chats": 280,
           "previous_chats": 280,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 97,
           "character_name": "Su-min Cha",
-          "current_views": 4011,
-          "previous_views": 4010,
+          "current_views": 4012,
+          "previous_views": 4011,
           "delta": 1,
           "current_chats": 268,
           "previous_chats": 268,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 253,
           "character_name": "Yu-ri Han",
-          "current_views": 5678,
+          "current_views": 5679,
           "previous_views": 5678,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 258,
           "previous_chats": 258,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82324,21 +83679,21 @@
           "current_chats": 251,
           "previous_chats": 251,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 131,
           "character_name": "Alice",
-          "current_views": 2736,
+          "current_views": 2737,
           "previous_views": 2736,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 217,
           "previous_chats": 217,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82350,8 +83705,8 @@
           "current_chats": 211,
           "previous_chats": 211,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82363,8 +83718,8 @@
           "current_chats": 209,
           "previous_chats": 209,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82376,8 +83731,8 @@
           "current_chats": 192,
           "previous_chats": 192,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82389,21 +83744,21 @@
           "current_chats": 192,
           "previous_chats": 192,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 76,
           "character_name": "Hyun-joo Bae",
           "current_views": 2071,
-          "previous_views": 2069,
-          "delta": 2,
+          "previous_views": 2071,
+          "delta": 0,
           "current_chats": 184,
-          "previous_chats": 182,
-          "chat_delta": 2,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 184,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82415,8 +83770,8 @@
           "current_chats": 178,
           "previous_chats": 178,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82428,8 +83783,8 @@
           "current_chats": 177,
           "previous_chats": 177,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82441,8 +83796,8 @@
           "current_chats": 168,
           "previous_chats": 168,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82454,21 +83809,21 @@
           "current_chats": 158,
           "previous_chats": 158,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 38,
           "character_name": "Chae-ah Han",
-          "current_views": 2520,
+          "current_views": 2521,
           "previous_views": 2520,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 157,
           "previous_chats": 157,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82480,8 +83835,8 @@
           "current_chats": 156,
           "previous_chats": 156,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82493,8 +83848,8 @@
           "current_chats": 146,
           "previous_chats": 146,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82506,21 +83861,21 @@
           "current_chats": 146,
           "previous_chats": 146,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 2,
           "character_name": "Soo-yeon Kang",
           "current_views": 2612,
-          "previous_views": 2610,
-          "delta": 2,
+          "previous_views": 2612,
+          "delta": 0,
           "current_chats": 143,
           "previous_chats": 143,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82532,8 +83887,8 @@
           "current_chats": 140,
           "previous_chats": 140,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82545,34 +83900,34 @@
           "current_chats": 134,
           "previous_chats": 134,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 119,
           "character_name": "Roxy Seo",
           "current_views": 1106,
-          "previous_views": 1105,
-          "delta": 1,
+          "previous_views": 1106,
+          "delta": 0,
           "current_chats": 131,
           "previous_chats": 131,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 70,
           "character_name": "Da-yeong Park",
           "current_views": 1583,
-          "previous_views": 1582,
-          "delta": 1,
+          "previous_views": 1583,
+          "delta": 0,
           "current_chats": 125,
           "previous_chats": 125,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82584,8 +83939,8 @@
           "current_chats": 120,
           "previous_chats": 120,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82597,21 +83952,21 @@
           "current_chats": 120,
           "previous_chats": 120,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 78,
           "character_name": "Se-ha Yoo",
-          "current_views": 1130,
+          "current_views": 1131,
           "previous_views": 1130,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 118,
           "previous_chats": 118,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82623,8 +83978,8 @@
           "current_chats": 115,
           "previous_chats": 115,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82636,8 +83991,8 @@
           "current_chats": 112,
           "previous_chats": 112,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82649,8 +84004,8 @@
           "current_chats": 110,
           "previous_chats": 110,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82662,8 +84017,8 @@
           "current_chats": 106,
           "previous_chats": 106,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82675,8 +84030,8 @@
           "current_chats": 105,
           "previous_chats": 105,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82688,8 +84043,8 @@
           "current_chats": 105,
           "previous_chats": 105,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82701,8 +84056,8 @@
           "current_chats": 103,
           "previous_chats": 103,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82714,8 +84069,8 @@
           "current_chats": 102,
           "previous_chats": 102,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82727,8 +84082,8 @@
           "current_chats": 101,
           "previous_chats": 101,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82740,8 +84095,8 @@
           "current_chats": 98,
           "previous_chats": 98,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82753,8 +84108,8 @@
           "current_chats": 94,
           "previous_chats": 94,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82766,8 +84121,8 @@
           "current_chats": 90,
           "previous_chats": 90,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82779,8 +84134,8 @@
           "current_chats": 89,
           "previous_chats": 89,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82792,8 +84147,8 @@
           "current_chats": 83,
           "previous_chats": 83,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82805,8 +84160,8 @@
           "current_chats": 78,
           "previous_chats": 78,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82818,8 +84173,8 @@
           "current_chats": 76,
           "previous_chats": 76,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82831,8 +84186,8 @@
           "current_chats": 75,
           "previous_chats": 75,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82844,8 +84199,8 @@
           "current_chats": 71,
           "previous_chats": 71,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82857,8 +84212,8 @@
           "current_chats": 70,
           "previous_chats": 70,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82870,8 +84225,8 @@
           "current_chats": 69,
           "previous_chats": 69,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82883,8 +84238,8 @@
           "current_chats": 69,
           "previous_chats": 69,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82896,8 +84251,8 @@
           "current_chats": 67,
           "previous_chats": 67,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82909,8 +84264,8 @@
           "current_chats": 65,
           "previous_chats": 65,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82922,21 +84277,21 @@
           "current_chats": 61,
           "previous_chats": 61,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 319,
           "character_name": "Emily Han",
-          "current_views": 233,
-          "previous_views": 231,
-          "delta": 2,
+          "current_views": 234,
+          "previous_views": 233,
+          "delta": 1,
           "current_chats": 60,
-          "previous_chats": 59,
-          "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 60,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82948,8 +84303,8 @@
           "current_chats": 57,
           "previous_chats": 57,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82961,8 +84316,8 @@
           "current_chats": 56,
           "previous_chats": 56,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82974,8 +84329,8 @@
           "current_chats": 55,
           "previous_chats": 55,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -82987,8 +84342,8 @@
           "current_chats": 55,
           "previous_chats": 55,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83000,8 +84355,8 @@
           "current_chats": 50,
           "previous_chats": 50,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83013,8 +84368,8 @@
           "current_chats": 50,
           "previous_chats": 50,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83026,8 +84381,8 @@
           "current_chats": 48,
           "previous_chats": 48,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83039,8 +84394,8 @@
           "current_chats": 46,
           "previous_chats": 46,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83052,8 +84407,8 @@
           "current_chats": 43,
           "previous_chats": 43,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83065,8 +84420,8 @@
           "current_chats": 41,
           "previous_chats": 41,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83075,11 +84430,11 @@
           "current_views": 706,
           "previous_views": 706,
           "delta": 0,
-          "current_chats": 39,
+          "current_chats": 40,
           "previous_chats": 39,
-          "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "chat_delta": 1,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83091,8 +84446,8 @@
           "current_chats": 37,
           "previous_chats": 37,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83104,21 +84459,21 @@
           "current_chats": 37,
           "previous_chats": 37,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 247,
           "character_name": "Na-hyun Na",
           "current_views": 560,
-          "previous_views": 559,
-          "delta": 1,
+          "previous_views": 560,
+          "delta": 0,
           "current_chats": 36,
           "previous_chats": 36,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83130,8 +84485,8 @@
           "current_chats": 35,
           "previous_chats": 35,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83143,8 +84498,8 @@
           "current_chats": 32,
           "previous_chats": 32,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83156,8 +84511,8 @@
           "current_chats": 30,
           "previous_chats": 30,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83169,8 +84524,8 @@
           "current_chats": 30,
           "previous_chats": 30,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83182,8 +84537,8 @@
           "current_chats": 26,
           "previous_chats": 26,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83195,8 +84550,8 @@
           "current_chats": 23,
           "previous_chats": 23,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83208,8 +84563,8 @@
           "current_chats": 20,
           "previous_chats": 20,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         }
       ]
@@ -83217,106 +84572,106 @@
     "tw": {
       "site": "TW",
       "source": "https://chat.toptoon.net/api/characters",
-      "baseline_at": "2026-08-31T22:45:51.925Z",
-      "captured_at": "2026-08-31T22:55:03.431Z",
-      "interval_seconds": 552,
+      "baseline_at": "2026-08-31T22:55:03.431Z",
+      "captured_at": "2026-08-31T23:00:57.284Z",
+      "interval_seconds": 354,
       "record_count": 82,
       "comparable_count": 82,
       "new_count": 0,
-      "views_delta": 157,
-      "chats_delta": 4,
+      "views_delta": 99,
+      "chats_delta": 2,
       "negative_views_count": 0,
       "negative_chats_count": 0,
       "rows": [
         {
           "character_id": 61,
           "character_name": "林映純",
-          "current_views": 392862,
-          "previous_views": 392859,
-          "delta": 3,
+          "current_views": 392864,
+          "previous_views": 392862,
+          "delta": 2,
           "current_chats": 19751,
           "previous_chats": 19751,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 1,
           "character_name": "林依潔",
-          "current_views": 468306,
-          "previous_views": 468281,
-          "delta": 25,
+          "current_views": 468318,
+          "previous_views": 468306,
+          "delta": 12,
           "current_chats": 8099,
           "previous_chats": 8099,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 221,
           "character_name": "鄭恩愛",
-          "current_views": 282555,
-          "previous_views": 282542,
-          "delta": 13,
+          "current_views": 282566,
+          "previous_views": 282555,
+          "delta": 11,
           "current_chats": 5021,
           "previous_chats": 5021,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 133,
           "character_name": "簡可優",
-          "current_views": 265560,
-          "previous_views": 265540,
-          "delta": 20,
+          "current_views": 265567,
+          "previous_views": 265560,
+          "delta": 7,
           "current_chats": 4773,
           "previous_chats": 4773,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 258,
           "character_name": "高佑美",
-          "current_views": 100762,
-          "previous_views": 100755,
-          "delta": 7,
+          "current_views": 100764,
+          "previous_views": 100762,
+          "delta": 2,
           "current_chats": 2809,
           "previous_chats": 2809,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 100,
           "character_name": "張善英",
-          "current_views": 262966,
-          "previous_views": 262933,
-          "delta": 33,
+          "current_views": 262993,
+          "previous_views": 262966,
+          "delta": 27,
           "current_chats": 2570,
           "previous_chats": 2570,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 97,
           "character_name": "王曉妤",
           "current_views": 50065,
-          "previous_views": 50063,
-          "delta": 2,
-          "current_chats": 2305,
+          "previous_views": 50065,
+          "delta": 0,
+          "current_chats": 2306,
           "previous_chats": 2305,
-          "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "chat_delta": 1,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83328,60 +84683,60 @@
           "current_chats": 2198,
           "previous_chats": 2198,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 284,
           "character_name": "吳喬俐",
-          "current_views": 51416,
-          "previous_views": 51412,
-          "delta": 4,
+          "current_views": 51419,
+          "previous_views": 51416,
+          "delta": 3,
           "current_chats": 2027,
           "previous_chats": 2027,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 38,
           "character_name": "詹苡葳",
-          "current_views": 40553,
+          "current_views": 40555,
           "previous_views": 40553,
-          "delta": 0,
+          "delta": 2,
           "current_chats": 1915,
           "previous_chats": 1915,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 72,
           "character_name": "陳鈺琳",
           "current_views": 44607,
-          "previous_views": 44606,
-          "delta": 1,
+          "previous_views": 44607,
+          "delta": 0,
           "current_chats": 1666,
           "previous_chats": 1666,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 8,
           "character_name": "劉貞妮",
           "current_views": 30032,
-          "previous_views": 30031,
-          "delta": 1,
+          "previous_views": 30032,
+          "delta": 0,
           "current_chats": 1594,
           "previous_chats": 1594,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83393,21 +84748,21 @@
           "current_chats": 1470,
           "previous_chats": 1470,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 76,
           "character_name": "楊佳穎",
-          "current_views": 36015,
-          "previous_views": 36013,
+          "current_views": 36017,
+          "previous_views": 36015,
           "delta": 2,
           "current_chats": 1448,
-          "previous_chats": 1447,
-          "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 1448,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83419,8 +84774,8 @@
           "current_chats": 1386,
           "previous_chats": 1386,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83432,21 +84787,21 @@
           "current_chats": 1366,
           "previous_chats": 1366,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 77,
           "character_name": "徐敏娜",
-          "current_views": 37085,
+          "current_views": 37086,
           "previous_views": 37085,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 1362,
           "previous_chats": 1362,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83458,60 +84813,60 @@
           "current_chats": 1269,
           "previous_chats": 1269,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 119,
           "character_name": "徐如熙",
-          "current_views": 67561,
-          "previous_views": 67559,
-          "delta": 2,
+          "current_views": 67562,
+          "previous_views": 67561,
+          "delta": 1,
           "current_chats": 1182,
           "previous_chats": 1182,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 2,
           "character_name": "李舒欣",
-          "current_views": 23350,
-          "previous_views": 23349,
+          "current_views": 23351,
+          "previous_views": 23350,
           "delta": 1,
           "current_chats": 1180,
           "previous_chats": 1180,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 235,
           "character_name": "周薇亞",
-          "current_views": 29670,
-          "previous_views": 29667,
+          "current_views": 29673,
+          "previous_views": 29670,
           "delta": 3,
           "current_chats": 1148,
           "previous_chats": 1148,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 93,
           "character_name": "韓秀珍",
-          "current_views": 30972,
+          "current_views": 30973,
           "previous_views": 30972,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 1138,
           "previous_chats": 1138,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83523,60 +84878,60 @@
           "current_chats": 1134,
           "previous_chats": 1134,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 240,
           "character_name": "李芳婷",
-          "current_views": 25906,
-          "previous_views": 25905,
+          "current_views": 25907,
+          "previous_views": 25906,
           "delta": 1,
           "current_chats": 1110,
           "previous_chats": 1110,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 78,
           "character_name": "劉銀河",
-          "current_views": 25654,
-          "previous_views": 25653,
+          "current_views": 25655,
+          "previous_views": 25654,
           "delta": 1,
           "current_chats": 1083,
-          "previous_chats": 1082,
-          "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 1083,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 74,
           "character_name": "何宥拉",
           "current_views": 21972,
-          "previous_views": 21971,
-          "delta": 1,
+          "previous_views": 21972,
+          "delta": 0,
           "current_chats": 1078,
           "previous_chats": 1078,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 62,
           "character_name": "劉小冉",
           "current_views": 30810,
-          "previous_views": 30809,
-          "delta": 1,
+          "previous_views": 30810,
+          "delta": 0,
           "current_chats": 1032,
           "previous_chats": 1032,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83588,47 +84943,47 @@
           "current_chats": 1025,
           "previous_chats": 1025,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 170,
           "character_name": "徐筱妍",
-          "current_views": 29487,
+          "current_views": 29488,
           "previous_views": 29487,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 1023,
           "previous_chats": 1023,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 261,
           "character_name": "庭佳",
-          "current_views": 16047,
+          "current_views": 16048,
           "previous_views": 16047,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 1012,
           "previous_chats": 1012,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 226,
           "character_name": "李美英",
           "current_views": 30609,
-          "previous_views": 30608,
-          "delta": 1,
+          "previous_views": 30609,
+          "delta": 0,
           "current_chats": 1009,
           "previous_chats": 1009,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83640,34 +84995,34 @@
           "current_chats": 999,
           "previous_chats": 999,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 297,
           "character_name": "李多美",
-          "current_views": 63019,
-          "previous_views": 62993,
-          "delta": 26,
+          "current_views": 63029,
+          "previous_views": 63019,
+          "delta": 10,
           "current_chats": 990,
           "previous_chats": 990,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 80,
           "character_name": "貝爾迪亞",
-          "current_views": 18314,
+          "current_views": 18315,
           "previous_views": 18314,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 962,
           "previous_chats": 962,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83679,21 +85034,21 @@
           "current_chats": 957,
           "previous_chats": 957,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 250,
           "character_name": "羅心如",
-          "current_views": 14694,
+          "current_views": 14695,
           "previous_views": 14694,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 916,
           "previous_chats": 916,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83705,47 +85060,47 @@
           "current_chats": 865,
           "previous_chats": 865,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 99,
           "character_name": "趙美靜",
-          "current_views": 27284,
+          "current_views": 27285,
           "previous_views": 27284,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 864,
           "previous_chats": 864,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 262,
           "character_name": "涂藝恩",
           "current_views": 24341,
-          "previous_views": 24340,
-          "delta": 1,
+          "previous_views": 24341,
+          "delta": 0,
           "current_chats": 804,
           "previous_chats": 804,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 251,
           "character_name": "林筱君",
-          "current_views": 17448,
+          "current_views": 17449,
           "previous_views": 17448,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 766,
           "previous_chats": 766,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83757,8 +85112,8 @@
           "current_chats": 748,
           "previous_chats": 748,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83770,8 +85125,8 @@
           "current_chats": 740,
           "previous_chats": 740,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83783,8 +85138,8 @@
           "current_chats": 719,
           "previous_chats": 719,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83796,34 +85151,34 @@
           "current_chats": 705,
           "previous_chats": 705,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 167,
           "character_name": "林淑靜",
           "current_views": 23467,
-          "previous_views": 23466,
-          "delta": 1,
+          "previous_views": 23467,
+          "delta": 0,
           "current_chats": 699,
           "previous_chats": 699,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 317,
           "character_name": "費歐娜",
           "current_views": 12347,
-          "previous_views": 12346,
-          "delta": 1,
+          "previous_views": 12347,
+          "delta": 0,
           "current_chats": 695,
           "previous_chats": 695,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83835,21 +85190,21 @@
           "current_chats": 662,
           "previous_chats": 662,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 162,
           "character_name": "黃幼涵",
           "current_views": 19449,
-          "previous_views": 19448,
-          "delta": 1,
+          "previous_views": 19449,
+          "delta": 0,
           "current_chats": 559,
-          "previous_chats": 558,
-          "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "previous_chats": 559,
+          "chat_delta": 0,
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83861,8 +85216,8 @@
           "current_chats": 553,
           "previous_chats": 553,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83874,8 +85229,8 @@
           "current_chats": 518,
           "previous_chats": 518,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83887,8 +85242,8 @@
           "current_chats": 514,
           "previous_chats": 514,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83900,8 +85255,8 @@
           "current_chats": 512,
           "previous_chats": 512,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83913,8 +85268,8 @@
           "current_chats": 500,
           "previous_chats": 500,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83926,21 +85281,21 @@
           "current_chats": 496,
           "previous_chats": 496,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 303,
           "character_name": "吳悠秀",
-          "current_views": 6653,
+          "current_views": 6656,
           "previous_views": 6653,
-          "delta": 0,
+          "delta": 3,
           "current_chats": 481,
           "previous_chats": 481,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83952,8 +85307,8 @@
           "current_chats": 445,
           "previous_chats": 445,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83965,8 +85320,8 @@
           "current_chats": 436,
           "previous_chats": 436,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83978,8 +85333,8 @@
           "current_chats": 429,
           "previous_chats": 429,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -83991,8 +85346,8 @@
           "current_chats": 426,
           "previous_chats": 426,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84004,8 +85359,8 @@
           "current_chats": 421,
           "previous_chats": 421,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84017,8 +85372,8 @@
           "current_chats": 411,
           "previous_chats": 411,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84030,8 +85385,8 @@
           "current_chats": 395,
           "previous_chats": 395,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84043,8 +85398,8 @@
           "current_chats": 393,
           "previous_chats": 393,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84056,8 +85411,8 @@
           "current_chats": 389,
           "previous_chats": 389,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84069,21 +85424,21 @@
           "current_chats": 359,
           "previous_chats": 359,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 260,
           "character_name": "徐慧靜",
-          "current_views": 8447,
+          "current_views": 8448,
           "previous_views": 8447,
-          "delta": 0,
+          "delta": 1,
           "current_chats": 355,
           "previous_chats": 355,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84095,8 +85450,8 @@
           "current_chats": 336,
           "previous_chats": 336,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84108,8 +85463,8 @@
           "current_chats": 327,
           "previous_chats": 327,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84121,21 +85476,21 @@
           "current_chats": 317,
           "previous_chats": 317,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 329,
           "character_name": "崔潔怡",
-          "current_views": 1094,
-          "previous_views": 1091,
-          "delta": 3,
-          "current_chats": 288,
-          "previous_chats": 287,
+          "current_views": 1095,
+          "previous_views": 1094,
+          "delta": 1,
+          "current_chats": 289,
+          "previous_chats": 288,
           "chat_delta": 1,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84147,21 +85502,21 @@
           "current_chats": 284,
           "previous_chats": 284,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 154,
           "character_name": "郭度琳",
-          "current_views": 5918,
-          "previous_views": 5917,
+          "current_views": 5919,
+          "previous_views": 5918,
           "delta": 1,
           "current_chats": 268,
           "previous_chats": 268,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84173,21 +85528,21 @@
           "current_chats": 263,
           "previous_chats": 263,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
           "character_id": 146,
           "character_name": "度可音",
           "current_views": 4769,
-          "previous_views": 4768,
-          "delta": 1,
+          "previous_views": 4769,
+          "delta": 0,
           "current_chats": 262,
           "previous_chats": 262,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84199,8 +85554,8 @@
           "current_chats": 252,
           "previous_chats": 252,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84212,8 +85567,8 @@
           "current_chats": 252,
           "previous_chats": 252,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84225,8 +85580,8 @@
           "current_chats": 244,
           "previous_chats": 244,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84238,8 +85593,8 @@
           "current_chats": 238,
           "previous_chats": 238,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84251,8 +85606,8 @@
           "current_chats": 234,
           "previous_chats": 234,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84264,8 +85619,8 @@
           "current_chats": 211,
           "previous_chats": 211,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84277,8 +85632,8 @@
           "current_chats": 197,
           "previous_chats": 197,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         },
         {
@@ -84290,8 +85645,8 @@
           "current_chats": 135,
           "previous_chats": 135,
           "chat_delta": 0,
-          "baseline_at": "2026-08-31T22:45:51.925Z",
-          "last_seen": "2026-08-31T22:55:03.431Z",
+          "baseline_at": "2026-08-31T22:55:03.431Z",
+          "last_seen": "2026-08-31T23:00:57.284Z",
           "comparison_status": "matched"
         }
       ]
