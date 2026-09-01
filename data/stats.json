@@ -1,5 +1,5 @@
 {
-  "captured_at": "2026-09-01T12:31:31.520Z",
+  "captured_at": "2026-09-01T12:46:20.538Z",
   "source": "https://toptoon-tracker.john6428.workers.dev",
   "source_tier": "C",
   "caveat": "Public third-party tracker snapshot. Revenue nowcasts, IR benchmarks and margin assumptions are not audited financial statements.",
@@ -247,11 +247,42 @@
       "real": 88,
       "fallback": 0
     },
-    "avg_photos": 151,
-    "totals": {
-      "bear": 1807493,
-      "base": 4036097,
-      "bull": 7171531
+    "avg_photos": 122,
+    "fallback_photos": 151,
+    "photo_range": {
+      "min": 38,
+      "max": 306
+    },
+    "total_photos": 10766,
+    "drop_rate": 0.162,
+    "observed_turns_per_photo": 7.4,
+    "nyang_won": 0.495,
+    "turn_prices": [
+      {
+        "key": "daily_sale",
+        "label": "일상톡 할인",
+        "nyang": 80
+      },
+      {
+        "key": "daily_list",
+        "label": "일상톡 정가",
+        "nyang": 100
+      },
+      {
+        "key": "thrill_sale",
+        "label": "설렘톡 할인",
+        "nyang": 100
+      },
+      {
+        "key": "thrill_list",
+        "label": "설렘톡 정가",
+        "nyang": 150
+      }
+    ],
+    "default_turn_price": "daily_sale",
+    "turns": {
+      "floor": 79668,
+      "ceiling": 360322
     }
   },
   "growth_cannibalization": {
