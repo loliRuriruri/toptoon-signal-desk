@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-01T06:30:53.533Z",
+  "generated_at": "2026-09-01T06:46:00.507Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,7 +7,7 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-01T06:30:53.533Z",
+      "observed_at": "2026-09-01T06:46:00.507Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
@@ -29,7 +29,7 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-01T06:30:53.533Z",
+      "observed_at": "2026-09-01T06:46:00.507Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-01T06:30:53.533Z",
+      "observed_at": "2026-09-01T06:46:00.507Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,12 +63,12 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-01T06:30:53.533Z",
+      "observed_at": "2026-09-01T06:46:00.507Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "verified",
-      "change": "continuing",
-      "signature": "130:今日特惠僅限一天！ 蕾依，最高 60%",
+      "change": "changed",
+      "signature": "130:蕾依 「你到底打算吃掉多少個女人啊！也稍微考慮一下一直忍耐的我的心...嗯唔...！」 1.8萬 874",
       "homepage_error": null,
       "items": [
         {
@@ -76,7 +76,7 @@
           "character_name": "蕾依",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.net/detail/character/130",
-          "headline": "今日特惠僅限一天！ 蕾依，最高 60%",
+          "headline": "蕾依 「你到底打算吃掉多少個女人啊！也稍微考慮一下一直忍耐的我的心...嗯唔...！」 1.8萬 874",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.net/"
         }
@@ -2306,6 +2306,31 @@
           "status": "verified",
           "change": "continuing",
           "signature": "130:今日特惠僅限一天！ 蕾依，最高 60%"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-01T06:46:00.507Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "202:오늘특가 단 하루 한정! 우미희, 최대 60%"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "74:本日特価は今日だけ！ 秋山紗妃、最大 60%"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "130:蕾依 「你到底打算吃掉多少個女人啊！也稍微考慮一下一直忍耐的我的心...嗯唔...！」 1.8萬 874"
         }
       }
     }
