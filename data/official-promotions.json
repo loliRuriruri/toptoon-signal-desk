@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-02T02:46:00.687Z",
+  "generated_at": "2026-09-02T03:01:06.577Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,20 +7,20 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-02T02:46:00.687Z",
+      "observed_at": "2026-09-02T03:01:06.577Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
-      "change": "continuing",
-      "signature": "202:오늘특가 단 하루 한정! 우미희, 최대 60%",
+      "change": "changed",
+      "signature": "255:오늘특가 단 하루 한정! 최선영, 최대 60%",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 202,
-          "character_name": "우미희",
+          "character_id": 255,
+          "character_name": "최선영",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.com/detail/character/202",
-          "headline": "오늘특가 단 하루 한정! 우미희, 최대 60%",
+          "detail_url": "https://chat.toptoon.com/detail/character/255",
+          "headline": "오늘특가 단 하루 한정! 최선영, 최대 60%",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.com/"
         }
@@ -29,20 +29,20 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-02T02:46:00.687Z",
+      "observed_at": "2026-09-02T03:01:06.577Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
-      "change": "continuing",
-      "signature": "74:本日特価は今日だけ！ 秋山紗妃、最大 60%",
+      "change": "changed",
+      "signature": "134:本日特価は今日だけ！ 城戸さくら、最大 60%",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 74,
-          "character_name": "秋山紗妃",
+          "character_id": 134,
+          "character_name": "城戸さくら",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.jp/detail/character/74",
-          "headline": "本日特価は今日だけ！ 秋山紗妃、最大 60%",
+          "detail_url": "https://chat.toptoon.jp/detail/character/134",
+          "headline": "本日特価は今日だけ！ 城戸さくら、最大 60%",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.jp/"
         }
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-02T02:46:00.687Z",
+      "observed_at": "2026-09-02T03:01:06.577Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,11 +63,11 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-02T02:46:00.687Z",
+      "observed_at": "2026-09-02T03:01:06.577Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "verified",
-      "change": "changed",
+      "change": "continuing",
       "signature": "130:今日特惠僅限一天！ 蕾依，最高 60%",
       "homepage_error": null,
       "items": [
@@ -4405,6 +4405,31 @@
         "tw": {
           "status": "verified",
           "change": "changed",
+          "signature": "130:今日特惠僅限一天！ 蕾依，最高 60%"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-02T03:01:06.577Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "255:오늘특가 단 하루 한정! 최선영, 최대 60%"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "134:本日特価は今日だけ！ 城戸さくら、最大 60%"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "continuing",
           "signature": "130:今日特惠僅限一天！ 蕾依，最高 60%"
         }
       }
