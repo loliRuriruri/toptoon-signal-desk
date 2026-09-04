@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-04T03:00:53.093Z",
+  "generated_at": "2026-09-04T03:15:47.955Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,11 +7,11 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-04T03:00:53.093Z",
+      "observed_at": "2026-09-04T03:15:47.955Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
-      "change": "changed",
+      "change": "continuing",
       "signature": "260:오늘특가 단 하루 한정! 서혜정, 최대 60%",
       "homepage_error": null,
       "items": [
@@ -29,12 +29,12 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-04T03:00:53.093Z",
+      "observed_at": "2026-09-04T03:15:47.955Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
-      "status": "partial",
+      "status": "verified",
       "change": "changed",
-      "signature": "227:price_promotion",
+      "signature": "227:本日特価は今日だけ！ 成澤澪、最大 60%",
       "homepage_error": null,
       "items": [
         {
@@ -42,16 +42,16 @@
           "character_name": "成澤澪",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.jp/detail/character/227",
-          "headline": null,
-          "verification": "api-badge-only",
-          "source_url": "https://chat.toptoon.jp/api/characters"
+          "headline": "本日特価は今日だけ！ 成澤澪、最大 60%",
+          "verification": "api-and-homepage",
+          "source_url": "https://chat.toptoon.jp/"
         }
       ]
     },
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-04T03:00:53.093Z",
+      "observed_at": "2026-09-04T03:15:47.955Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,7 +63,7 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-04T03:00:53.093Z",
+      "observed_at": "2026-09-04T03:15:47.955Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "verified",
@@ -84,31 +84,6 @@
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-01T21:31:04.591Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "202:오늘특가 단 하루 한정! 우미희, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "74:本日特価は今日だけ！ 秋山紗妃、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "130:今日特惠僅限一天！ 蕾依，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-01T21:46:05.893Z",
       "markets": {
@@ -4871,6 +4846,31 @@
           "status": "partial",
           "change": "changed",
           "signature": "227:price_promotion"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "296:今日特惠僅限一天！ 江曉婷，最高 60%"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-04T03:15:47.955Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "260:오늘특가 단 하루 한정! 서혜정, 최대 60%"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "227:本日特価は今日だけ！ 成澤澪、最大 60%"
         },
         "global": {
           "status": "none",
