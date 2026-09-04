@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-04T14:46:07.266Z",
+  "generated_at": "2026-09-04T15:01:17.135Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,7 +7,7 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-04T14:46:07.266Z",
+      "observed_at": "2026-09-04T15:01:17.135Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
@@ -29,7 +29,7 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-04T14:46:07.266Z",
+      "observed_at": "2026-09-04T15:01:17.135Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-04T14:46:07.266Z",
+      "observed_at": "2026-09-04T15:01:17.135Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,12 +63,12 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-04T14:46:07.266Z",
+      "observed_at": "2026-09-04T15:01:17.135Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "verified",
-      "change": "continuing",
-      "signature": "202:今日特惠僅限一天！ 吳美熙，最高 60%",
+      "change": "changed",
+      "signature": "202:吳美熙 雖然是所有人的初戀，卻成了不良少年老大的女人——校園女神吳美熙 8666 461",
       "homepage_error": null,
       "items": [
         {
@@ -76,7 +76,7 @@
           "character_name": "吳美熙",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.net/detail/character/202",
-          "headline": "今日特惠僅限一天！ 吳美熙，最高 60%",
+          "headline": "吳美熙 雖然是所有人的初戀，卻成了不良少年老大的女人——校園女神吳美熙 8666 461",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.net/"
         }
@@ -84,31 +84,6 @@
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-02T10:16:18.341Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "255:오늘특가 단 하루 한정! 최선영, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "134:本日特価は今日だけ！ 城戸さくら、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "74:今日特惠僅限一天！ 何宥拉，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-02T10:31:15.332Z",
       "markets": {
@@ -4881,6 +4856,31 @@
           "status": "verified",
           "change": "continuing",
           "signature": "202:今日特惠僅限一天！ 吳美熙，最高 60%"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-04T15:01:17.135Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "260:오늘특가 단 하루 한정! 서혜정, 최대 60%"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "227:本日特価は今日だけ！ 成澤澪、最大 60%"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "202:吳美熙 雖然是所有人的初戀，卻成了不良少年老大的女人——校園女神吳美熙 8666 461"
         }
       }
     }
