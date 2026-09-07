@@ -2858,10 +2858,52 @@ h3 {
 .daily-growth-summary span { color: var(--muted); font-size: 9px; }
 .composition-summary strong,
 .daily-growth-summary strong { color: var(--text); font-size: 18px; font-variant-numeric: tabular-nums; }
-.composition-summary small { color: var(--sub); font-size: 9px; }
-.market-composition-card .composition-track { margin-top: 12px; }
+.market-composition-card,
+.daily-growth-card {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+}
 
-.stacked-values { display: grid; gap: 2px; text-align: right; }
+.market-composition-card .composition-track { margin-top: 12px; }
+.market-composition-card .chart-tail { margin-top: auto; }
+
+.daily-growth-card .stacked-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  max-height: 130px;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(98, 168, 255, 0.4) rgba(255, 255, 255, 0.04);
+}
+
+.daily-growth-card .stacked-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.daily-growth-card .stacked-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+}
+
+.daily-growth-card .stacked-list::-webkit-scrollbar-thumb {
+  background: rgba(98, 168, 255, 0.38);
+  border-radius: 4px;
+}
+
+.daily-growth-card .stacked-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(98, 168, 255, 0.65);
+}
+
+.daily-growth-card .legend {
+  margin-top: auto;
+  padding-top: 10px;
+}
 .stacked-values small { color: var(--muted); font-size: 8px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 .band-row,
