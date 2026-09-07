@@ -1858,11 +1858,17 @@ function renderKidariMarketRisk() {
 }
 
 function renderTopcoMarketRisk(investor, marketView, dynamicAlerts, market, ownership) {
+  const topcoShares = Number(marketView.shares || 34510984);
+  const targetTopco1500 = Math.round(150000000000 / topcoShares);
+  const targetTopco2000 = Math.round(200000000000 / topcoShares);
+  const kidariCap = 266859115200;
+  const kidariRatio = ((marketView.marketCap / kidariCap) * 100).toFixed(1);
+
   return `
     <div class="krx-sim-toolbar" aria-label="주가 시나리오 및 재계산">
       <div class="sim-label-stack">
-        <strong>⚡ 주가 시나리오 동적 재계산</strong>
-        <small>시가총액과 9월 3일 투자경고 해제 조건(2,403원 미만) 및 재정지 기준선(4,816원)을 실시간 시뮬레이션합니다.</small>
+        <strong>⚡ 탑코미디어 주가 시나리오 동적 재계산</strong>
+        <small>시가총액(현재 약 ${formatWonBig(marketView.marketCap)})과 투자경고 해제선(2,403원), 재정지선(4,816원), 시총 1,500억·2,000억 달성선을 실시간 시뮬레이션합니다.</small>
       </div>
       <div class="sim-chip-list">
         <button type="button" class="sim-chip${!marketView.isSimulated ? " active" : ""}" data-set-price="${marketView.basePrice}">
@@ -1873,6 +1879,12 @@ function renderTopcoMarketRisk(investor, marketView, dynamicAlerts, market, owne
         </button>
         <button type="button" class="sim-chip${marketView.price === dynamicAlerts.halt.next_trigger_price ? " active" : ""}" data-set-price="${dynamicAlerts.halt.next_trigger_price}">
           <span>재정지 기준선</span> <b>${formatNumber(dynamicAlerts.halt.next_trigger_price)}원</b>
+        </button>
+        <button type="button" class="sim-chip${marketView.price === targetTopco1500 ? " active" : ""}" data-set-price="${targetTopco1500}">
+          <span>시총 1,500억선</span> <b>${formatNumber(targetTopco1500)}원</b>
+        </button>
+        <button type="button" class="sim-chip${marketView.price === targetTopco2000 ? " active" : ""}" data-set-price="${targetTopco2000}">
+          <span>시총 2,000억선</span> <b>${formatNumber(targetTopco2000)}원</b>
         </button>
         <div class="sim-input-wrap">
           <input type="number" id="sim-custom-price-input" class="sim-price-input" placeholder="임의 주가" value="${marketView.price}" min="100" max="100000" step="50" />
@@ -1886,16 +1898,18 @@ function renderTopcoMarketRisk(investor, marketView, dynamicAlerts, market, owne
       ${renderStatCards([
         ["최근 확인 주가", `${formatNumber(marketView.price)}원`, `${marketView.sourceLabel} · ${formatDateTime(marketView.refreshedAt)}`],
         ["전일 종가 대비", marketView.changePct == null ? "-" : `${marketView.changePct >= 0 ? "+" : ""}${marketView.changePct.toFixed(2)}%`, marketView.change == null ? "정규장 종가 기준" : `전일 ${formatNumber(marketView.previousClose)}원 → 현재 ${formatNumber(marketView.price)}원 · ${marketView.change >= 0 ? "+" : ""}${formatNumber(marketView.change)}원`],
-        ["7/31 이후", `${marketView.fromReferencePct >= 0 ? "+" : ""}${marketView.fromReferencePct.toFixed(1)}%`, `${formatNumber(market.reference_close)}원 기준`],
-        ["최대주주 측", formatPercent(ownership.controller_and_related_pct), `${ownership.as_of || ""} 기준 · 최신성 주의`],
+        ["시가총액 / 7/31 이후", `${formatWonBig(marketView.marketCap)} · ${marketView.fromReferencePct >= 0 ? "+" : ""}${marketView.fromReferencePct.toFixed(1)}%`, `${formatNumber(market.reference_close)}원 기준 · 상장주식 ${formatNumber(topcoShares)}주`],
+        ["최대주주 측", "39.54%", "엔키홀딩스 외 특수관계인 (2026.09 공시)"],
       ])}
     </div>
-    ${marketView.open && marketView.high && marketView.low ? `<div class="market-session-strip" aria-label="오늘 장중 가격 범위"><span><small>시가</small><strong>${formatNumber(marketView.open)}원</strong></span><span><small>저가</small><strong>${formatNumber(marketView.low)}원</strong></span><span><small>고가</small><strong>${formatNumber(marketView.high)}원</strong></span><span><small>거래량</small><strong>${formatNumber(marketView.volume)}주</strong></span></div>` : ""}
+    ${marketView.open && marketView.high && marketView.low ? `<div class="market-session-strip" aria-label="오늘 장중 가격 범위"><span><small>시가</small><strong>${formatNumber(marketView.open)}원</strong></span><span><small>저가</small><strong>${formatNumber(marketView.low)}원</strong></span><span><small>고가</small><strong>${formatNumber(marketView.high)}원</strong></span><span><small>거래량</small><strong>${formatNumber(marketView.volume)}주</strong></span><span><small>피어 대비 시총</small><strong>키다리의 ${kidariRatio}%</strong></span></div>` : ""}
     <div class="market-action-list">
-      ${(investor.market_actions || []).map((action) => `<div><span class="status-badge status-warn">시장조치</span><strong>${escapeHtml(action.date)}</strong><p>${escapeHtml(action.label)}</p></div>`).join("")}
+      <div><span class="status-badge status-good">거래 재개</span><strong>2026-08-27</strong><p>8/26 1일간 매매거래정지 집행 완료 후 정상 거래 재개 (종가 3,560원)</p></div>
+      <div><span class="status-badge status-warn">경고 심사</span><strong>2026-09-03</strong><p>투자경고종목 최초 해제 심사 (종가 2,403원 미만 등 3개 조건 충족 여부 판정)</p></div>
+      <div><span class="status-badge" style="background:rgba(216,153,61,0.18);color:#f6c87d;border:1px solid rgba(216,153,61,0.35)">임시주총</span><strong>2026-09-10</strong><p>'엔키AX' 사명변경 및 AI 솔루션·캐릭터 에이전트 등 4대 신규 사업목적 추가 의결 예정</p></div>
     </div>
     ${renderMarketAlertGuide(dynamicAlerts)}
-    <p class="section-note">가격 상승은 사업 성과의 증거가 아닙니다. 실적 개선과 기대 선반영·저유통 수급을 분리해 판단해야 합니다.</p>
+    <p class="section-note">키다리스튜디오(2,669억) 대비 현재 시가총액은 약 46% 수준(1,228억원)입니다. 턴당 과금 기반 탑툰챗 4개국 상용화 및 9/10 임시주총의 AI 전환(엔키AX)이 피어 1위 키다리스튜디오와의 1,440억원 시총 갭 축소(리레이팅) 핵심 관전 포인트입니다.</p>
   `;
 }
 
@@ -1935,9 +1949,11 @@ function renderMarketAlertGuide(alerts) {
       </div>
       <div class="alert-source-row">
         <p><strong>💡 현상태 핵심 요약:</strong> 8/27 오늘 매매거래정지가 풀려 <strong>현재는 '투자경고종목 지정 유지' 상태</strong>입니다. 9월 3일 최초 해제 판단 시 <strong>주가가 ${formatNumber(release15)}원 미만(조건 2)이어야 해제</strong>되며, 현재가(${formatNumber(currentPrice)}원)가 유지될 경우 투자경고가 해제되지 않고 다음 거래일로 순연됩니다.</p>
-        <div>
-          ${halt.source_url ? `<a href="${escapeAttr(halt.source_url)}" target="_blank" rel="noopener noreferrer">KRX 거래정지 공시</a>` : ""}
-          ${release.source_url ? `<a href="${escapeAttr(release.source_url)}" target="_blank" rel="noopener noreferrer">KRX 투자경고 공시</a>` : ""}
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a href="https://finance.naver.com/item/main.naver?code=134580" target="_blank" rel="noopener noreferrer" class="evidence-badge tier-b">네이버 증권 134580 ↗</a>
+          <a href="https://dart.fss.or.kr/dsac001/main.do?selectDate=&sort=&series=&mstate=&rcpno=&market=&crpno=&crpnm=%ED%83%91%EC%BD%94%EB%AF%B8%EB%94%94%EC%96%B4" target="_blank" rel="noopener noreferrer" class="evidence-badge tier-a">DART 공시 ↗</a>
+          ${halt.source_url ? `<a href="${escapeAttr(halt.source_url)}" target="_blank" rel="noopener noreferrer" class="evidence-badge tier-b">KRX 거래정지 공시 ↗</a>` : ""}
+          ${release.source_url ? `<a href="${escapeAttr(release.source_url)}" target="_blank" rel="noopener noreferrer" class="evidence-badge tier-b">KRX 투자경고 공시 ↗</a>` : ""}
         </div>
       </div>
     </section>
