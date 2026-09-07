@@ -1871,7 +1871,7 @@ function renderTopcoMarketRisk(investor, marketView, dynamicAlerts, market, owne
     <div class="krx-sim-toolbar" aria-label="주가 시나리오 및 재계산">
       <div class="sim-label-stack">
         <strong>⚡ 탑코미디어 주가 시나리오 동적 재계산</strong>
-        <small>시가총액(현재 약 ${formatWonBig(marketView.marketCap)})과 목표 시나리오(시총 1,500억·2,000억 달성선 및 1차 목표선)를 실시간 시뮬레이션합니다.</small>
+        <small>시가총액(현재 약 ${formatWonBig(marketView.marketCap)})과 목표 시나리오(시총 1,500억 달성선 ${formatNumber(targetTopco1500)}원, 4,500원선)를 실시간 시뮬레이션합니다.</small>
       </div>
       <div class="sim-chip-list">
         <button type="button" class="sim-chip${!marketView.isSimulated ? " active" : ""}" data-set-price="${marketView.basePrice}">
@@ -1880,20 +1880,11 @@ function renderTopcoMarketRisk(investor, marketView, dynamicAlerts, market, owne
         <button type="button" class="sim-chip${marketView.price === targetTopco1500 ? " active" : ""}" data-set-price="${targetTopco1500}">
           <span>시총 1,500억선</span> <b>${formatNumber(targetTopco1500)}원</b>
         </button>
-        <button type="button" class="sim-chip${marketView.price === targetTopco2000 ? " active" : ""}" data-set-price="${targetTopco2000}">
-          <span>시총 2,000억선</span> <b>${formatNumber(targetTopco2000)}원</b>
-        </button>
         <button type="button" class="sim-chip${marketView.price === targetTopco1st ? " active" : ""}" data-set-price="${targetTopco1st}">
           <span>1차 목표선</span> <b>${formatNumber(targetTopco1st)}원</b>
         </button>
         <button type="button" class="sim-chip${marketView.price === targetTopcoPsychological ? " active" : ""}" data-set-price="${targetTopcoPsychological}">
           <span>심리적 저항선</span> <b>${formatNumber(targetTopcoPsychological)}원</b>
-        </button>
-        <button type="button" class="sim-chip${marketView.price === dynamicAlerts.release.fifteen_day_limit_raw ? " active" : ""}" data-set-price="${dynamicAlerts.release.fifteen_day_limit_raw}">
-          <span>경고해제 기준선</span> <b>${formatNumber(dynamicAlerts.release.fifteen_day_limit_raw)}원</b>
-        </button>
-        <button type="button" class="sim-chip${marketView.price === dynamicAlerts.halt.next_trigger_price ? " active" : ""}" data-set-price="${dynamicAlerts.halt.next_trigger_price}">
-          <span>재정지 기준선</span> <b>${formatNumber(dynamicAlerts.halt.next_trigger_price)}원</b>
         </button>
         <div class="sim-input-wrap">
           <input type="number" id="sim-custom-price-input" class="sim-price-input" placeholder="임의 주가" value="${marketView.price}" min="100" max="100000" step="50" />
