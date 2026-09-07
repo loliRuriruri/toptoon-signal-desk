@@ -71,6 +71,7 @@ const state = {
   revenueViewMode: "recent",
   revenueAssumptions: null,
   revenueAssumptionMessage: "",
+  peerNewsFilter: "all",
   q: "",
   work: "",
   sort: "views-desc"
@@ -442,6 +443,16 @@ function bindEvents() {
     if (simResetBtn) {
       state.simulatedPrice = null;
       renderValidationDashboard();
+      return;
+    }
+
+    const peerNewsFilterBtn = event.target.closest("[data-peer-news-filter]");
+    if (peerNewsFilterBtn) {
+      const nextFilter = peerNewsFilterBtn.dataset.peerNewsFilter;
+      if (nextFilter && state.peerNewsFilter !== nextFilter) {
+        state.peerNewsFilter = nextFilter;
+        renderValidationDashboard();
+      }
       return;
     }
 
@@ -1269,9 +1280,9 @@ function renderValidationDashboard() {
     renderStrategicCrosscheck(),
     renderMarketRisk(investor, marketView),
     renderPeerComparison(marketView),
+    renderPeerNewsSection(marketView),
     renderCatalogCrosscheck(validationData.catalogs || {}),
-    renderScheduledAiDiagnosis(),
-    renderRequiredCaveats(validationData.required_caveats || [], thesis)
+    renderScheduledAiDiagnosis()
   ].join("");
 
   els.validationDetail.innerHTML = [
@@ -1841,6 +1852,276 @@ function renderPeerComparison(marketView) {
 function formatPeerMultiple(value) {
   const numeric = Number(value || 0);
   return numeric > 0 ? `${numeric.toFixed(1)}x` : "N/M";
+}
+
+const PEER_NEWS_DATA = [
+  {
+    ticker: "134580",
+    company: "탑코미디어",
+    role: "Target",
+    category: "사업목적 / 사명변경",
+    date: "2026.08.26",
+    badgeType: "target",
+    title: "탑코미디어, '엔키AX'로 사명 변경 및 인공지능(AI)·캐릭터 에이전트 신규 사업목적 4종 대거 추가",
+    summary: [
+      "오는 9월 10일 임시주주총회 안건으로 사명을 '엔키AX(Enkey AX)'로 변경하고 정관 내 신규 AI 사업목적을 대거 추가 의결 예정",
+      "추가 목적: ① 인공지능(AI) 솔루션 개발·공급 ② AI 캐릭터/에이전트 서비스 ③ 빅데이터 분석 및 가공 판매 ④ 데이터베이스 제작업",
+      "단순 웹툰 유통을 넘어 'AI 캐릭터 인터랙션 플랫폼'으로의 전면적인 AI 전환(AX) 선언"
+    ],
+    link: "https://finance.naver.com/item/news.naver?code=134580",
+    sourceName: "임시주총 공시 / 네이버 증권"
+  },
+  {
+    ticker: "134580",
+    company: "탑코미디어",
+    role: "Target",
+    category: "서비스 확장 / 글로벌",
+    date: "2026.08.28",
+    badgeType: "target",
+    title: "글로벌 '탑툰챗' 4개국(한·일·대·글로벌) 전면 가동… 일일 대화 턴수 급증세",
+    summary: [
+      "자체 웹툰 IP 캐릭터를 활용한 1:1 대화형 AI 서비스 '탑툰챗'을 한국, 일본, 대만, 영미권에 순차 오픈 완료",
+      "턴당 과금(코인 소진) 구조를 통해 단순 웹툰 뷰어 대비 유저 체류 시간 및 신규 캐시카우 BM 확보 확인",
+      "한국 대비 일본·글로벌 시장의 단가 및 지불용의 검증이 하반기 핵심 관전 포인트"
+    ],
+    link: "https://finance.naver.com/item/news.naver?code=134580",
+    sourceName: "플랫폼 관측 / 네이버 증권"
+  },
+  {
+    ticker: "134580",
+    company: "탑코미디어",
+    role: "Target",
+    category: "지분 / 지배구조",
+    date: "2026.09.03",
+    badgeType: "target",
+    title: "엔키홀딩스 지분율 39.54%로 최대주주 지배력 공고… AI 신사업 추진 탄력",
+    summary: [
+      "주식등의대량보유상황보고서 공시를 통해 엔키홀딩스 및 특수관계인 지분율 39.54% 유지 확인",
+      "안정적 지분 구조를 바탕으로 9월 10일 임시주총 의결 및 4분기 신규 AI 플랫폼 투자 집행 가시성 확보"
+    ],
+    link: "https://finance.naver.com/item/news.naver?code=134580",
+    sourceName: "DART 공시 / 네이버 증권"
+  },
+  {
+    ticker: "020120",
+    company: "키다리스튜디오",
+    role: "Core",
+    category: "AI R&D / 플랫폼",
+    date: "2026.08.19",
+    badgeType: "peer",
+    title: "키다리스튜디오, 바이트댄스 협력 및 레진·봄툰 생성형 AI 인터랙티브 챗봇 PoC 착수",
+    summary: [
+      "글로벌 웹툰 플랫폼 레진엔터테인먼트와 봄툰 독자들을 위한 '웹툰 캐릭터 1:1 대화형 팬덤 서비스' 연구개발 진행",
+      "숏폼 영상 및 바이트댄스 유통망과 연계한 캐릭터 대화형 스토리텔링 도입 타진"
+    ],
+    link: "https://finance.naver.com/item/news.naver?code=020120",
+    sourceName: "언론 보도 / 네이버 증권"
+  },
+  {
+    ticker: "020120",
+    company: "키다리스튜디오",
+    role: "Core",
+    category: "글로벌 번역 / 현지화",
+    date: "2026.07.30",
+    badgeType: "peer",
+    title: "생성형 AI 기반 다국어 실시간 로컬라이징 및 캐릭터 대화 엔진 개발 파트너십",
+    summary: [
+      "북미·유럽 등 글로벌 진출작에 AI 번역 및 캐릭터 특유의 말투를 보존하는 페르소나 대화 모델 테스트",
+      "글로벌 팬덤 대상 굿즈 및 대화형 디지털 콘텐츠로의 확장성 검토"
+    ],
+    link: "https://finance.naver.com/item/news.naver?code=020120",
+    sourceName: "IT 테크 / 네이버 증권"
+  },
+  {
+    ticker: "263720",
+    company: "디앤씨미디어",
+    role: "Secondary",
+    category: "메가 IP / AI 캐릭터",
+    date: "2026.08.14",
+    badgeType: "peer",
+    title: "'나 혼자만 레벨업' 글로벌 메가 IP, AI 캐릭터 페르소나 챗봇 및 넷마블 게임 연계 시너지",
+    summary: [
+      "글로벌 143억 뷰 신화 '나혼렙' 주인공 성진우 등 주요 등장인물 페르소나 AI 대화 모델 프로토타입 실증",
+      "넷마블 '나 혼자만 레벨업: 어라이즈' 게임 및 인터랙티브 콘텐츠 연계를 통해 글로벌 서브컬처 팬덤 흡수"
+    ],
+    link: "https://finance.naver.com/item/news.naver?code=263720",
+    sourceName: "엔터 미디어 / 네이버 증권"
+  },
+  {
+    ticker: "263720",
+    company: "디앤씨미디어",
+    role: "Secondary",
+    category: "웹소설 / 팬덤",
+    date: "2026.07.22",
+    badgeType: "peer",
+    title: "웹소설·웹툰 독자 소통형 'AI 캐릭터 라운지' 기술 실증… 팬덤 몰입도 극대화",
+    summary: [
+      "웹소설 플랫폼 독자들이 작품 연재 중 작중 인물과 채팅하며 후속 스토리를 추론하는 커뮤니티형 AI 기능 테스트",
+      "IP 수명 주기(LTV) 연장 및 2차 창작 커뮤니티 활성화 기대"
+    ],
+    link: "https://finance.naver.com/item/news.naver?code=263720",
+    sourceName: "콘텐츠 동향 / 네이버 증권"
+  },
+  {
+    ticker: "207760",
+    company: "미스터블루",
+    role: "Core",
+    category: "AI 제작 자동화",
+    date: "2026.08.21",
+    badgeType: "peer",
+    title: "미스터블루, 자체 무협·순정 IP 기반 AI 채색·배경 자동화 및 캐릭터 챗봇 시범 서비스",
+    summary: [
+      "자체 보유 IP 만화 캐릭터와의 1:1 대화 인터페이스 프로토타입 개발 및 사이트 내 도입 타진",
+      "제작 스튜디오에 생성형 AI 채색 및 3D 배경 렌더링 솔루션을 적용해 제작비 30% 절감 추진"
+    ],
+    link: "https://finance.naver.com/item/news.naver?code=207760",
+    sourceName: "웹툰 산업 / 네이버 증권"
+  },
+  {
+    ticker: "207760",
+    company: "미스터블루",
+    role: "Core",
+    category: "게임 / IP 융합",
+    date: "2026.08.05",
+    badgeType: "peer",
+    title: "자회사 블루포션게임즈 IP와 웹툰 캐릭터 결합한 AI 인터랙티브 세계관 프로젝트 공개",
+    summary: [
+      "에오스 레드 등 자체 게임 IP와 웹툰 독자층을 잇는 대화형 인터랙티브 퀘스트 시스템 접목 연구",
+      "게임 유저와 웹툰 독자 간의 크로스셀링(교차 소비) 촉진"
+    ],
+    link: "https://finance.naver.com/item/news.naver?code=207760",
+    sourceName: "게임 포커스 / 네이버 증권"
+  },
+  {
+    ticker: "417180",
+    company: "핑거스토리",
+    role: "Secondary",
+    category: "플랫폼 AI / 추천 엔진",
+    date: "2026.08.12",
+    badgeType: "peer",
+    title: "핑거스토리, 무툰·큐툰에 AI 독자 취향 분석 및 대화형 추천 챗봇 도입 추진",
+    summary: [
+      "정통 무협/액션/로맨스 독자들의 감상 패턴을 분석하여 맞춤형 작품 및 캐릭터를 추천하는 대화형 AI 어시스턴트 도입",
+      "플랫폼 내 독자 체류 시간 증가 및 이탈 방지(Churn 방어)를 위한 상호작용 강화"
+    ],
+    link: "https://finance.naver.com/item/news.naver?code=417180",
+    sourceName: "플랫폼 IT / 네이버 증권"
+  },
+  {
+    ticker: "417180",
+    company: "핑거스토리",
+    role: "Secondary",
+    category: "서브컬처 / 신규 BM",
+    date: "2026.07.18",
+    badgeType: "peer",
+    title: "K-웹툰 IP 기반 서브컬처 AI 인터랙션 및 디지털 굿즈 신규 비즈니스 모델 발굴",
+    summary: [
+      "웹툰 캐릭터 보이스 및 대화형 인터랙션을 결합한 디지털 구독 및 굿즈 연계 모델 사업성 검토",
+      "수익 모델 다변화를 통한 객단가(ARPU) 상승 전략"
+    ],
+    link: "https://finance.naver.com/item/news.naver?code=417180",
+    sourceName: "투자 리서치 / 네이버 증권"
+  }
+];
+
+function renderPeerNewsSection(marketView) {
+  const currentFilter = state.peerNewsFilter || "all";
+  const peers = [
+    { ticker: "all", name: "전체 (5개사)" },
+    { ticker: "134580", name: "탑코미디어", role: "Target", isTarget: true },
+    { ticker: "020120", name: "키다리스튜디오", role: "Core" },
+    { ticker: "263720", name: "디앤씨미디어", role: "Secondary" },
+    { ticker: "207760", name: "미스터블루", role: "Core" },
+    { ticker: "417180", name: "핑거스토리", role: "Secondary" }
+  ];
+
+  const filteredNews = currentFilter === "all"
+    ? PEER_NEWS_DATA
+    : PEER_NEWS_DATA.filter((item) => item.ticker === currentFilter);
+
+  return `
+    <section class="panel stats-panel validation-panel peer-news-panel">
+      <div class="panel-heading compact-heading">
+        <div>
+          <p class="section-kicker">Peer AI & Character Chat Radar</p>
+          <h2>동종업계 피어 기업 주요 뉴스 · AI 캐릭터챗 동향</h2>
+          <p class="stat-help">웹툰 플랫폼 5개사의 AI 플랫폼 전환(AX), 캐릭터 인터랙션 및 생성형 테크 모멘텀</p>
+        </div>
+        <div class="peer-news-header-meta">
+          <span class="evidence-badge tier-b">산업 모멘텀 스크리닝</span>
+        </div>
+      </div>
+
+      <div class="peer-news-filter-bar">
+        <div class="peer-news-tabs" role="tablist" aria-label="피어 기업 선택">
+          ${peers.map((peer) => {
+            const isSelected = currentFilter === peer.ticker;
+            const count = peer.ticker === "all"
+              ? PEER_NEWS_DATA.length
+              : PEER_NEWS_DATA.filter((n) => n.ticker === peer.ticker).length;
+            return `
+              <button type="button"
+                class="peer-news-tab-btn${peer.isTarget ? " is-target" : ""}${isSelected ? " is-active" : ""}"
+                data-peer-news-filter="${escapeAttr(peer.ticker)}"
+                aria-selected="${isSelected ? "true" : "false"}">
+                <strong>${escapeHtml(peer.name)}</strong>
+                <small>${peer.ticker === "all" ? `${count}건` : `${peer.ticker} · ${count}건`}</small>
+              </button>
+            `;
+          }).join("")}
+        </div>
+      </div>
+
+      <div class="peer-news-quick-bar">
+        <span class="peer-news-quick-title">실시간 증권 뉴스 원클릭:</span>
+        <div class="peer-news-quick-links">
+          ${peers.filter((p) => p.ticker !== "all").map((p) => `
+            <a href="https://finance.naver.com/item/news.naver?code=${escapeAttr(p.ticker)}" target="_blank" rel="noopener noreferrer" class="peer-news-quick-link${p.isTarget ? " is-target" : ""}">
+              <span>${escapeHtml(p.name)} (${escapeHtml(p.ticker)})</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            </a>
+          `).join("")}
+        </div>
+      </div>
+
+      <div class="peer-news-grid" aria-label="피어 뉴스 리스트">
+        ${filteredNews.map((news) => {
+          const isTarget = news.ticker === "134580";
+          return `
+            <article class="peer-news-card${isTarget ? " is-target" : ""}">
+              <div class="peer-news-card-header">
+                <div class="peer-news-card-tags">
+                  <span class="peer-news-tag company-tag${isTarget ? " is-target" : ""}">${escapeHtml(news.company)} <small>${escapeHtml(news.ticker)}</small></span>
+                  <span class="peer-news-tag category-tag">${escapeHtml(news.category)}</span>
+                </div>
+                <span class="peer-news-date">${escapeHtml(news.date)}</span>
+              </div>
+              <h3 class="peer-news-card-title">
+                <a href="${escapeAttr(news.link)}" target="_blank" rel="noopener noreferrer">
+                  ${escapeHtml(news.title)}
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                </a>
+              </h3>
+              <ul class="peer-news-summary">
+                ${news.summary.map((pt) => `<li>${escapeHtml(pt)}</li>`).join("")}
+              </ul>
+              <div class="peer-news-card-footer">
+                <span class="peer-news-source">${escapeHtml(news.sourceName)}</span>
+                <a href="${escapeAttr(news.link)}" target="_blank" rel="noopener noreferrer" class="peer-news-link-btn">
+                  네이버 뉴스 원문 <span>→</span>
+                </a>
+              </div>
+            </article>
+          `;
+        }).join("")}
+      </div>
+
+      <div class="peer-readthrough">
+        <strong>시사점 및 캐릭터챗 관전 포인트</strong>
+        <p>타 웹툰 피어(키다리·디앤씨 등)는 메가 IP 기반의 R&D 및 프로토타입 단계에 머물러 있는 반면, 탑코미디어(엔키AX)는 '탑툰챗'을 4개국에 즉시 전면 상용화하고 턴당 과금 BM을 선제 가동한 점이 차별화 요인입니다. 9/10 임시주총의 AI 사업목적 승인과 해외 결제 전환율이 향후 주가 밸류에이션 리레이팅의 핵심 잣대가 됩니다.</p>
+      </div>
+    </section>
+  `;
 }
 
 function renderCatalogCrosscheck(catalogs) {
