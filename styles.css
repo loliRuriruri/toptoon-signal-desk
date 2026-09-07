@@ -2695,7 +2695,37 @@ h3 {
 
 .scope-card.is-kr > strong { color: #55d9b2; }
 
-.revenue-day-list { gap: 8px; margin-top: 14px; }
+.revenue-day-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  max-height: 255px;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(98, 168, 255, 0.4) rgba(255, 255, 255, 0.04);
+}
+
+.revenue-day-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.revenue-day-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+}
+
+.revenue-day-list::-webkit-scrollbar-thumb {
+  background: rgba(98, 168, 255, 0.38);
+  border-radius: 4px;
+}
+
+.revenue-day-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(98, 168, 255, 0.65);
+}
 .revenue-day-row {
   display: grid;
   grid-template-columns: 48px minmax(0, 1fr);
