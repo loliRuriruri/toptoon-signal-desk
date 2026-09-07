@@ -656,16 +656,31 @@ writeFileSync(path.join(dataDir, "official-home-banners.json"), `${JSON.stringif
 writeFileSync(path.join(dataDir, "official-home-banners.js"), `window.TOPTOON_OFFICIAL_HOME_BANNERS=${JSON.stringify(homeBannersPayload)};\n`, "utf8");
 
 const workerBase = "https://toptoon-tracker.john6428.workers.dev";
-const statsPairs = await Promise.all(Object.entries(statsEndpoints).map(async ([key, endpoint]) => [key, await fetchJson(`${workerBase}/api/${endpoint}`, `${workerBase}/`)]));
-const statsPayload = {
-  captured_at: new Date().toISOString(),
-  source: workerBase,
-  source_tier: "C",
-  caveat: "Public third-party tracker snapshot. Revenue nowcasts, IR benchmarks and margin assumptions are not audited financial statements.",
-  ...Object.fromEntries(statsPairs)
-};
-writeFileSync(path.join(dataDir, "stats.json"), `${JSON.stringify(statsPayload, null, 2)}\n`, "utf8");
-writeFileSync(path.join(dataDir, "stats.js"), `window.TOPTOON_STATS=${JSON.stringify(statsPayload)};\n`, "utf8");
+let statsPayload = null;
+try {
+  const statsPairs = await Promise.all(Object.entries(statsEndpoints).map(async ([key, endpoint]) => [key, await fetchJson(`${workerBase}/api/${endpoint}`, `${workerBase}/`)]));
+  statsPayload = {
+    captured_at: new Date().toISOString(),
+    source: workerBase,
+    source_tier: "C",
+    caveat: "Public third-party tracker snapshot. Revenue nowcasts, IR benchmarks and margin assumptions are not audited financial statements.",
+    ...Object.fromEntries(statsPairs)
+  };
+} catch (error) {
+  console.warn(`Tracker worker stats refresh failed (${error.message}). Falling back to existing stats snapshot.`);
+  const previousStatsPath = path.join(dataDir, "stats.json");
+  if (existsSync(previousStatsPath)) {
+    try {
+      statsPayload = JSON.parse(readFileSync(previousStatsPath, "utf8"));
+    } catch (parseError) {
+      console.warn(`Previous stats snapshot could not be parsed: ${parseError.message}`);
+    }
+  }
+}
+if (statsPayload) {
+  writeFileSync(path.join(dataDir, "stats.json"), `${JSON.stringify(statsPayload, null, 2)}\n`, "utf8");
+  writeFileSync(path.join(dataDir, "stats.js"), `window.TOPTOON_STATS=${JSON.stringify(statsPayload)};\n`, "utf8");
+}
 
 console.log(JSON.stringify({
   captured_at: capturedAt,

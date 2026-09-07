@@ -65,7 +65,7 @@ export default {
       return json({
         ok: true,
         service: "toptoon-signal-cron",
-        schedule: "*/15 * * * *",
+        schedule: "15 * * * *",
         repository: env.GITHUB_REPOSITORY,
         workflow: env.GITHUB_WORKFLOW || "scheduled-refresh.yml",
         ref: env.GITHUB_REF || "main"
