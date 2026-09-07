@@ -3589,7 +3589,7 @@ function renderCharacterMotion(group, selected) {
 
   return `
     <div class="character-motion-shell">
-      <video class="character-motion" autoplay muted loop playsinline preload="metadata"${activePoster ? ` poster="${escapeAttr(activePoster)}"` : ""} aria-label="${escapeAttr(`${model.name} 공식 모션 미리보기`)}">
+      <video class="character-motion" src="${escapeAttr(activeVideoSrc)}" autoplay muted loop playsinline preload="auto"${activePoster ? ` poster="${escapeAttr(activePoster)}"` : ""} aria-label="${escapeAttr(`${model.name} 공식 모션 미리보기`)}">
         <source src="${escapeAttr(activeVideoSrc)}" type="video/mp4" />
       </video>
       <div class="motion-fallback" aria-hidden="true">
@@ -3736,10 +3736,11 @@ function openDialog(characterId, trigger, preferredMarket = null) {
   lastTrigger = trigger;
   renderActiveDialog();
   if (typeof els.dialog.showModal === "function") {
-    els.dialog.showModal();
+    if (!els.dialog.open) els.dialog.showModal();
   } else {
     els.dialog.setAttribute("open", "");
   }
+  triggerDialogMotionPlay(els.dialogContent);
 }
 
 function bindDialogContent(root) {
@@ -3749,6 +3750,50 @@ function bindDialogContent(root) {
     event.stopPropagation();
     resetDialogToLinkedMarket();
   });
+}
+
+function playMotionVideo(v) {
+  if (!v) return;
+  v.defaultMuted = true;
+  v.muted = true;
+  v.playsInline = true;
+  const shell = v.closest(".character-motion-shell");
+
+  const tryPlay = () => {
+    if (!v.isConnected) return;
+    const playPromise = v.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          shell?.classList.add("is-playing");
+          shell?.classList.remove("needs-play");
+          v.controls = false;
+        })
+        .catch(() => {
+          if (v.readyState < 2) {
+            v.addEventListener("canplay", tryPlay, { once: true });
+          } else {
+            v.controls = true;
+            shell?.classList.add("needs-play");
+          }
+        });
+    }
+  };
+
+  requestAnimationFrame(() => {
+    if (v.readyState >= 2) {
+      tryPlay();
+    } else {
+      v.addEventListener("canplay", tryPlay, { once: true });
+      if (typeof v.load === "function") v.load();
+    }
+  });
+}
+
+function triggerDialogMotionPlay(root) {
+  if (!root) return;
+  const videos = root.querySelectorAll(".character-motion");
+  videos.forEach((v) => playMotionVideo(v));
 }
 
 function bindMotionControls(root) {
@@ -3768,7 +3813,7 @@ function bindMotionControls(root) {
         video.src = nextSrc;
         if (nextPoster) video.poster = nextPoster;
         video.load();
-        video.play().catch(() => {});
+        playMotionVideo(video);
         chips.forEach((c) => c.classList.toggle("active", c === chip));
         if (badge) badge.innerHTML = `<i></i> 공식 모션 · ${escapeHtml(marketLabel)}`;
       }
@@ -3777,12 +3822,16 @@ function bindMotionControls(root) {
 
   [...root.querySelectorAll(".character-motion")].forEach((v) => {
     const shell = v.closest(".character-motion-shell");
-    v.addEventListener("playing", () => shell?.classList.add("is-playing"), { once: true });
-    v.addEventListener("error", () => shell?.classList.add("is-fallback"), { once: true });
-    v.play().catch(() => {
-      v.controls = true;
-      shell?.classList.add("needs-play");
+    v.defaultMuted = true;
+    v.muted = true;
+    v.playsInline = true;
+    v.addEventListener("playing", () => {
+      shell?.classList.add("is-playing");
+      shell?.classList.remove("needs-play");
+      v.controls = false;
     });
+    v.addEventListener("error", () => shell?.classList.add("is-fallback"), { once: true });
+    playMotionVideo(v);
   });
 }
 
