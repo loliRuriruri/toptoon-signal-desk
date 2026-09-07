@@ -72,6 +72,8 @@ const state = {
   revenueAssumptions: null,
   revenueAssumptionMessage: "",
   peerNewsFilter: "all",
+  marketRiskStock: "134580",
+  kidariSimulatedPrice: null,
   q: "",
   work: "",
   sort: "views-desc"
@@ -442,6 +444,41 @@ function bindEvents() {
     const simResetBtn = event.target.closest("#sim-reset-btn");
     if (simResetBtn) {
       state.simulatedPrice = null;
+      renderValidationDashboard();
+      return;
+    }
+
+    const riskStockBtn = event.target.closest("[data-risk-stock]");
+    if (riskStockBtn) {
+      const stock = riskStockBtn.dataset.riskStock;
+      if (stock && state.marketRiskStock !== stock) {
+        state.marketRiskStock = stock;
+        renderValidationDashboard();
+      }
+      return;
+    }
+
+    const kidariChip = event.target.closest("[data-set-kidari-price]");
+    if (kidariChip) {
+      state.kidariSimulatedPrice = Number(kidariChip.dataset.setKidariPrice);
+      renderValidationDashboard();
+      return;
+    }
+
+    const kidariApplyBtn = event.target.closest("#sim-kidari-apply-btn");
+    if (kidariApplyBtn) {
+      const input = document.querySelector("#sim-kidari-custom-price-input");
+      const val = Number(input?.value || 0);
+      if (val > 0) {
+        state.kidariSimulatedPrice = val;
+        renderValidationDashboard();
+      }
+      return;
+    }
+
+    const kidariResetBtn = event.target.closest("#sim-kidari-reset-btn");
+    if (kidariResetBtn) {
+      state.kidariSimulatedPrice = null;
       renderValidationDashboard();
       return;
     }
@@ -1679,10 +1716,12 @@ function renderFilingReconciliation(filing, derived) {
 }
 
 function renderMarketRisk(investor, marketView) {
+  const activeStock = state.marketRiskStock || "134580";
   const market = investor.market_snapshot || {};
   const ownership = investor.ownership_snapshot || {};
   const kis = officialSignalsData?.providers?.kis || {};
   const dynamicAlerts = calculateDynamicKrxAlerts(marketView.price, kis.price_history || []);
+  const isKidari = activeStock === "020120";
 
   return `
     <section class="panel stats-panel validation-panel">
@@ -1692,48 +1731,171 @@ function renderMarketRisk(investor, marketView) {
           <h2>주가 기대·수급 위험</h2>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
-          <span class="evidence-badge ${marketView.isSimulated ? "tier-b" : "tier-c"}">${marketView.isSimulated ? "⚡ 실시간 재계산 중" : "시세 C · 공시 A"}</span>
+          <span class="evidence-badge ${(!isKidari && marketView.isSimulated) || (isKidari && state.kidariSimulatedPrice != null) ? "tier-b" : "tier-c"}">
+            ${(!isKidari && marketView.isSimulated) || (isKidari && state.kidariSimulatedPrice != null) ? "⚡ 실시간 재계산 중" : "시세 C · 공시 A"}
+          </span>
         </div>
       </div>
 
-      <div class="krx-sim-toolbar" aria-label="주가 시나리오 및 재계산">
-        <div class="sim-label-stack">
-          <strong>⚡ 주가 시나리오 동적 재계산</strong>
-          <small>시가총액과 9월 3일 투자경고 해제 조건(2,403원 미만) 및 재정지 기준선(4,816원)을 실시간 시뮬레이션합니다.</small>
-        </div>
-        <div class="sim-chip-list">
-          <button type="button" class="sim-chip${!marketView.isSimulated ? " active" : ""}" data-set-price="${marketView.basePrice}">
-            <span>실측 현재가</span> <b>${formatNumber(marketView.basePrice)}원</b>
-          </button>
-          <button type="button" class="sim-chip${marketView.price === dynamicAlerts.release.fifteen_day_limit_raw ? " active" : ""}" data-set-price="${dynamicAlerts.release.fifteen_day_limit_raw}">
-            <span>경고해제 기준선</span> <b>${formatNumber(dynamicAlerts.release.fifteen_day_limit_raw)}원</b>
-          </button>
-          <button type="button" class="sim-chip${marketView.price === dynamicAlerts.halt.next_trigger_price ? " active" : ""}" data-set-price="${dynamicAlerts.halt.next_trigger_price}">
-            <span>재정지 기준선</span> <b>${formatNumber(dynamicAlerts.halt.next_trigger_price)}원</b>
-          </button>
-          <div class="sim-input-wrap">
-            <input type="number" id="sim-custom-price-input" class="sim-price-input" placeholder="임의 주가" value="${marketView.price}" min="100" max="100000" step="50" />
-            <button type="button" class="sim-apply-btn" id="sim-apply-btn">재계산</button>
-          </div>
-          ${marketView.isSimulated ? `<button type="button" class="sim-reset-btn" id="sim-reset-btn" title="실제 관측 시세로 복원">원래 시세로 복원</button>` : ""}
-        </div>
+      <div class="market-risk-stock-tabs" role="tablist" aria-label="리스크 추적 종목 선택">
+        <button type="button" class="risk-stock-tab-btn${activeStock === "134580" ? " is-active" : ""}" data-risk-stock="134580">
+          <strong>탑코미디어 (134580)</strong>
+          <small>Target · 투자경고·거래정지 모니터링</small>
+        </button>
+        <button type="button" class="risk-stock-tab-btn${activeStock === "020120" ? " is-active" : ""}" data-risk-stock="020120">
+          <strong>키다리스튜디오 (020120)</strong>
+          <small>Core · 시총 2,669억 피어 1위 · AI 모멘텀</small>
+        </button>
       </div>
 
-      <div class="stats-grid mini-grid">
-        ${renderStatCards([
-          ["최근 확인 주가", `${formatNumber(marketView.price)}원`, `${marketView.sourceLabel} · ${formatDateTime(marketView.refreshedAt)}`],
-          ["전일 종가 대비", marketView.changePct == null ? "-" : `${marketView.changePct >= 0 ? "+" : ""}${marketView.changePct.toFixed(2)}%`, marketView.change == null ? "정규장 종가 기준" : `전일 ${formatNumber(marketView.previousClose)}원 → 현재 ${formatNumber(marketView.price)}원 · ${marketView.change >= 0 ? "+" : ""}${formatNumber(marketView.change)}원`],
-          ["7/31 이후", `${marketView.fromReferencePct >= 0 ? "+" : ""}${marketView.fromReferencePct.toFixed(1)}%`, `${formatNumber(market.reference_close)}원 기준`],
-          ["최대주주 측", formatPercent(ownership.controller_and_related_pct), `${ownership.as_of || ""} 기준 · 최신성 주의`],
-        ])}
-      </div>
-      ${marketView.open && marketView.high && marketView.low ? `<div class="market-session-strip" aria-label="오늘 장중 가격 범위"><span><small>시가</small><strong>${formatNumber(marketView.open)}원</strong></span><span><small>저가</small><strong>${formatNumber(marketView.low)}원</strong></span><span><small>고가</small><strong>${formatNumber(marketView.high)}원</strong></span><span><small>거래량</small><strong>${formatNumber(marketView.volume)}주</strong></span></div>` : ""}
-      <div class="market-action-list">
-        ${(investor.market_actions || []).map((action) => `<div><span class="status-badge status-warn">시장조치</span><strong>${escapeHtml(action.date)}</strong><p>${escapeHtml(action.label)}</p></div>`).join("")}
-      </div>
-      ${renderMarketAlertGuide(dynamicAlerts)}
-      <p class="section-note">가격 상승은 사업 성과의 증거가 아닙니다. 실적 개선과 기대 선반영·저유통 수급을 분리해 판단해야 합니다.</p>
+      ${isKidari ? renderKidariMarketRisk() : renderTopcoMarketRisk(investor, marketView, dynamicAlerts, market, ownership)}
     </section>
+  `;
+}
+
+function renderKidariMarketRisk() {
+  const kis = officialSignalsData?.providers?.kis || {};
+  const kidariPeer = (kis.peers || []).find((p) => p.ticker === "020120") || {};
+  const basePrice = Number(kidariPeer.price || 7200);
+  const isSimulated = state.kidariSimulatedPrice != null && state.kidariSimulatedPrice !== basePrice;
+  const price = isSimulated ? Number(state.kidariSimulatedPrice) : basePrice;
+  const previousClose = Number(kidariPeer.previous_close || 6180);
+  const change = price - previousClose;
+  const changePct = previousClose ? (change / previousClose) * 100 : 16.5;
+  const shares = Number(kidariPeer.shares_outstanding || 37063766);
+  const marketCap = price * shares;
+  const referenceClose = 5770;
+  const fromReferencePct = referenceClose ? ((price / referenceClose) - 1) * 100 : 24.8;
+  const refreshedAt = kis.observed_at || officialSignalsData?.generated_at;
+
+  const target3000 = Math.round(300000000000 / shares);
+  const target1st = 9000;
+  const targetPsychological = 10000;
+
+  return `
+    <div class="krx-sim-toolbar" aria-label="키다리스튜디오 주가 시나리오 및 재계산">
+      <div class="sim-label-stack">
+        <strong>⚡ 키다리스튜디오 주가 시나리오 동적 재계산</strong>
+        <small>시가총액(현재 약 2,669억원)과 목표 시나리오(시총 3,000억 달성선 8,094원, 9,000원선)를 실시간 시뮬레이션합니다.</small>
+      </div>
+      <div class="sim-chip-list">
+        <button type="button" class="sim-chip${!isSimulated ? " active" : ""}" data-set-kidari-price="${basePrice}">
+          <span>실측 현재가</span> <b>${formatNumber(basePrice)}원</b>
+        </button>
+        <button type="button" class="sim-chip${price === target3000 ? " active" : ""}" data-set-kidari-price="${target3000}">
+          <span>시총 3,000억선</span> <b>${formatNumber(target3000)}원</b>
+        </button>
+        <button type="button" class="sim-chip${price === target1st ? " active" : ""}" data-set-kidari-price="${target1st}">
+          <span>1차 목표선</span> <b>${formatNumber(target1st)}원</b>
+        </button>
+        <button type="button" class="sim-chip${price === targetPsychological ? " active" : ""}" data-set-kidari-price="${targetPsychological}">
+          <span>심리적 저항선</span> <b>${formatNumber(targetPsychological)}원</b>
+        </button>
+        <div class="sim-input-wrap">
+          <input type="number" id="sim-kidari-custom-price-input" class="sim-price-input" placeholder="임의 주가" value="${price}" min="100" max="100000" step="50" />
+          <button type="button" class="sim-apply-btn" id="sim-kidari-apply-btn">재계산</button>
+        </div>
+        ${isSimulated ? `<button type="button" class="sim-reset-btn" id="sim-kidari-reset-btn" title="실제 관측 시세로 복원">원래 시세로 복원</button>` : ""}
+      </div>
+    </div>
+
+    <div class="stats-grid mini-grid">
+      ${renderStatCards([
+        ["최근 확인 주가", `${formatNumber(price)}원`, `KIS 정규 시세 · ${formatDateTime(refreshedAt)}`],
+        ["전일 종가 대비", `${changePct >= 0 ? "+" : ""}${changePct.toFixed(2)}%`, `전일 ${formatNumber(previousClose)}원 → 현재 ${formatNumber(price)}원 · ${change >= 0 ? "+" : ""}${formatNumber(change)}원`],
+        ["시가총액 / 7/31 이후", `${formatWonBig(marketCap)} · ${fromReferencePct >= 0 ? "+" : ""}${fromReferencePct.toFixed(1)}%`, `${formatNumber(referenceClose)}원 기준 · 상장주식 ${formatNumber(shares)}주`],
+        ["최대주주 측", "43.6%", "다우데이타 외 특수관계인 (2026 반기공시)"],
+      ])}
+    </div>
+
+    <div class="market-session-strip" aria-label="오늘 장중 가격 범위">
+      <span><small>시가</small><strong>${formatNumber(kidariPeer.open || 6150)}원</strong></span>
+      <span><small>저가</small><strong>${formatNumber(kidariPeer.low || 6150)}원</strong></span>
+      <span><small>고가 (상한)</small><strong>${formatNumber(kidariPeer.high || 7200)}원</strong></span>
+      <span><small>거래량</small><strong>${formatNumber(kidariPeer.volume || 483626)}주</strong></span>
+      <span><small>PER / PBR</small><strong>${kidariPeer.per ? `${Number(kidariPeer.per).toFixed(1)}x` : "-"} / ${kidariPeer.pbr ? `${Number(kidariPeer.pbr).toFixed(1)}x` : "-"}</strong></span>
+    </div>
+
+    <div class="market-action-list">
+      <div><span class="status-badge status-good">정상 거래</span><strong>2026-08-27</strong><p>매매거래정지 이력 없음 (정상 매매 중) · 바이트댄스 협력 및 레진·봄툰 생성형 AI 모멘텀 급등세</p></div>
+      <div><span class="status-badge status-warn">수급 모니터링</span><strong>2026-09-01</strong><p>단기 +16.5% 급등으로 거래량(48만주) 급증 · KRX 투자주의(단기상승 / 소수계좌 집중) 지정 요건 주시</p></div>
+    </div>
+
+    <section class="market-alert-guide" aria-label="키다리스튜디오 시장경보 및 밸류에이션 점검">
+      <div class="market-alert-heading">
+        <div><span>KRX 시장경보 및 수급 점검</span><h3>키다리스튜디오 수급 상태와 밸류에이션 관전 포인트</h3></div>
+        <span class="alert-state" style="background:rgba(39,196,153,0.15);color:#78ddbf;border:1px solid rgba(39,196,153,0.3)">🟢 정상 거래 유지 · 단기 급등 모니터링</span>
+      </div>
+      <div class="alert-rule-grid">
+        <article class="alert-rule-card is-halt">
+          <span class="alert-rule-step">단기 급등 및 시장조치 기준</span>
+          <strong style="color:#38bdf8">단기 급등세 지속 시 투자주의 요건 체크</strong>
+          <p>키다리스튜디오는 탑코미디어와 달리 거래정지 이력이 없으며 정상 거래 중입니다.<br>최근 3일간 15% 이상 추가 급등 시 <strong>KRX 투자주의종목(단기상승·소수지점 거래집중)</strong> 예고 기준에 도달할 수 있습니다.</p>
+          <div class="alert-meter"><span style="width:65%"></span><i style="left:85%"></i></div>
+          <small>현재가 ${formatNumber(price)}원 · 단기과열/주의 기준선(약 8,500원선) 대비 변동성 관리 구간</small>
+        </article>
+        <article class="alert-rule-card is-release">
+          <span class="alert-rule-step">피어 1위 시가총액 & 밸류에이션</span>
+          <strong>시총 ${formatWonBig(marketCap)} <small style="font-size:11px;color:#f6c87d">(PER 40.2배 · PBR 1.31배)</small></strong>
+          <p>웹툰 플랫폼 피어 5개사 중 시가총액이 가장 크며, 높은 성장 프리미엄을 이미 반영 중입니다.</p>
+          <ul>
+            <li><strong>IP 플랫폼 규모:</strong> 봄툰(여성향)·레진코믹스(글로벌) 보유로 독자 인프라 우위 <span class="condition-tag pass">우위</span></li>
+            <li><strong>AI 챗봇 수익화:</strong> 바이트댄스 협력 및 캐릭터 대화형 팬덤 서비스 실질 결제 전환 검증 필요 <span class="condition-tag fail">R&D 단계</span></li>
+            <li><strong>탑코미디어 대비:</strong> 탑코는 턴당 과금 즉시 상용화, 키다리는 플랫폼 트래픽 기반 프리미엄 <span class="condition-tag pass">비교점</span></li>
+          </ul>
+        </article>
+      </div>
+      <div class="alert-source-row">
+        <p><strong>💡 현상태 핵심 요약:</strong> 키다리스튜디오는 <strong>시가총액 2,669억원으로 피어 1위 대장주</strong> 포지션입니다. 투자경고 상태인 탑코미디어와 달리 <strong>정상 매매 중</strong>이며, AI 모멘텀으로 단기 급등한 만큼 향후 <strong>실제 레진·봄툰 챗봇 과금 BM 전환 및 분기 흑자 폭 확대</strong>가 주가 추가 리레이팅의 핵심 잣대입니다.</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a href="https://finance.naver.com/item/main.naver?code=020120" target="_blank" rel="noopener noreferrer" class="evidence-badge tier-b">네이버 증권 020120 ↗</a>
+          <a href="https://dart.fss.or.kr/dsac001/main.do?selectDate=&sort=&series=&mstate=&rcpno=&market=&crpno=&crpnm=%ED%82%A4%EB%8B%A4%EB%A6%AC%EC%8A%A4%ED%8A%9C%EB%94%94%EC%98%A4" target="_blank" rel="noopener noreferrer" class="evidence-badge tier-a">DART 공시 ↗</a>
+        </div>
+      </div>
+    </section>
+    <p class="section-note">키다리스튜디오는 동종업계 최대 규모 비교군입니다. 탑코미디어의 AI챗 실적 가시화 속도와 비교하여 상대가치(Peer Multiple)를 점검하는 데 활용합니다.</p>
+  `;
+}
+
+function renderTopcoMarketRisk(investor, marketView, dynamicAlerts, market, ownership) {
+  return `
+    <div class="krx-sim-toolbar" aria-label="주가 시나리오 및 재계산">
+      <div class="sim-label-stack">
+        <strong>⚡ 주가 시나리오 동적 재계산</strong>
+        <small>시가총액과 9월 3일 투자경고 해제 조건(2,403원 미만) 및 재정지 기준선(4,816원)을 실시간 시뮬레이션합니다.</small>
+      </div>
+      <div class="sim-chip-list">
+        <button type="button" class="sim-chip${!marketView.isSimulated ? " active" : ""}" data-set-price="${marketView.basePrice}">
+          <span>실측 현재가</span> <b>${formatNumber(marketView.basePrice)}원</b>
+        </button>
+        <button type="button" class="sim-chip${marketView.price === dynamicAlerts.release.fifteen_day_limit_raw ? " active" : ""}" data-set-price="${dynamicAlerts.release.fifteen_day_limit_raw}">
+          <span>경고해제 기준선</span> <b>${formatNumber(dynamicAlerts.release.fifteen_day_limit_raw)}원</b>
+        </button>
+        <button type="button" class="sim-chip${marketView.price === dynamicAlerts.halt.next_trigger_price ? " active" : ""}" data-set-price="${dynamicAlerts.halt.next_trigger_price}">
+          <span>재정지 기준선</span> <b>${formatNumber(dynamicAlerts.halt.next_trigger_price)}원</b>
+        </button>
+        <div class="sim-input-wrap">
+          <input type="number" id="sim-custom-price-input" class="sim-price-input" placeholder="임의 주가" value="${marketView.price}" min="100" max="100000" step="50" />
+          <button type="button" class="sim-apply-btn" id="sim-apply-btn">재계산</button>
+        </div>
+        ${marketView.isSimulated ? `<button type="button" class="sim-reset-btn" id="sim-reset-btn" title="실제 관측 시세로 복원">원래 시세로 복원</button>` : ""}
+      </div>
+    </div>
+
+    <div class="stats-grid mini-grid">
+      ${renderStatCards([
+        ["최근 확인 주가", `${formatNumber(marketView.price)}원`, `${marketView.sourceLabel} · ${formatDateTime(marketView.refreshedAt)}`],
+        ["전일 종가 대비", marketView.changePct == null ? "-" : `${marketView.changePct >= 0 ? "+" : ""}${marketView.changePct.toFixed(2)}%`, marketView.change == null ? "정규장 종가 기준" : `전일 ${formatNumber(marketView.previousClose)}원 → 현재 ${formatNumber(marketView.price)}원 · ${marketView.change >= 0 ? "+" : ""}${formatNumber(marketView.change)}원`],
+        ["7/31 이후", `${marketView.fromReferencePct >= 0 ? "+" : ""}${marketView.fromReferencePct.toFixed(1)}%`, `${formatNumber(market.reference_close)}원 기준`],
+        ["최대주주 측", formatPercent(ownership.controller_and_related_pct), `${ownership.as_of || ""} 기준 · 최신성 주의`],
+      ])}
+    </div>
+    ${marketView.open && marketView.high && marketView.low ? `<div class="market-session-strip" aria-label="오늘 장중 가격 범위"><span><small>시가</small><strong>${formatNumber(marketView.open)}원</strong></span><span><small>저가</small><strong>${formatNumber(marketView.low)}원</strong></span><span><small>고가</small><strong>${formatNumber(marketView.high)}원</strong></span><span><small>거래량</small><strong>${formatNumber(marketView.volume)}주</strong></span></div>` : ""}
+    <div class="market-action-list">
+      ${(investor.market_actions || []).map((action) => `<div><span class="status-badge status-warn">시장조치</span><strong>${escapeHtml(action.date)}</strong><p>${escapeHtml(action.label)}</p></div>`).join("")}
+    </div>
+    ${renderMarketAlertGuide(dynamicAlerts)}
+    <p class="section-note">가격 상승은 사업 성과의 증거가 아닙니다. 실적 개선과 기대 선반영·저유통 수급을 분리해 판단해야 합니다.</p>
   `;
 }
 

@@ -5486,6 +5486,61 @@ tbody tr:last-child td {
 }
 
 /* ==========================================================================
+   Market Risk Stock Tabs (Topco Media vs KidariStudio)
+   ========================================================================== */
+
+.market-risk-stock-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 14px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.risk-stock-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--sub);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.risk-stock-tab-btn strong {
+  font-size: 11.5px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.risk-stock-tab-btn small {
+  font-size: 9.5px;
+  color: var(--muted);
+}
+
+.risk-stock-tab-btn:hover {
+  border-color: rgba(57, 135, 229, 0.4);
+  background: rgba(57, 135, 229, 0.08);
+}
+
+.risk-stock-tab-btn.is-active {
+  border-color: rgba(57, 135, 229, 0.9);
+  background: var(--accent);
+  color: #fff;
+}
+
+.risk-stock-tab-btn.is-active strong,
+.risk-stock-tab-btn.is-active small {
+  color: #fff;
+}
+
+/* ==========================================================================
    KRX Real-time Dynamic Simulator Toolbar
    ========================================================================== */
 
