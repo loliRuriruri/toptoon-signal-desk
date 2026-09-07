@@ -2051,7 +2051,13 @@ function renderGlobalPanel() {
 
 function renderCompletionPanel() {
   const ceiling = statsData.completion_ceiling || {};
-  const totals = ceiling.totals || {};
+  const nyangWon = Number(ceiling.nyang_won || 0.495);
+  const floorTurns = Number(ceiling.turns?.floor || 81985);
+  const ceilTurns = Number(ceiling.turns?.ceiling || 370270);
+  const bear = Math.round(floorTurns * 80 * nyangWon);
+  const bull = Math.round(ceilTurns * 80 * nyangWon);
+  const base = Math.round((bear + bull) / 2);
+  const totals = (ceiling.totals && ceiling.totals.base) ? ceiling.totals : { bear, base, bull };
   return `
     <section class="panel stats-panel signal-section compact-section">
       <div class="panel-heading compact-heading">
