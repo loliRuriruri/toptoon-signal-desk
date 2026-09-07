@@ -973,7 +973,7 @@ function renderStatsDashboard() {
             ["🌐 통합 누적 활동 환산액", `약 ${formatWonBig(cumulativeGrossMid)}`, `🇰🇷 한국 ${formatWonBig(krCumulativeMid)} + 🌏 해외 ${formatWonBig(overseasCumulativeMid)}`, "signal"],
             ["🌐 관측 누적액 단순 월환산", `월 약 ${formatWonBig(cumulativeMonthlyAvg)}`, `현재 누적 카운터 ÷ ${elapsedMonthLabel} · 3/13 시작 스냅샷 없음`, "neutral"],
             ["🌏 해외 누적 대화 비중", overseasCumulativeSharePct == null ? "-" : `${overseasCumulativeSharePct.toFixed(1)}%`, `4개국 누적 대화 중 해외 ${formatNumber(overseasCumulativeChats)}회`, "positive"],
-            ["서비스 운영 기간", `${serviceDay}일차 (${elapsedMonthLabel} 환산)`, `${elapsedDays}일 경과 · 2026.03.13 공개 오픈`, "neutral"]
+            ["서비스 운영 기간", `${serviceDay}일차 <small class="stat-sub">(${elapsedMonthLabel} 환산)</small>`, `${elapsedDays}일 경과 · 2026.03.13 공개 오픈`, "neutral"]
           ])}
         </div>
       </div>
@@ -990,7 +990,7 @@ function renderStatsDashboard() {
             ["🌐 통합 최근 월환산 활동액", recentAllMarketMid ? `월 약 ${formatWonBig(recentAllMarketMid)}` : "-", recentAllMarketMid ? `${formatWonBig(recentAllMarketLow)}–${formatWonBig(recentAllMarketHigh)} · ${allObservation}` : "시장별 델타 수집 대기", "signal"],
             ["🇰🇷 한국 최근 월환산 활동액", krRecentMid ? `월 약 ${formatWonBig(krRecentMid)}` : "-", krShareOfRecentPct == null ? "한국 델타 수집 대기" : `통합 최근 속도의 ${krShareOfRecentPct.toFixed(1)}% · ${krObservation}`, "positive"],
             ["🌏 해외 합산 월환산 활동액", overseasRecentMid ? `월 약 ${formatWonBig(overseasRecentMid)}` : "-", krShareOfRecentPct == null ? "해외 델타 수집 대기" : `통합 최근 속도의 ${(100 - krShareOfRecentPct).toFixed(1)}% · 공통 단가 적용`, "neutral"],
-            ["🇰🇷 한국 9억 가정 대비", benchmarkRatioPct == null ? "-" : `${benchmarkRatioPct.toFixed(1)}%`, "한국만 비교 · 9억원 원문 출처·범위 미확인", "warning"]
+            ["🇰🇷 한국 9억 가정 대비", benchmarkRatioPct == null ? "-" : `${benchmarkRatioPct.toFixed(1)}%`, `월 9억 목표 대비 현재 한국 속도 (${krRecentMid ? formatWonBig(krRecentMid) : "-"})`, "warning"]
           ])}
         </div>
         <div class="kpi-scope-footnote">
@@ -3633,7 +3633,7 @@ function renderStatCards(cards) {
       ([label, value, help, tone = "neutral", popover = null]) => `
         <article class="stat-card tone-${escapeAttr(tone)}${popover ? " has-popover" : ""}">
           <span class="stat-label">${escapeHtml(label)}</span>
-          <strong class="stat-value">${escapeHtml(value ?? "-")}</strong>
+          <strong class="stat-value">${String(value ?? "-").includes("<") ? String(value ?? "-") : escapeHtml(value ?? "-")}</strong>
           <p class="stat-help">${escapeHtml(help ?? "")}</p>
           ${popover ? `<div class="stat-card-popover">${popover}</div>` : ""}
         </article>

@@ -1844,11 +1844,24 @@ h3 {
 .stat-value {
   display: block;
   margin-top: 7px;
-  font-size: clamp(22px, 2.5vw, 29px);
+  font-size: clamp(21px, 2.3vw, 28px);
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.035em;
   line-height: 1.05;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+.stat-value small,
+.stat-value .stat-sub {
+  font-size: 0.58em;
+  font-weight: 700;
+  color: var(--sub);
+  letter-spacing: normal;
+  margin-left: 4px;
+  vertical-align: baseline;
+  white-space: nowrap;
 }
 
 .stat-help {
@@ -5401,16 +5414,19 @@ tbody tr:last-child td {
 
 .kpi-scope-footnote {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.9fr) minmax(0, 0.9fr);
-  gap: 8px;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 6px 14px;
   border-top: 1px solid rgba(39, 196, 153, 0.18);
   padding-top: 10px;
 }
 
 .kpi-scope-footnote > span {
   color: var(--muted);
-  font-size: 9px;
+  font-size: 9.5px;
   line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .kpi-scope-footnote strong {
