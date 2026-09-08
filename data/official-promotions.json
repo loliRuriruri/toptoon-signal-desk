@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-08T03:01:28.532Z",
+  "generated_at": "2026-09-08T03:16:18.416Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,11 +7,11 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-08T03:01:28.532Z",
+      "observed_at": "2026-09-08T03:16:18.416Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
-      "change": "changed",
+      "change": "continuing",
       "signature": "89:오늘특가 단 하루 한정! 유달리, 최대 60%",
       "homepage_error": null,
       "items": [
@@ -29,12 +29,12 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-08T03:01:28.532Z",
+      "observed_at": "2026-09-08T03:16:18.416Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
-      "status": "partial",
+      "status": "verified",
       "change": "changed",
-      "signature": "173:price_promotion",
+      "signature": "173:本日特価は今日だけ！ 西村雅、最大 60%",
       "homepage_error": null,
       "items": [
         {
@@ -42,16 +42,16 @@
           "character_name": "西村雅",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.jp/detail/character/173",
-          "headline": null,
-          "verification": "api-badge-only",
-          "source_url": "https://chat.toptoon.jp/api/characters"
+          "headline": "本日特価は今日だけ！ 西村雅、最大 60%",
+          "verification": "api-and-homepage",
+          "source_url": "https://chat.toptoon.jp/"
         }
       ]
     },
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-08T03:01:28.532Z",
+      "observed_at": "2026-09-08T03:16:18.416Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,7 +63,7 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-08T03:01:28.532Z",
+      "observed_at": "2026-09-08T03:16:18.416Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "verified",
@@ -84,31 +84,6 @@
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-05T08:46:11.571Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "130:오늘특가 단 하루 한정! 레이, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "170:本日特価は今日だけ！ 曾川麗奈、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "268:今日特惠僅限一天！ 趙書允，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-05T09:01:06.940Z",
       "markets": {
@@ -4871,6 +4846,31 @@
           "status": "partial",
           "change": "changed",
           "signature": "173:price_promotion"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "77:今日特惠僅限一天！ 徐敏娜，最高 60%"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-08T03:16:18.416Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "89:오늘특가 단 하루 한정! 유달리, 최대 60%"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "173:本日特価は今日だけ！ 西村雅、最大 60%"
         },
         "global": {
           "status": "none",
