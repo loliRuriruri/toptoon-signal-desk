@@ -555,14 +555,25 @@ function bindEvents() {
     const segBtn = e.target.closest("[data-trend-segment]");
     if (segBtn) {
       state.trendSegment = segBtn.dataset.trendSegment;
-      renderStats();
+      const currentMarket = MARKET_META[state.statsMarket] ? state.statsMarket : "all";
+      if (els.sectionTrends) {
+        els.sectionTrends.innerHTML = renderTrendSegmentSection(currentMarket);
+      }
       return;
     }
     const modeBtn = e.target.closest("[data-country-mode]");
     if (modeBtn) {
       state.countryTrendMode = modeBtn.dataset.countryMode;
-      renderStats();
+      const currentMarket = MARKET_META[state.statsMarket] ? state.statsMarket : "all";
+      if (els.sectionMarkets) {
+        els.sectionMarkets.innerHTML = renderMarketsAndMultiSection(currentMarket);
+      }
       return;
+    }
+    const subnavLink = e.target.closest(".subnav-link");
+    if (subnavLink) {
+      document.querySelectorAll(".subnav-link").forEach((link) => link.classList.remove("is-active"));
+      subnavLink.classList.add("is-active");
     }
   });
 
@@ -965,6 +976,10 @@ async function runAiAnalysis() {
     const reviewTime = validationData?.generated_at || officialSignalsData?.generated_at || new Date().toISOString();
     els.aiAnalysisStatus.textContent = `${formatDateTime(reviewTime)} 로컬 최신 검증 스냅샷 · openai/gpt-4.1-mini · LLM 해석은 원자료가 아닌 보조 검토입니다.`;
   }
+}
+
+function renderStats() {
+  renderStatsDashboard();
 }
 
 function renderStatsDashboard() {
