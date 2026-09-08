@@ -7127,6 +7127,83 @@ tbody tr:last-child td {
   color: #64748b;
 }
 
+
+.country-trend-chart-card {
+  margin-top: 14px;
+}
+
+.country-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  height: 230px;
+  padding: 16px 10px 8px;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow-x: auto;
+}
+
+.country-bar-col {
+  flex: 1;
+  min-width: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.country-stacked-track {
+  width: 100%;
+  max-width: 40px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  flex-direction: column-reverse;
+  overflow: hidden;
+  transition: height 300ms ease;
+}
+
+.country-stacked-seg {
+  width: 100%;
+  transition: height 300ms ease;
+}
+
+.country-stacked-seg.seg-kr { background: #38bdf8; }
+.country-stacked-seg.seg-jp { background: #f43f5e; }
+.country-stacked-seg.seg-tw { background: #10b981; }
+.country-stacked-seg.seg-global { background: #a855f7; }
+
+.country-legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.country-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.country-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.daily-styled-bar-chart,
+.monthly-styled-bar-chart {
+  min-height: 220px;
+}
+
 .multi-impact-box {
   padding: 16px;
   background: rgba(15, 23, 42, 0.5);

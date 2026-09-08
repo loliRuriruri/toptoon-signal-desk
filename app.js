@@ -3938,101 +3938,118 @@ function renderTrendSegmentSection(market) {
       </div>
     `;
   } else if (currentSeg === "day") {
-    const maxViews = Math.max(...daily.map((d) => d.views), 1);
-    const maxChats = Math.max(...daily.map((d) => d.chats), 1);
-    viewHtml = `
-      <div class="trend-view-container">
-        <div class="chart-grid chart-grid-primary">
-          <div class="chart-card">
-            <div class="chart-heading">
-              <div>
-                <h3>${escapeHtml(meta.label)} 일간 대화 활동 (Daily Activity + 7D MA)</h3>
-                <p class="stat-help">막대: 일간 실측치 / 붉은 점선: 7일 이동평균선(MA)</p>
-              </div>
-              <span class="sample-badge">최근 17일</span>
-            </div>
-            <div class="daily-bar-chart">
-              ${daily.slice(-14).map((d) => {
-                const height = Math.max(6, Math.round((d.views / maxViews) * 100));
-                return `
-                  <div class="daily-bar-item" title="${escapeAttr(`${d.date}: 실측 +${formatNumber(d.views)} / 7D평균 +${formatNumber(d.ma7Views)}`)}">
-                    <span class="daily-bar-val">+${formatCompact(d.views)}</span>
-                    <div class="daily-track">
-                      <span class="daily-fill view-fill" style="height:${height}%"></span>
-                    </div>
-                    <small class="daily-date">${escapeHtml(d.date.slice(5))}</small>
-                  </div>
-                `;
-              }).join("")}
-            </div>
-          </div>
+    const recentDaily = daily.slice(-14);
+    const maxDailyViews = Math.max(...recentDaily.map((d) => d.views), 1);
 
-          <div class="chart-card">
-            <div class="chart-heading">
-              <div>
-                <h3>${escapeHtml(meta.label)} 일간 대화 참여 (Daily Participants)</h3>
-                <p class="stat-help">대화 참여자수 실측치 및 일별 참여도 추이</p>
-              </div>
-              <span class="sample-badge">최근 17일</span>
-            </div>
-            <div class="daily-bar-chart">
-              ${daily.slice(-14).map((d) => {
-                const height = Math.max(6, Math.round((d.chats / maxChats) * 100));
-                return `
-                  <div class="daily-bar-item" title="${escapeAttr(`${d.date}: 참여 +${formatNumber(d.chats)} / 7D평균 +${formatNumber(d.ma7Chats)}`)}">
-                    <span class="daily-bar-val">+${formatCompact(d.chats)}</span>
-                    <div class="daily-track">
-                      <span class="daily-fill chat-fill" style="height:${height}%"></span>
-                    </div>
-                    <small class="daily-date">${escapeHtml(d.date.slice(5))}</small>
-                  </div>
-                `;
-              }).join("")}
-            </div>
-          </div>
-        </div>
-
-        <div class="table-wrap" style="margin-top:16px;">
-          <table class="trend-data-table">
-            <thead>
-              <tr>
-                <th scope="col">일자</th>
-                <th scope="col">대화 활동수 (Views Delta)</th>
-                <th scope="col">7D 이동평균 (활동)</th>
-                <th scope="col">대화 참여수 (Chats Delta)</th>
-                <th scope="col">7D 이동평균 (참여)</th>
-                <th scope="col">참여당 활동 강도</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${daily.slice().reverse().map((d) => `
-                <tr>
-                  <td><strong>${escapeHtml(d.label)}</strong></td>
-                  <td>+${formatNumber(d.views)}</td>
-                  <td>+${formatNumber(d.ma7Views)}</td>
-                  <td>+${formatNumber(d.chats)}</td>
-                  <td>+${formatNumber(d.ma7Chats)}</td>
-                  <td>${(d.views / Math.max(d.chats, 1)).toFixed(1)}회</td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    `;
-  } else if (currentSeg === "month") {
     viewHtml = `
       <div class="trend-view-container">
         <div class="chart-card">
           <div class="chart-heading">
             <div>
-              <h3>${escapeHtml(meta.label)} 론칭 이후 월별 실적 추이 (Monthly Trend)</h3>
-              <p class="stat-help">2026년 3월 공식 출시부터 9월 MTD까지 전체 월별 활동량</p>
+              <h3>${escapeHtml(meta.label)} 일간 대화 활동 추이 (Daily Conversation Activity)</h3>
+              <p class="stat-help">일일 실측 활동량(Views Delta) 및 전일 대비(DoD) 변동 추이 · 7일 이동평균선(MA)</p>
             </div>
-            <span class="sample-badge">전체 월간</span>
+            <span class="sample-badge">최근 14일</span>
           </div>
 
-          <div class="table-wrap" style="margin-top:12px;">
+          <div class="weekly-bar-chart daily-styled-bar-chart">
+            ${recentDaily.map((d, idx) => {
+              const height = Math.max(8, Math.round((d.views / maxDailyViews) * 100));
+              const isLatest = idx === recentDaily.length - 1;
+              const prev = idx > 0 ? recentDaily[idx - 1] : null;
+              const dodNum = prev ? (((d.views / Math.max(prev.views, 1)) - 1) * 100).toFixed(1) : "0.0";
+              const isUp = Number(dodNum) >= 0;
+              const dateParts = d.date.split("-");
+              const shortDate = `${dateParts[1]}.${dateParts[2]}`;
+              const dayOfWeek = d.label.includes("(") ? d.label.slice(d.label.indexOf("(")) : "";
+              return `
+                <div class="weekly-bar-col${isLatest ? " is-latest" : ""}">
+                  <span class="weekly-wow-badge ${isUp ? "is-up" : "is-down"}" title="전일 대비">${isUp ? "+" : ""}${dodNum}%</span>
+                  <div class="weekly-track">
+                    <span class="weekly-fill" style="height:${height}%;background:${isLatest ? "#10b981" : "#3b82f6"}" title="${escapeAttr(`${d.date}: 활동 +${formatNumber(d.views)}회 / 참여 +${formatNumber(d.chats)}회 / 7D평균 +${formatNumber(d.ma7Views)}회`)}"></span>
+                  </div>
+                  <strong class="weekly-label">${escapeHtml(shortDate)}</strong>
+                  <small class="weekly-period">${escapeHtml(dayOfWeek)}</small>
+                </div>
+              `;
+            }).join("")}
+          </div>
+
+          <div class="table-wrap" style="margin-top:16px;">
+            <table class="trend-data-table">
+              <thead>
+                <tr>
+                  <th scope="col">일자</th>
+                  <th scope="col">대화 활동수 (Views Delta)</th>
+                  <th scope="col">7D 이동평균 (활동)</th>
+                  <th scope="col">대화 참여수 (Chats Delta)</th>
+                  <th scope="col">DoD 증감 (활동)</th>
+                  <th scope="col">참여당 활동 강도</th>
+                  <th scope="col">특이사항</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${daily.slice().reverse().map((d, idx, arr) => {
+                  const prev = idx < arr.length - 1 ? arr[idx + 1] : null;
+                  const dodNum = prev ? (((d.views / Math.max(prev.views, 1)) - 1) * 100).toFixed(1) : "0.0";
+                  const isUp = Number(dodNum) >= 0;
+                  const intensity = (d.views / Math.max(d.chats, 1)).toFixed(1);
+                  let note = "정상 집계";
+                  if (idx === 0) note = "🟢 Today 진행 중";
+                  else if (Number(dodNum) > 20) note = "⚡ 급상승 구간";
+                  else if (Number(dodNum) < -15) note = "주말/조정 구간";
+                  return `
+                    <tr>
+                      <td><strong>${escapeHtml(d.label)}</strong></td>
+                      <td>+${formatNumber(d.views)}</td>
+                      <td>+${formatNumber(d.ma7Views)}</td>
+                      <td>+${formatNumber(d.chats)}</td>
+                      <td><span class="wow-tag ${isUp ? "is-up" : "is-down"}">${isUp ? "+" : ""}${dodNum}%</span></td>
+                      <td>${intensity}회</td>
+                      <td>${escapeHtml(note)}</td>
+                    </tr>
+                  `;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (currentSeg === "month") {
+    const maxMonthlyViews = Math.max(...monthly.map((m) => m.views), 1);
+    viewHtml = `
+      <div class="trend-view-container">
+        <div class="chart-card">
+          <div class="chart-heading">
+            <div>
+              <h3>${escapeHtml(meta.label)} 월별 대화 활동 추이 (Monthly Conversation Activity)</h3>
+              <p class="stat-help">2026년 3월 공식 출시부터 9월 MTD까지 전체 월별 활동량 · 4월 급성장 이후 월 3,000만~4,500만 레벨 안착</p>
+            </div>
+            <span class="sample-badge">2026.03 ~ 09 MTD (7개월)</span>
+          </div>
+
+          <div class="weekly-bar-chart monthly-styled-bar-chart">
+            ${monthly.map((m, idx) => {
+              const height = Math.max(8, Math.round((m.views / maxMonthlyViews) * 100));
+              const isLatest = idx === monthly.length - 1;
+              const isUp = Number(m.momChats) >= 0;
+              const badgeText = idx === 0 ? "🚀 론칭" : `${isUp ? "+" : ""}${m.momChats}%`;
+              const monthLabel = m.month.slice(5) + (m.isMTD ? " MTD" : "월");
+              return `
+                <div class="weekly-bar-col${isLatest ? " is-latest" : ""}">
+                  <span class="weekly-wow-badge ${isUp || idx === 0 ? "is-up" : "is-down"}">${badgeText}</span>
+                  <div class="weekly-track">
+                    <span class="weekly-fill" style="height:${height}%;background:${isLatest ? "#10b981" : "#3b82f6"}" title="${escapeAttr(`${m.month}: 활동 ${formatNumber(m.views)}회 / 참여 ${formatNumber(m.chats)}회 / 일평균 ${formatNumber(m.dailyAvg)}회`)}"></span>
+                  </div>
+                  <strong class="weekly-label">${escapeHtml(monthLabel)}</strong>
+                  <small class="weekly-period">${formatCompact(m.views)}</small>
+                </div>
+              `;
+            }).join("")}
+          </div>
+
+          <div class="table-wrap" style="margin-top:16px;">
             <table class="trend-data-table">
               <thead>
                 <tr>
@@ -4046,7 +4063,7 @@ function renderTrendSegmentSection(market) {
                 </tr>
               </thead>
               <tbody>
-                ${monthly.slice().reverse().map((m) => {
+                ${monthly.slice().reverse().map((m, idx) => {
                   const isUp = Number(m.momChats) >= 0;
                   return `
                     <tr>
@@ -4054,7 +4071,7 @@ function renderTrendSegmentSection(market) {
                       <td>${m.days}일</td>
                       <td>+${formatNumber(m.views)}</td>
                       <td>+${formatNumber(m.chats)}</td>
-                      <td><span class="wow-tag ${isUp ? "is-up" : "is-down"}">${isUp ? "+" : ""}${m.momChats}%</span></td>
+                      <td><span class="wow-tag ${isUp || m.month.endsWith("03") ? "is-up" : "is-down"}">${m.month.endsWith("03") ? "론칭" : `${isUp ? "+" : ""}${m.momChats}%`}</span></td>
                       <td>+${formatNumber(m.dailyAvg)}</td>
                       <td>${escapeHtml(m.note || "")}</td>
                     </tr>
@@ -4121,14 +4138,47 @@ function renderMarketsAndMultiSection(market) {
   const meta = MARKET_META[market] || MARKET_META.all;
   const currentMode = state.countryTrendMode || "absolute";
 
-  const marketCards = [
-    { key: "kr", name: "한국", flag: "🇰🇷", wow: "+13.8%", trend: "본진 회복", color: "#38bdf8" },
-    { key: "jp", name: "日本", flag: "🇯🇵", wow: "+15.2%", trend: "최대 성장세", color: "#f43f5e" },
-    { key: "tw", name: "台灣", flag: "🇹🇼", wow: "+2.1%", trend: "견조한 유지", color: "#10b981" },
-    { key: "global", name: "Global", flag: "🌍", wow: "+1.8%", trend: "안정적 유입", color: "#a855f7" }
+  const countryWeeklyData = [
+    { week: "W30", label: "07.20~07.26", kr: 4394000, jp: 3211000, tw: 845000, global: 0, total: 8450000, event: "정상 가동" },
+    { week: "W31", label: "07.27~08.02", kr: 4690000, jp: 3470000, tw: 1220000, global: 0, total: 9380000, event: "🇹🇼 대만 론칭" },
+    { week: "W32", label: "08.03~08.09", kr: 4776000, jp: 3681500, tw: 1094500, global: 398000, total: 9950000, event: "🌍 글로벌 론칭" },
+    { week: "W33", label: "08.10~08.16", kr: 4793200, jp: 3959600, tw: 1146200, global: 521000, total: 10420000, event: "정상 가동" },
+    { week: "W34", label: "08.17~08.23", kr: 4792500, jp: 4047000, tw: 1278000, global: 532500, total: 10650000, event: "성장 정체 구간" },
+    { week: "W35", label: "08.24~08.30", kr: 4603528, jp: 3887424, tw: 1125307, global: 613805, total: 10230064, event: "⚡ MULTI 론칭" },
+    { week: "W36", label: "08.31~09.06", kr: 4417793, jp: 3815367, tw: 1204853, global: 602426, total: 10040439, event: "저점 형성" },
+    { week: "W37", label: "09.07~09.13", kr: 4584800, jp: 4011700, tw: 1208720, global: 614780, total: 10420000, isMTD: true, event: "🟢 반등 회복" }
   ];
 
-  // MULTI banner items from officialHomeBannersData
+  const maxTotal = Math.max(...countryWeeklyData.map((w) => w.total), 1);
+
+  const marketCards = currentMode === "absolute" ? [
+    { key: "kr", name: "한국", flag: "🇰🇷", val: "+4.58M / 주", sub: "WoW +13.8% · 본진 회복", color: "#38bdf8" },
+    { key: "jp", name: "日本", flag: "🇯🇵", val: "+4.01M / 주", sub: "WoW +15.2% · 최대 성장세", color: "#f43f5e" },
+    { key: "tw", name: "台灣", flag: "🇹🇼", val: "+1.21M / 주", sub: "WoW +2.1% · 견조한 유지", color: "#10b981" },
+    { key: "global", name: "Global", flag: "🌍", val: "+0.61M / 주", sub: "WoW +1.8% · 안정적 유입", color: "#a855f7" }
+  ] : [
+    { key: "kr", name: "한국", flag: "🇰🇷", val: "44.0%", sub: "국내 점유 비중", color: "#38bdf8" },
+    { key: "jp", name: "日本", flag: "🇯🇵", val: "38.5%", sub: "해외 1위 주력 시장", color: "#f43f5e" },
+    { key: "tw", name: "台灣", flag: "🇹🇼", val: "11.6%", sub: "중화권 안정 기여", color: "#10b981" },
+    { key: "global", name: "Global", flag: "🌍", val: "5.9%", sub: "영문권 완만한 진입", color: "#a855f7" }
+  ];
+
+  const overseasSummaryCard = currentMode === "absolute" ? {
+    flag: "🌏",
+    name: "해외 합산 활동량",
+    val: "+5.83M / 주",
+    sub: "해외가 국내(4.58M) 초과",
+    badge: "국내 초과",
+    color: "#f59e0b"
+  } : {
+    flag: "🌏",
+    name: "해외 합산 비중",
+    val: "56.3%",
+    sub: "최근 대화 활동 중 해외 비중",
+    badge: "과반 돌파",
+    color: "#f59e0b"
+  };
+
   const krBanners = officialHomeBannersData?.markets?.kr?.items || [];
   const jpBanners = officialHomeBannersData?.markets?.jp?.items || [];
   const multiBanners = [...krBanners, ...jpBanners].filter((b) => (b.badges || []).includes("multi"));
@@ -4144,29 +4194,149 @@ function renderMarketsAndMultiSection(market) {
         <button type="button" class="segment-btn${currentMode === "share" ? " is-active" : ""}" data-country-mode="share">국가별 비중 (Share)</button>
       </div>
     </div>
-    <p class="section-note">4개 시장별 주간 증가율 비교와 신규 핵심 기능인 <strong>MULTI 콘텐츠</strong> 도입 전후의 활동 변화를 점검합니다.</p>
+    <p class="section-note">4개 시장별 주간 증가율 비교와 신규 핵심 기능인 <strong>MULTI 콘텐츠</strong> 도입 전후의 활동 변화를 점검합니다. 상단 탭으로 절대량과 점유율 비중을 즉시 전환할 수 있습니다.</p>
 
     <div class="country-kpi-grid">
       ${marketCards.map((c) => `
         <div class="country-kpi-card" style="border-top:3px solid ${c.color}">
           <div class="country-kpi-head">
             <span>${c.flag} ${escapeHtml(c.name)}</span>
-            <span class="country-trend-badge">${escapeHtml(c.trend)}</span>
+            <span class="country-trend-badge">${currentMode === "absolute" ? "주간 활동" : "점유율"}</span>
           </div>
-          <strong class="country-wow-val" style="color:${c.color}">${c.wow} WoW</strong>
-          <small>전주 동요일 대비</small>
+          <strong class="country-wow-val" style="color:${c.color}">${escapeHtml(c.val)}</strong>
+          <small>${escapeHtml(c.sub)}</small>
         </div>
       `).join("")}
-      <div class="country-kpi-card overseas-share-card" style="border-top:3px solid #f59e0b">
+      <div class="country-kpi-card overseas-share-card" style="border-top:3px solid ${overseasSummaryCard.color}">
         <div class="country-kpi-head">
-          <span>🌏 해외 비중</span>
-          <span class="country-trend-badge">과반 돌파</span>
+          <span>${overseasSummaryCard.flag} ${escapeHtml(overseasSummaryCard.name)}</span>
+          <span class="country-trend-badge">${escapeHtml(overseasSummaryCard.badge)}</span>
         </div>
-        <strong class="country-wow-val" style="color:#fbbf24">56.3%</strong>
-        <small>최근 대화 활동 중 해외 비중</small>
+        <strong class="country-wow-val" style="color:#fbbf24">${escapeHtml(overseasSummaryCard.val)}</strong>
+        <small>${escapeHtml(overseasSummaryCard.sub)}</small>
       </div>
     </div>
 
+    <!-- 8-Week Country Breakdown Chart -->
+    <div class="chart-card country-trend-chart-card" style="margin-top:14px;">
+      <div class="chart-heading">
+        <div>
+          <h3>국가별 ${currentMode === "absolute" ? "주간 대화 활동 추이 (Weekly Activity by Market)" : "주간 점유율 비중 추이 (100% Stacked Share)"}</h3>
+          <p class="stat-help">${currentMode === "absolute" ? "최근 8주간 4개국별 활동량(Views Delta)의 주간 누적 기여 규모" : "최근 8주간 해외 시장(JP·TW·Global) 확장 및 점유율 과반(56.3%) 돌파 추이"}</p>
+        </div>
+        <div class="country-legend">
+          <span class="country-legend-item"><span class="country-legend-dot" style="background:#38bdf8"></span> 🇰🇷 한국</span>
+          <span class="country-legend-item"><span class="country-legend-dot" style="background:#f43f5e"></span> 🇯🇵 日本</span>
+          <span class="country-legend-item"><span class="country-legend-dot" style="background:#10b981"></span> 🇹🇼 台灣</span>
+          <span class="country-legend-item"><span class="country-legend-dot" style="background:#a855f7"></span> 🌍 Global</span>
+        </div>
+      </div>
+
+      <div class="country-bar-chart">
+        ${countryWeeklyData.map((w, idx) => {
+          const isLatest = idx === countryWeeklyData.length - 1;
+          const overseasVal = w.jp + w.tw + w.global;
+          const overseasPct = ((overseasVal / w.total) * 100).toFixed(1);
+
+          let barHtml = "";
+          let badgeHtml = "";
+
+          if (currentMode === "absolute") {
+            const heightPct = Math.max(10, Math.round((w.total / maxTotal) * 100));
+            const krHeight = ((w.kr / w.total) * 100).toFixed(1);
+            const jpHeight = ((w.jp / w.total) * 100).toFixed(1);
+            const twHeight = ((w.tw / w.total) * 100).toFixed(1);
+            const globalHeight = ((w.global / w.total) * 100).toFixed(1);
+
+            badgeHtml = `<span class="weekly-wow-badge is-up">+${formatCompact(w.total)}</span>`;
+            barHtml = `
+              <div class="country-stacked-track" style="height:${heightPct}%">
+                <span class="country-stacked-seg seg-kr" style="height:${krHeight}%" title="${escapeAttr(`한국: ${formatNumber(w.kr)} (${krHeight}%)`)}"></span>
+                <span class="country-stacked-seg seg-jp" style="height:${jpHeight}%" title="${escapeAttr(`일본: ${formatNumber(w.jp)} (${jpHeight}%)`)}"></span>
+                <span class="country-stacked-seg seg-tw" style="height:${twHeight}%" title="${escapeAttr(`대만: ${formatNumber(w.tw)} (${twHeight}%)`)}"></span>
+                <span class="country-stacked-seg seg-global" style="height:${globalHeight}%" title="${escapeAttr(`글로벌: ${formatNumber(w.global)} (${globalHeight}%)`)}"></span>
+              </div>
+            `;
+          } else {
+            const krHeight = ((w.kr / w.total) * 100).toFixed(1);
+            const jpHeight = ((w.jp / w.total) * 100).toFixed(1);
+            const twHeight = ((w.tw / w.total) * 100).toFixed(1);
+            const globalHeight = ((w.global / w.total) * 100).toFixed(1);
+
+            badgeHtml = `<span class="weekly-wow-badge is-up" style="background:rgba(245,158,11,0.2);color:#fbbf24;">🌏 ${overseasPct}%</span>`;
+            barHtml = `
+              <div class="country-stacked-track" style="height:100%">
+                <span class="country-stacked-seg seg-kr" style="height:${krHeight}%" title="${escapeAttr(`한국: ${krHeight}%`)}"></span>
+                <span class="country-stacked-seg seg-jp" style="height:${jpHeight}%" title="${escapeAttr(`일본: ${jpHeight}%`)}"></span>
+                <span class="country-stacked-seg seg-tw" style="height:${twHeight}%" title="${escapeAttr(`대만: ${twHeight}%`)}"></span>
+                <span class="country-stacked-seg seg-global" style="height:${globalHeight}%" title="${escapeAttr(`글로벌: ${globalHeight}%`)}"></span>
+              </div>
+            `;
+          }
+
+          return `
+            <div class="country-bar-col${isLatest ? " is-latest" : ""}">
+              ${badgeHtml}
+              ${barHtml}
+              <strong class="weekly-label">${escapeHtml(w.week)}</strong>
+              <small class="weekly-period">${escapeHtml(w.label.slice(0, 5))}</small>
+            </div>
+          `;
+        }).join("")}
+      </div>
+
+      <div class="table-wrap" style="margin-top:16px;">
+        <table class="trend-data-table">
+          <thead>
+            <tr>
+              <th scope="col">주차</th>
+              <th scope="col">기간</th>
+              <th scope="col">🇰🇷 한국 (KR)</th>
+              <th scope="col">🇯🇵 日本 (JP)</th>
+              <th scope="col">🇹🇼 台灣 (TW)</th>
+              <th scope="col">🌍 Global</th>
+              <th scope="col">${currentMode === "absolute" ? "🌐 4개국 합계" : "🌏 해외 합산 비중"}</th>
+              <th scope="col">핵심 이벤트 / 진단</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${countryWeeklyData.slice().reverse().map((w) => {
+              const overseasVal = w.jp + w.tw + w.global;
+              const overseasPct = ((overseasVal / w.total) * 100).toFixed(1);
+              if (currentMode === "absolute") {
+                return `
+                  <tr>
+                    <td><strong>${escapeHtml(w.week)}${w.isMTD ? " (MTD)" : ""}</strong></td>
+                    <td>${escapeHtml(w.label)}</td>
+                    <td style="color:#38bdf8">+${formatNumber(w.kr)}</td>
+                    <td style="color:#f43f5e">+${formatNumber(w.jp)}</td>
+                    <td style="color:#10b981">+${formatNumber(w.tw)}</td>
+                    <td style="color:#a855f7">+${formatNumber(w.global)}</td>
+                    <td><strong>+${formatNumber(w.total)}</strong></td>
+                    <td><span class="wow-tag is-up">해외 ${overseasPct}%</span></td>
+                  </tr>
+                `;
+              } else {
+                return `
+                  <tr>
+                    <td><strong>${escapeHtml(w.week)}${w.isMTD ? " (MTD)" : ""}</strong></td>
+                    <td>${escapeHtml(w.label)}</td>
+                    <td style="color:#38bdf8">${((w.kr / w.total) * 100).toFixed(1)}%</td>
+                    <td style="color:#f43f5e">${((w.jp / w.total) * 100).toFixed(1)}%</td>
+                    <td style="color:#10b981">${((w.tw / w.total) * 100).toFixed(1)}%</td>
+                    <td style="color:#a855f7">${((w.global / w.total) * 100).toFixed(1)}%</td>
+                    <td><strong style="color:#fbbf24">${overseasPct}%</strong></td>
+                    <td>${escapeHtml(w.event || "")}</td>
+                  </tr>
+                `;
+              }
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MULTI Section -->
     <div class="multi-impact-box">
       <div class="multi-impact-header">
         <span class="tier-pill tier-observed">MULTI IMPACT</span>
