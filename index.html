@@ -69,14 +69,39 @@
           </div>
         </div>
 
-        <div class="panel stats-intro">
+                <nav class="desk-subnav" aria-label="대시보드 세부 이동">
+          <a href="#section-overview" class="subnav-link is-active">실시간 활동</a>
+          <a href="#section-trends" class="subnav-link">일·주·월 추세</a>
+          <a href="#section-launch" class="subnav-link">성장 곡선</a>
+          <a href="#section-markets" class="subnav-link">국가별·MULTI</a>
+          <a href="#section-signals" class="subnav-link">모멘텀 시그널</a>
+          <a href="#section-revenue" class="subnav-link">매출·밸류에이션 추정</a>
+        </nav>
+
+        <!-- 1. LIVE ACTIVITY (Today / Week / Month / State) -->
+        <section id="section-overview" class="panel live-activity-panel" aria-live="polite"></section>
+
+        <!-- 2. TREND SEGMENT (Day | Week | Month) -->
+        <section id="section-trends" class="panel trend-segment-panel" aria-live="polite"></section>
+
+        <!-- 3. GROWTH SINCE LAUNCH -->
+        <section id="section-launch" class="panel growth-launch-panel" aria-live="polite"></section>
+
+        <!-- 4. MARKETS & MULTI IMPACT -->
+        <section id="section-markets" class="panel markets-multi-panel" aria-live="polite"></section>
+
+        <!-- 5. ANALYTICAL SIGNALS (7D / 14D / 28D) -->
+        <section id="section-signals" class="panel analytical-signals-panel" aria-live="polite"></section>
+
+        <div class="panel stats-intro valuation-revenue-panel" id="section-revenue">
           <div class="panel-heading">
             <div>
-              <p class="section-kicker">Executive signal board</p>
-              <h2 id="stats-title">사업 모멘텀 한눈에 보기</h2>
+              <p class="section-kicker">06 · VALUATION & REVENUE MODEL</p>
+              <h2 id="stats-title">가정 기반 매출 시나리오 & 밸류에이션 점검</h2>
             </div>
             <p class="snapshot-note" id="stats-captured-at">통계 스냅샷을 불러오는 중...</p>
           </div>
+          <div class="revenue-model-disclaimer"><span class="tier-pill tier-estimate">ESTIMATE</span><p><strong>분석 모델 안내:</strong> 아래 값은 공개 활동량을 이용한 분석 시나리오 모델이며 회사가 공시한 ToptoonChat 단독 매출이나 확정 실적이 아닙니다.</p></div>
           <p class="section-note hero-note" id="stats-caveat"></p>
           <div id="main-kpi-grid" aria-live="polite"></div>
         </div>
