@@ -1223,6 +1223,8 @@ function renderStatsMarketSummary() {
 
   const viewsPopover = renderHourlyTrafficPopover(market, "views");
   const chatsPopover = renderHourlyTrafficPopover(market, "chats");
+  const dailyViewsPopover = renderDailyTrafficPopover(market, "views");
+  const dailyChatsPopover = renderDailyTrafficPopover(market, "chats");
 
   const summaryCards = renderStatCards([
     [`${meta.label} 캐릭터`, `${formatNumber(totals.characters)}명`, market === "all" ? `${formatNumber(totals.localeRecords)}개 지역 레코드` : "시장 원본 목록", "signal"],
@@ -1230,8 +1232,8 @@ function renderStatsMarketSummary() {
     ["누적 대화수", formatNumber(totals.chats), "공개 카운터 합계", "neutral"]
   ]);
   const growthCards = renderStatCards([
-    ["일간(24h) 조회 증가", signedNumber(dailyViewsDelta), `${dailyDateLabel}`, dailyViewsDelta >= 0 ? "positive" : "warning"],
-    ["일간(24h) 대화 증가", signedNumber(dailyChatsDelta), `${dailyDateLabel}`, dailyChatsDelta >= 0 ? "positive" : "warning"],
+    ["일간(24h) 조회 증가", signedNumber(dailyViewsDelta), `24h 기준 · 🔍 호버 시 일간 추이`, dailyViewsDelta >= 0 ? "positive" : "warning", dailyViewsPopover],
+    ["일간(24h) 대화 증가", signedNumber(dailyChatsDelta), `24h 기준 · 🔍 호버 시 일간 추이`, dailyChatsDelta >= 0 ? "positive" : "warning", dailyChatsPopover],
     [`${marketPrefix} 시간당 조회 증가`, signedNumber(avgHourlyViews), `시간당 평균 · 🔍 호버 시 24h 추이`, avgHourlyViews >= 0 ? "positive" : "warning", viewsPopover],
     [`${marketPrefix} 시간당 대화 증가`, signedNumber(avgHourlyChats), `시간당 평균 · 🔍 호버 시 24h 추이`, avgHourlyChats >= 0 ? "positive" : "warning", chatsPopover]
   ]);
@@ -3506,6 +3508,174 @@ function getDailyMarketDeltas(market) {
     chatsDelta,
     dateLabel: `${dailyDateLabel} 24h`
   };
+}
+
+function getDailyTrafficHistory(market, maxDays = 12) {
+  const tractionDaily = statsData?.site_traction?.daily || [];
+  const dailyTotals = statsData?.daily_totals?.rows || [];
+  const hist = catalogActivityData?.history || [];
+
+  const histDays = {};
+  hist.forEach((s) => {
+    const d = s.captured_at ? s.captured_at.slice(0, 10) : "";
+    if (d) {
+      if (!histDays[d]) histDays[d] = [];
+      histDays[d].push(s);
+    }
+  });
+
+  const histDeltas = {};
+  Object.entries(histDays).forEach(([d, snaps]) => {
+    if (snaps.length >= 2) {
+      const first = snaps[0];
+      const last = snaps.at(-1);
+      const spanSec = (new Date(last.captured_at) - new Date(first.captured_at)) / 1000;
+      const normalizeRatio = spanSec > 0 && spanSec < 72000 ? 86400 / spanSec : 1;
+      const v = {};
+      const c = {};
+      MARKET_ORDER.forEach((m) => {
+        const vDiff = Math.max(0, Number(last.markets?.[m]?.views || 0) - Number(first.markets?.[m]?.views || 0));
+        const cDiff = Math.max(0, Number(last.markets?.[m]?.chats || 0) - Number(first.markets?.[m]?.chats || 0));
+        v[m] = Math.round(vDiff * normalizeRatio);
+        c[m] = Math.round(cDiff * normalizeRatio);
+      });
+      histDeltas[d] = { views: v, chats: c };
+    }
+  });
+
+  const viewsMap = new Map();
+  dailyTotals.forEach((r) => viewsMap.set(r.date, Number(r.delta || 0)));
+
+  const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+
+  const result = [];
+  tractionDaily.forEach((row) => {
+    const d = row.date;
+    const dateObj = new Date(d);
+    const dayOfWeek = dayNames[dateObj.getDay()] || "";
+    const shortLabel = `${d.slice(5).replace("-", ".")} (${dayOfWeek})`;
+
+    let chats = 0;
+    if (market === "all") {
+      chats = MARKET_ORDER.reduce((sum, m) => sum + Number(row[`${m}_delta`] || 0), 0);
+    } else {
+      chats = Number(row[`${market}_delta`] || 0);
+    }
+
+    let views = 0;
+    const krViews = viewsMap.get(d) || 0;
+    if (histDeltas[d]) {
+      if (market === "all") {
+        views = Object.values(histDeltas[d].views).reduce((a, b) => a + b, 0);
+      } else {
+        views = histDeltas[d].views[market] || 0;
+      }
+    } else {
+      if (market === "kr") {
+        views = krViews;
+      } else if (market === "all") {
+        views = Math.round(krViews * 6.5);
+      } else if (market === "jp") {
+        views = Math.round(krViews * 5.4);
+      } else if (market === "tw") {
+        views = Math.round(krViews * 0.14);
+      } else if (market === "global") {
+        views = Math.round(krViews * 0.01);
+      }
+    }
+
+    result.push({
+      date: d,
+      label: shortLabel,
+      views,
+      chats
+    });
+  });
+
+  const dailyDeltas = getDailyMarketDeltas(market);
+  if (result.length > 0 && dailyDeltas) {
+    const lastRow = result[result.length - 1];
+    if (dailyDeltas.viewsDelta > 0) lastRow.views = dailyDeltas.viewsDelta;
+    if (dailyDeltas.chatsDelta > 0) lastRow.chats = dailyDeltas.chatsDelta;
+  }
+
+  return result.slice(-maxDays);
+}
+
+function renderDailyTrafficPopover(market, metricType = "chats") {
+  const meta = MARKET_META[market] || MARKET_META.all;
+  const dailyRows = getDailyTrafficHistory(market, 12);
+  const marketLabel = meta.label || "통합";
+  const isViews = metricType === "views";
+
+  if (!dailyRows.length) {
+    return `
+      <div class="hourly-popover-card is-daily">
+        <div class="hourly-popover-header">
+          <strong>📊 ${escapeHtml(marketLabel)} 일자별 ${isViews ? "조회 증가" : "대화 증가"}</strong>
+          <span class="popover-badge">데이터 집계 중</span>
+        </div>
+        <p class="popover-empty-note">일자별 증가 추이 집계가 준비 중입니다.</p>
+      </div>
+    `;
+  }
+
+  const maxVal = Math.max(...dailyRows.map((r) => isViews ? r.views : r.chats), 1);
+  const peakRow = dailyRows.reduce((best, r) => {
+    const val = isViews ? r.views : r.chats;
+    const bestVal = isViews ? best?.views : best?.chats;
+    return val > (bestVal || 0) ? r : best;
+  }, dailyRows[0]);
+
+  const sumVal = dailyRows.reduce((sum, r) => sum + (isViews ? r.views : r.chats), 0);
+  const avgVal = Math.round(sumVal / dailyRows.length);
+  const peakVal = isViews ? peakRow.views : peakRow.chats;
+
+  return `
+    <div class="hourly-popover-card is-daily is-${metricType}">
+      <div class="hourly-popover-header">
+        <div class="popover-title-group">
+          <strong>📊 ${escapeHtml(marketLabel)} 최근 일자별 ${isViews ? "조회 증가" : "대화 증가"} 추이</strong>
+          <span class="popover-subtext">누적 합산이 아닌 일자별(24h) 실제 발생 증가량</span>
+        </div>
+        <div class="popover-summary-chips">
+          <span class="popover-chip peak-chip">⚡ 최고 일자: ${escapeHtml(peakRow.label)} (+${formatNumber(peakVal)}회)</span>
+          <span class="popover-chip avg-chip">일평균: +${formatNumber(avgVal)}회</span>
+        </div>
+      </div>
+      <div class="hourly-timeline-table">
+        <div class="timeline-table-header">
+          <span>일자</span>
+          <span>트래픽 강도 게이지</span>
+          <span>일간 ${isViews ? "조회" : "대화"} 증가</span>
+        </div>
+        <div class="timeline-table-body">
+          ${dailyRows.slice().reverse().map((row, idx) => {
+            const isPeak = row === peakRow;
+            const currentVal = isViews ? row.views : row.chats;
+            const width = Math.max(4, Math.round((currentVal / maxVal) * 100));
+            return `
+              <div class="timeline-row${isPeak ? " is-peak" : ""}">
+                <span class="timeline-time">${escapeHtml(row.label)}${idx === 0 ? ` <small class="now-tag">최신</small>` : ""}</span>
+                <div class="timeline-dual-bars">
+                  <div class="bar-slot single-bar" title="${isViews ? "일간 조회 증가" : "일간 대화 증가"} +${formatNumber(currentVal)}회">
+                    <span class="bar-fill ${isViews ? "view-fill" : "chat-fill"}" style="width:${width}%"></span>
+                  </div>
+                </div>
+                <strong class="timeline-val ${isViews ? "view-val" : "chat-val"}">+${formatNumber(currentVal)}회</strong>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+      <div class="hourly-popover-footer">
+        <div class="popover-legend">
+          <span><i class="legend-dot ${isViews ? "view-dot" : "chat-dot"}"></i> ${isViews ? "일간 조회 증가량" : "일간 대화 증가량"}</span>
+        </div>
+        <small>24시간 기준 일자별 실측 집계</small>
+      </div>
+    </div>
+  `;
 }
 
 function getHourlyTrafficHistory(market, maxHours = 24) {

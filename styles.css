@@ -1953,6 +1953,24 @@ h3 {
   border-color: transparent transparent rgba(10, 15, 26, 0.98) transparent;
 }
 
+.market-kpi-row-growth .stat-card:nth-child(1) .stat-card-popover,
+.market-kpi-row-growth .stat-card:nth-child(2) .stat-card-popover {
+  left: 0;
+  right: auto;
+}
+
+.market-kpi-row-growth .stat-card:nth-child(1) .stat-card-popover::before,
+.market-kpi-row-growth .stat-card:nth-child(2) .stat-card-popover::before {
+  left: 32px;
+  right: auto;
+}
+
+.market-kpi-row-growth .stat-card:nth-child(1) .stat-card-popover::after,
+.market-kpi-row-growth .stat-card:nth-child(2) .stat-card-popover::after {
+  left: 33px;
+  right: auto;
+}
+
 .stat-card.has-popover:hover .stat-card-popover,
 .stat-card.has-popover:focus-within .stat-card-popover,
 .stat-card.has-popover.is-open .stat-card-popover {
@@ -2051,6 +2069,11 @@ h3 {
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.02);
   transition: background 120ms ease;
+}
+
+.hourly-popover-card.is-daily .timeline-table-header,
+.hourly-popover-card.is-daily .timeline-row {
+  grid-template-columns: 95px 1fr 105px;
 }
 
 .timeline-row:hover {
