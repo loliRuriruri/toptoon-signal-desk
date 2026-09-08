@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-09-08T17:17:03.049Z",
+  "generated_at": "2026-09-08T17:32:10.987Z",
   "providers": {
     "opendart": {
-      "status": "ok",
+      "status": "cached",
       "source": "OpenDART 공시검색",
-      "note": "종목코드 134580의 회사 고유번호를 자동 확인해 최근 180일 조회",
+      "note": "최근 갱신 실패 · 이전 정상 응답 유지 (요청 시간 초과)",
       "corp_code": "00608699",
       "disclosures": [
         {
@@ -89,7 +89,7 @@
         }
       ],
       "observed_at": "2026-09-08T17:16:51.730Z",
-      "attempted_at": "2026-09-08T17:16:51.730Z"
+      "attempted_at": "2026-09-08T17:31:50.982Z"
     },
     "kis": {
       "status": "cached",
@@ -411,14 +411,14 @@
       ],
       "peer_note": "동일 업종의 완전한 비교군이 아닌 웹툰 플랫폼·IP 사업 노출 기준 스크리닝 피어",
       "observed_at": "2026-09-08T12:16:41.599Z",
-      "attempted_at": "2026-09-08T17:17:03.049Z",
-      "note": "KIS 토큰 중복 발급 방지 · 마지막 정상 시세 5.0시간 전 · 20시간 간격으로 재조회"
+      "attempted_at": "2026-09-08T17:32:10.985Z",
+      "note": "KIS 토큰 중복 발급 방지 · 마지막 정상 시세 5.3시간 전 · 20시간 간격으로 재조회"
     },
     "fred": {
       "status": "skipped",
       "note": "FRED_API_KEY 필요",
       "observed_at": null,
-      "attempted_at": "2026-09-08T17:17:03.049Z"
+      "attempted_at": "2026-09-08T17:32:10.986Z"
     }
   }
 }
