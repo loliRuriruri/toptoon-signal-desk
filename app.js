@@ -4365,11 +4365,10 @@ function renderAnalyticalSignalsSection(market) {
     <div class="panel-heading compact-heading">
       <div>
         <p class="section-kicker">05 · ANALYTICAL SIGNALS</p>
-        <h2>파생 모멘텀 시그널 & 사람말 번역</h2>
+        <h2>파생 모멘텀 시그널 (Analytical Momentum)</h2>
       </div>
       <span class="tier-pill tier-derived">DERIVED</span>
     </div>
-    <p class="section-note">복잡한 금융 통계 용어를 걷어내고 사용자가 즉각 해석할 수 있는 3대 정량 모멘텀을 제시합니다.</p>
 
     <div class="stats-grid analytical-signals-grid">
       <article class="stat-card tone-positive">
