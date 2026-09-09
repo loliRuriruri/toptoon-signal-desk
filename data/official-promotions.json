@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-09T03:46:11.662Z",
+  "generated_at": "2026-09-09T04:01:16.294Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,7 +7,7 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-09T03:46:11.662Z",
+      "observed_at": "2026-09-09T04:01:16.294Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
@@ -29,7 +29,7 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-09T03:46:11.662Z",
+      "observed_at": "2026-09-09T04:01:16.294Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-09T03:46:11.662Z",
+      "observed_at": "2026-09-09T04:01:16.294Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,52 +63,27 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-09T03:46:11.662Z",
+      "observed_at": "2026-09-09T04:01:16.294Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
-      "status": "verified",
-      "change": "continuing",
-      "signature": "137:今日特惠僅限一天！ 李瑄雅，最高 60%",
+      "status": "partial",
+      "change": "changed",
+      "signature": "260:price_promotion",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 137,
-          "character_name": "李瑄雅",
+          "character_id": 260,
+          "character_name": "徐慧靜",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.net/detail/character/137",
-          "headline": "今日特惠僅限一天！ 李瑄雅，最高 60%",
-          "verification": "api-and-homepage",
-          "source_url": "https://chat.toptoon.net/"
+          "detail_url": "https://chat.toptoon.net/detail/character/260",
+          "headline": null,
+          "verification": "api-badge-only",
+          "source_url": "https://chat.toptoon.net/api/characters"
         }
       ]
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-07T03:15:38.269Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "changed",
-          "signature": "297:오늘특가 단 하루 한정! 이다미, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "changed",
-          "signature": "97:本日特価は今日だけ！ 島田美里、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "177:今日特惠僅限一天！ 白佳貞，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-07T03:30:43.283Z",
       "markets": {
@@ -4881,6 +4856,31 @@
           "status": "verified",
           "change": "continuing",
           "signature": "137:今日特惠僅限一天！ 李瑄雅，最高 60%"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-09T04:01:16.294Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "220:오늘특가 단 하루 한정! 민소다, 최대 60%"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "262:本日特価は今日だけ！ 稲村玲華、最大 60%"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "partial",
+          "change": "changed",
+          "signature": "260:price_promotion"
         }
       }
     }
