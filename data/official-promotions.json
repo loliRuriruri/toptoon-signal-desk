@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-09T03:00:53.616Z",
+  "generated_at": "2026-09-09T03:16:12.767Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,12 +7,12 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-09T03:00:53.616Z",
+      "observed_at": "2026-09-09T03:16:12.767Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
-      "status": "partial",
+      "status": "verified",
       "change": "changed",
-      "signature": "220:price_promotion",
+      "signature": "220:오늘특가 단 하루 한정! 민소다, 최대 60%",
       "homepage_error": null,
       "items": [
         {
@@ -20,21 +20,21 @@
           "character_name": "민소다",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.com/detail/character/220",
-          "headline": null,
-          "verification": "api-badge-only",
-          "source_url": "https://chat.toptoon.com/api/characters"
+          "headline": "오늘특가 단 하루 한정! 민소다, 최대 60%",
+          "verification": "api-and-homepage",
+          "source_url": "https://chat.toptoon.com/"
         }
       ]
     },
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-09T03:00:53.616Z",
+      "observed_at": "2026-09-09T03:16:12.767Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
-      "status": "partial",
+      "status": "verified",
       "change": "changed",
-      "signature": "262:price_promotion",
+      "signature": "262:本日特価は今日だけ！ 稲村玲華、最大 60%",
       "homepage_error": null,
       "items": [
         {
@@ -42,16 +42,16 @@
           "character_name": "稲村玲華",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.jp/detail/character/262",
-          "headline": null,
-          "verification": "api-badge-only",
-          "source_url": "https://chat.toptoon.jp/api/characters"
+          "headline": "本日特価は今日だけ！ 稲村玲華、最大 60%",
+          "verification": "api-and-homepage",
+          "source_url": "https://chat.toptoon.jp/"
         }
       ]
     },
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-09T03:00:53.616Z",
+      "observed_at": "2026-09-09T03:16:12.767Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,7 +63,7 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-09T03:00:53.616Z",
+      "observed_at": "2026-09-09T03:16:12.767Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "verified",
@@ -84,31 +84,6 @@
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-07T02:30:42.573Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "174:오늘특가 단 하루 한정! 고수연, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "167:本日特価は今日だけ！ 武田京子、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "177:今日特惠僅限一天！ 白佳貞，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-07T02:45:45.372Z",
       "markets": {
@@ -4871,6 +4846,31 @@
           "status": "partial",
           "change": "changed",
           "signature": "262:price_promotion"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "137:今日特惠僅限一天！ 李瑄雅，最高 60%"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-09T03:16:12.767Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "220:오늘특가 단 하루 한정! 민소다, 최대 60%"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "262:本日特価は今日だけ！ 稲村玲華、最大 60%"
         },
         "global": {
           "status": "none",
