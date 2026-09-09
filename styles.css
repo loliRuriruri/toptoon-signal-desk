@@ -248,6 +248,63 @@ h1 {
   gap: 14px;
 }
 
+.header-utility-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.layout-mode-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.layout-mode-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 1px solid rgba(98, 168, 255, 0.4);
+  border-radius: 8px;
+  background: #0e141e url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2362a8ff' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E") no-repeat right 8px center;
+  color: #fff;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 24px 5px 9px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.layout-mode-select:hover,
+.layout-mode-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(98, 168, 255, 0.2);
+}
+
+/* Desktop layout mode */
+html[data-layout="desktop"] {
+  min-width: 1200px;
+  overflow-x: auto;
+}
+
+html[data-layout="desktop"] body {
+  min-width: 1200px;
+  overflow-x: visible;
+}
+
+html[data-layout="desktop"] .site-header,
+html[data-layout="desktop"] .header-inner,
+html[data-layout="desktop"] .page-shell,
+html[data-layout="desktop"] .site-footer {
+  min-width: 1200px;
+}
+
 .live-indicator {
   gap: 7px;
   color: var(--muted);
@@ -1414,12 +1471,14 @@ h3 {
   font-size: 10px;
   font-weight: 850;
   letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .scope-title-wrap strong {
   color: #fff;
   font-size: 14px;
   font-weight: 850;
+  white-space: nowrap;
 }
 
 .scope-nav-wrap {
@@ -2206,9 +2265,6 @@ h3 {
   color: var(--sub);
   font-size: 11px;
   line-height: 1.4;
-}
-  color: var(--sub);
-  font-size: 12px;
 }
 
 .overview-grid {
@@ -3607,6 +3663,7 @@ button.column-item.is-selected .column-track i {
 
 @media (max-width: 720px) {
   .header-actions { align-items: stretch; flex-direction: column; gap: 8px; }
+  .header-utility-row { display: flex; align-items: center; justify-content: space-between; width: 100%; }
   .signal-section { padding: 15px; }
   .market-metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .integration-grid { grid-template-columns: minmax(0, 1fr); }
@@ -4573,6 +4630,62 @@ tbody tr:last-child td {
     flex-direction: column;
   }
 
+  .business-scope-bar {
+    position: relative;
+    top: 0;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .scope-title-wrap {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .scope-badge-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    white-space: nowrap;
+  }
+
+  .scope-live-badge,
+  .scope-badge-title strong {
+    white-space: nowrap;
+  }
+
+  .scope-nav-wrap {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .business-scope-bar .market-tabs,
+  .scope-market-tabs {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 6px;
+    padding-bottom: 2px;
+  }
+
+  .scope-market-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .business-scope-bar .tab-button {
+    flex: 0 0 auto;
+    justify-content: center;
+    padding: 7px 10px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
   .stats-grid,
   .overview-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4621,9 +4734,13 @@ tbody tr:last-child td {
   .catalog-freshness { width: 100%; min-width: 0; }
   .catalog-scope-bar { align-items: stretch; flex-direction: column; }
   .catalog-scope-bar .market-tabs { width: 100%; }
-  .business-scope-bar { align-items: stretch; flex-direction: column; }
-  .business-scope-bar .market-tabs { display: grid; width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; }
-  .business-scope-bar .tab-button { justify-content: center; padding-inline: 7px; }
+  .business-scope-bar {
+    position: relative;
+    top: 0;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
   .full-rank-row { grid-template-columns: 25px 36px minmax(0, 1fr) auto; gap: 7px; padding-inline: 8px; }
 
   .snapshot-note,

@@ -2,7 +2,7 @@
 <html lang="ko">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
     <meta name="referrer" content="no-referrer" />
     <meta
       name="description"
@@ -38,7 +38,16 @@
           <p class="subtitle">4개 시장 캐릭터챗 공개 지표와 공시·시세를 분리 검증하는 투자 추적 워크스페이스</p>
         </div>
         <div class="header-actions">
-          <span class="live-indicator"><i></i> LOCAL SNAPSHOT</span>
+          <div class="header-utility-row">
+            <label class="layout-mode-control" for="layout-mode">
+              <span>화면 보기</span>
+              <select id="layout-mode" class="layout-mode-select">
+                <option value="auto">화면에 맞춤</option>
+                <option value="desktop">PC 넓게 보기</option>
+              </select>
+            </label>
+            <span class="live-indicator"><i></i> LOCAL SNAPSHOT</span>
+          </div>
           <nav class="view-tabs" aria-label="화면 탭">
             <button class="tab-button" type="button" data-view="stats">사업 요약</button>
             <button class="tab-button" type="button" data-view="validation">공시·주가 검증</button>

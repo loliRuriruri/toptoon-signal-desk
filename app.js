@@ -213,6 +213,21 @@ function syncSiteHeaderOffset() {
   document.documentElement.style.setProperty("--site-header-height", `${height}px`);
 }
 
+function applyLayoutMode(mode) {
+  const desktop = mode === "desktop";
+  document.documentElement.dataset.layout = desktop ? "desktop" : "auto";
+  const viewportMeta = document.querySelector('meta[name="viewport"]');
+  if (viewportMeta) {
+    viewportMeta.content = desktop
+      ? "width=1200, user-scalable=yes"
+      : "width=device-width, initial-scale=1, user-scalable=yes";
+  }
+  if (els.layoutMode) {
+    els.layoutMode.value = desktop ? "desktop" : "auto";
+  }
+  syncSiteHeaderOffset();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   bindElements();
   bindEvents();
@@ -228,6 +243,7 @@ function bindElements() {
     const liveLabel = document.querySelector(".live-indicator");
     if (liveLabel) liveLabel.innerHTML = "<i></i> PUBLIC SNAPSHOT";
   }
+  els.layoutMode = document.querySelector("#layout-mode");
   els.siteHeader = document.querySelector(".site-header");
   els.viewTabs = [...document.querySelectorAll("[data-view]")];
   els.marketTabs = [...document.querySelectorAll("[data-market]")];
@@ -287,6 +303,20 @@ function bindElements() {
 function bindEvents() {
   syncSiteHeaderOffset();
   window.addEventListener("resize", syncSiteHeaderOffset, { passive: true });
+
+  let savedLayoutMode = "auto";
+  try {
+    savedLayoutMode = localStorage.getItem("toptoon-layout-mode") || "auto";
+  } catch (_) {}
+  applyLayoutMode(savedLayoutMode);
+
+  els.layoutMode?.addEventListener("change", (event) => {
+    const nextMode = event.target.value;
+    applyLayoutMode(nextMode);
+    try {
+      localStorage.setItem("toptoon-layout-mode", nextMode);
+    } catch (_) {}
+  });
 
   els.viewTabs.forEach((button) => {
     button.addEventListener("click", () => {
