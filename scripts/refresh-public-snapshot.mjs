@@ -695,6 +695,8 @@ try {
   if (existsSync(previousStatsPath)) {
     try {
       statsPayload = JSON.parse(readFileSync(previousStatsPath, "utf8"));
+      statsPayload.captured_at = new Date().toISOString();
+      statsPayload.source_fallback = true;
     } catch (parseError) {
       console.warn(`Previous stats snapshot could not be parsed: ${parseError.message}`);
     }
