@@ -758,6 +758,7 @@ const CANONICAL_CHARACTER_MAP = {
   "global:276": 264, // Woo-jin Seo (글로벌 276) -> 서우진 (한국 264 / 일본 264)
   "global:285": 316, // Summer Jung (글로벌 285) -> 정예솔 (한국 316 / 일본 316 / 대만 316)
   "global:280": 278, // Ah-yeong Cho (글로벌 280) -> 조아영 (한국 278)
+  "global:523": 315, // Da-hee (글로벌 523) -> 다희 (한국 315)
   "jp:174": 174,
   "tw:253": 253
 };

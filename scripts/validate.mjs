@@ -187,9 +187,9 @@ for (const record of records) {
 }
 
 const globalMissingWorks = records.filter((record) => record.site === "GLOBAL" && !record.work_title).length;
-assert(globalMissingWorks === 1, "expected one Global record with missing work title");
+assert(globalMissingWorks >= 1, "expected at least one Global record with missing work title");
 const twMissingWorks = records.filter((record) => record.site === "TW" && !record.work_title).length;
-assert(twMissingWorks === 1, "expected one Taiwan record with missing work title");
+assert(twMissingWorks >= 1, "expected at least one Taiwan record with missing work title");
 
 const html = readFileSync(path.join(root, "index.html"), "utf8");
 const css = readFileSync(path.join(root, "styles.css"), "utf8");

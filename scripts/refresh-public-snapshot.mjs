@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
@@ -332,7 +332,7 @@ async function collectMarket(market) {
   for (const character of rows) {
     const sortedTags = [...(character.hashtags || [])].sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
     const imageUrl = String(character.thumbnail || "");
-    const safeVideoUrl = [character.safeVideoThumbnail, character.videoThumbnail]
+    let safeVideoUrl = [character.safeVideoThumbnail, character.videoThumbnail]
       .map((value) => String(value || ""))
       .find((value) => /\.mp4$/i.test(value)) || "";
     let imageFile = "";
@@ -345,6 +345,29 @@ async function collectMarket(market) {
         });
         if (!imageResponse.ok) throw new Error(`${imageUrl} returned HTTP ${imageResponse.status}`);
         writeFileSync(destination, Buffer.from(await imageResponse.arrayBuffer()));
+      }
+    } else {
+      const prev = (previousCatalog?.records || []).find((r) => r.character_id === Number(character.id) && r.site === market.site);
+      if (prev?.local_image && existsSync(path.join(root, "assets", market.key, path.basename(prev.local_image)))) {
+        imageFile = path.basename(prev.local_image);
+      } else {
+        const candidateMatch = (previousCatalog?.records || []).find((r) => r.site === "KR" && (r.work_title === sortedTags[0]?.hashtag || r.character_name === character.name));
+        if (candidateMatch?.local_image) {
+          const candidateSrc = path.join(root, "assets", "kr", path.basename(candidateMatch.local_image));
+          if (existsSync(candidateSrc)) {
+            imageFile = `${String(character.id).padStart(3, "0")}_${safeFilename(character.name)}.jpg`;
+            const destination = path.join(assetDir, imageFile);
+            if (!existsSync(destination)) {
+              copyFileSync(candidateSrc, destination);
+            }
+          }
+        }
+      }
+    }
+    if (!safeVideoUrl) {
+      const candidateMatch = (previousCatalog?.records || []).find((r) => r.site === "KR" && (r.work_title === sortedTags[0]?.hashtag || r.character_name === character.name));
+      if (candidateMatch?.safe_video_url) {
+        safeVideoUrl = candidateMatch.safe_video_url;
       }
     }
     const oneLineIntro = String(character.oneLineIntro || "").trim() || null;

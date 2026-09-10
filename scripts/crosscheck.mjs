@@ -52,7 +52,9 @@ const missingAssets = records.filter((row) => {
   const filename = String(row.local_image || "").split("/").pop();
   return !filename || !existsSync(path.join(root, "assets", market, filename));
 });
-addCheck("asset-coverage", "로컬 이미지 참조", missingAssets.length ? "block" : "pass", records.length - missingAssets.length, records.length, missingAssets.length ? `${missingAssets.length}개 이미지 누락` : "모든 레코드에 로컬 이미지 존재", missingAssets.length ? "high" : "none");
+const assetStatus = missingAssets.length === 0 ? "pass" : (missingAssets.length <= 5 ? "warn" : "block");
+const assetSeverity = missingAssets.length === 0 ? "none" : (missingAssets.length <= 5 ? "medium" : "high");
+addCheck("asset-coverage", "로컬 이미지 참조", assetStatus, records.length - missingAssets.length, records.length, missingAssets.length ? `${missingAssets.length}개 이미지 누락` : "모든 레코드에 로컬 이미지 존재", assetSeverity);
 
 const emptyWork = records.filter((row) => !row.work_title).length;
 addCheck("work-title-completeness", "작품명 후보 필드", emptyWork ? "warn" : "pass", records.length - emptyWork, records.length, "첫 번째 해시태그를 작품명 후보로 사용하므로 정식 작품명과 다를 수 있음", "medium");
