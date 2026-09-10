@@ -57,7 +57,7 @@ assert(bySite.get("KR") === data.counts?.kr, "KR record count mismatch");
 assert(bySite.get("JP") === data.counts?.jp, "JP record count mismatch");
 assert(bySite.get("GLOBAL") === data.counts?.global, "Global record count mismatch");
 assert(bySite.get("TW") === data.counts?.tw, "Taiwan record count mismatch");
-assert(records.every((record) => /^https:\/\/showcase\.chat\.(?:toptoon\.(?:com|jp|net)|global\.toptoon\.com)\/character\/\d+\/video-thumbnail\/[a-z0-9-]+\.mp4$/i.test(record.safe_video_url || "")), "every locale record should have a validated official motion URL");
+assert(records.every((record) => /^https:\/\/showcase\.chat\.(?:toptoon\.(?:com|jp|net)|global\.toptoon\.com)\/(?:character\/\d+\/video-thumbnail\/[a-z0-9-]+|pmaker\/translation\/[a-z0-9_/-]+)\.mp4$/i.test(record.safe_video_url || "")), "every locale record should have a validated official motion URL");
 assert(records.every((record) => typeof record.genre === "string" && record.genre.trim()), "every locale record should retain the official genre field");
 assert(records.every((record) => record.one_line_intro == null || typeof record.one_line_intro === "string"), "character one-line introductions must remain strings when present");
 assert(records.every((record) => record.detailed_intro == null || typeof record.detailed_intro === "string"), "character detailed introductions must remain strings when present");
