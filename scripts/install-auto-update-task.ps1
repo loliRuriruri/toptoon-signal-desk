@@ -1,5 +1,5 @@
 param(
-    [ValidateRange(1, 24)] [int]$IntervalHours = 1,
+    [ValidateRange(1, 24)] [int]$IntervalHours = 3,
     [switch]$RunNow
 )
 
