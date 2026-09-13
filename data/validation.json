@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-11T12:02:28.593Z",
+  "generated_at": "2026-09-13T22:30:56.203Z",
   "mode": "live-crosscheck",
   "overall_status": "share-with-caveats",
   "summary": {
@@ -17,46 +17,46 @@
   "catalogs": {
     "kr": {
       "label": "한국",
-      "count": 92,
-      "chats": 1656724,
-      "views": 55659383,
+      "count": 93,
+      "chats": 1679227,
+      "views": 56333452,
       "live": {
-        "count": 92,
-        "chats": 1656734,
-        "views": 55659485
+        "count": 93,
+        "chats": 1679229,
+        "views": 56333511
       }
     },
     "jp": {
       "label": "일본",
-      "count": 82,
-      "chats": 284949,
-      "views": 37189475,
+      "count": 83,
+      "chats": 294249,
+      "views": 40422021,
       "live": {
-        "count": 82,
-        "chats": 284952,
-        "views": 37189937
+        "count": 83,
+        "chats": 294249,
+        "views": 40422364
       }
     },
     "global": {
       "label": "글로벌",
       "count": 92,
-      "chats": 22148,
-      "views": 368563,
+      "chats": 22673,
+      "views": 372959,
       "live": {
         "count": 92,
-        "chats": 22149,
-        "views": 368564
+        "chats": 22673,
+        "views": 372961
       }
     },
     "tw": {
       "label": "대만",
-      "count": 85,
-      "chats": 113371,
-      "views": 3745537,
+      "count": 87,
+      "chats": 116304,
+      "views": 3818924,
       "live": {
-        "count": 85,
-        "chats": 113372,
-        "views": 3745543
+        "count": 87,
+        "chats": 116304,
+        "views": 3818930
       }
     }
   },
@@ -74,8 +74,8 @@
       "id": "asset-coverage",
       "label": "로컬 이미지 참조",
       "status": "pass",
-      "observed": 351,
-      "expected": 351,
+      "observed": 355,
+      "expected": 355,
       "note": "모든 레코드에 로컬 이미지 존재",
       "severity": "none"
     },
@@ -83,8 +83,8 @@
       "id": "work-title-completeness",
       "label": "작품명 후보 필드",
       "status": "warn",
-      "observed": 349,
-      "expected": 351,
+      "observed": 353,
+      "expected": 355,
       "note": "첫 번째 해시태그를 작품명 후보로 사용하므로 정식 작품명과 다를 수 있음",
       "severity": "medium"
     },
@@ -101,8 +101,8 @@
       "id": "live-count-kr",
       "label": "한국 원본 목록 수",
       "status": "pass",
-      "observed": 92,
-      "expected": 92,
+      "observed": 93,
+      "expected": 93,
       "note": "로컬 스냅샷과 공개 API의 캐릭터 수 대조",
       "severity": "none"
     },
@@ -110,17 +110,17 @@
       "id": "live-chats-kr",
       "label": "한국 누적 채팅 시차",
       "status": "pass",
-      "observed": 1656724,
-      "expected": 1656734,
-      "note": "수집 이후 변동 0.001% (누적 수치는 실시간 증가 가능)",
+      "observed": 1679227,
+      "expected": 1679229,
+      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
       "id": "live-count-jp",
       "label": "일본 원본 목록 수",
       "status": "pass",
-      "observed": 82,
-      "expected": 82,
+      "observed": 83,
+      "expected": 83,
       "note": "로컬 스냅샷과 공개 API의 캐릭터 수 대조",
       "severity": "none"
     },
@@ -128,9 +128,9 @@
       "id": "live-chats-jp",
       "label": "일본 누적 채팅 시차",
       "status": "pass",
-      "observed": 284949,
-      "expected": 284952,
-      "note": "수집 이후 변동 0.001% (누적 수치는 실시간 증가 가능)",
+      "observed": 294249,
+      "expected": 294249,
+      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -146,17 +146,17 @@
       "id": "live-chats-global",
       "label": "글로벌 누적 채팅 시차",
       "status": "pass",
-      "observed": 22148,
-      "expected": 22149,
-      "note": "수집 이후 변동 0.005% (누적 수치는 실시간 증가 가능)",
+      "observed": 22673,
+      "expected": 22673,
+      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
       "id": "live-count-tw",
       "label": "대만 원본 목록 수",
       "status": "pass",
-      "observed": 85,
-      "expected": 85,
+      "observed": 87,
+      "expected": 87,
       "note": "로컬 스냅샷과 공개 API의 캐릭터 수 대조",
       "severity": "none"
     },
@@ -164,9 +164,9 @@
       "id": "live-chats-tw",
       "label": "대만 누적 채팅 시차",
       "status": "pass",
-      "observed": 113371,
-      "expected": 113372,
-      "note": "수집 이후 변동 0.001% (누적 수치는 실시간 증가 가능)",
+      "observed": 116304,
+      "expected": 116304,
+      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -174,7 +174,7 @@
       "label": "한국 Worker↔직접 관측",
       "status": "warn",
       "observed": 0,
-      "expected": 1656724,
+      "expected": 1679227,
       "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 100.000%",
       "severity": "medium"
     },
@@ -183,7 +183,7 @@
       "label": "일본 Worker↔직접 관측",
       "status": "warn",
       "observed": 0,
-      "expected": 284949,
+      "expected": 294249,
       "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 100.000%",
       "severity": "medium"
     },
@@ -192,7 +192,7 @@
       "label": "글로벌 Worker↔직접 관측",
       "status": "warn",
       "observed": 0,
-      "expected": 22148,
+      "expected": 22673,
       "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 100.000%",
       "severity": "medium"
     },
@@ -201,7 +201,7 @@
       "label": "대만 Worker↔직접 관측",
       "status": "warn",
       "observed": 0,
-      "expected": 113371,
+      "expected": 116304,
       "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 100.000%",
       "severity": "medium"
     },
@@ -209,8 +209,8 @@
       "id": "revenue-nowcast-formula",
       "label": "한국 월매출 런레이트 재계산",
       "status": "pass",
-      "observed": 562370600,
-      "expected": 562370600,
+      "observed": 559454710,
+      "expected": 559454710,
       "note": "평균 일간 채팅 증가×30일×세션당매출 가정",
       "severity": "none"
     },
@@ -218,8 +218,8 @@
       "id": "profit-nowcast-formula",
       "label": "순이익 런레이트 재계산",
       "status": "pass",
-      "observed": 281185300,
-      "expected": 281185300,
+      "observed": 279727355,
+      "expected": 279727355,
       "note": "매출 런레이트×회사 주장 기반 마진 가정",
       "severity": "none"
     },
@@ -227,8 +227,8 @@
       "id": "all-market-revenue-scope",
       "label": "4개국 최근 런레이트 범위",
       "status": "pass",
-      "observed": 905340161,
-      "expected": 905340161,
+      "observed": 901685650,
+      "expected": 901685650,
       "note": "시장별 런레이트 합계와 4개국 합계를 동일 범위로 대조",
       "severity": "none"
     },
