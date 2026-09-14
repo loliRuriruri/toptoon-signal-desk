@@ -336,6 +336,7 @@ async function collectMarket(market) {
       .map((value) => String(value || ""))
       .find((value) => /\.mp4$/i.test(value)) || "";
     let imageFile = "";
+    const prev = (previousCatalog?.records || []).find((r) => r.character_id === Number(character.id) && r.site === market.site);
     if (imageUrl) {
       imageFile = `${String(character.id).padStart(3, "0")}_${safeFilename(character.name)}${extensionFromUrl(imageUrl)}`;
       const destination = path.join(assetDir, imageFile);
@@ -347,11 +348,10 @@ async function collectMarket(market) {
         writeFileSync(destination, Buffer.from(await imageResponse.arrayBuffer()));
       }
     } else {
-      const prev = (previousCatalog?.records || []).find((r) => r.character_id === Number(character.id) && r.site === market.site);
       if (prev?.local_image && existsSync(path.join(root, "assets", market.key, path.basename(prev.local_image)))) {
         imageFile = path.basename(prev.local_image);
       } else {
-        const candidateMatch = (previousCatalog?.records || []).find((r) => r.site === "KR" && (r.work_title === sortedTags[0]?.hashtag || r.character_name === character.name));
+        const candidateMatch = (previousCatalog?.records || []).find((r) => r.site === "KR" && (r.character_id === Number(character.id) || r.work_title === sortedTags[0]?.hashtag || r.character_name === character.name));
         if (candidateMatch?.local_image) {
           const candidateSrc = path.join(root, "assets", "kr", path.basename(candidateMatch.local_image));
           if (existsSync(candidateSrc)) {
@@ -364,12 +364,16 @@ async function collectMarket(market) {
         }
       }
     }
+    if (!safeVideoUrl && prev?.safe_video_url) {
+      safeVideoUrl = prev.safe_video_url;
+    }
     if (!safeVideoUrl) {
-      const candidateMatch = (previousCatalog?.records || []).find((r) => r.site === "KR" && (r.work_title === sortedTags[0]?.hashtag || r.character_name === character.name));
+      const candidateMatch = (previousCatalog?.records || []).find((r) => r.site === "KR" && (r.character_id === Number(character.id) || r.work_title === sortedTags[0]?.hashtag || r.character_name === character.name));
       if (candidateMatch?.safe_video_url) {
         safeVideoUrl = candidateMatch.safe_video_url;
       }
     }
+    const finalThumbnailUrl = imageUrl || prev?.thumbnail_url || null;
     const oneLineIntro = String(character.oneLineIntro || "").trim() || null;
     const detailedIntro = String(character.detailedIntro || "").trim() || null;
     const customWorldSummary = String(character.customWorldSummary || "").trim() || null;
@@ -390,7 +394,7 @@ async function collectMarket(market) {
       hashtags,
       views: Number(character.viewCount || 0),
       chats: Number(character.chatCount || 0),
-      thumbnail_url: imageUrl || null,
+      thumbnail_url: finalThumbnailUrl,
       safe_video_url: safeVideoUrl || null,
       local_image: imageFile ? `images_${market.key}/${imageFile}` : null,
       detail_url: `${market.host}/detail/character/${character.id}`,
