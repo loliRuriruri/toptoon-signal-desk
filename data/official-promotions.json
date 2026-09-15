@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-15T03:46:16.178Z",
+  "generated_at": "2026-09-15T04:01:15.837Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,7 +7,7 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-15T03:46:16.178Z",
+      "observed_at": "2026-09-15T04:01:15.837Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
@@ -29,7 +29,7 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-15T03:46:16.178Z",
+      "observed_at": "2026-09-15T04:01:15.837Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-15T03:46:16.178Z",
+      "observed_at": "2026-09-15T04:01:15.837Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,20 +63,20 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-15T03:46:16.178Z",
+      "observed_at": "2026-09-15T04:01:15.837Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "verified",
-      "change": "continuing",
-      "signature": "250:今日特惠僅限一天！ 羅心如，最高 60%",
+      "change": "changed",
+      "signature": "162:今日特惠僅限一天！ 黃幼涵，最高 60%",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 250,
-          "character_name": "羅心如",
+          "character_id": 162,
+          "character_name": "黃幼涵",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.net/detail/character/250",
-          "headline": "今日特惠僅限一天！ 羅心如，最高 60%",
+          "detail_url": "https://chat.toptoon.net/detail/character/162",
+          "headline": "今日特惠僅限一天！ 黃幼涵，最高 60%",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.net/"
         }
@@ -84,31 +84,6 @@
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-10T11:31:50.910Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "284:오늘특가 단 하루 한정! 오유리, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "8:本日特価は今日だけ！ 近藤結花、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "2:今日特惠僅限一天！ 李舒欣，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-10T11:46:28.331Z",
       "markets": {
@@ -4881,6 +4856,31 @@
           "status": "verified",
           "change": "continuing",
           "signature": "250:今日特惠僅限一天！ 羅心如，最高 60%"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-15T04:01:15.837Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "254:오늘특가 단 하루 한정! 이유라, 최대 60%"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "60:本日特価は今日だけ！ 橋本美優、最大 60%"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "162:今日特惠僅限一天！ 黃幼涵，最高 60%"
         }
       }
     }
