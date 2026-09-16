@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-16T04:01:24.011Z",
+  "generated_at": "2026-09-16T04:16:12.441Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,7 +7,7 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-16T04:01:24.011Z",
+      "observed_at": "2026-09-16T04:16:12.441Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
@@ -29,7 +29,7 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-16T04:01:24.011Z",
+      "observed_at": "2026-09-16T04:16:12.441Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-16T04:01:24.011Z",
+      "observed_at": "2026-09-16T04:16:12.441Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,12 +63,12 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-16T04:01:24.011Z",
+      "observed_at": "2026-09-16T04:16:12.441Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
-      "status": "partial",
+      "status": "verified",
       "change": "changed",
-      "signature": "75:price_promotion",
+      "signature": "75:今日特惠僅限一天！ 徐荷莉，最高 60%",
       "homepage_error": null,
       "items": [
         {
@@ -76,39 +76,14 @@
           "character_name": "徐荷莉",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.net/detail/character/75",
-          "headline": null,
-          "verification": "api-badge-only",
-          "source_url": "https://chat.toptoon.net/api/characters"
+          "headline": "今日特惠僅限一天！ 徐荷莉，最高 60%",
+          "verification": "api-and-homepage",
+          "source_url": "https://chat.toptoon.net/"
         }
       ]
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-14T05:45:39.825Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "221:오늘특가 단 하루 한정! 정은애, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "297:本日特価は今日だけ！ 西本美幸、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "250:今日特惠僅限一天！ 羅心如，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-14T06:00:50.935Z",
       "markets": {
@@ -4881,6 +4856,31 @@
           "status": "partial",
           "change": "changed",
           "signature": "75:price_promotion"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-16T04:16:12.441Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "227:오늘특가 단 하루 한정! 성유나, 최대 60%"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "226:本日特価は今日だけ！ 新家美絵、最大 60%"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "75:今日特惠僅限一天！ 徐荷莉，最高 60%"
         }
       }
     }
