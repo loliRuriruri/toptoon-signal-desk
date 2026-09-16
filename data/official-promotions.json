@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-16T02:46:18.872Z",
+  "generated_at": "2026-09-16T03:01:34.648Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,42 +7,42 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-16T02:46:18.872Z",
+      "observed_at": "2026-09-16T03:01:34.648Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
-      "status": "verified",
-      "change": "continuing",
-      "signature": "254:오늘특가 단 하루 한정! 이유라, 최대 60%",
+      "status": "partial",
+      "change": "changed",
+      "signature": "227:price_promotion",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 254,
-          "character_name": "이유라",
+          "character_id": 227,
+          "character_name": "성유나",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.com/detail/character/254",
-          "headline": "오늘특가 단 하루 한정! 이유라, 최대 60%",
-          "verification": "api-and-homepage",
-          "source_url": "https://chat.toptoon.com/"
+          "detail_url": "https://chat.toptoon.com/detail/character/227",
+          "headline": null,
+          "verification": "api-badge-only",
+          "source_url": "https://chat.toptoon.com/api/characters"
         }
       ]
     },
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-16T02:46:18.872Z",
+      "observed_at": "2026-09-16T03:01:34.648Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
-      "change": "continuing",
-      "signature": "60:本日特価は今日だけ！ 橋本美優、最大 60%",
+      "change": "changed",
+      "signature": "226:本日特価は今日だけ！ 新家美絵、最大 60%",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 60,
-          "character_name": "橋本美優",
+          "character_id": 226,
+          "character_name": "新家美絵",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.jp/detail/character/60",
-          "headline": "本日特価は今日だけ！ 橋本美優、最大 60%",
+          "detail_url": "https://chat.toptoon.jp/detail/character/226",
+          "headline": "本日特価は今日だけ！ 新家美絵、最大 60%",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.jp/"
         }
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-16T02:46:18.872Z",
+      "observed_at": "2026-09-16T03:01:34.648Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,7 +63,7 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-16T02:46:18.872Z",
+      "observed_at": "2026-09-16T03:01:34.648Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "verified",
@@ -84,31 +84,6 @@
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-14T04:57:46.730Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "221:오늘특가 단 하루 한정! 정은애, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "297:本日特価は今日だけ！ 西本美幸、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "250:今日特惠僅限一天！ 羅心如，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-14T05:00:22.666Z",
       "markets": {
@@ -4871,6 +4846,31 @@
           "status": "verified",
           "change": "continuing",
           "signature": "60:本日特価は今日だけ！ 橋本美優、最大 60%"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "162:今日特惠僅限一天！ 黃幼涵，最高 60%"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-16T03:01:34.648Z",
+      "markets": {
+        "kr": {
+          "status": "partial",
+          "change": "changed",
+          "signature": "227:price_promotion"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "226:本日特価は今日だけ！ 新家美絵、最大 60%"
         },
         "global": {
           "status": "none",
