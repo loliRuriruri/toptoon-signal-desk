@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-17T12:46:12.624Z",
+  "generated_at": "2026-09-17T13:01:11.979Z",
   "mode": "live-crosscheck",
   "overall_status": "share-with-caveats",
   "summary": {
@@ -18,45 +18,45 @@
     "kr": {
       "label": "한국",
       "count": 98,
-      "chats": 1704694,
-      "views": 57345176,
+      "chats": 1704873,
+      "views": 57348665,
       "live": {
         "count": 98,
-        "chats": 1704700,
-        "views": 57345297
+        "chats": 1704876,
+        "views": 57348777
       }
     },
     "jp": {
       "label": "일본",
       "count": 84,
-      "chats": 305771,
-      "views": 44869812,
+      "chats": 305811,
+      "views": 44889008,
       "live": {
         "count": 84,
-        "chats": 305773,
-        "views": 44870520
+        "chats": 305813,
+        "views": 44889671
       }
     },
     "global": {
       "label": "글로벌",
       "count": 94,
-      "chats": 23541,
-      "views": 380644,
+      "chats": 23544,
+      "views": 380658,
       "live": {
         "count": 94,
-        "chats": 23541,
-        "views": 380644
+        "chats": 23544,
+        "views": 380658
       }
     },
     "tw": {
       "label": "대만",
-      "count": 88,
-      "chats": 119673,
-      "views": 3923206,
+      "count": 89,
+      "chats": 119685,
+      "views": 3923519,
       "live": {
-        "count": 88,
-        "chats": 119673,
-        "views": 3923218
+        "count": 89,
+        "chats": 119685,
+        "views": 3923530
       }
     }
   },
@@ -74,8 +74,8 @@
       "id": "asset-coverage",
       "label": "로컬 이미지 참조",
       "status": "pass",
-      "observed": 364,
-      "expected": 364,
+      "observed": 365,
+      "expected": 365,
       "note": "모든 레코드에 로컬 이미지 존재",
       "severity": "none"
     },
@@ -83,8 +83,8 @@
       "id": "work-title-completeness",
       "label": "작품명 후보 필드",
       "status": "warn",
-      "observed": 362,
-      "expected": 364,
+      "observed": 363,
+      "expected": 365,
       "note": "첫 번째 해시태그를 작품명 후보로 사용하므로 정식 작품명과 다를 수 있음",
       "severity": "medium"
     },
@@ -110,8 +110,8 @@
       "id": "live-chats-kr",
       "label": "한국 누적 채팅 시차",
       "status": "pass",
-      "observed": 1704694,
-      "expected": 1704700,
+      "observed": 1704873,
+      "expected": 1704876,
       "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
@@ -128,8 +128,8 @@
       "id": "live-chats-jp",
       "label": "일본 누적 채팅 시차",
       "status": "pass",
-      "observed": 305771,
-      "expected": 305773,
+      "observed": 305811,
+      "expected": 305813,
       "note": "수집 이후 변동 0.001% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
@@ -146,8 +146,8 @@
       "id": "live-chats-global",
       "label": "글로벌 누적 채팅 시차",
       "status": "pass",
-      "observed": 23541,
-      "expected": 23541,
+      "observed": 23544,
+      "expected": 23544,
       "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
@@ -155,8 +155,8 @@
       "id": "live-count-tw",
       "label": "대만 원본 목록 수",
       "status": "pass",
-      "observed": 88,
-      "expected": 88,
+      "observed": 89,
+      "expected": 89,
       "note": "로컬 스냅샷과 공개 API의 캐릭터 수 대조",
       "severity": "none"
     },
@@ -164,8 +164,8 @@
       "id": "live-chats-tw",
       "label": "대만 누적 채팅 시차",
       "status": "pass",
-      "observed": 119673,
-      "expected": 119673,
+      "observed": 119685,
+      "expected": 119685,
       "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
@@ -174,7 +174,7 @@
       "label": "한국 Worker↔직접 관측",
       "status": "warn",
       "observed": 0,
-      "expected": 1704694,
+      "expected": 1704873,
       "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 100.000%",
       "severity": "medium"
     },
@@ -183,7 +183,7 @@
       "label": "일본 Worker↔직접 관측",
       "status": "warn",
       "observed": 0,
-      "expected": 305771,
+      "expected": 305811,
       "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 100.000%",
       "severity": "medium"
     },
@@ -192,7 +192,7 @@
       "label": "글로벌 Worker↔직접 관측",
       "status": "warn",
       "observed": 0,
-      "expected": 23541,
+      "expected": 23544,
       "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 100.000%",
       "severity": "medium"
     },
@@ -201,7 +201,7 @@
       "label": "대만 Worker↔직접 관측",
       "status": "warn",
       "observed": 0,
-      "expected": 119673,
+      "expected": 119685,
       "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 100.000%",
       "severity": "medium"
     },
