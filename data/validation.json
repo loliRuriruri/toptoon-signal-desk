@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-17T10:01:10.133Z",
+  "generated_at": "2026-09-17T10:16:16.719Z",
   "mode": "live-crosscheck",
-  "overall_status": "needs-revision",
+  "overall_status": "share-with-caveats",
   "summary": {
     "pass": 16,
-    "warn": 9,
-    "block": 1
+    "warn": 10,
+    "block": 0
   },
   "definitions": {
     "grain": "시장×캐릭터 공개 누적 스냅샷",
@@ -17,46 +17,46 @@
   "catalogs": {
     "kr": {
       "label": "한국",
-      "count": 93,
-      "chats": 1703665,
-      "views": 57312248,
+      "count": 94,
+      "chats": 1703730,
+      "views": 57315069,
       "live": {
         "count": 94,
-        "chats": 1703670,
-        "views": 57312354
+        "chats": 1703734,
+        "views": 57315149
       }
     },
     "jp": {
       "label": "일본",
       "count": 84,
-      "chats": 305300,
-      "views": 44715315,
+      "chats": 305347,
+      "views": 44730451,
       "live": {
         "count": 84,
-        "chats": 305301,
-        "views": 44715748
+        "chats": 305347,
+        "views": 44730900
       }
     },
     "global": {
       "label": "글로벌",
       "count": 94,
       "chats": 23518,
-      "views": 380489,
+      "views": 380505,
       "live": {
         "count": 94,
         "chats": 23518,
-        "views": 380489
+        "views": 380505
       }
     },
     "tw": {
       "label": "대만",
       "count": 88,
-      "chats": 119574,
-      "views": 3920438,
+      "chats": 119581,
+      "views": 3920680,
       "live": {
         "count": 88,
-        "chats": 119574,
-        "views": 3920447
+        "chats": 119581,
+        "views": 3920685
       }
     }
   },
@@ -73,18 +73,18 @@
     {
       "id": "asset-coverage",
       "label": "로컬 이미지 참조",
-      "status": "pass",
+      "status": "warn",
       "observed": 359,
-      "expected": 359,
-      "note": "모든 레코드에 로컬 이미지 존재",
-      "severity": "none"
+      "expected": 360,
+      "note": "1개 이미지 누락",
+      "severity": "medium"
     },
     {
       "id": "work-title-completeness",
       "label": "작품명 후보 필드",
       "status": "warn",
-      "observed": 357,
-      "expected": 359,
+      "observed": 358,
+      "expected": 360,
       "note": "첫 번째 해시태그를 작품명 후보로 사용하므로 정식 작품명과 다를 수 있음",
       "severity": "medium"
     },
@@ -100,18 +100,18 @@
     {
       "id": "live-count-kr",
       "label": "한국 원본 목록 수",
-      "status": "block",
-      "observed": 93,
+      "status": "pass",
+      "observed": 94,
       "expected": 94,
       "note": "로컬 스냅샷과 공개 API의 캐릭터 수 대조",
-      "severity": "critical"
+      "severity": "none"
     },
     {
       "id": "live-chats-kr",
       "label": "한국 누적 채팅 시차",
       "status": "pass",
-      "observed": 1703665,
-      "expected": 1703670,
+      "observed": 1703730,
+      "expected": 1703734,
       "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
@@ -128,8 +128,8 @@
       "id": "live-chats-jp",
       "label": "일본 누적 채팅 시차",
       "status": "pass",
-      "observed": 305300,
-      "expected": 305301,
+      "observed": 305347,
+      "expected": 305347,
       "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
@@ -164,8 +164,8 @@
       "id": "live-chats-tw",
       "label": "대만 누적 채팅 시차",
       "status": "pass",
-      "observed": 119574,
-      "expected": 119574,
+      "observed": 119581,
+      "expected": 119581,
       "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
@@ -174,7 +174,7 @@
       "label": "한국 Worker↔직접 관측",
       "status": "warn",
       "observed": 0,
-      "expected": 1703665,
+      "expected": 1703730,
       "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 100.000%",
       "severity": "medium"
     },
@@ -183,7 +183,7 @@
       "label": "일본 Worker↔직접 관측",
       "status": "warn",
       "observed": 0,
-      "expected": 305300,
+      "expected": 305347,
       "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 100.000%",
       "severity": "medium"
     },
@@ -201,7 +201,7 @@
       "label": "대만 Worker↔직접 관측",
       "status": "warn",
       "observed": 0,
-      "expected": 119574,
+      "expected": 119581,
       "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 100.000%",
       "severity": "medium"
     },
