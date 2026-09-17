@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-09-17T13:15:52.742Z",
+  "generated_at": "2026-09-17T13:31:13.660Z",
   "providers": {
     "opendart": {
-      "status": "ok",
+      "status": "cached",
       "source": "OpenDART 공시검색",
-      "note": "종목코드 134580의 회사 고유번호를 자동 확인해 최근 180일 조회",
+      "note": "최근 갱신 실패 · 이전 정상 응답 유지 (요청 시간 초과)",
       "corp_code": "00608699",
       "disclosures": [
         {
@@ -89,26 +89,26 @@
         }
       ],
       "observed_at": "2026-09-17T13:15:45.379Z",
-      "attempted_at": "2026-09-17T13:15:45.379Z"
+      "attempted_at": "2026-09-17T13:30:50.523Z"
     },
     "kis": {
-      "status": "cached",
+      "status": "ok",
       "source": "한국투자증권 국내주식 현재가",
       "ticker": "134580",
       "quote": {
-        "price": 3700,
-        "previous_close": 3915,
-        "open": 3965,
-        "high": 3980,
-        "low": 3500,
-        "change": -215,
-        "change_pct": -5.49,
-        "change_sign": "5",
-        "volume": 351531,
+        "price": 3890,
+        "previous_close": 3710,
+        "open": 3720,
+        "high": 4005,
+        "low": 3527,
+        "change": 180,
+        "change_pct": 4.85,
+        "change_sign": "2",
+        "volume": 584544,
         "shares_outstanding": 49294149,
-        "market_cap_krw": 182400000000,
-        "per": -67.27,
-        "pbr": 5.6
+        "market_cap_krw": 191800000000,
+        "per": -70.73,
+        "pbr": 5.89
       },
       "price_history": [
         {
@@ -299,9 +299,15 @@
         },
         {
           "date": "20260916",
-          "close": 3700,
+          "close": 3710,
           "high": 3980,
-          "low": 3500
+          "low": 3600
+        },
+        {
+          "date": "20260917",
+          "close": 3890,
+          "high": 4005,
+          "low": 3527
         }
       ],
       "market_alert": {
@@ -339,19 +345,19 @@
           "name": "미스터블루",
           "role": "Core",
           "focus": "웹툰 플랫폼·콘텐츠 제작",
-          "price": 2295,
-          "previous_close": 2320,
-          "open": 2370,
-          "high": 2370,
-          "low": 2250,
-          "change": -25,
-          "change_pct": -1.08,
-          "change_sign": "5",
-          "volume": 39155,
+          "price": 2285,
+          "previous_close": 2270,
+          "open": 2310,
+          "high": 2310,
+          "low": 2205,
+          "change": 15,
+          "change_pct": 0.66,
+          "change_sign": "2",
+          "volume": 25360,
           "shares_outstanding": 16615956,
-          "market_cap_krw": 38100000000,
+          "market_cap_krw": 38000000000,
           "per": -2.05,
-          "pbr": 0.94,
+          "pbr": 0.93,
           "status": "ok"
         },
         {
@@ -359,19 +365,19 @@
           "name": "키다리스튜디오",
           "role": "Core",
           "focus": "웹툰·웹소설 플랫폼/IP",
-          "price": 8980,
-          "previous_close": 8960,
-          "open": 8800,
-          "high": 9450,
-          "low": 8750,
-          "change": 20,
-          "change_pct": 0.22,
+          "price": 9250,
+          "previous_close": 8980,
+          "open": 8890,
+          "high": 9360,
+          "low": 8720,
+          "change": 270,
+          "change_pct": 3.01,
           "change_sign": "2",
-          "volume": 161668,
+          "volume": 220057,
           "shares_outstanding": 37063766,
-          "market_cap_krw": 332800000000,
-          "per": 50.17,
-          "pbr": 1.64,
+          "market_cap_krw": 342800000000,
+          "per": 51.68,
+          "pbr": 1.69,
           "status": "ok"
         },
         {
@@ -379,19 +385,19 @@
           "name": "핑거스토리",
           "role": "Secondary",
           "focus": "웹툰·웹소설 플랫폼",
-          "price": 4360,
-          "previous_close": 4095,
-          "open": 4120,
-          "high": 4500,
-          "low": 4020,
-          "change": 265,
-          "change_pct": 6.47,
+          "price": 4595,
+          "previous_close": 4090,
+          "open": 3970,
+          "high": 5300,
+          "low": 3970,
+          "change": 505,
+          "change_pct": 12.35,
           "change_sign": "2",
-          "volume": 5632,
+          "volume": 5652,
           "shares_outstanding": 5714889,
-          "market_cap_krw": 24900000000,
-          "per": 4.27,
-          "pbr": 0.49,
+          "market_cap_krw": 26300000000,
+          "per": 4.5,
+          "pbr": 0.52,
           "status": "ok"
         },
         {
@@ -399,32 +405,31 @@
           "name": "디앤씨미디어",
           "role": "Secondary",
           "focus": "웹소설·웹툰 IP 출판",
-          "price": 7220,
-          "previous_close": 7130,
-          "open": 7120,
-          "high": 7230,
-          "low": 6920,
-          "change": 90,
-          "change_pct": 1.26,
-          "change_sign": "2",
-          "volume": 8049,
+          "price": 7000,
+          "previous_close": 7080,
+          "open": 7080,
+          "high": 8240,
+          "low": 6900,
+          "change": -80,
+          "change_pct": -1.13,
+          "change_sign": "5",
+          "volume": 3889,
           "shares_outstanding": 12245561,
-          "market_cap_krw": 88400000000,
-          "per": 11.33,
-          "pbr": 0.94,
+          "market_cap_krw": 85700000000,
+          "per": 10.99,
+          "pbr": 0.91,
           "status": "ok"
         }
       ],
       "peer_note": "동일 업종의 완전한 비교군이 아닌 웹툰 플랫폼·IP 사업 노출 기준 스크리닝 피어",
-      "observed_at": "2026-09-16T17:16:13.870Z",
-      "attempted_at": "2026-09-17T13:15:52.741Z",
-      "note": "KIS 토큰 중복 발급 방지 · 마지막 정상 시세 20.0시간 전 · 20시간 간격으로 재조회"
+      "observed_at": "2026-09-17T13:31:10.526Z",
+      "attempted_at": "2026-09-17T13:31:10.526Z"
     },
     "fred": {
       "status": "skipped",
       "note": "FRED_API_KEY 필요",
       "observed_at": null,
-      "attempted_at": "2026-09-17T13:15:52.742Z"
+      "attempted_at": "2026-09-17T13:31:13.659Z"
     }
   }
 }
