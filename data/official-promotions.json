@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-21T04:01:20.487Z",
+  "generated_at": "2026-09-21T04:16:19.605Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,7 +7,7 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-21T04:01:20.487Z",
+      "observed_at": "2026-09-21T04:16:19.605Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
@@ -29,7 +29,7 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-21T04:01:20.487Z",
+      "observed_at": "2026-09-21T04:16:19.605Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-21T04:01:20.487Z",
+      "observed_at": "2026-09-21T04:16:19.605Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,12 +63,12 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-21T04:01:20.487Z",
+      "observed_at": "2026-09-21T04:16:19.605Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
-      "status": "partial",
+      "status": "verified",
       "change": "changed",
-      "signature": "220:price_promotion",
+      "signature": "220:今日特惠僅限一天！ 閔韶多，最高 60%",
       "homepage_error": null,
       "items": [
         {
@@ -76,39 +76,14 @@
           "character_name": "閔韶多",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.net/detail/character/220",
-          "headline": null,
-          "verification": "api-badge-only",
-          "source_url": "https://chat.toptoon.net/api/characters"
+          "headline": "今日特惠僅限一天！ 閔韶多，最高 60%",
+          "verification": "api-and-homepage",
+          "source_url": "https://chat.toptoon.net/"
         }
       ]
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-19T05:46:16.799Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "182:오늘특가 단 하루 한정! 이지연, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "306:本日特価は今日だけ！ 清水琴葉、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "229:今日特惠僅限一天！ 劉美媛，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-19T06:01:41.671Z",
       "markets": {
@@ -4881,6 +4856,31 @@
           "status": "partial",
           "change": "changed",
           "signature": "220:price_promotion"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-21T04:16:19.605Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "258:오늘특가 단 하루 한정! 고유미, 최대 60%"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "256:本日特価は今日だけ！ 飯村香澄、最大 60%"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "220:今日特惠僅限一天！ 閔韶多，最高 60%"
         }
       }
     }
