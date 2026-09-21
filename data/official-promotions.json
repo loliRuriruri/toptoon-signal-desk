@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-21T02:46:24.541Z",
+  "generated_at": "2026-09-21T03:01:21.913Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,20 +7,20 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-21T02:46:24.541Z",
+      "observed_at": "2026-09-21T03:01:21.913Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
-      "change": "continuing",
-      "signature": "96:오늘특가 단 하루 한정! 정고은, 최대 60%",
+      "change": "changed",
+      "signature": "258:오늘특가 단 하루 한정! 고유미, 최대 60%",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 96,
-          "character_name": "정고은",
+          "character_id": 258,
+          "character_name": "고유미",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.com/detail/character/96",
-          "headline": "오늘특가 단 하루 한정! 정고은, 최대 60%",
+          "detail_url": "https://chat.toptoon.com/detail/character/258",
+          "headline": "오늘특가 단 하루 한정! 고유미, 최대 60%",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.com/"
         }
@@ -29,20 +29,20 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-21T02:46:24.541Z",
+      "observed_at": "2026-09-21T03:01:21.913Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
-      "change": "continuing",
-      "signature": "96:本日特価は今日だけ！ 月城乃愛、最大 60%",
+      "change": "changed",
+      "signature": "256:本日特価は今日だけ！ 飯村香澄、最大 60%",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 96,
-          "character_name": "月城乃愛",
+          "character_id": 256,
+          "character_name": "飯村香澄",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.jp/detail/character/96",
-          "headline": "本日特価は今日だけ！ 月城乃愛、最大 60%",
+          "detail_url": "https://chat.toptoon.jp/detail/character/256",
+          "headline": "本日特価は今日だけ！ 飯村香澄、最大 60%",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.jp/"
         }
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-21T02:46:24.541Z",
+      "observed_at": "2026-09-21T03:01:21.913Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,7 +63,7 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-21T02:46:24.541Z",
+      "observed_at": "2026-09-21T03:01:21.913Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "verified",
@@ -84,31 +84,6 @@
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-19T04:32:25.011Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "182:오늘특가 단 하루 한정! 이지연, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "306:本日特価は今日だけ！ 清水琴葉、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "229:今日特惠僅限一天！ 劉美媛，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-19T04:46:13.712Z",
       "markets": {
@@ -4871,6 +4846,31 @@
           "status": "verified",
           "change": "continuing",
           "signature": "96:本日特価は今日だけ！ 月城乃愛、最大 60%"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "73:今日特惠僅限一天！ 徐娜莉，最高 60%"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-21T03:01:21.913Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "258:오늘특가 단 하루 한정! 고유미, 최대 60%"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "256:本日特価は今日だけ！ 飯村香澄、最大 60%"
         },
         "global": {
           "status": "none",
