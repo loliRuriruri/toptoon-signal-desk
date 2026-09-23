@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-23T03:46:27.775Z",
+  "generated_at": "2026-09-23T04:01:29.501Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,7 +7,7 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-23T03:46:27.775Z",
+      "observed_at": "2026-09-23T04:01:29.501Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
@@ -29,7 +29,7 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-23T03:46:27.775Z",
+      "observed_at": "2026-09-23T04:01:29.501Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-23T03:46:27.775Z",
+      "observed_at": "2026-09-23T04:01:29.501Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,20 +63,20 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-23T03:46:27.775Z",
+      "observed_at": "2026-09-23T04:01:29.501Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "verified",
-      "change": "continuing",
-      "signature": "167:今日特惠僅限一天！ 林淑靜，最高 60%",
+      "change": "changed",
+      "signature": "284:吳喬俐 我們不能這樣的…! 6.2萬 2421",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 167,
-          "character_name": "林淑靜",
+          "character_id": 284,
+          "character_name": "吳喬俐",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.net/detail/character/167",
-          "headline": "今日特惠僅限一天！ 林淑靜，最高 60%",
+          "detail_url": "https://chat.toptoon.net/detail/character/284",
+          "headline": "吳喬俐 我們不能這樣的…! 6.2萬 2421",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.net/"
         }
@@ -84,31 +84,6 @@
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-21T05:46:23.129Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "258:오늘특가 단 하루 한정! 고유미, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "256:本日特価は今日だけ！ 飯村香澄、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "220:今日特惠僅限一天！ 閔韶多，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-21T06:01:31.535Z",
       "markets": {
@@ -4881,6 +4856,31 @@
           "status": "verified",
           "change": "continuing",
           "signature": "167:今日特惠僅限一天！ 林淑靜，最高 60%"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-23T04:01:29.501Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "247:오늘특가 단 하루 한정! 나나현, 최대 60%"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "162:本日特価は今日だけ！ 白石祐里、最大 60%"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "284:吳喬俐 我們不能這樣的…! 6.2萬 2421"
         }
       }
     }
