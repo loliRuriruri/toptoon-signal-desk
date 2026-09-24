@@ -107,10 +107,11 @@ for (const key of Object.keys(marketConfig)) {
 
 const dailyChatRows = stats.daily_chat_totals?.rows || [];
 const constants = stats.revenue_nowcast?.constants || {};
-const meanDelta = dailyChatRows.length ? sum(dailyChatRows, "delta") / dailyChatRows.length : 0;
+const recentWindow = dailyChatRows.slice(-30);
+const meanDelta = recentWindow.length ? sum(recentWindow, "delta") / recentWindow.length : 0;
 const recomputedRevenue = meanDelta * 30 * Number(constants.rev_per_session || 0);
 const reportedRevenue = Number(stats.revenue_nowcast?.latest?.revenue_mid || 0);
-addCheck("revenue-nowcast-formula", "한국 월매출 런레이트 재계산", nearlyEqual(recomputedRevenue, reportedRevenue, 1) ? "pass" : "block", Math.round(recomputedRevenue), reportedRevenue, "평균 일간 채팅 증가×30일×세션당매출 가정", nearlyEqual(recomputedRevenue, reportedRevenue, 1) ? "none" : "critical");
+addCheck("revenue-nowcast-formula", "한국 월매출 런레이트 재계산", nearlyEqual(recomputedRevenue, reportedRevenue, 1) ? "pass" : "block", Math.round(recomputedRevenue), reportedRevenue, "최근 30일 일간 채팅 증가 평균×30일×세션당매출 가정", nearlyEqual(recomputedRevenue, reportedRevenue, 1) ? "none" : "critical");
 
 const margin = Number(constants.net_margin || 0);
 const recomputedProfit = reportedRevenue * margin;

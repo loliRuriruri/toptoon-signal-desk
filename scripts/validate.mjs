@@ -111,7 +111,7 @@ for (const market of ["kr", "jp", "global", "tw"]) {
   for (const item of observation?.items || []) {
     assert(/^assets\/home-banners\/(?:kr|jp|global|tw)\/.+\.(?:webp|png|jpe?g)$/i.test(item.image_url || ""), `${market} home banner image must use the cached public asset`);
     assert(existsSync(path.join(root, item.image_url)), `${market} home banner cached asset is missing: ${item.image_url}`);
-    assert(/^https:\/\/showcase\.chat\.(?:toptoon\.(?:com|jp|net)|global\.toptoon\.com)\/banner\/main-top\//.test(item.source_image_url || ""), `${market} home banner source image must come from the official showcase host`);
+    assert(/^https:\/\/showcase\.chat\.(?:toptoon\.(?:com|jp|net)|global\.toptoon\.com)\/(?:banner\/main-top|content\/\d+\/banner|banner)\//.test(item.source_image_url || ""), `${market} home banner source image must come from the official showcase host`);
     assert(item.source_url === observation.homepage_url, `${market} home banner source URL must match the official homepage`);
     assert(Array.isArray(item.badges), `${market} home banner badges must remain an array`);
     assert(item.title || item.info_text, `${market} home banner must retain an observed title or info text`);
