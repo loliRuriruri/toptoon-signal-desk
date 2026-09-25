@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-25T04:01:24.090Z",
+  "generated_at": "2026-09-25T04:16:14.850Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,7 +7,7 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-25T04:01:24.090Z",
+      "observed_at": "2026-09-25T04:16:14.850Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
@@ -29,7 +29,7 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-25T04:01:24.090Z",
+      "observed_at": "2026-09-25T04:16:14.850Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-25T04:01:24.090Z",
+      "observed_at": "2026-09-25T04:16:14.850Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,12 +63,12 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-25T04:01:24.090Z",
+      "observed_at": "2026-09-25T04:16:14.850Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
-      "status": "partial",
+      "status": "verified",
       "change": "changed",
-      "signature": "306:price_promotion",
+      "signature": "306:今日特惠僅限一天！ 黃恩茱，最高 60%",
       "homepage_error": null,
       "items": [
         {
@@ -76,39 +76,14 @@
           "character_name": "黃恩茱",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.net/detail/character/306",
-          "headline": null,
-          "verification": "api-badge-only",
-          "source_url": "https://chat.toptoon.net/api/characters"
+          "headline": "今日特惠僅限一天！ 黃恩茱，最高 60%",
+          "verification": "api-and-homepage",
+          "source_url": "https://chat.toptoon.net/"
         }
       ]
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-18T15:01:38.852Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "75:오늘특가 단 하루 한정! 서하리, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "137:本日特価は今日だけ！ 氷室澪衣、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "changed",
-          "signature": "290:夏 夏恩妮 很累吧？我用身體為你加油♥ 1.6萬 888"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-18T15:16:18.853Z",
       "markets": {
@@ -4881,6 +4856,31 @@
           "status": "partial",
           "change": "changed",
           "signature": "306:price_promotion"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-25T04:16:14.850Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "76:오늘특가 단 하루 한정! 배현주, 최대 60%"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "316:本日特価は今日だけ！ 青木里香、最大 60%"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "306:今日特惠僅限一天！ 黃恩茱，最高 60%"
         }
       }
     }
