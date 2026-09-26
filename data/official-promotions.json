@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-26T02:46:05.403Z",
+  "generated_at": "2026-09-26T03:01:20.941Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,42 +7,42 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-26T02:46:05.403Z",
+      "observed_at": "2026-09-26T03:01:20.941Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
-      "status": "verified",
-      "change": "continuing",
-      "signature": "76:오늘특가 단 하루 한정! 배현주, 최대 60%",
+      "status": "partial",
+      "change": "changed",
+      "signature": "296:price_promotion",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 76,
-          "character_name": "배현주",
+          "character_id": 296,
+          "character_name": "김지민",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.com/detail/character/76",
-          "headline": "오늘특가 단 하루 한정! 배현주, 최대 60%",
-          "verification": "api-and-homepage",
-          "source_url": "https://chat.toptoon.com/"
+          "detail_url": "https://chat.toptoon.com/detail/character/296",
+          "headline": null,
+          "verification": "api-badge-only",
+          "source_url": "https://chat.toptoon.com/api/characters"
         }
       ]
     },
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-26T02:46:05.403Z",
+      "observed_at": "2026-09-26T03:01:20.941Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
-      "change": "continuing",
-      "signature": "316:本日特価は今日だけ！ 青木里香、最大 60%",
+      "change": "changed",
+      "signature": "93:本日特価は今日だけ！ 市村紗季、最大 60%",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 316,
-          "character_name": "青木里香",
+          "character_id": 93,
+          "character_name": "市村紗季",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.jp/detail/character/316",
-          "headline": "本日特価は今日だけ！ 青木里香、最大 60%",
+          "detail_url": "https://chat.toptoon.jp/detail/character/93",
+          "headline": "本日特価は今日だけ！ 市村紗季、最大 60%",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.jp/"
         }
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-26T02:46:05.403Z",
+      "observed_at": "2026-09-26T03:01:20.941Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,7 +63,7 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-26T02:46:05.403Z",
+      "observed_at": "2026-09-26T03:01:20.941Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "verified",
@@ -84,31 +84,6 @@
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-19T13:16:17.305Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "182:오늘특가 단 하루 한정! 이지연, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "306:本日特価は今日だけ！ 清水琴葉、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "229:今日特惠僅限一天！ 劉美媛，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-19T13:31:18.213Z",
       "markets": {
@@ -4871,6 +4846,31 @@
           "status": "verified",
           "change": "continuing",
           "signature": "316:本日特価は今日だけ！ 青木里香、最大 60%"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "306:今日特惠僅限一天！ 黃恩茱，最高 60%"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-26T03:01:20.941Z",
+      "markets": {
+        "kr": {
+          "status": "partial",
+          "change": "changed",
+          "signature": "296:price_promotion"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "93:本日特価は今日だけ！ 市村紗季、最大 60%"
         },
         "global": {
           "status": "none",
