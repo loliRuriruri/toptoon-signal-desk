@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-27T03:46:06.690Z",
+  "generated_at": "2026-09-27T04:01:10.379Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,7 +7,7 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-27T03:46:06.690Z",
+      "observed_at": "2026-09-27T04:01:10.379Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
@@ -29,7 +29,7 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-27T03:46:06.690Z",
+      "observed_at": "2026-09-27T04:01:10.379Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-27T03:46:06.690Z",
+      "observed_at": "2026-09-27T04:01:10.379Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,20 +63,20 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-27T03:46:06.690Z",
+      "observed_at": "2026-09-27T04:01:10.379Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "verified",
-      "change": "continuing",
-      "signature": "72:今日特惠僅限一天！ 陳鈺琳，最高 60%",
+      "change": "changed",
+      "signature": "226:李美英 「竟然要讓媳婦春藥上癮…爸，你不是那種人啊!」 3.2萬 1111",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 72,
-          "character_name": "陳鈺琳",
+          "character_id": 226,
+          "character_name": "李美英",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.net/detail/character/72",
-          "headline": "今日特惠僅限一天！ 陳鈺琳，最高 60%",
+          "detail_url": "https://chat.toptoon.net/detail/character/226",
+          "headline": "李美英 「竟然要讓媳婦春藥上癮…爸，你不是那種人啊!」 3.2萬 1111",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.net/"
         }
@@ -84,31 +84,6 @@
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-25T05:31:15.062Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "76:오늘특가 단 하루 한정! 배현주, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "316:本日特価は今日だけ！ 青木里香、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "306:今日特惠僅限一天！ 黃恩茱，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-25T05:46:12.742Z",
       "markets": {
@@ -4881,6 +4856,31 @@
           "status": "verified",
           "change": "continuing",
           "signature": "72:今日特惠僅限一天！ 陳鈺琳，最高 60%"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-27T04:01:10.379Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "261:오늘특가 단 하루 한정! 나연아, 최대 60%"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "81:本日特価は今日だけ！ セシリア、最大 60%"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "226:李美英 「竟然要讓媳婦春藥上癮…爸，你不是那種人啊!」 3.2萬 1111"
         }
       }
     }
