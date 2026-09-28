@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-28T02:46:10.650Z",
+  "generated_at": "2026-09-28T03:01:19.014Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,20 +7,20 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-09-28T02:46:10.650Z",
+      "observed_at": "2026-09-28T03:01:19.014Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
-      "change": "continuing",
-      "signature": "261:오늘특가 단 하루 한정! 나연아, 최대 60%",
+      "change": "changed",
+      "signature": "61:한나리 \"누나랑 하루 종일 침대에서 놀자. 넌 내 거니까 마음대로 해도 되지?\" 419만 14만",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 261,
-          "character_name": "나연아",
+          "character_id": 61,
+          "character_name": "한나리",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.com/detail/character/261",
-          "headline": "오늘특가 단 하루 한정! 나연아, 최대 60%",
+          "detail_url": "https://chat.toptoon.com/detail/character/61",
+          "headline": "한나리 \"누나랑 하루 종일 침대에서 놀자. 넌 내 거니까 마음대로 해도 되지?\" 419만 14만",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.com/"
         }
@@ -29,20 +29,20 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-09-28T02:46:10.650Z",
+      "observed_at": "2026-09-28T03:01:19.014Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
-      "change": "continuing",
-      "signature": "81:本日特価は今日だけ！ セシリア、最大 60%",
+      "change": "changed",
+      "signature": "76:保坂白雪 今回は…誰が見ても私からアプローチしたじゃない… 19万 6627",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 81,
-          "character_name": "セシリア",
+          "character_id": 76,
+          "character_name": "保坂白雪",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.jp/detail/character/81",
-          "headline": "本日特価は今日だけ！ セシリア、最大 60%",
+          "detail_url": "https://chat.toptoon.jp/detail/character/76",
+          "headline": "保坂白雪 今回は…誰が見ても私からアプローチしたじゃない… 19万 6627",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.jp/"
         }
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-09-28T02:46:10.650Z",
+      "observed_at": "2026-09-28T03:01:19.014Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,7 +63,7 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-09-28T02:46:10.650Z",
+      "observed_at": "2026-09-28T03:01:19.014Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "verified",
@@ -84,31 +84,6 @@
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-26T05:01:22.122Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "296:오늘특가 단 하루 한정! 김지민, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "93:本日特価は今日だけ！ 市村紗季、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "72:今日特惠僅限一天！ 陳鈺琳，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-26T05:16:07.424Z",
       "markets": {
@@ -4871,6 +4846,31 @@
           "status": "verified",
           "change": "continuing",
           "signature": "81:本日特価は今日だけ！ セシリア、最大 60%"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "226:今日特惠僅限一天！ 李美英，最高 60%"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-09-28T03:01:19.014Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "61:한나리 \"누나랑 하루 종일 침대에서 놀자. 넌 내 거니까 마음대로 해도 되지?\" 419만 14만"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "76:保坂白雪 今回は…誰が見ても私からアプローチしたじゃない… 19万 6627"
         },
         "global": {
           "status": "none",
