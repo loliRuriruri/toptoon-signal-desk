@@ -16,14 +16,15 @@ New-Item -ItemType Directory -Path $RuntimeDir -Force | Out-Null
 
 function Invoke-Checked {
     param(
+        [Parameter(Mandatory)] [string]$Stage,
         [Parameter(Mandatory)] [string]$Label,
         [Parameter(Mandatory)] [scriptblock]$Command
     )
 
-    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] $Label"
+    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] [STAGE:$Stage] $Label"
     & $Command
     if ($LASTEXITCODE -ne 0) {
-        throw "$Label failed (exit code $LASTEXITCODE)"
+        throw "[$Stage 단계 실패] $Label (exit code $LASTEXITCODE)"
     }
 }
 
@@ -70,24 +71,32 @@ try {
     Start-Transcript -LiteralPath $LogPath -Force | Out-Null
     Set-Location -LiteralPath $ProjectRoot
 
-    Invoke-Checked 'Refresh four markets and public statistics' { & node (Join-Path $PSScriptRoot 'refresh-public-snapshot.mjs') }
-    Invoke-Checked 'Run live cross-check' { & node (Join-Path $PSScriptRoot 'crosscheck.mjs') --live --write }
-    Invoke-Checked 'Refresh official API signals' { & node (Join-Path $PSScriptRoot 'refresh-official-signals.mjs') }
-    Invoke-Checked 'Validate data and application' { & node (Join-Path $PSScriptRoot 'validate.mjs') }
-    Invoke-Checked 'Build public read-only bundle' { & node (Join-Path $PSScriptRoot 'build-public.mjs') }
+    Invoke-Checked -Stage '수집' -Label 'Refresh four markets and public statistics' { & node (Join-Path $PSScriptRoot 'refresh-public-snapshot.mjs') }
+    Invoke-Checked -Stage '교차검증' -Label 'Run live cross-check' { & node (Join-Path $PSScriptRoot 'crosscheck.mjs') --live --write }
+    Invoke-Checked -Stage '수집' -Label 'Refresh official API signals' { & node (Join-Path $PSScriptRoot 'refresh-official-signals.mjs') }
+    Invoke-Checked -Stage '검증' -Label 'Validate data and application' { & node (Join-Path $PSScriptRoot 'validate.mjs') }
+    Invoke-Checked -Stage '빌드' -Label 'Build public read-only bundle' { & node (Join-Path $PSScriptRoot 'build-public.mjs') }
 
-    Assert-PublicBuildHasNoLocalSecrets
-    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Public build secret scan passed"
+    try {
+        Assert-PublicBuildHasNoLocalSecrets
+        Write-Host "[$(Get-Date -Format 'HH:mm:ss')] [STAGE:빌드] Public build secret scan passed"
+    } catch {
+        throw "[빌드 단계 실패] $_"
+    }
 
-    Invoke-Checked 'Deploy Cloudflare Pages production' {
+    Invoke-Checked -Stage 'Cloudflare 배포' -Label 'Deploy Cloudflare Pages production' {
         & npx.cmd --yes wrangler@4.125.0 pages deploy $PublicDir --project-name $ProjectName --branch $Branch
     }
 
-    $response = Invoke-WebRequest -Uri $ProductionUrl -UseBasicParsing -TimeoutSec 30
-    if ($response.StatusCode -ne 200 -or -not $response.Content.Contains('TOPTOON CHAT TRACKER')) {
-        throw "Production site verification failed: HTTP $($response.StatusCode)"
+    try {
+        $response = Invoke-WebRequest -Uri $ProductionUrl -UseBasicParsing -TimeoutSec 30
+        if ($response.StatusCode -ne 200 -or -not $response.Content.Contains('TOPTOON CHAT TRACKER')) {
+            throw "Production site verification failed: HTTP $($response.StatusCode)"
+        }
+    } catch {
+        throw "[Cloudflare 배포 단계 실패] $_"
     }
-    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Complete: $ProductionUrl"
+    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] [STAGE:완료] Complete: $ProductionUrl"
 }
 catch {
     Write-Error $_

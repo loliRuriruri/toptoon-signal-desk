@@ -81,11 +81,11 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git pull origin main --rebase || true
           git add data/ assets/
           if git diff --cached --quiet; then
             echo "No data changes detected. Everything is up to date."
           else
             git commit -m "chore(auto): scheduled data refresh snapshot"
+            git pull origin main --rebase -X theirs || git pull origin main --rebase || true
             git push origin HEAD:main || true
           fi

@@ -159,11 +159,29 @@ function currentDeployStatus() {
 function updateDeployMessage(chunk) {
   const lines = String(chunk || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
   for (const line of lines) {
-    if (/^\[\d{2}:\d{2}:\d{2}\]/.test(line)) deployStatus.message = line.replace(/^\[\d{2}:\d{2}:\d{2}\]\s*/, "");
-    else if (line.startsWith("Official signal refresh complete")) deployStatus.message = "공식 API 갱신 완료";
-    else if (line.startsWith("Validation passed")) deployStatus.message = "데이터·앱 검증 통과";
-    else if (line.startsWith("Public read-only build created")) deployStatus.message = "공개용 안전 빌드 완료";
-    else if (line.includes("Deployment complete")) deployStatus.message = "Cloudflare 배포 반영 중";
+    const stageMatch = line.match(/\[STAGE:([^\]]+)\]\s*(.*)/);
+    if (stageMatch) {
+      deployStatus.stage = stageMatch[1];
+      deployStatus.message = `${stageMatch[1]} 진행 중: ${stageMatch[2]}`;
+    } else if (/^\[\d{2}:\d{2}:\d{2}\]/.test(line)) {
+      deployStatus.message = line.replace(/^\[\d{2}:\d{2}:\d{2}\]\s*/, "");
+    } else if (line.startsWith("Official signal refresh complete")) {
+      deployStatus.message = "공식 API 갱신 완료";
+    } else if (line.startsWith("Validation passed")) {
+      deployStatus.message = "데이터·앱 검증 통과";
+    } else if (line.startsWith("Public read-only build created")) {
+      deployStatus.message = "공개용 안전 빌드 완료";
+    } else if (line.includes("Deployment complete")) {
+      deployStatus.message = "Cloudflare 배포 반영 중";
+    }
+
+    const failedMatch = line.match(/\[([^\]]+) 단계 실패\]\s*(.*)/);
+    if (failedMatch) {
+      deployStatus.failed_stage = failedMatch[1];
+      deployStatus.detail = failedMatch[2] || line;
+    } else if (line.startsWith("Validation failed:") || line.includes("AssertionError") || line.includes("Error:")) {
+      deployStatus.detail = line;
+    }
   }
 }
 
@@ -174,7 +192,10 @@ function startManualDeploy() {
     state: "running",
     started_at: new Date().toISOString(),
     finished_at: null,
+    stage: "수집",
+    failed_stage: null,
     message: "수집·검증을 시작합니다",
+    detail: null,
     production_url: "https://toptoon-signal-desk.pages.dev/"
   };
   const child = spawn("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", updateScript], {
@@ -186,16 +207,28 @@ function startManualDeploy() {
   child.stdout.on("data", updateDeployMessage);
   child.stderr.on("data", updateDeployMessage);
   child.on("error", (error) => {
-    deployStatus = { ...deployStatus, state: "failed", finished_at: new Date().toISOString(), message: String(error.message || error) };
+    deployStatus = {
+      ...deployStatus,
+      state: "failed",
+      failed_stage: deployStatus.stage || "배포",
+      finished_at: new Date().toISOString(),
+      message: `[${deployStatus.stage || "배포"} 실패] ${String(error.message || error)}`,
+      detail: String(error.message || error)
+    };
     deployProcess = null;
   });
   child.on("close", (code) => {
     const skipped = deployStatus.message.includes("Another update") || deployStatus.message.includes("skipping");
+    const failedStage = deployStatus.failed_stage || deployStatus.stage || "배포";
+    const failureMsg = `[${failedStage} 실패] (exit code ${code})`;
+    const failureDetail = deployStatus.detail || `${failedStage} 단계 실행 중 오류가 발생했습니다. (exit code ${code})`;
     deployStatus = {
       ...deployStatus,
       state: code === 0 ? (skipped ? "skipped" : "success") : "failed",
+      failed_stage: code === 0 ? null : failedStage,
       finished_at: new Date().toISOString(),
-      message: code === 0 ? (skipped ? "자동 갱신이 이미 실행 중이라 이번 요청을 건너뛰었습니다" : "최신 데이터 공개 배포 완료") : `배포 실패 (exit code ${code})`
+      message: code === 0 ? (skipped ? "자동 갱신이 이미 실행 중이라 이번 요청을 건너뛰었습니다" : "최신 데이터 공개 배포 완료") : failureMsg,
+      detail: code === 0 ? null : failureDetail
     };
     deployProcess = null;
   });

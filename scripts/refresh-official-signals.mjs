@@ -257,8 +257,52 @@ async function refreshKis() {
     };
   };
   const primaryQuote = await fetchQuote(ticker);
-  const historyStart = new Date();
-  historyStart.setUTCDate(historyStart.getUTCDate() - 45);
+
+  // KRX 공시 기준일 (거래정지·투자경고 해제요건)
+  const KRX_ALERT_REFERENCE_DATES = {
+    release15: "2026-08-12",
+    haltRef: "2026-08-20",
+    haltJudgment: "2026-08-24",
+    release5: "2026-08-27"
+  };
+
+  // 공시 시점에 확정된 고정 historical reference 벤치마크 (rolling price_history 기간 경과 후에도 영구 보존)
+  const FIXED_HISTORICAL_REFERENCES = {
+    "20260812": {
+      date: "2026-08-12",
+      close: 1373,
+      label: "투자경고 해제요건 15일 전 종가 (공시 기준)",
+      source_url: "https://kind.krx.co.kr/external/2026/08/20/000602/20260820001386/70804.htm"
+    },
+    "20260820": {
+      date: "2026-08-20",
+      close: 2160,
+      label: "매매거래정지 예고 40% 기준일 종가 (공시 기준)",
+      source_url: "https://kind.krx.co.kr/external/2026/08/21/000686/20260821001992/70835.htm"
+    },
+    "20260824": {
+      date: "2026-08-24",
+      close: 2785,
+      label: "매매거래정지 판단일 종가 실측",
+      source_url: "https://kind.krx.co.kr/external/2026/08/21/000686/20260821001992/70835.htm"
+    },
+    "20260827": {
+      date: "2026-08-27",
+      close: 3320,
+      label: "투자경고 해제요건 5일 전 종가 (공시 기준)",
+      source_url: "https://kind.krx.co.kr/external/2026/08/20/000602/20260820001386/70804.htm"
+    }
+  };
+
+  // 최소한 필요한 모든 reference date가 항상 history 조회범위에 포함되도록 동적으로 oldest required date 계산
+  const now = new Date();
+  const allRequiredTimestamps = Object.values(KRX_ALERT_REFERENCE_DATES).map((d) => Date.parse(d)).filter(Number.isFinite);
+  const oldestRequiredTimestamp = allRequiredTimestamps.length ? Math.min(...allRequiredTimestamps) : now.getTime();
+  const daysToOldest = Math.ceil((now.getTime() - oldestRequiredTimestamp) / (1000 * 60 * 60 * 24));
+  const dynamicDaysBack = Math.max(45, daysToOldest + 5);
+
+  const historyStart = new Date(now);
+  historyStart.setUTCDate(historyStart.getUTCDate() - dynamicDaysBack);
   const historyParams = new URLSearchParams({
     FID_COND_MRKT_DIV_CODE: "J",
     FID_INPUT_ISCD: ticker,
@@ -285,14 +329,76 @@ async function refreshKis() {
   } catch (error) {
     priceHistory = [];
   }
-  const closeOn = (date) => priceHistory.find((row) => row.date === date)?.close || null;
-  const haltReferenceClose = closeOn("20260820");
-  const haltJudgmentClose = closeOn("20260824");
-  const release15ReferenceClose = closeOn("20260812");
-  const release5ReferenceClose = closeOn("20260827");
+
+  // 기준일 종가 확인:
+  // 1순위: API 실시간 응답인 priceHistory에서 직접 검색
+  // 2순위: 이전 snapshot의 historical_references 또는 market_alert에서 이미 실측된 종가 보존
+  // 3순위: 공시 시점에 확정된 FIXED_HISTORICAL_REFERENCES 상수 벤치마크 보존
+  const previousRefs = previousKis?.historical_references || {};
+  const previousAlert = previousKis?.market_alert || {};
+  const resolveReferenceClose = (compactDate) => {
+    const fromHistory = priceHistory.find((row) => row.date === compactDate)?.close;
+    if (fromHistory && fromHistory > 0) return fromHistory;
+
+    const fromPrevRef = previousRefs[compactDate]?.close;
+    if (fromPrevRef && fromPrevRef > 0) return fromPrevRef;
+
+    if (compactDate === "20260812" && previousAlert.warning_release?.fifteen_day_reference_close > 0) {
+      return previousAlert.warning_release.fifteen_day_reference_close;
+    }
+    if (compactDate === "20260827" && previousAlert.warning_release?.five_day_reference_close > 0) {
+      return previousAlert.warning_release.five_day_reference_close;
+    }
+    if (compactDate === "20260820" && previousAlert.trading_halt?.reference_close > 0) {
+      return previousAlert.trading_halt.reference_close;
+    }
+    if (compactDate === "20260824" && previousAlert.trading_halt?.observed_close > 0) {
+      return previousAlert.trading_halt.observed_close;
+    }
+
+    if (FIXED_HISTORICAL_REFERENCES[compactDate]?.close > 0) {
+      return FIXED_HISTORICAL_REFERENCES[compactDate].close;
+    }
+    return null;
+  };
+
+  const haltReferenceClose = resolveReferenceClose("20260820");
+  const haltJudgmentClose = resolveReferenceClose("20260824");
+  const release15ReferenceClose = resolveReferenceClose("20260812");
+  const release5ReferenceClose = resolveReferenceClose("20260827");
   const rawHaltThreshold = haltReferenceClose ? haltReferenceClose * 1.4 : null;
+
+  const historicalReferences = {
+    ...previousRefs,
+    "20260812": {
+      date: "2026-08-12",
+      close: release15ReferenceClose,
+      label: "투자경고 해제요건 15일 전 종가",
+      source_url: "https://kind.krx.co.kr/external/2026/08/20/000602/20260820001386/70804.htm"
+    },
+    "20260820": {
+      date: "2026-08-20",
+      close: haltReferenceClose,
+      label: "매매거래정지 예고 40% 기준일 종가",
+      source_url: "https://kind.krx.co.kr/external/2026/08/21/000686/20260821001992/70835.htm"
+    },
+    "20260824": {
+      date: "2026-08-24",
+      close: haltJudgmentClose,
+      label: "매매거래정지 판단일 종가 실측",
+      source_url: "https://kind.krx.co.kr/external/2026/08/21/000686/20260821001992/70835.htm"
+    },
+    "20260827": {
+      date: "2026-08-27",
+      close: release5ReferenceClose,
+      label: "투자경고 해제요건 5일 전 종가",
+      source_url: "https://kind.krx.co.kr/external/2026/08/20/000602/20260820001386/70804.htm"
+    }
+  };
+
   const marketAlert = {
     status: haltReferenceClose && haltJudgmentClose ? "calculated" : "partial",
+    historical_references: historicalReferences,
     trading_halt: {
       judgment_date: "2026-08-24",
       halt_date: "2026-08-25",
@@ -341,6 +447,7 @@ async function refreshKis() {
     ticker,
     quote: primaryQuote,
     price_history: priceHistory,
+    historical_references: historicalReferences,
     market_alert: marketAlert,
     peers,
     peer_note: "동일 업종의 완전한 비교군이 아닌 웹툰 플랫폼·IP 사업 노출 기준 스크리닝 피어"

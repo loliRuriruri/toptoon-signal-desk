@@ -73,11 +73,15 @@ assert(officialSignals.providers?.kis?.market_alert?.trading_halt?.reference_clo
 assert(officialSignals.providers?.kis?.market_alert?.trading_halt?.trigger_price_raw > 0, "KRX halt trigger calculation is missing");
 const halt = officialSignals.providers?.kis?.market_alert?.trading_halt || {};
 const haltJudgmentDate = String(halt.judgment_date || "").replaceAll("-", "");
-const haltJudgmentClose = (officialSignals.providers?.kis?.price_history || []).find((row) => row.date === haltJudgmentDate)?.close;
+const haltJudgmentClose = (officialSignals.providers?.kis?.price_history || []).find((row) => row.date === haltJudgmentDate)?.close
+  ?? officialSignals.providers?.kis?.historical_references?.[haltJudgmentDate]?.close;
 assert(haltJudgmentClose != null, "KRX halt judgment-date close is missing");
 assert(Number(halt.observed_close) === Number(haltJudgmentClose), "KRX halt must use the judgment-date close, not the latest quote");
 assert(halt.condition_met === (Number(haltJudgmentClose) >= Number(halt.trigger_price_raw)), "KRX halt condition does not match judgment-date close");
 assert(officialSignals.providers?.kis?.market_alert?.warning_release?.fifteen_day_reference_close > 0, "KRX warning release reference is missing");
+assert(officialSignals.providers?.kis?.market_alert?.warning_release?.five_day_reference_close > 0, "KRX warning release 5-day reference is missing");
+assert(officialSignals.providers?.kis?.historical_references?.["20260812"]?.close > 0, "KRX fixed historical reference 2026-08-12 is missing");
+assert(officialSignals.providers?.kis?.historical_references?.["20260820"]?.close > 0, "KRX fixed historical reference 2026-08-20 is missing");
 assert(["ok", "not-configured"].includes(aiDiagnosis.status), "scheduled AI diagnosis status is invalid");
 if (aiDiagnosis.status === "ok") {
   assert(/^\d{4}-\d{2}-\d{2}T/.test(aiDiagnosis.generated_at || ""), "scheduled AI diagnosis timestamp is missing");

@@ -683,20 +683,28 @@ async function runManualDeploy() {
 
 function renderDeployStatus(payload) {
   if (!els.deployProgress) return;
+  const failedLabel = payload.failed_stage ? `${payload.failed_stage} 실패` : "배포 실패";
   const stateLabel = {
     idle: "수동 배포 대기",
     running: payload.message || "갱신·검증·배포 진행 중",
     success: "공개판 갱신 완료",
     skipped: "중복 실행 건너뜀",
-    failed: "배포 실패"
+    failed: failedLabel
   }[payload.state] || payload.message || "상태 확인 중";
   const timestamp = payload.finished_at || payload.started_at;
   const detail = payload.state === "success"
     ? `${formatDateTime(payload.finished_at)} · 공개 사이트에서 최신 버전을 확인할 수 있습니다.`
     : payload.state === "running"
       ? `${formatDateTime(payload.started_at)} 시작 · 창을 닫아도 로컬 작업은 계속됩니다.`
-      : payload.detail || payload.message || "자동 갱신과 별도로 필요할 때 실행할 수 있습니다.";
+      : payload.state === "failed"
+        ? (payload.detail ? `${payload.detail}` : payload.message || `${failedLabel}가 발생했습니다.`)
+        : payload.detail || payload.message || "자동 갱신과 별도로 필요할 때 실행할 수 있습니다.";
   els.deployProgress.dataset.state = payload.state || "idle";
+  if (payload.failed_stage) {
+    els.deployProgress.dataset.failedStage = payload.failed_stage;
+  } else {
+    delete els.deployProgress.dataset.failedStage;
+  }
   els.deployStatusTitle.textContent = stateLabel;
   els.deployStatusDetail.textContent = (timestamp || payload.state !== "idle")
     ? detail
