@@ -6,7 +6,7 @@
 # Enforce UTF-8 encoding across console and output streams
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Continue'
 try { $Host.UI.RawUI.BufferSize = New-Object Management.Automation.Host.Size (500, $Host.UI.RawUI.BufferSize.Height) } catch {}
 
 $ProjectRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
@@ -17,6 +17,24 @@ $mutex = [System.Threading.Mutex]::new($false, 'Local\ToptoonSignalDeskAutoUpdat
 $hasLock = $false
 
 New-Item -ItemType Directory -Path $RuntimeDir -Force | Out-Null
+
+function Invoke-NativeCommand {
+    param(
+        [Parameter(Mandatory)] [string]$Stage,
+        [Parameter(Mandatory)] [string]$CommandStr,
+        [Parameter(Mandatory)] [scriptblock]$Action
+    )
+
+    $output = & $Action 2>&1
+    $exitCode = $LASTEXITCODE
+    if ($exitCode -ne 0) {
+        $errText = ($output -join "`n").Trim()
+        Write-Host "[FAILED_COMMAND: $CommandStr]"
+        Write-Host "[LAST_STDERR: $errText]"
+        throw "[$Stage 단계 실패] $CommandStr 실패: $errText"
+    }
+    return $output
+}
 
 function Get-GitWorkingTreeStatus {
     $statusOutput = & git status --porcelain 2>&1
@@ -199,12 +217,8 @@ try {
 
     # 4. Local fast-forward update: fetch origin/main and merge --ff-only
     Write-Host "[$(Get-Date -Format 'HH:mm:ss')] [STAGE:로컬 최신화] 원격 최신 변경사항 조회 (git fetch origin $Branch)"
-    $fetchOut = & git fetch origin $Branch 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        $errText = ($fetchOut -join "`n").Trim()
-        Write-Host "[FAILED_COMMAND: git fetch origin $Branch]"
-        Write-Host "[LAST_STDERR: $errText]"
-        throw "[로컬 최신화 단계 실패] git fetch origin $Branch 실패: $errText"
+    $fetchOut = Invoke-NativeCommand -Stage '로컬 최신화' -CommandStr "git fetch origin $Branch" {
+        & git fetch origin $Branch
     }
 
     # Verify no local user source modifications exist before merging
@@ -225,12 +239,8 @@ try {
     }
 
     Write-Host "[$(Get-Date -Format 'HH:mm:ss')] [STAGE:로컬 최신화] git merge --ff-only origin/$Branch"
-    $mergeOut = & git merge --ff-only "origin/$Branch" 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        $errText = ($mergeOut -join "`n").Trim()
-        Write-Host "[FAILED_COMMAND: git merge --ff-only origin/$Branch]"
-        Write-Host "[LAST_STDERR: $errText]"
-        throw "[로컬 최신화 단계 실패] origin/$Branch 브랜치를 fast-forward로 병합할 수 없습니다: $errText"
+    $mergeOut = Invoke-NativeCommand -Stage '로컬 최신화' -CommandStr "git merge --ff-only origin/$Branch" {
+        & git merge --ff-only "origin/$Branch"
     }
 
     $finalHead = (& git rev-parse --short HEAD).Trim()
@@ -238,7 +248,6 @@ try {
 }
 catch {
     Write-Host "$($_.Exception.Message)"
-    Write-Error $_
     exit 1
 }
 finally {
