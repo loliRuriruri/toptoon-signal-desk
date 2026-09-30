@@ -558,10 +558,23 @@ const server = createServer(async (request, response) => {
       "Content-Length": info.size,
       "Cache-Control": "no-cache"
     });
-    createReadStream(target).pipe(response);
+    const fileStream = createReadStream(target);
+    fileStream.on("error", () => {
+      if (!response.headersSent) {
+        response.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" }).end("Read error");
+      }
+    });
+    fileStream.pipe(response);
   } catch {
     response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" }).end("Not found");
   }
+});
+
+process.on("uncaughtException", (err) => {
+  console.error(`[서버 예외] ${err?.message || err}`);
+});
+process.on("unhandledRejection", (reason) => {
+  console.error(`[비동기 예외] ${reason?.message || reason}`);
 });
 
 function listenWithFallback(serverInstance, candidatePort, candidateIndex = 0) {
@@ -581,6 +594,9 @@ function listenWithFallback(serverInstance, candidatePort, candidateIndex = 0) {
 
   const onListening = () => {
     serverInstance.removeListener("error", onError);
+    serverInstance.on("error", (err) => {
+      console.error(`[서버 런타임 오류] ${err.message}`);
+    });
     console.log(`TOPTOON Tracker Unified: http://127.0.0.1:${targetPort}/`);
   };
 
