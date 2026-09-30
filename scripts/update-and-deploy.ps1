@@ -7,6 +7,7 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 $ErrorActionPreference = 'Stop'
+try { $Host.UI.RawUI.BufferSize = New-Object Management.Automation.Host.Size (500, $Host.UI.RawUI.BufferSize.Height) } catch {}
 
 $ProjectRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $RuntimeDir = Join-Path $ProjectRoot '.runtime\auto-update'
@@ -236,6 +237,7 @@ try {
     Write-Host "[$(Get-Date -Format 'HH:mm:ss')] [STAGE:완료] 로컬 최신화 완료 (HEAD: $finalHead)"
 }
 catch {
+    Write-Host "$($_.Exception.Message)"
     Write-Error $_
     exit 1
 }
