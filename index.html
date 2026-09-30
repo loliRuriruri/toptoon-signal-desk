@@ -262,10 +262,39 @@
             </div>
             <span class="evidence-badge tier-b">로컬 전용</span>
           </div>
-          <p class="section-note">4개 시장·공시·시세를 다시 수집하고 검증과 비밀정보 검사를 통과한 경우에만 Cloudflare 운영판을 갱신합니다.</p>
+          <p class="section-note">GitHub Actions(단일 Writer)를 통해 4개 시장·공시·시세를 수집·검증·배포하고, 성공 시 로컬 작업트리를 최신 스냅샷 커밋으로 안전하게 ff-only 동기화합니다.</p>
           <div class="deploy-step-list" aria-label="배포 순서">
-            <span>1 · 데이터 수집</span><span>2 · 교차검증</span><span>3 · 검증</span><span>4 · 안전 빌드</span><span>5 · Cloudflare 배포</span>
+            <span data-step-stage="수집">1 · 데이터 수집</span>
+            <span data-step-stage="교차검증">2 · 교차검증</span>
+            <span data-step-stage="검증">3 · 검증</span>
+            <span data-step-stage="빌드">4 · 안전 빌드</span>
+            <span data-step-stage="Cloudflare 배포">5 · Cloudflare 배포</span>
+            <span data-step-stage="GitHub 동기화">6 · GitHub 동기화</span>
+            <span data-step-stage="로컬 최신화">7 · 로컬 최신화</span>
           </div>
+
+          <div class="git-sync-card" id="git-sync-card">
+            <div class="git-sync-header">
+              <span class="git-sync-title">Git 동기화 상태 (단일 Writer: GitHub Actions)</span>
+              <span class="git-sync-badge" id="git-sync-badge">확인 중</span>
+            </div>
+            <div class="git-sync-grid">
+              <div class="git-sync-cell">
+                <span class="git-cell-label">로컬 HEAD</span>
+                <code class="git-sha-code" id="git-local-sha">-</code>
+              </div>
+              <div class="git-sync-cell">
+                <span class="git-cell-label">origin/main</span>
+                <code class="git-sha-code" id="git-remote-sha">-</code>
+              </div>
+              <div class="git-sync-cell">
+                <span class="git-cell-label">상태 (ahead / behind)</span>
+                <span class="git-count-text" id="git-ahead-behind">-</span>
+              </div>
+            </div>
+            <div class="git-dirty-warning" id="git-dirty-warning" hidden></div>
+          </div>
+
           <div class="manual-deploy-actions">
             <button class="primary-button" type="button" id="run-manual-deploy">지금 갱신·검증·배포</button>
             <a class="ghost-button" href="https://toptoon-signal-desk.pages.dev/" target="_blank" rel="noopener noreferrer">공개 사이트 열기</a>

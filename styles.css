@@ -584,8 +584,8 @@ h3 {
 
 .deploy-step-list {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
+  gap: 7px;
   margin-top: 14px;
 }
 
@@ -593,10 +593,128 @@ h3 {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--panel-2);
-  padding: 10px;
+  padding: 8px 5px;
   color: var(--sub);
   font-size: 11px;
   text-align: center;
+  transition: all 0.2s ease;
+}
+
+.deploy-step-list span.is-active {
+  border-color: rgba(98, 168, 255, 0.7);
+  background: rgba(57, 135, 229, 0.16);
+  color: #8ac0ff;
+  font-weight: 700;
+  box-shadow: 0 0 8px rgba(98, 168, 255, 0.2);
+}
+
+.deploy-step-list span.is-completed {
+  border-color: rgba(39, 196, 153, 0.4);
+  background: rgba(39, 196, 153, 0.08);
+  color: var(--up);
+}
+
+.deploy-step-list span.is-failed {
+  border-color: rgba(255, 116, 116, 0.6);
+  background: rgba(255, 116, 116, 0.12);
+  color: #ff7474;
+  font-weight: 700;
+}
+
+.git-sync-card {
+  margin-top: 12px;
+  border: 1px solid rgba(98, 168, 255, 0.25);
+  border-radius: 9px;
+  background: linear-gradient(145deg, rgba(16, 23, 34, 0.95), rgba(12, 18, 28, 0.95));
+  padding: 12px 14px;
+}
+
+.git-sync-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.git-sync-title {
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.git-sync-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--panel-2);
+}
+
+.git-sync-badge.is-synced {
+  border-color: rgba(39, 196, 153, 0.4);
+  color: var(--up);
+  background: rgba(39, 196, 153, 0.1);
+}
+
+.git-sync-badge.is-behind {
+  border-color: rgba(245, 167, 66, 0.45);
+  color: var(--accent-2);
+  background: rgba(245, 167, 66, 0.1);
+}
+
+.git-sync-badge.is-ahead {
+  border-color: rgba(98, 168, 255, 0.45);
+  color: var(--accent);
+  background: rgba(98, 168, 255, 0.1);
+}
+
+.git-sync-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.git-sync-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.git-cell-label {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.git-sha-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.git-count-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.git-dirty-warning {
+  margin-top: 10px;
+  border: 1px solid rgba(255, 116, 116, 0.4);
+  border-radius: 7px;
+  background: rgba(255, 116, 116, 0.08);
+  padding: 8px 10px;
+  color: #ff9b9b;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .manual-deploy-actions {

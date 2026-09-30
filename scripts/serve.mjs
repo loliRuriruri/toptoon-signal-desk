@@ -1,6 +1,7 @@
 import { createReadStream } from "node:fs";
 import { readFile, stat, writeFile } from "node:fs/promises";
-import { spawn } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
+import { promisify } from "node:util";
 import { createServer } from "node:http";
 import { extname, join, normalize, resolve, sep } from "node:path";
 import { Readable } from "node:stream";
@@ -106,15 +107,82 @@ const integrationDefinitions = [
 ];
 
 const allowedSettingKeys = new Set(integrationDefinitions.flatMap((item) => [...item.keys, ...(item.optional || [])]));
+const execFileAsync = promisify(execFile);
 let analysisInFlight = false;
 let deployProcess = null;
+let recentStderr = [];
 let deployStatus = {
   state: "idle",
   started_at: null,
   finished_at: null,
+  stage: null,
+  failed_stage: null,
+  failed_command: null,
+  last_stderr: null,
   message: "수동 배포 대기",
+  detail: null,
   production_url: "https://toptoon-signal-desk.pages.dev/"
 };
+
+async function getGitStatus() {
+  try {
+    const [headRes, remoteRes, countRes, statusRes] = await Promise.all([
+      execFileAsync("git", ["rev-parse", "--short", "HEAD"], { cwd: projectRoot }).catch(() => ({ stdout: "unknown" })),
+      execFileAsync("git", ["rev-parse", "--short", "origin/main"], { cwd: projectRoot }).catch(() => ({ stdout: "unknown" })),
+      execFileAsync("git", ["rev-list", "--left-right", "--count", "HEAD...origin/main"], { cwd: projectRoot }).catch(() => ({ stdout: "0\t0" })),
+      execFileAsync("git", ["status", "--porcelain"], { cwd: projectRoot }).catch(() => ({ stdout: "" }))
+    ]);
+
+    const localSha = headRes.stdout.trim();
+    const remoteSha = remoteRes.stdout.trim();
+    const [aheadStr, behindStr] = countRes.stdout.trim().split(/\s+/);
+    const ahead = Number(aheadStr || 0);
+    const behind = Number(behindStr || 0);
+
+    const statusLines = statusRes.stdout.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    const userFiles = [];
+    const generatedFiles = [];
+
+    for (const line of statusLines) {
+      const match = line.match(/^[A-Z?]{1,2}\s+(.*)$/);
+      if (!match) continue;
+      let rawPath = match[1].trim().replace(/^"(.*)"$/, "$1");
+      if (rawPath.includes("->")) {
+        rawPath = rawPath.split("->").pop().trim().replace(/^"(.*)"$/, "$1");
+      }
+      const normPath = rawPath.replaceAll("\\", "/");
+      if (normPath.startsWith(".runtime/") || normPath === ".env.local") continue;
+      if (normPath.startsWith("data/") || normPath.startsWith("assets/")) {
+        generatedFiles.push(normPath);
+      } else {
+        userFiles.push(normPath);
+      }
+    }
+
+    return {
+      local_sha: localSha,
+      remote_sha: remoteSha,
+      ahead,
+      behind,
+      clean: userFiles.length === 0 && generatedFiles.length === 0,
+      can_sync: userFiles.length === 0,
+      uncommitted_user_files: userFiles,
+      uncommitted_generated_files: generatedFiles
+    };
+  } catch (error) {
+    return {
+      local_sha: "unknown",
+      remote_sha: "unknown",
+      ahead: 0,
+      behind: 0,
+      clean: false,
+      can_sync: false,
+      uncommitted_user_files: [],
+      uncommitted_generated_files: [],
+      error: String(error.message || error)
+    };
+  }
+}
 
 function json(response, statusCode, payload) {
   const body = JSON.stringify(payload);
@@ -152,8 +220,9 @@ function isSameOrigin(request) {
   }
 }
 
-function currentDeployStatus() {
-  return { ...deployStatus, running: deployStatus.state === "running" };
+async function currentDeployStatus() {
+  const git = await getGitStatus();
+  return { ...deployStatus, git, running: deployStatus.state === "running" };
 }
 
 function updateDeployMessage(chunk) {
@@ -165,74 +234,108 @@ function updateDeployMessage(chunk) {
       deployStatus.message = `${stageMatch[1]} 진행 중: ${stageMatch[2]}`;
     } else if (/^\[\d{2}:\d{2}:\d{2}\]/.test(line)) {
       deployStatus.message = line.replace(/^\[\d{2}:\d{2}:\d{2}\]\s*/, "");
-    } else if (line.startsWith("Official signal refresh complete")) {
-      deployStatus.message = "공식 API 갱신 완료";
-    } else if (line.startsWith("Validation passed")) {
-      deployStatus.message = "데이터·앱 검증 통과";
-    } else if (line.startsWith("Public read-only build created")) {
-      deployStatus.message = "공개용 안전 빌드 완료";
-    } else if (line.includes("Deployment complete")) {
-      deployStatus.message = "Cloudflare 배포 반영 중";
+    }
+
+    const failedCmdMatch = line.match(/\[FAILED_COMMAND:\s*(.*)\]/);
+    if (failedCmdMatch) {
+      deployStatus.failed_command = failedCmdMatch[1].trim();
+    }
+
+    const lastStderrMatch = line.match(/\[LAST_STDERR:\s*(.*)\]/);
+    if (lastStderrMatch) {
+      deployStatus.last_stderr = lastStderrMatch[1].trim();
     }
 
     const failedMatch = line.match(/\[([^\]]+) 단계 실패\]\s*(.*)/);
     if (failedMatch) {
       deployStatus.failed_stage = failedMatch[1];
       deployStatus.detail = failedMatch[2] || line;
-    } else if (line.startsWith("Validation failed:") || line.includes("AssertionError") || line.includes("Error:")) {
-      deployStatus.detail = line;
+    } else if (line.startsWith("Validation failed:") || line.includes("AssertionError") || line.includes("Error:") || line.includes("error:")) {
+      if (!deployStatus.detail) {
+        deployStatus.detail = line;
+      }
     }
   }
 }
 
 function startManualDeploy() {
-  if (deployProcess && deployStatus.state === "running") return currentDeployStatus();
+  if (deployProcess && deployStatus.state === "running") return;
   const updateScript = join(projectRoot, "scripts", "update-and-deploy.ps1");
+  recentStderr = [];
   deployStatus = {
     state: "running",
     started_at: new Date().toISOString(),
     finished_at: null,
-    stage: "수집",
+    stage: "GitHub 동기화",
     failed_stage: null,
-    message: "수집·검증을 시작합니다",
+    failed_command: null,
+    last_stderr: null,
+    message: "GitHub Actions 배포 워크플로우를 시작합니다",
     detail: null,
     production_url: "https://toptoon-signal-desk.pages.dev/"
   };
-  const child = spawn("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", updateScript], {
+
+  const child = spawn("powershell.exe", [
+    "-NoProfile",
+    "-ExecutionPolicy", "Bypass",
+    "-Command",
+    `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8; & '${updateScript.replaceAll("'", "''")}'`
+  ], {
     cwd: projectRoot,
     windowsHide: true,
-    stdio: ["ignore", "pipe", "pipe"]
+    stdio: ["ignore", "pipe", "pipe"],
+    env: {
+      ...process.env,
+      PYTHONIOENCODING: "utf-8",
+      LANG: "ko_KR.UTF-8"
+    }
   });
+
   deployProcess = child;
+  child.stdout.setEncoding("utf8");
+  child.stderr.setEncoding("utf8");
+
   child.stdout.on("data", updateDeployMessage);
-  child.stderr.on("data", updateDeployMessage);
+  child.stderr.on("data", (chunk) => {
+    updateDeployMessage(chunk);
+    const errLines = String(chunk || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    recentStderr.push(...errLines);
+    if (recentStderr.length > 25) recentStderr = recentStderr.slice(-25);
+  });
+
   child.on("error", (error) => {
     deployStatus = {
       ...deployStatus,
       state: "failed",
-      failed_stage: deployStatus.stage || "배포",
+      failed_stage: deployStatus.stage || "실행",
+      failed_command: "powershell.exe scripts/update-and-deploy.ps1",
+      last_stderr: String(error.message || error),
       finished_at: new Date().toISOString(),
-      message: `[${deployStatus.stage || "배포"} 실패] ${String(error.message || error)}`,
+      message: `[${deployStatus.stage || "실행"} 실패] ${String(error.message || error)}`,
       detail: String(error.message || error)
     };
     deployProcess = null;
   });
+
   child.on("close", (code) => {
     const skipped = deployStatus.message.includes("Another update") || deployStatus.message.includes("skipping");
     const failedStage = deployStatus.failed_stage || deployStatus.stage || "배포";
     const failureMsg = `[${failedStage} 실패] (exit code ${code})`;
+    const fallbackStderr = recentStderr.length > 0 ? recentStderr.join("\n") : null;
     const failureDetail = deployStatus.detail || `${failedStage} 단계 실행 중 오류가 발생했습니다. (exit code ${code})`;
+
     deployStatus = {
       ...deployStatus,
       state: code === 0 ? (skipped ? "skipped" : "success") : "failed",
       failed_stage: code === 0 ? null : failedStage,
+      failed_command: code === 0 ? null : (deployStatus.failed_command || `powershell scripts/update-and-deploy.ps1 [${failedStage}]`),
+      last_stderr: code === 0 ? null : (deployStatus.last_stderr || fallbackStderr),
       finished_at: new Date().toISOString(),
-      message: code === 0 ? (skipped ? "자동 갱신이 이미 실행 중이라 이번 요청을 건너뛰었습니다" : "최신 데이터 공개 배포 완료") : failureMsg,
+      message: code === 0 ? (skipped ? "자동 갱신이 이미 실행 중이라 이번 요청을 건너뛰었습니다" : "GitHub Actions 배포 및 로컬 최신화 완료") : failureMsg,
       detail: code === 0 ? null : failureDetail
     };
     deployProcess = null;
   });
-  return currentDeployStatus();
 }
 
 async function readJsonBody(request, maxBytes = 65536) {
@@ -395,13 +498,22 @@ const server = createServer(async (request, response) => {
       return;
     }
     if (requestUrl.pathname === "/api/deploy/status" && request.method === "GET") {
-      json(response, 200, currentDeployStatus());
+      json(response, 200, await currentDeployStatus());
+      return;
+    }
+    if (requestUrl.pathname === "/api/git/status" && request.method === "GET") {
+      json(response, 200, await getGitStatus());
       return;
     }
     if (requestUrl.pathname === "/api/deploy/run" && request.method === "POST") {
       if (!isSameOrigin(request)) return json(response, 403, { error: "forbidden origin" });
       const wasRunning = deployStatus.state === "running";
-      json(response, wasRunning ? 409 : 202, wasRunning ? { ...currentDeployStatus(), error: "deployment already in progress" } : startManualDeploy());
+      if (wasRunning) {
+        json(response, 409, { ...(await currentDeployStatus()), error: "deployment already in progress" });
+      } else {
+        startManualDeploy();
+        json(response, 202, await currentDeployStatus());
+      }
       return;
     }
     if (requestUrl.pathname === "/api/settings" && request.method === "POST") {

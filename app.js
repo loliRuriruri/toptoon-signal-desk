@@ -295,6 +295,12 @@ function bindElements() {
   els.deployProgress = document.querySelector("#deploy-progress");
   els.deployStatusTitle = document.querySelector("#deploy-status-title");
   els.deployStatusDetail = document.querySelector("#deploy-status-detail");
+  els.gitLocalSha = document.querySelector("#git-local-sha");
+  els.gitRemoteSha = document.querySelector("#git-remote-sha");
+  els.gitAheadBehind = document.querySelector("#git-ahead-behind");
+  els.gitSyncBadge = document.querySelector("#git-sync-badge");
+  els.gitDirtyWarning = document.querySelector("#git-dirty-warning");
+  els.deployStepSpans = document.querySelectorAll(".deploy-step-list span");
   els.runAiAnalysis = document.querySelector("#run-ai-analysis");
   els.aiAnalysisStatus = document.querySelector("#ai-analysis-status");
   els.aiAnalysisOutput = document.querySelector("#ai-analysis-output");
@@ -666,9 +672,53 @@ async function refreshDeployStatus() {
   }
 }
 
+function renderGitStatus(git) {
+  if (!git || !els.gitLocalSha) return;
+  els.gitLocalSha.textContent = git.local_sha || "-";
+  els.gitRemoteSha.textContent = git.remote_sha || "-";
+
+  const ahead = Number(git.ahead || 0);
+  const behind = Number(git.behind || 0);
+  if (els.gitAheadBehind) {
+    els.gitAheadBehind.textContent = `${ahead} ahead / ${behind} behind`;
+  }
+
+  if (els.gitSyncBadge) {
+    if (ahead === 0 && behind === 0 && git.local_sha && git.local_sha !== "unknown") {
+      els.gitSyncBadge.textContent = "최신 동기화됨";
+      els.gitSyncBadge.className = "git-sync-badge is-synced";
+    } else if (behind > 0) {
+      els.gitSyncBadge.textContent = `${behind}개 커밋 뒤처짐 (동기화 필요)`;
+      els.gitSyncBadge.className = "git-sync-badge is-behind";
+    } else if (ahead > 0) {
+      els.gitSyncBadge.textContent = `${ahead}개 커밋 앞섬`;
+      els.gitSyncBadge.className = "git-sync-badge is-ahead";
+    } else {
+      els.gitSyncBadge.textContent = "확인 불가";
+      els.gitSyncBadge.className = "git-sync-badge";
+    }
+  }
+
+  if (els.gitDirtyWarning) {
+    if (git.uncommitted_user_files && git.uncommitted_user_files.length > 0) {
+      els.gitDirtyWarning.hidden = false;
+      els.gitDirtyWarning.textContent = `⚠ 로컬 사용자 소스 변경 감지 (${git.uncommitted_user_files.join(", ")}): 동기화 중단을 방지하려면 소스 코드를 먼저 정리하거나 커밋하세요.`;
+    } else {
+      els.gitDirtyWarning.hidden = true;
+      els.gitDirtyWarning.textContent = "";
+    }
+  }
+}
+
 async function runManualDeploy() {
   els.runManualDeploy.disabled = true;
-  renderDeployStatus({ state: "running", message: "배포 요청을 시작합니다", started_at: new Date().toISOString(), running: true });
+  renderDeployStatus({
+    state: "running",
+    stage: "GitHub 동기화",
+    message: "GitHub Actions 워크플로우를 시작합니다",
+    started_at: new Date().toISOString(),
+    running: true
+  });
   try {
     const response = await fetch("/api/deploy/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
     const payload = await response.json();
@@ -683,32 +733,74 @@ async function runManualDeploy() {
 
 function renderDeployStatus(payload) {
   if (!els.deployProgress) return;
+  if (payload.git) renderGitStatus(payload.git);
+
+  const stageOrder = ["수집", "교차검증", "검증", "빌드", "Cloudflare 배포", "GitHub 동기화", "로컬 최신화"];
+  const currentStageIndex = stageOrder.indexOf(payload.stage);
+  const failedStageIndex = payload.failed_stage ? stageOrder.indexOf(payload.failed_stage) : -1;
+
+  if (els.deployStepSpans && els.deployStepSpans.length > 0) {
+    els.deployStepSpans.forEach((span) => {
+      const spanStage = span.dataset.stepStage;
+      const spanIndex = stageOrder.indexOf(spanStage);
+      span.classList.remove("is-active", "is-completed", "is-failed");
+
+      if (payload.state === "running") {
+        if (spanStage === payload.stage) {
+          span.classList.add("is-active");
+        } else if (currentStageIndex > -1 && spanIndex < currentStageIndex) {
+          span.classList.add("is-completed");
+        }
+      } else if (payload.state === "success") {
+        span.classList.add("is-completed");
+      } else if (payload.state === "failed") {
+        if (spanStage === payload.failed_stage || (failedStageIndex === -1 && spanIndex === currentStageIndex)) {
+          span.classList.add("is-failed");
+        } else if (failedStageIndex > -1 && spanIndex < failedStageIndex) {
+          span.classList.add("is-completed");
+        }
+      }
+    });
+  }
+
   const failedLabel = payload.failed_stage ? `${payload.failed_stage} 실패` : "배포 실패";
   const stateLabel = {
     idle: "수동 배포 대기",
-    running: payload.message || "갱신·검증·배포 진행 중",
-    success: "공개판 갱신 완료",
+    running: payload.message || "GitHub Actions 갱신·배포 진행 중",
+    success: "공개판 갱신 및 로컬 동기화 완료",
     skipped: "중복 실행 건너뜀",
     failed: failedLabel
   }[payload.state] || payload.message || "상태 확인 중";
+
   const timestamp = payload.finished_at || payload.started_at;
-  const detail = payload.state === "success"
-    ? `${formatDateTime(payload.finished_at)} · 공개 사이트에서 최신 버전을 확인할 수 있습니다.`
-    : payload.state === "running"
-      ? `${formatDateTime(payload.started_at)} 시작 · 창을 닫아도 로컬 작업은 계속됩니다.`
-      : payload.state === "failed"
-        ? (payload.detail ? `${payload.detail}` : payload.message || `${failedLabel}가 발생했습니다.`)
-        : payload.detail || payload.message || "자동 갱신과 별도로 필요할 때 실행할 수 있습니다.";
+  let detail = payload.detail || payload.message || "자동 갱신과 별도로 필요할 때 실행할 수 있습니다.";
+
+  if (payload.state === "success") {
+    detail = `${formatDateTime(payload.finished_at)} · GitHub Actions 배포 성공 및 로컬 HEAD가 origin/main과 최신 동기화되었습니다.`;
+  } else if (payload.state === "running") {
+    detail = `${formatDateTime(payload.started_at)} 시작 · 단일 Writer(GitHub Actions)가 원격에서 안전하게 빌드·배포하고 로컬을 최신화합니다.`;
+  } else if (payload.state === "failed") {
+    const parts = [];
+    if (payload.detail) parts.push(payload.detail);
+    else if (payload.message) parts.push(payload.message);
+    if (payload.failed_command) parts.push(`[실패 명령] ${payload.failed_command}`);
+    if (payload.last_stderr) parts.push(`[오류 출력]\n${payload.last_stderr}`);
+    detail = parts.join("\n\n");
+  }
+
   els.deployProgress.dataset.state = payload.state || "idle";
   if (payload.failed_stage) {
     els.deployProgress.dataset.failedStage = payload.failed_stage;
   } else {
     delete els.deployProgress.dataset.failedStage;
   }
+
   els.deployStatusTitle.textContent = stateLabel;
+  els.deployStatusDetail.style.whiteSpace = payload.state === "failed" ? "pre-wrap" : "";
   els.deployStatusDetail.textContent = (timestamp || payload.state !== "idle")
     ? detail
     : "자동 갱신과 별도로 필요할 때 실행할 수 있습니다.";
+
   els.runManualDeploy.disabled = payload.state === "running";
   els.runManualDeploy.textContent = payload.state === "running" ? "배포 진행 중…" : payload.state === "success" ? "다시 갱신·배포" : "지금 갱신·검증·배포";
 }

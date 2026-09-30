@@ -77,7 +77,6 @@ jobs:
             --commit-message="$(git log -1 --pretty=%s)"
 
       - name: 8. Commit & Push Changes to Repository
-        if: always()
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -86,6 +85,6 @@ jobs:
             echo "No data changes detected. Everything is up to date."
           else
             git commit -m "chore(auto): scheduled data refresh snapshot"
-            git pull origin main --rebase -X theirs || git pull origin main --rebase || true
-            git push origin HEAD:main || true
+            git pull origin main --rebase -X theirs
+            git push origin HEAD:main
           fi
