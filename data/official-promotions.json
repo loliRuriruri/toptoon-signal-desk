@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-01T00:02:08.911Z",
+  "generated_at": "2026-10-01T00:16:46.919Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,7 +7,7 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-10-01T00:02:08.911Z",
+      "observed_at": "2026-10-01T00:16:46.919Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
@@ -29,12 +29,12 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-10-01T00:02:08.911Z",
+      "observed_at": "2026-10-01T00:16:46.919Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
       "change": "changed",
-      "signature": "131:エリス もしかして…私、女として魅力がないですか？ 3.9万 2789",
+      "signature": "131:エリス もしかして…私、女として魅力がないですか？ 3.9万 2790",
       "homepage_error": null,
       "items": [
         {
@@ -42,7 +42,7 @@
           "character_name": "エリス",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.jp/detail/character/131",
-          "headline": "エリス もしかして…私、女として魅力がないですか？ 3.9万 2789",
+          "headline": "エリス もしかして…私、女として魅力がないですか？ 3.9万 2790",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.jp/"
         }
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-10-01T00:02:08.911Z",
+      "observed_at": "2026-10-01T00:16:46.919Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,11 +63,11 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-10-01T00:02:08.911Z",
+      "observed_at": "2026-10-01T00:16:46.919Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "partial",
-      "change": "changed",
+      "change": "continuing",
       "signature": "253:price_promotion",
       "homepage_error": null,
       "items": [
@@ -84,31 +84,6 @@
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-29T02:01:19.691Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "61:오늘특가 단 하루 한정! 한나리, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "76:本日特価は今日だけ！ 保坂白雪、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "269:今日特惠僅限一天！ 徐幼珍，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-29T02:16:14.838Z",
       "markets": {
@@ -4880,6 +4855,31 @@
         "tw": {
           "status": "partial",
           "change": "changed",
+          "signature": "253:price_promotion"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-10-01T00:16:46.919Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "77:서미나 \"영광인 줄 알고 기회 줄 때 잘 해.\" 33만 1.6만"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "131:エリス もしかして…私、女として魅力がないですか？ 3.9万 2790"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "partial",
+          "change": "continuing",
           "signature": "253:price_promotion"
         }
       }
