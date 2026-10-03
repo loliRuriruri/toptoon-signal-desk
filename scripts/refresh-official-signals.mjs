@@ -202,11 +202,44 @@ function isKoreaMarketClosed(date = new Date()) {
   return { closed: false };
 }
 
+function parseKisOutput(output = {}) {
+  const listedShares = Number(output.lstn_stcn || 0);
+  const price = Number(output.stck_prpr || 0);
+  const changeSign = String(output.prdy_vrss_sign || "");
+  const direction = ["1", "2"].includes(changeSign) ? 1 : ["4", "5"].includes(changeSign) ? -1 : 0;
+  const rawChange = Number(output.prdy_vrss || 0);
+  const rawChangePct = Number(output.prdy_ctrt || 0);
+  const change = direction ? Math.abs(rawChange) * direction : rawChange;
+  const changePct = direction ? Math.abs(rawChangePct) * direction : rawChangePct;
+  return {
+    price,
+    previous_close: Number(output.stck_sdpr || 0) || price - change,
+    open: Number(output.stck_oprc || 0) || null,
+    high: Number(output.stck_hgpr || 0) || null,
+    low: Number(output.stck_lwpr || 0) || null,
+    change,
+    change_pct: changePct,
+    change_sign: changeSign || null,
+    volume: Number(output.acml_vol || 0),
+    shares_outstanding: listedShares,
+    market_cap_krw: Number(output.hts_avls || 0) * 100000000 || price * listedShares,
+    per: Number(output.per || 0) || null,
+    pbr: Number(output.pbr || 0) || null
+  };
+}
+
 async function refreshKis() {
+  const brokerUrl = (process.env.KIS_BROKER_URL || "").trim().replace(/\/+$/, "");
+  const brokerSecret = (process.env.KIS_BROKER_SECRET || "").trim();
+  const isBrokerMode = Boolean(brokerUrl && brokerSecret);
+
   const appKey = process.env.KIS_APP_KEY;
   const appSecret = process.env.KIS_APP_SECRET;
   const ticker = process.env.KIS_STOCK_CODE || "134580";
-  if (!appKey || !appSecret) return { status: "skipped", note: "KIS_APP_KEY와 KIS_APP_SECRET 필요" };
+
+  if (!isBrokerMode && (!appKey || !appSecret)) {
+    return { status: "skipped", note: "KIS_BROKER_URL 또는 KIS_APP_KEY/KIS_APP_SECRET 필요" };
+  }
 
   const previousKis = previousProviders?.kis;
 
@@ -226,79 +259,143 @@ async function refreshKis() {
     };
   }
 
-  const configuredMinimumHours = Number(process.env.KIS_REFRESH_MIN_HOURS || 0);
-  const minimumHours = Number.isFinite(configuredMinimumHours) ? Math.max(0, configuredMinimumHours) : 0;
-  const previousObservedAt = Date.parse(previousKis?.observed_at || "");
-  const previousAgeMs = Number.isFinite(previousObservedAt) ? Date.now() - previousObservedAt : Infinity;
+  let primaryQuote = null;
+  let priceHistory = [];
+  let peerResults = {};
+  let brokerTokenStatus = null;
+  let usedBroker = false;
 
-  // 로컬 .cache에 유효한(만료되지 않은) 토큰이 있는지 확인
-  const cacheDir = join(process.cwd(), ".cache");
-  const cachePath = join(cacheDir, "kis-token.json");
-  let hasValidCachedToken = false;
-  try {
-    const cached = JSON.parse(await readFile(cachePath, "utf8"));
-    const now = Date.now();
-    if (cached.appkey === appKey && cached.access_token && cached.expires_at && (cached.expires_at - now > 15 * 60 * 1000)) {
-      hasValidCachedToken = true;
+  // 1. Cloudflare Worker + KV Token Broker 경유 시도
+  if (isBrokerMode) {
+    try {
+      const brokerRes = await fetchJson(`${brokerUrl}/api/kis/quotes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${brokerSecret}`
+        },
+        body: JSON.stringify({
+          ticker,
+          history_days: 60,
+          peers: peerUniverse.map((p) => p.ticker)
+        })
+      });
+
+      if (!brokerRes.ok) {
+        throw new Error(brokerRes.error || "Broker returned failure status");
+      }
+
+      brokerTokenStatus = brokerRes.token_status || {};
+      primaryQuote = parseKisOutput(brokerRes.primary?.output || {});
+      priceHistory = (brokerRes.price_history || [])
+        .map((row) => ({
+          date: String(row.stck_bsop_date || ""),
+          close: Number(row.stck_clpr || 0),
+          high: Number(row.stck_hgpr || 0),
+          low: Number(row.stck_lwpr || 0)
+        }))
+        .filter((row) => /^\d{8}$/.test(row.date) && row.close > 0)
+        .sort((a, b) => a.date.localeCompare(b.date));
+      peerResults = brokerRes.peers || {};
+      usedBroker = true;
+
+      console.log(`[KIS Broker] 시세 수집 성공 · 토큰 처리: ${brokerTokenStatus.action} (발급시각: ${brokerTokenStatus.issued_at}, 잔여: ${Math.round((brokerTokenStatus.remaining_seconds || 0) / 60)}분)`);
+    } catch (brokerErr) {
+      console.warn(`[KIS Broker 경유 실패] ${brokerErr.message}`);
+      if (!appKey || !appSecret) {
+        if (previousKis && Number(previousKis?.quote?.price || 0) > 0) {
+          return {
+            ...previousKis,
+            status: "cached",
+            note: `KIS Broker 오류 (${brokerErr.message}) · 이전 정상 시세 유지`
+          };
+        }
+        throw brokerErr;
+      }
     }
-  } catch {}
-
-  // 토큰 캐시가 없는 환경(예: GitHub Actions 새 컨테이너)에서만 불필요한 토큰 재발급 방지를 위해 이전 스냅샷 재사용
-  const canReusePrevious = ["ok", "cached"].includes(previousKis?.status)
-    && previousKis?.ticker === ticker
-    && Number(previousKis?.quote?.price || 0) > 0
-    && previousAgeMs >= 0
-    && minimumHours > 0
-    && previousAgeMs < minimumHours * 60 * 60 * 1000;
-
-  if (!hasValidCachedToken && process.env.KIS_REFRESH_FORCE !== "1" && canReusePrevious) {
-    const ageHours = previousAgeMs / (60 * 60 * 1000);
-    return {
-      ...previousKis,
-      status: "cached",
-      note: `KIS 토큰 중복 발급 방지 · 마지막 정상 시세 ${ageHours.toFixed(1)}시간 전 · ${minimumHours}시간 간격으로 재조회`
-    };
   }
 
-  const base = "https://openapi.koreainvestment.com:9443";
-  const accessToken = await getKisAccessToken(base, appKey, appSecret);
-  const headers = {
-    "Content-Type": "application/json",
-    authorization: `Bearer ${accessToken}`,
-    appkey: appKey,
-    appsecret: appSecret,
-    tr_id: "FHKST01010100"
-  };
-  const fetchQuote = async (stockCode) => {
-    const params = new URLSearchParams({ fid_cond_mrkt_div_code: "J", fid_input_iscd: stockCode });
-    const quote = await fetchJson(`${base}/uapi/domestic-stock/v1/quotations/inquire-price?${params}`, { headers });
-    if (quote.rt_cd !== "0") throw new Error(`KIS ${stockCode} status ${quote.msg_cd || "unknown"}`);
-    const output = quote.output || {};
-    const listedShares = Number(output.lstn_stcn || 0);
-    const price = Number(output.stck_prpr || 0);
-    const changeSign = String(output.prdy_vrss_sign || "");
-    const direction = ["1", "2"].includes(changeSign) ? 1 : ["4", "5"].includes(changeSign) ? -1 : 0;
-    const rawChange = Number(output.prdy_vrss || 0);
-    const rawChangePct = Number(output.prdy_ctrt || 0);
-    const change = direction ? Math.abs(rawChange) * direction : rawChange;
-    const changePct = direction ? Math.abs(rawChangePct) * direction : rawChangePct;
-    return {
-      price,
-      previous_close: Number(output.stck_sdpr || 0) || price - change,
-      open: Number(output.stck_oprc || 0) || null,
-      high: Number(output.stck_hgpr || 0) || null,
-      low: Number(output.stck_lwpr || 0) || null,
-      change,
-      change_pct: changePct,
-      change_sign: changeSign || null,
-      volume: Number(output.acml_vol || 0),
-      shares_outstanding: listedShares,
-      market_cap_krw: Number(output.hts_avls || 0) * 100000000 || price * listedShares,
-      per: Number(output.per || 0) || null,
-      pbr: Number(output.pbr || 0) || null
+  // 2. Direct KIS fallback (broker 미사용 또는 broker 장애 시 로컬 키 사용)
+  if (!primaryQuote && appKey && appSecret) {
+    const configuredMinimumHours = Number(process.env.KIS_REFRESH_MIN_HOURS || 0);
+    const minimumHours = Number.isFinite(configuredMinimumHours) ? Math.max(0, configuredMinimumHours) : 0;
+    const previousObservedAt = Date.parse(previousKis?.observed_at || "");
+    const previousAgeMs = Number.isFinite(previousObservedAt) ? Date.now() - previousObservedAt : Infinity;
+
+    const cacheDir = join(process.cwd(), ".cache");
+    const cachePath = join(cacheDir, "kis-token.json");
+    let hasValidCachedToken = false;
+    try {
+      const cached = JSON.parse(await readFile(cachePath, "utf8"));
+      const now = Date.now();
+      if (cached.appkey === appKey && cached.access_token && cached.expires_at && (cached.expires_at - now > 15 * 60 * 1000)) {
+        hasValidCachedToken = true;
+      }
+    } catch {}
+
+    const canReusePrevious = ["ok", "cached"].includes(previousKis?.status)
+      && previousKis?.ticker === ticker
+      && Number(previousKis?.quote?.price || 0) > 0
+      && previousAgeMs >= 0
+      && minimumHours > 0
+      && previousAgeMs < minimumHours * 60 * 60 * 1000;
+
+    if (!hasValidCachedToken && process.env.KIS_REFRESH_FORCE !== "1" && canReusePrevious) {
+      const ageHours = previousAgeMs / (60 * 60 * 1000);
+      return {
+        ...previousKis,
+        status: "cached",
+        note: `KIS 토큰 중복 발급 방지 · 마지막 정상 시세 ${ageHours.toFixed(1)}시간 전 · ${minimumHours}시간 간격으로 재조회`
+      };
+    }
+
+    const base = "https://openapi.koreainvestment.com:9443";
+    const accessToken = await getKisAccessToken(base, appKey, appSecret);
+    const headers = {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${accessToken}`,
+      appkey: appKey,
+      appsecret: appSecret,
+      tr_id: "FHKST01010100"
     };
-  };
-  const primaryQuote = await fetchQuote(ticker);
+    const fetchDirectQuote = async (stockCode) => {
+      const params = new URLSearchParams({ fid_cond_mrkt_div_code: "J", fid_input_iscd: stockCode });
+      const quote = await fetchJson(`${base}/uapi/domestic-stock/v1/quotations/inquire-price?${params}`, { headers });
+      if (quote.rt_cd !== "0") throw new Error(`KIS ${stockCode} status ${quote.msg_cd || "unknown"}`);
+      return parseKisOutput(quote.output || {});
+    };
+
+    primaryQuote = await fetchDirectQuote(ticker);
+
+    const now = new Date();
+    const dynamicDaysBack = 60;
+    const historyStart = new Date(now);
+    historyStart.setUTCDate(historyStart.getUTCDate() - dynamicDaysBack);
+    const historyParams = new URLSearchParams({
+      FID_COND_MRKT_DIV_CODE: "J",
+      FID_INPUT_ISCD: ticker,
+      FID_INPUT_DATE_1: dateCompact(historyStart),
+      FID_INPUT_DATE_2: dateCompact(new Date()),
+      FID_PERIOD_DIV_CODE: "D",
+      FID_ORG_ADJ_PRC: "0"
+    });
+    try {
+      const historyPayload = await fetchJson(`${base}/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice?${historyParams}`, {
+        headers: { ...headers, tr_id: "FHKST03010100" }
+      });
+      if (historyPayload.rt_cd === "0") {
+        priceHistory = (historyPayload.output2 || [])
+          .map((row) => ({
+            date: String(row.stck_bsop_date || ""),
+            close: Number(row.stck_clpr || 0),
+            high: Number(row.stck_hgpr || 0),
+            low: Number(row.stck_lwpr || 0)
+          }))
+          .filter((row) => /^\d{8}$/.test(row.date) && row.close > 0)
+          .sort((a, b) => a.date.localeCompare(b.date));
+      }
+    } catch {}
+  }
 
   // KRX 공시 기준일 (거래정지·투자경고 해제요건)
   const KRX_ALERT_REFERENCE_DATES = {
@@ -336,46 +433,6 @@ async function refreshKis() {
     }
   };
 
-  // 최소한 필요한 모든 reference date가 항상 history 조회범위에 포함되도록 동적으로 oldest required date 계산
-  const now = new Date();
-  const allRequiredTimestamps = Object.values(KRX_ALERT_REFERENCE_DATES).map((d) => Date.parse(d)).filter(Number.isFinite);
-  const oldestRequiredTimestamp = allRequiredTimestamps.length ? Math.min(...allRequiredTimestamps) : now.getTime();
-  const daysToOldest = Math.ceil((now.getTime() - oldestRequiredTimestamp) / (1000 * 60 * 60 * 24));
-  const dynamicDaysBack = Math.max(45, daysToOldest + 5);
-
-  const historyStart = new Date(now);
-  historyStart.setUTCDate(historyStart.getUTCDate() - dynamicDaysBack);
-  const historyParams = new URLSearchParams({
-    FID_COND_MRKT_DIV_CODE: "J",
-    FID_INPUT_ISCD: ticker,
-    FID_INPUT_DATE_1: dateCompact(historyStart),
-    FID_INPUT_DATE_2: dateCompact(new Date()),
-    FID_PERIOD_DIV_CODE: "D",
-    FID_ORG_ADJ_PRC: "0"
-  });
-  let priceHistory = [];
-  try {
-    const historyPayload = await fetchJson(`${base}/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice?${historyParams}`, {
-      headers: { ...headers, tr_id: "FHKST03010100" }
-    });
-    if (historyPayload.rt_cd !== "0") throw new Error(`KIS history status ${historyPayload.msg_cd || "unknown"}`);
-    priceHistory = (historyPayload.output2 || [])
-      .map((row) => ({
-        date: String(row.stck_bsop_date || ""),
-        close: Number(row.stck_clpr || 0),
-        high: Number(row.stck_hgpr || 0),
-        low: Number(row.stck_lwpr || 0)
-      }))
-      .filter((row) => /^\d{8}$/.test(row.date) && row.close > 0)
-      .sort((a, b) => a.date.localeCompare(b.date));
-  } catch (error) {
-    priceHistory = [];
-  }
-
-  // 기준일 종가 확인:
-  // 1순위: API 실시간 응답인 priceHistory에서 직접 검색
-  // 2순위: 이전 snapshot의 historical_references 또는 market_alert에서 이미 실측된 종가 보존
-  // 3순위: 공시 시점에 확정된 FIXED_HISTORICAL_REFERENCES 상수 벤치마크 보존
   const previousRefs = previousKis?.historical_references || {};
   const previousAlert = previousKis?.market_alert || {};
   const resolveReferenceClose = (compactDate) => {
@@ -468,24 +525,47 @@ async function refreshKis() {
     },
     calculation_note: "KRX 공시 산식을 KIS 일별 종가에 적용한 참고 계산. 최종 시장조치는 KRX 공시를 우선 확인."
   };
+
   const previousPeers = new Map((previousProviders?.kis?.peers || []).map((p) => [p.ticker, p]));
   const peers = [];
+
   for (const peer of peerUniverse) {
-    try {
-      await new Promise((r) => setTimeout(r, 250));
-      peers.push({ ...peer, ...(await fetchQuote(peer.ticker)), status: "ok" });
-    } catch (error) {
-      const prev = previousPeers.get(peer.ticker);
-      if (prev && (prev.status === "ok" || prev.status === "cached") && Number(prev.price || 0) > 0) {
-        peers.push({ ...prev, status: "cached", note: `시세 갱신 지연 · 이전 정상값 유지 (${String(error.message || error)})` });
+    if (usedBroker) {
+      const brokerPeer = peerResults[peer.ticker];
+      if (brokerPeer && brokerPeer.status === "ok" && brokerPeer.output) {
+        peers.push({ ...peer, ...parseKisOutput(brokerPeer.output), status: "ok" });
       } else {
-        peers.push({ ...peer, status: "error", note: String(error.message || error) });
+        const prev = previousPeers.get(peer.ticker);
+        if (prev && (prev.status === "ok" || prev.status === "cached") && Number(prev.price || 0) > 0) {
+          peers.push({ ...prev, status: "cached", note: `시세 갱신 지연 · 이전 정상값 유지` });
+        } else {
+          peers.push({ ...peer, status: "error", note: brokerPeer?.message || "Peer quote unavailable" });
+        }
+      }
+    } else {
+      try {
+        await new Promise((r) => setTimeout(r, 250));
+        peers.push({ ...peer, ...(await fetchDirectQuote(peer.ticker)), status: "ok" });
+      } catch (error) {
+        const prev = previousPeers.get(peer.ticker);
+        if (prev && (prev.status === "ok" || prev.status === "cached") && Number(prev.price || 0) > 0) {
+          peers.push({ ...prev, status: "cached", note: `시세 갱신 지연 · 이전 정상값 유지 (${String(error.message || error)})` });
+        } else {
+          peers.push({ ...peer, status: "error", note: String(error.message || error) });
+        }
       }
     }
   }
+
   return {
     status: "ok",
-    source: "한국투자증권 국내주식 현재가",
+    source: usedBroker ? "한국투자증권 국내주식 현재가 (Cloudflare KV Broker)" : "한국투자증권 국내주식 현재가",
+    broker_token_status: brokerTokenStatus ? {
+      action: brokerTokenStatus.action,
+      issued_at: brokerTokenStatus.issued_at,
+      expires_at: brokerTokenStatus.expires_at,
+      remaining_seconds: brokerTokenStatus.remaining_seconds
+    } : null,
     ticker,
     quote: primaryQuote,
     price_history: priceHistory,

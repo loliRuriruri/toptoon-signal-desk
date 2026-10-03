@@ -39,8 +39,8 @@ jobs:
 
       - name: 1. Refresh KIS Official Signals
         env:
-          KIS_APP_KEY: ${{ secrets.KIS_APP_KEY }}
-          KIS_APP_SECRET: ${{ secrets.KIS_APP_SECRET }}
+          KIS_BROKER_URL: ${{ secrets.KIS_BROKER_URL }}
+          KIS_BROKER_SECRET: ${{ secrets.KIS_BROKER_SECRET }}
           KIS_STOCK_CODE: ${{ secrets.KIS_STOCK_CODE || '134580' }}
           KIS_REFRESH_FORCE: ${{ inputs.force_refresh && '1' || '0' }}
         run: node scripts/refresh-official-signals.mjs --providers kis
