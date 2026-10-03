@@ -1,11 +1,19 @@
-name: Scheduled Data Refresh & Auto Deploy
+name: Scheduled KIS Stock Quote Refresh
 
 on:
   schedule:
-    # 3시간마다 자동 실행 (정각 트래픽 분산을 위해 3시간 간격 15분에 실행)
-    - cron: "15 */3 * * *"
-  # GitHub 웹 Actions 탭에서 Run workflow 버튼으로 즉시 수동 실행 가능
+    # 한국투자증권(KIS) 1일 2회 평일 갱신 정책
+    # 1차: KST 오전 10:00 = UTC 01:00 (월~금)
+    - cron: "0 1 * * 1-5"
+    # 2차: KST 오후 15:40 = UTC 06:40 (월~금, 장마감 확인)
+    - cron: "40 6 * * 1-5"
   workflow_dispatch:
+    inputs:
+      force_refresh:
+        description: "휴장일/최소간격 무시하고 강제 KIS 조회"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -15,7 +23,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  refresh-and-deploy:
+  refresh-kis:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -29,34 +37,24 @@ jobs:
         with:
           node-version: 22
 
-      - name: 1. Refresh Four-Market Public Catalogs
-        run: node scripts/refresh-public-snapshot.mjs
-
-      - name: 2. Refresh OpenDART & Public Official Signals (Excluding KIS)
+      - name: 1. Refresh KIS Official Signals
         env:
-          OPENDART_API_KEY: ${{ secrets.OPENDART_API_KEY }}
-          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
-        run: node scripts/refresh-official-signals.mjs --providers opendart,fred
+          KIS_APP_KEY: ${{ secrets.KIS_APP_KEY }}
+          KIS_APP_SECRET: ${{ secrets.KIS_APP_SECRET }}
+          KIS_STOCK_CODE: ${{ secrets.KIS_STOCK_CODE || '134580' }}
+          KIS_REFRESH_FORCE: ${{ inputs.force_refresh && '1' || '0' }}
+        run: node scripts/refresh-official-signals.mjs --providers kis
 
-      - name: 3. Run Crosscheck & Live Verification
+      - name: 2. Run Crosscheck & Live Verification
         run: node scripts/crosscheck.mjs --live --write
 
-      - name: 4. Validate Integrity & Syntaxes
+      - name: 3. Validate Integrity & Syntaxes
         run: node scripts/validate.mjs
 
-      - name: 5. Generate Scheduled Nemotron Diagnosis
-        continue-on-error: true
-        timeout-minutes: 7
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL || 'nvidia/nemotron-3-ultra-550b-a55b:free' }}
-          AI_DIAGNOSIS_MIN_HOURS: ${{ vars.AI_DIAGNOSIS_MIN_HOURS || '2' }}
-        run: node scripts/generate-ai-diagnosis.mjs
-
-      - name: 6. Build Public Distribution
+      - name: 4. Build Public Distribution
         run: node scripts/build-public.mjs
 
-      - name: 7. Deploy Public Distribution to Cloudflare Pages
+      - name: 5. Deploy Public Distribution to Cloudflare Pages
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -72,7 +70,7 @@ jobs:
             --commit-hash="$(git rev-parse HEAD)" \
             --commit-message="$(git log -1 --pretty=%s)"
 
-      - name: 8. Commit & Push Changes to Repository
+      - name: 6. Commit & Push Changes to Repository
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -80,7 +78,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No data changes detected. Everything is up to date."
           else
-            git commit -m "chore(auto): scheduled data refresh snapshot"
+            git commit -m "chore(auto): scheduled KIS stock quote snapshot"
             git pull origin main --rebase -X theirs
             git push origin HEAD:main
           fi

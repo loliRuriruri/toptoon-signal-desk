@@ -177,6 +177,31 @@ async function getKisAccessToken(base, appKey, appSecret) {
   return tokenPayload.access_token;
 }
 
+function isKoreaMarketClosed(date = new Date()) {
+  const kstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+  const dayOfWeek = kstDate.getUTCDay(); // 0: 일요일, 6: 토요일
+  if (dayOfWeek === 0 || dayOfWeek === 6) {
+    return { closed: true, reason: "주말 휴장" };
+  }
+  const month = String(kstDate.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(kstDate.getUTCDate()).padStart(2, "0");
+  const mmdd = `${month}-${day}`;
+  const fixedHolidays = {
+    "01-01": "신정",
+    "03-01": "삼일절",
+    "05-05": "어린이날",
+    "06-06": "현충일",
+    "08-15": "광복절",
+    "10-03": "개천절",
+    "10-09": "한글날",
+    "12-25": "성탄절"
+  };
+  if (fixedHolidays[mmdd]) {
+    return { closed: true, reason: `공휴일 (${fixedHolidays[mmdd]})` };
+  }
+  return { closed: false };
+}
+
 async function refreshKis() {
   const appKey = process.env.KIS_APP_KEY;
   const appSecret = process.env.KIS_APP_SECRET;
@@ -184,6 +209,23 @@ async function refreshKis() {
   if (!appKey || !appSecret) return { status: "skipped", note: "KIS_APP_KEY와 KIS_APP_SECRET 필요" };
 
   const previousKis = previousProviders?.kis;
+
+  // 국내 증시 휴장일(주말, 공휴일) 보호 로직
+  const holidayCheck = isKoreaMarketClosed();
+  if (holidayCheck.closed && process.env.KIS_REFRESH_FORCE !== "1") {
+    if (previousKis && Number(previousKis?.quote?.price || 0) > 0) {
+      return {
+        ...previousKis,
+        status: "cached",
+        note: `국내 증시 휴장일(${holidayCheck.reason}) · 이전 정상 시세 유지`
+      };
+    }
+    return {
+      status: "skipped",
+      note: `국내 증시 휴장일(${holidayCheck.reason}) · 시세 수집 스킵`
+    };
+  }
+
   const configuredMinimumHours = Number(process.env.KIS_REFRESH_MIN_HOURS || 0);
   const minimumHours = Number.isFinite(configuredMinimumHours) ? Math.max(0, configuredMinimumHours) : 0;
   const previousObservedAt = Date.parse(previousKis?.observed_at || "");
@@ -474,6 +516,21 @@ async function refreshFred() {
 }
 
 await loadLocalEnvironment();
+
+const args = process.argv.slice(2);
+let requestedProviders = null;
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === "--providers" && args[i + 1]) {
+    requestedProviders = args[i + 1].split(",").map((s) => s.trim().toLowerCase());
+  } else if (args[i].startsWith("--providers=")) {
+    requestedProviders = args[i].split("=")[1].split(",").map((s) => s.trim().toLowerCase());
+  }
+}
+
+// 명시적 지정이 없으면 기본값: opendart, fred (KIS는 TOPTOON 3시간 주기와 분리되어 기본 실행 대상 아님)
+const activeProviders = requestedProviders || ["opendart", "fred"];
+const shouldRunAll = activeProviders.includes("all");
+
 let previousSnapshot = {};
 let previousProviders = {};
 try {
@@ -482,13 +539,29 @@ try {
 } catch {
   previousProviders = {};
 }
-const tasks = [
+
+const allTaskDefs = [
   ["opendart", refreshOpenDart],
   ["kis", refreshKis],
   ["fred", refreshFred]
 ];
+
 const providers = {};
-for (const [id, task] of tasks) {
+for (const [id, task] of allTaskDefs) {
+  const isSelected = shouldRunAll || activeProviders.includes(id);
+  if (!isSelected) {
+    if (previousProviders[id]) {
+      providers[id] = {
+        ...previousProviders[id],
+        status: previousProviders[id].status === "ok" ? "cached" : previousProviders[id].status,
+        note: previousProviders[id].note || "이전 정상 스냅샷 유지 (스케줄 분리)"
+      };
+    } else {
+      providers[id] = { status: "skipped", note: "실행 대상 프로바이더에서 제외됨" };
+    }
+    continue;
+  }
+
   const attemptedAt = new Date().toISOString();
   try {
     const result = await task();

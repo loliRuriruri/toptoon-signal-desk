@@ -745,8 +745,13 @@ function renderGitStatus(git) {
 
   if (els.gitSyncBadge) {
     if (ahead === 0 && behind === 0 && git.local_sha && git.local_sha !== "unknown") {
-      els.gitSyncBadge.textContent = "최신 동기화됨";
-      els.gitSyncBadge.className = "git-sync-badge is-synced";
+      if (git.uncommitted_user_files && git.uncommitted_user_files.length > 0) {
+        els.gitSyncBadge.textContent = "커밋 기준 최신 / 작업트리 수정 있음";
+        els.gitSyncBadge.className = "git-sync-badge is-dirty";
+      } else {
+        els.gitSyncBadge.textContent = "최신 동기화됨";
+        els.gitSyncBadge.className = "git-sync-badge is-synced";
+      }
     } else if (behind > 0) {
       els.gitSyncBadge.textContent = `${behind}개 커밋 뒤처짐 (동기화 필요)`;
       els.gitSyncBadge.className = "git-sync-badge is-behind";

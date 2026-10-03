@@ -675,6 +675,12 @@ h3 {
   background: rgba(98, 168, 255, 0.1);
 }
 
+.git-sync-badge.is-dirty {
+  border-color: rgba(245, 167, 66, 0.55);
+  color: #f6c87d;
+  background: rgba(245, 167, 66, 0.12);
+}
+
 .git-sync-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
