@@ -95,6 +95,35 @@ let records = [];
 let groups = [];
 let lastTrigger = null;
 let activeDialog = null;
+const chartScrollState = new Map();
+
+function syncColumnChartScrolls() {
+  requestAnimationFrame(() => {
+    const wrappers = document.querySelectorAll(".column-chart-scroll");
+    wrappers.forEach((wrapper) => {
+      if (wrapper.clientWidth === 0) return;
+      const id = wrapper.dataset.chartScrollId;
+      if (!id) return;
+      const maxScroll = Math.max(0, wrapper.scrollWidth - wrapper.clientWidth);
+      if (maxScroll <= 0) return;
+
+      const saved = chartScrollState.get(id);
+      let targetLeft = maxScroll;
+      if (saved && saved.userScrolled) {
+        if (saved.atEnd) {
+          targetLeft = maxScroll;
+        } else {
+          targetLeft = Math.min(saved.scrollLeft, maxScroll);
+        }
+      }
+
+      if (Math.abs(wrapper.scrollLeft - targetLeft) > 1) {
+        wrapper._programmaticTarget = targetLeft;
+        wrapper.scrollLeft = targetLeft;
+      }
+    });
+  });
+}
 
 function defaultRevenueAssumptions() {
   const constants = statsData?.revenue_nowcast?.constants || {};
@@ -308,7 +337,38 @@ function bindElements() {
 
 function bindEvents() {
   syncSiteHeaderOffset();
-  window.addEventListener("resize", syncSiteHeaderOffset, { passive: true });
+  window.addEventListener("resize", () => {
+    syncSiteHeaderOffset();
+    syncColumnChartScrolls();
+  }, { passive: true });
+
+  const clearProgrammatic = (event) => {
+    const target = event.target?.closest?.(".column-chart-scroll");
+    if (target) target._programmaticTarget = undefined;
+  };
+  document.addEventListener("pointerdown", clearProgrammatic, { passive: true, capture: true });
+  document.addEventListener("touchstart", clearProgrammatic, { passive: true, capture: true });
+  document.addEventListener("wheel", clearProgrammatic, { passive: true, capture: true });
+
+  document.addEventListener("scroll", (event) => {
+    const target = event.target;
+    if (target?.classList?.contains("column-chart-scroll") && target.dataset.chartScrollId) {
+      if (target._programmaticTarget !== undefined) {
+        if (Math.abs(target.scrollLeft - target._programmaticTarget) <= 2) {
+          target._programmaticTarget = undefined;
+          return;
+        }
+        target._programmaticTarget = undefined;
+      }
+      const maxScroll = Math.max(0, target.scrollWidth - target.clientWidth);
+      const isAtEnd = maxScroll > 0 && target.scrollLeft >= maxScroll - 4;
+      chartScrollState.set(target.dataset.chartScrollId, {
+        scrollLeft: target.scrollLeft,
+        userScrolled: true,
+        atEnd: isAtEnd
+      });
+    }
+  }, true);
 
   let savedLayoutMode = "auto";
   try {
@@ -1236,6 +1296,8 @@ function renderStatsDashboard() {
     renderGrowthPanel(),
     renderTotalsPanel()
   ].join("");
+
+  syncColumnChartScrolls();
 }
 
 function statsMarketRecords(market) {
@@ -2637,6 +2699,7 @@ function renderRevenuePanel() {
           sub: item.label || item.month
         })), (value) => `${Number(value || 0).toFixed(1)}%`, "#f5a742")}
         ${renderColumnChart(`공개 월별 현재 반응 · ${marketLabel}`, "해당 월 공개 캐릭터의 현재 평균 누적 대화수 · 4개 시장 동일 공식", cohortRows, (value) => `${formatNumber(Math.round(value))}회`, "#62a8ff", "", {
+          chartId: `cohort-month-${market}`,
           latestLabel: "최근 공개월 코호트",
           highLabel: "현재 평균 대화 최고",
           contextNote: "현재 시점 누적 대화수의 코호트 평균입니다. 먼저 공개된 월은 누적 기간이 길어 직접적인 성장률 비교가 아닙니다."
@@ -2755,8 +2818,8 @@ function renderGrowthPanel() {
       </div>
       <p class="section-note"><strong>일간(24h) 대화 증가량</strong>과 <strong>실시간 수집 갱신 델타</strong>를 상단에 나란히 1:1 비교로 배치하고, 아래에서 <strong>월별 신규 캐릭터 출시 추이 및 해당 월 출시 캐릭터</strong>를 클릭하여 확인합니다.</p>
       <div class="chart-grid chart-grid-primary">
-        ${renderColumnChart(`${marketLabel} 일간(24h) 대화 증가량`, "24시간 1일 누적 대화 증가량 추이 · 일자별 집계", dailyRows, formatNumber, "#3987e5", "", { latestLabel: "최근 일간(24h)", highLabel: "구간 최대 일간", contextNote: "하루 24시간 동안 발생한 일간 대화 증가량 추이이며, 실시간 수집 간격 갱신량과 구분됩니다." })}
-        ${renderColumnChart(`${marketLabel} 최근 수집 갱신 델타 (실시간)`, "직전 공식 API 수집본 대비 · 수분~수십분 배치 간격", chatDeltas, formatNumber, MARKET_META[market]?.color || "#27c499", "", { latestLabel: "최근 갱신(수집 간)", highLabel: "구간 최대 갱신", contextNote: "각 막대는 1회 수집 간격(수분~수십분) 동안 늘어난 실시간 갱신량이며, 일간 누적 증가량과 분리해 해석합니다." })}
+        ${renderColumnChart(`${marketLabel} 일간(24h) 대화 증가량`, "24시간 1일 누적 대화 증가량 추이 · 일자별 집계", dailyRows, formatNumber, "#3987e5", "", { chartId: `trends-daily-${market}`, latestLabel: "최근 일간(24h)", highLabel: "구간 최대 일간", contextNote: "하루 24시간 동안 발생한 일간 대화 증가량 추이이며, 실시간 수집 간격 갱신량과 구분됩니다." })}
+        ${renderColumnChart(`${marketLabel} 최근 수집 갱신 델타 (실시간)`, "직전 공식 API 수집본 대비 · 수분~수십분 배치 간격", chatDeltas, formatNumber, MARKET_META[market]?.color || "#27c499", "", { chartId: `trends-deltas-${market}`, latestLabel: "최근 갱신(수집 간)", highLabel: "구간 최대 갱신", contextNote: "각 막대는 1회 수집 간격(수분~수십분) 동안 늘어난 실시간 갱신량이며, 일간 누적 증가량과 분리해 해석합니다." })}
       </div>
       <div class="chart-grid chart-grid-secondary" style="margin-top:14px">
         ${renderNewCharacterSupply(market, "full-span")}
@@ -2801,18 +2864,20 @@ function renderNewCharacterSupply(market, className = "") {
         <div><span>직전 월 대비</span><strong class="${deltaPct >= 0 ? "is-up" : "is-down"}">${deltaPct >= 0 ? "+" : ""}${deltaPct.toFixed(1)}%</strong></div>
         <div class="is-highlight"><span>최다 출시월 · 선택: ${formatPeriodLabel(activeMonth)}</span><strong>${formatPeriodLabel(high?.label)} · ${formatNumber(high?.value)}명</strong></div>
       </div>
-      <div class="column-chart supply-month-chart" style="--columns:${Math.max(rows.length, 1)}">
-        ${rows.map((row) => {
-          const height = Math.max(4, (row.value / max) * 100);
-          const isSelected = row.label === activeMonth;
-          return `
-            <button type="button" class="column-item is-clickable${isSelected ? " is-selected" : ""}" data-supply-month="${escapeAttr(row.label)}" title="${escapeAttr(`${formatPeriodLabel(row.label)} 출시 캐릭터 ${row.value}명 보기`)}">
-              <strong>${formatNumber(row.value)}명</strong>
-              <span class="column-track"><i style="height:${height}%;background:${isSelected ? "#3987e5" : "#f5a742"}"></i></span>
-              <small style="${isSelected ? "color:#62a8ff;font-weight:850" : ""}">${escapeHtml(formatPeriodLabel(row.label))}</small>
-            </button>
-          `;
-        }).join("")}
+      <div class="column-chart-scroll" data-chart-scroll-id="supply-month-${escapeAttr(market)}">
+        <div class="column-chart supply-month-chart" style="--columns:${Math.max(rows.length, 1)}">
+          ${rows.map((row) => {
+            const height = Math.max(4, (row.value / max) * 100);
+            const isSelected = row.label === activeMonth;
+            return `
+              <button type="button" class="column-item is-clickable${isSelected ? " is-selected" : ""}" data-supply-month="${escapeAttr(row.label)}" title="${escapeAttr(`${formatPeriodLabel(row.label)} 출시 캐릭터 ${row.value}명 보기`)}">
+                <strong>${formatNumber(row.value)}명</strong>
+                <span class="column-track"><i style="height:${height}%;background:${isSelected ? "#3987e5" : "#f5a742"}"></i></span>
+                <small style="${isSelected ? "color:#62a8ff;font-weight:850" : ""}">${escapeHtml(formatPeriodLabel(row.label))}</small>
+              </button>
+            `;
+          }).join("")}
+        </div>
       </div>
       <div class="peak-character-block">
         <div class="peak-character-heading">
@@ -5993,6 +6058,7 @@ function renderColumnChart(title, subtitle, rows, formatter = formatNumber, colo
   const previous = rows.at(-2);
   const high = rows.reduce((best, row) => Number(row.value || 0) > Number(best?.value ?? -Infinity) ? row : best, null);
   const deltaPct = Number(previous?.value || 0) ? ((Number(latest?.value || 0) / Number(previous.value)) - 1) * 100 : 0;
+  const chartScrollId = options.chartId || `chart-${String(title || "").replace(/[^a-zA-Z0-9가-힣_-]/g, "_")}`;
   return `
     <article class="chart-card ${escapeAttr(className)}">
       <div class="chart-heading"><div><h3>${escapeHtml(title)}</h3><p class="stat-help">${escapeHtml(subtitle || "")}</p></div><span class="sample-badge">${rows.length}개 기간</span></div>
@@ -6001,15 +6067,17 @@ function renderColumnChart(title, subtitle, rows, formatter = formatNumber, colo
         <div><span>직전 대비</span><strong class="${deltaPct >= 0 ? "is-up" : "is-down"}">${deltaPct >= 0 ? "+" : ""}${deltaPct.toFixed(1)}%</strong></div>
         <div class="is-highlight"><span>${escapeHtml(options.highLabel || "최고 관측")}</span><strong>${high ? `${escapeHtml(formatPeriodLabel(high.label))} · ${escapeHtml(formatter(high.value))}` : "-"}</strong></div>
       </div>
-      <div class="column-chart" style="--columns:${Math.max(rows.length, 1)}">
-        ${rows.map((row) => {
-          const height = Math.max(4, (Number(row.value || 0) / max) * 100);
-          return `<div class="column-item" title="${escapeAttr(`${row.label} ${formatter(row.value)}`)}">
-            <strong>${escapeHtml(formatter(row.value))}</strong>
-            <span class="column-track"><i style="height:${height}%;background:${color}"></i></span>
-            <small>${escapeHtml(formatPeriodLabel(row.label))}</small>
-          </div>`;
-        }).join("")}
+      <div class="column-chart-scroll" data-chart-scroll-id="${escapeAttr(chartScrollId)}">
+        <div class="column-chart" style="--columns:${Math.max(rows.length, 1)}">
+          ${rows.map((row) => {
+            const height = Math.max(4, (Number(row.value || 0) / max) * 100);
+            return `<div class="column-item" title="${escapeAttr(`${row.label} ${formatter(row.value)}`)}">
+              <strong>${escapeHtml(formatter(row.value))}</strong>
+              <span class="column-track"><i style="height:${height}%;background:${color}"></i></span>
+              <small>${escapeHtml(formatPeriodLabel(row.label))}</small>
+            </div>`;
+          }).join("")}
+        </div>
       </div>
       ${options.contextNote ? `<p class="metric-context-note"><strong>읽는 법</strong>${escapeHtml(options.contextNote)}</p>` : ""}
     </article>
