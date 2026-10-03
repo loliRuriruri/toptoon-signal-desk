@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-01T09:47:13.062Z",
+  "generated_at": "2026-10-03T18:29:05.548Z",
   "providers": {
     "opendart": {
-      "status": "cached",
+      "status": "ok",
       "source": "OpenDART 공시검색",
-      "note": "최근 갱신 실패 · 이전 정상 응답 유지 (요청 시간 초과)",
+      "note": "종목코드 134580의 회사 고유번호를 자동 확인해 최근 180일 조회",
       "corp_code": "00608699",
       "disclosures": [
         {
@@ -88,8 +88,8 @@
           "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260826900731"
         }
       ],
-      "observed_at": "2026-10-01T09:32:17.403Z",
-      "attempted_at": "2026-10-01T09:46:53.056Z"
+      "observed_at": "2026-10-03T18:29:05.475Z",
+      "attempted_at": "2026-10-03T18:29:05.475Z"
     },
     "kis": {
       "status": "cached",
@@ -503,10 +503,16 @@
       "note": "KIS 토큰 중복 발급 방지 · 마지막 정상 시세 16.2시간 전 · 20시간 간격으로 재조회"
     },
     "fred": {
-      "status": "skipped",
-      "note": "FRED_API_KEY 필요",
-      "observed_at": null,
-      "attempted_at": "2026-10-01T09:47:13.062Z"
+      "status": "cached",
+      "source": "FRED DEXKOUS",
+      "observation": {
+        "date": "2026-09-25",
+        "value": 1356.51,
+        "unit": "KRW per USD"
+      },
+      "observed_at": "2026-10-03T18:28:58.493Z",
+      "attempted_at": "2026-10-03T18:28:58.493Z",
+      "note": "이전 정상 스냅샷 유지 (스케줄 분리)"
     }
   }
 }
