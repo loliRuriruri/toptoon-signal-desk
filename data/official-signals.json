@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-10-05T14:29:17.277Z",
+  "generated_at": "2026-10-05T15:13:07.157Z",
   "providers": {
     "opendart": {
-      "status": "ok",
+      "status": "cached",
       "source": "OpenDART 공시검색",
       "note": "종목코드 134580의 회사 고유번호를 자동 확인해 최근 180일 조회",
       "corp_code": "00608699",
@@ -92,13 +92,13 @@
       "attempted_at": "2026-10-05T14:29:08.679Z"
     },
     "kis": {
-      "status": "cached",
+      "status": "ok",
       "source": "한국투자증권 국내주식 현재가 (Cloudflare KV Broker)",
       "broker_token_status": {
-        "action": "issued_new",
+        "action": "reused",
         "issued_at": "2026-10-05T06:23:08.633Z",
         "expires_at": 1791267788633,
-        "remaining_seconds": 86400
+        "remaining_seconds": 54604
       },
       "ticker": "134580",
       "quote": {
@@ -516,9 +516,8 @@
         }
       ],
       "peer_note": "동일 업종의 완전한 비교군이 아닌 웹툰 플랫폼·IP 사업 노출 기준 스크리닝 피어",
-      "observed_at": "2026-10-05T06:23:08.302Z",
-      "attempted_at": "2026-10-05T06:23:08.302Z",
-      "note": "이전 정상 스냅샷 유지 (스케줄 분리)"
+      "observed_at": "2026-10-05T15:13:03.648Z",
+      "attempted_at": "2026-10-05T15:13:03.648Z"
     },
     "fred": {
       "status": "skipped",
