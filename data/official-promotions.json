@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-07T00:39:05.954Z",
+  "generated_at": "2026-10-07T10:10:56.721Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,32 +7,42 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-10-07T00:39:05.954Z",
+      "observed_at": "2026-10-07T10:10:56.721Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
-      "status": "none",
-      "change": "none",
-      "signature": "",
+      "status": "verified",
+      "change": "new",
+      "signature": "71:김가을 “나 예쁘고 귀여워? 근데 성숙미까지 있는 김가을 어떤데? 73만 2.8만",
       "homepage_error": null,
-      "items": []
+      "items": [
+        {
+          "character_id": 71,
+          "character_name": "김가을",
+          "api_badge": "price_promotion",
+          "detail_url": "https://chat.toptoon.com/detail/character/71",
+          "headline": "김가을 “나 예쁘고 귀여워? 근데 성숙미까지 있는 김가을 어떤데? 73만 2.8만",
+          "verification": "api-and-homepage",
+          "source_url": "https://chat.toptoon.com/"
+        }
+      ]
     },
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-10-07T00:39:05.954Z",
+      "observed_at": "2026-10-07T10:10:56.721Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
       "change": "changed",
-      "signature": "77:西沢みな 光栄に思いなさい。チャンスをあげる時にうまくやりな 25万 7260",
+      "signature": "61:池上朱里 あんたは私のもの。好きにしていいわよね？ 95万 6123",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 77,
-          "character_name": "西沢みな",
+          "character_id": 61,
+          "character_name": "池上朱里",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.jp/detail/character/77",
-          "headline": "西沢みな 光栄に思いなさい。チャンスをあげる時にうまくやりな 25万 7260",
+          "detail_url": "https://chat.toptoon.jp/detail/character/61",
+          "headline": "池上朱里 あんたは私のもの。好きにしていいわよね？ 95万 6123",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.jp/"
         }
@@ -41,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-10-07T00:39:05.954Z",
+      "observed_at": "2026-10-07T10:10:56.721Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -53,20 +63,20 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-10-07T00:39:05.954Z",
+      "observed_at": "2026-10-07T10:10:56.721Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "verified",
       "change": "changed",
-      "signature": "89:劉達莉 企圖支配一切的女王，劉達莉 1.8萬 631",
+      "signature": "297:李多美 「這真的是運動姿勢嗎？」 13萬 1272",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 89,
-          "character_name": "劉達莉",
+          "character_id": 297,
+          "character_name": "李多美",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.net/detail/character/89",
-          "headline": "劉達莉 企圖支配一切的女王，劉達莉 1.8萬 631",
+          "detail_url": "https://chat.toptoon.net/detail/character/297",
+          "headline": "李多美 「這真的是運動姿勢嗎？」 13萬 1272",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.net/"
         }
@@ -74,31 +84,6 @@
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-29T15:31:22.900Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "93:오늘특가 단 하루 한정! 한수진, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "294:本日特価は今日だけ！ 葛西陽菜乃、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "100:今日特惠僅限一天！ 張善英，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-29T15:46:08.102Z",
       "markets": {
@@ -4871,6 +4856,31 @@
           "status": "verified",
           "change": "changed",
           "signature": "89:劉達莉 企圖支配一切的女王，劉達莉 1.8萬 631"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-10-07T10:10:56.721Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "new",
+          "signature": "71:김가을 “나 예쁘고 귀여워? 근데 성숙미까지 있는 김가을 어떤데? 73만 2.8만"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "61:池上朱里 あんたは私のもの。好きにしていいわよね？ 95万 6123"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "297:李多美 「這真的是運動姿勢嗎？」 13萬 1272"
         }
       }
     }
