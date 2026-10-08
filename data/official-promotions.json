@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-08T10:28:30.427Z",
+  "generated_at": "2026-10-08T18:49:37.233Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,12 +7,12 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-10-08T10:28:30.427Z",
+      "observed_at": "2026-10-08T18:49:37.233Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
       "change": "changed",
-      "signature": "315:다희 너 많이 컸다? 이제 막 나가네? 5.6만 7.7천",
+      "signature": "315:다희 너 많이 컸다? 이제 막 나가네? 5.8만 7.9천",
       "homepage_error": null,
       "items": [
         {
@@ -20,7 +20,7 @@
           "character_name": "다희",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.com/detail/character/315",
-          "headline": "다희 너 많이 컸다? 이제 막 나가네? 5.6만 7.7천",
+          "headline": "다희 너 많이 컸다? 이제 막 나가네? 5.8만 7.9천",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.com/"
         }
@@ -29,12 +29,12 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-10-08T10:28:30.427Z",
+      "observed_at": "2026-10-08T18:49:37.233Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
       "change": "changed",
-      "signature": "329:竿田真由美 「壁穴」…ヤりに来ました♥ 131万 6056",
+      "signature": "329:竿田真由美 「壁穴」…ヤりに来ました♥ 132万 6228",
       "homepage_error": null,
       "items": [
         {
@@ -42,7 +42,7 @@
           "character_name": "竿田真由美",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.jp/detail/character/329",
-          "headline": "竿田真由美 「壁穴」…ヤりに来ました♥ 131万 6056",
+          "headline": "竿田真由美 「壁穴」…ヤりに来ました♥ 132万 6228",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.jp/"
         }
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-10-08T10:28:30.427Z",
+      "observed_at": "2026-10-08T18:49:37.233Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,12 +63,12 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-10-08T10:28:30.427Z",
+      "observed_at": "2026-10-08T18:49:37.233Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
-      "status": "verified",
+      "status": "partial",
       "change": "changed",
-      "signature": "173:趙書婷 你當我是真沒脾氣、不懂劈腿嗎？越想越生氣耶 1.7萬 481",
+      "signature": "173:price_promotion",
       "homepage_error": null,
       "items": [
         {
@@ -76,39 +76,14 @@
           "character_name": "趙書婷",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.net/detail/character/173",
-          "headline": "趙書婷 你當我是真沒脾氣、不懂劈腿嗎？越想越生氣耶 1.7萬 481",
-          "verification": "api-and-homepage",
-          "source_url": "https://chat.toptoon.net/"
+          "headline": null,
+          "verification": "api-badge-only",
+          "source_url": "https://chat.toptoon.net/api/characters"
         }
       ]
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-29T16:31:07.658Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "93:오늘특가 단 하루 한정! 한수진, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "294:本日特価は今日だけ！ 葛西陽菜乃、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "100:今日特惠僅限一天！ 張善英，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-29T16:46:06.588Z",
       "markets": {
@@ -4881,6 +4856,31 @@
           "status": "verified",
           "change": "changed",
           "signature": "173:趙書婷 你當我是真沒脾氣、不懂劈腿嗎？越想越生氣耶 1.7萬 481"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-10-08T18:49:37.233Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "315:다희 너 많이 컸다? 이제 막 나가네? 5.8만 7.9천"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "329:竿田真由美 「壁穴」…ヤりに来ました♥ 132万 6228"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "partial",
+          "change": "changed",
+          "signature": "173:price_promotion"
         }
       }
     }

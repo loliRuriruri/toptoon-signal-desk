@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-08T13:57:27.225Z",
+  "generated_at": "2026-10-08T18:49:43.932Z",
   "providers": {
     "opendart": {
       "status": "cached",
       "source": "OpenDART 공시검색",
-      "note": "최근 갱신 실패 · 이전 정상 응답 유지 (요청 시간 초과)",
+      "note": "최근 갱신 실패 · 이전 정상 응답 유지 (OpenDART corporation-code ZIP footer missing)",
       "corp_code": "00608699",
       "disclosures": [
         {
@@ -89,10 +89,10 @@
         }
       ],
       "observed_at": "2026-10-08T00:57:35.127Z",
-      "attempted_at": "2026-10-08T10:28:38.261Z"
+      "attempted_at": "2026-10-08T18:49:42.633Z"
     },
     "kis": {
-      "status": "ok",
+      "status": "cached",
       "source": "한국투자증권 국내주식 현재가 (Cloudflare KV Broker)",
       "broker_token_status": {
         "action": "reused",
@@ -523,13 +523,14 @@
       ],
       "peer_note": "동일 업종의 완전한 비교군이 아닌 웹툰 플랫폼·IP 사업 노출 기준 스크리닝 피어",
       "observed_at": "2026-10-08T13:57:23.993Z",
-      "attempted_at": "2026-10-08T13:57:23.993Z"
+      "attempted_at": "2026-10-08T13:57:23.993Z",
+      "note": "이전 정상 스냅샷 유지 (스케줄 분리)"
     },
     "fred": {
       "status": "skipped",
       "note": "FRED_API_KEY 필요",
       "observed_at": null,
-      "attempted_at": "2026-10-08T10:28:58.265Z"
+      "attempted_at": "2026-10-08T18:49:43.932Z"
     }
   }
 }
