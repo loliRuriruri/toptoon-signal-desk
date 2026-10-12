@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-11T19:31:32.215Z",
+  "generated_at": "2026-10-12T00:30:14.907Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,7 +7,7 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-10-11T19:31:32.215Z",
+      "observed_at": "2026-10-12T00:30:14.907Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
@@ -29,12 +29,12 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-10-11T19:31:32.215Z",
+      "observed_at": "2026-10-12T00:30:14.907Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
       "change": "changed",
-      "signature": "78:渡辺りん あんた……私の体に一体どんな細工をしたのよ？ 12万 7955",
+      "signature": "78:渡辺りん あんた……私の体に一体どんな細工をしたのよ？ 12万 8006",
       "homepage_error": null,
       "items": [
         {
@@ -42,7 +42,7 @@
           "character_name": "渡辺りん",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.jp/detail/character/78",
-          "headline": "渡辺りん あんた……私の体に一体どんな細工をしたのよ？ 12万 7955",
+          "headline": "渡辺りん あんた……私の体に一体どんな細工をしたのよ？ 12万 8006",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.jp/"
         }
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-10-11T19:31:32.215Z",
+      "observed_at": "2026-10-12T00:30:14.907Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,12 +63,12 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-10-11T19:31:32.215Z",
+      "observed_at": "2026-10-12T00:30:14.907Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
-      "status": "partial",
+      "status": "verified",
       "change": "changed",
-      "signature": "154:price_promotion",
+      "signature": "154:郭度琳 「大人，您真的…能撫慰我這寡婦的寂寞嗎？」 6801 433",
       "homepage_error": null,
       "items": [
         {
@@ -76,39 +76,14 @@
           "character_name": "郭度琳",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.net/detail/character/154",
-          "headline": null,
-          "verification": "api-badge-only",
-          "source_url": "https://chat.toptoon.net/api/characters"
+          "headline": "郭度琳 「大人，您真的…能撫慰我這寡婦的寂寞嗎？」 6801 433",
+          "verification": "api-and-homepage",
+          "source_url": "https://chat.toptoon.net/"
         }
       ]
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-29T19:01:50.749Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "93:오늘특가 단 하루 한정! 한수진, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "294:本日特価は今日だけ！ 葛西陽菜乃、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "100:今日特惠僅限一天！ 張善英，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-29T19:16:38.184Z",
       "markets": {
@@ -4881,6 +4856,31 @@
           "status": "partial",
           "change": "changed",
           "signature": "154:price_promotion"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-10-12T00:30:14.907Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "continuing",
+          "signature": "78:유세하 \"너…내 몸에 대체 무슨 수작질을 한 거야?\" 44만 1.9만"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "78:渡辺りん あんた……私の体に一体どんな細工をしたのよ？ 12万 8006"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "154:郭度琳 「大人，您真的…能撫慰我這寡婦的寂寞嗎？」 6801 433"
         }
       }
     }
