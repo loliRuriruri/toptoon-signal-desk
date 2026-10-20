@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-20T00:18:03.260Z",
+  "generated_at": "2026-10-20T08:26:57.230Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,51 +7,51 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-10-20T00:18:03.260Z",
+      "observed_at": "2026-10-20T08:26:57.230Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
-      "status": "verified",
-      "change": "continuing",
-      "signature": "221:정은애 괜찮아, 아줌마가 다 가르쳐 줄게... 195만 3.8만",
+      "status": "partial",
+      "change": "changed",
+      "signature": "121:price_promotion",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 221,
-          "character_name": "정은애",
+          "character_id": 121,
+          "character_name": "김지현",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.com/detail/character/221",
-          "headline": "정은애 괜찮아, 아줌마가 다 가르쳐 줄게... 195만 3.8만",
-          "verification": "api-and-homepage",
-          "source_url": "https://chat.toptoon.com/"
+          "detail_url": "https://chat.toptoon.com/detail/character/121",
+          "headline": null,
+          "verification": "api-badge-only",
+          "source_url": "https://chat.toptoon.com/api/characters"
         }
       ]
     },
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-10-20T00:18:03.260Z",
+      "observed_at": "2026-10-20T08:26:57.230Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
-      "status": "verified",
+      "status": "partial",
       "change": "changed",
-      "signature": "10000011:羽野ゆら どう？私が一歩引いてあげよっか？ 125万 2267",
+      "signature": "167:price_promotion",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 10000011,
-          "character_name": "羽野ゆら",
+          "character_id": 167,
+          "character_name": "武田京子",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.jp/detail/character/10000011",
-          "headline": "羽野ゆら どう？私が一歩引いてあげよっか？ 125万 2267",
-          "verification": "api-and-homepage",
-          "source_url": "https://chat.toptoon.jp/"
+          "detail_url": "https://chat.toptoon.jp/detail/character/167",
+          "headline": null,
+          "verification": "api-badge-only",
+          "source_url": "https://chat.toptoon.jp/api/characters"
         }
       ]
     },
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-10-20T00:18:03.260Z",
+      "observed_at": "2026-10-20T08:26:57.230Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,20 +63,20 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-10-20T00:18:03.260Z",
+      "observed_at": "2026-10-20T08:26:57.230Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "verified",
       "change": "changed",
-      "signature": "78:劉銀河 「你…到底對我的身體做了什麼手腳？」 3萬 1505",
+      "signature": "119:徐如熙 「…拜託放開我，你該不會是想要我的肉體吧?」 7.2萬 1687",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 78,
-          "character_name": "劉銀河",
+          "character_id": 119,
+          "character_name": "徐如熙",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.net/detail/character/78",
-          "headline": "劉銀河 「你…到底對我的身體做了什麼手腳？」 3萬 1505",
+          "detail_url": "https://chat.toptoon.net/detail/character/119",
+          "headline": "徐如熙 「…拜託放開我，你該不會是想要我的肉體吧?」 7.2萬 1687",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.net/"
         }
@@ -84,31 +84,6 @@
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-30T03:01:39.800Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "changed",
-          "signature": "77:오늘특가 단 하루 한정! 서미나, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "changed",
-          "signature": "131:本日特価は今日だけ！ エリス、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "100:今日特惠僅限一天！ 張善英，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-30T03:16:49.496Z",
       "markets": {
@@ -4881,6 +4856,31 @@
           "status": "verified",
           "change": "changed",
           "signature": "78:劉銀河 「你…到底對我的身體做了什麼手腳？」 3萬 1505"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-10-20T08:26:57.230Z",
+      "markets": {
+        "kr": {
+          "status": "partial",
+          "change": "changed",
+          "signature": "121:price_promotion"
+        },
+        "jp": {
+          "status": "partial",
+          "change": "changed",
+          "signature": "167:price_promotion"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "119:徐如熙 「…拜託放開我，你該不會是想要我的肉體吧?」 7.2萬 1687"
         }
       }
     }
