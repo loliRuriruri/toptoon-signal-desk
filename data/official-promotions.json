@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-20T23:50:38.234Z",
+  "generated_at": "2026-10-21T04:37:41.378Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,42 +7,42 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-10-20T23:50:38.234Z",
+      "observed_at": "2026-10-21T04:37:41.378Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
-      "status": "partial",
-      "change": "continuing",
-      "signature": "121:price_promotion",
+      "status": "verified",
+      "change": "changed",
+      "signature": "139:엄자영 \"분명 단추는 두 개만 풀어놨었는데... 내가 자는 사이에…다녀간…건가…?” 44만 1.5만",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 121,
-          "character_name": "김지현",
+          "character_id": 139,
+          "character_name": "엄자영",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.com/detail/character/121",
-          "headline": null,
-          "verification": "api-badge-only",
-          "source_url": "https://chat.toptoon.com/api/characters"
+          "detail_url": "https://chat.toptoon.com/detail/character/139",
+          "headline": "엄자영 \"분명 단추는 두 개만 풀어놨었는데... 내가 자는 사이에…다녀간…건가…?” 44만 1.5만",
+          "verification": "api-and-homepage",
+          "source_url": "https://chat.toptoon.com/"
         }
       ]
     },
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-10-20T23:50:38.234Z",
+      "observed_at": "2026-10-21T04:37:41.378Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
       "change": "changed",
-      "signature": "167:武田京子 おばさんのパンツでエッチなことしたの？ 4.6万 2390",
+      "signature": "165:伊延蒼空 学科の清純派女神だけど、あなたにだけ秘密を共有する彼女、伊延蒼空。 4.7万 1849",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 167,
-          "character_name": "武田京子",
+          "character_id": 165,
+          "character_name": "伊延蒼空",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.jp/detail/character/167",
-          "headline": "武田京子 おばさんのパンツでエッチなことしたの？ 4.6万 2390",
+          "detail_url": "https://chat.toptoon.jp/detail/character/165",
+          "headline": "伊延蒼空 学科の清純派女神だけど、あなたにだけ秘密を共有する彼女、伊延蒼空。 4.7万 1849",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.jp/"
         }
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-10-20T23:50:38.234Z",
+      "observed_at": "2026-10-21T04:37:41.378Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,52 +63,27 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-10-20T23:50:38.234Z",
+      "observed_at": "2026-10-21T04:37:41.378Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
-      "status": "verified",
+      "status": "partial",
       "change": "changed",
-      "signature": "119:徐如熙 「…拜託放開我，你該不會是想要我的肉體吧?」 7.3萬 1752",
+      "signature": "329:price_promotion",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 119,
-          "character_name": "徐如熙",
+          "character_id": 329,
+          "character_name": "崔潔怡",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.net/detail/character/119",
-          "headline": "徐如熙 「…拜託放開我，你該不會是想要我的肉體吧?」 7.3萬 1752",
-          "verification": "api-and-homepage",
-          "source_url": "https://chat.toptoon.net/"
+          "detail_url": "https://chat.toptoon.net/detail/character/329",
+          "headline": null,
+          "verification": "api-badge-only",
+          "source_url": "https://chat.toptoon.net/api/characters"
         }
       ]
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-30T04:01:56.511Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "77:오늘특가 단 하루 한정! 서미나, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "131:本日特価は今日だけ！ エリス、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "partial",
-          "change": "changed",
-          "signature": "253:price_promotion"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-30T04:16:55.185Z",
       "markets": {
@@ -4881,6 +4856,31 @@
           "status": "verified",
           "change": "changed",
           "signature": "119:徐如熙 「…拜託放開我，你該不會是想要我的肉體吧?」 7.3萬 1752"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-10-21T04:37:41.378Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "139:엄자영 \"분명 단추는 두 개만 풀어놨었는데... 내가 자는 사이에…다녀간…건가…?” 44만 1.5만"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "165:伊延蒼空 学科の清純派女神だけど、あなたにだけ秘密を共有する彼女、伊延蒼空。 4.7万 1849"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "partial",
+          "change": "changed",
+          "signature": "329:price_promotion"
         }
       }
     }
