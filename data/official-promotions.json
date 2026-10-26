@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-25T23:12:41.457Z",
+  "generated_at": "2026-10-26T04:39:00.392Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,20 +7,20 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-10-25T23:12:41.457Z",
+      "observed_at": "2026-10-26T04:39:00.392Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
       "change": "changed",
-      "signature": "10000015:안지우 어제 하던 거.. 이어서 해볼래? 3.1만 5.4천",
+      "signature": "1:신아영 \"제발 멈춰줘요... 남들이 보면 어쩌려고... 하아, 시키는 대로 다 할게요...\" 626만 18만",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 10000015,
-          "character_name": "안지우",
+          "character_id": 1,
+          "character_name": "신아영",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.com/detail/character/10000015",
-          "headline": "안지우 어제 하던 거.. 이어서 해볼래? 3.1만 5.4천",
+          "detail_url": "https://chat.toptoon.com/detail/character/1",
+          "headline": "신아영 \"제발 멈춰줘요... 남들이 보면 어쩌려고... 하아, 시키는 대로 다 할게요...\" 626만 18만",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.com/"
         }
@@ -29,19 +29,29 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-10-25T23:12:41.457Z",
+      "observed_at": "2026-10-26T04:39:00.392Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
-      "status": "none",
-      "change": "none",
-      "signature": "",
+      "status": "verified",
+      "change": "new",
+      "signature": "256:飯村香澄 クソッ、いったい私が何したっていうのよ！ 2449万 1.5万",
       "homepage_error": null,
-      "items": []
+      "items": [
+        {
+          "character_id": 256,
+          "character_name": "飯村香澄",
+          "api_badge": "price_promotion",
+          "detail_url": "https://chat.toptoon.jp/detail/character/256",
+          "headline": "飯村香澄 クソッ、いったい私が何したっていうのよ！ 2449万 1.5万",
+          "verification": "api-and-homepage",
+          "source_url": "https://chat.toptoon.jp/"
+        }
+      ]
     },
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-10-25T23:12:41.457Z",
+      "observed_at": "2026-10-26T04:39:00.392Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -53,20 +63,20 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-10-25T23:12:41.457Z",
+      "observed_at": "2026-10-26T04:39:00.392Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
       "status": "verified",
       "change": "changed",
-      "signature": "348:林嘉藍 想和姐姐流一整晚的汗嗎?♥ 3582 490",
+      "signature": "139:嚴安雅 「明明只解開了兩顆釦子... 難道是我睡著的時候…他來過…嗎…？」 3.1萬 1101",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 348,
-          "character_name": "林嘉藍",
+          "character_id": 139,
+          "character_name": "嚴安雅",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.net/detail/character/348",
-          "headline": "林嘉藍 想和姐姐流一整晚的汗嗎?♥ 3582 490",
+          "detail_url": "https://chat.toptoon.net/detail/character/139",
+          "headline": "嚴安雅 「明明只解開了兩顆釦子... 難道是我睡著的時候…他來過…嗎…？」 3.1萬 1101",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.net/"
         }
@@ -74,31 +84,6 @@
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-30T09:16:54.383Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "77:오늘특가 단 하루 한정! 서미나, 최대 60%"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "131:本日特価は今日だけ！ エリス、最大 60%"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "253:今日特惠僅限一天！ 江玥璃，最高 60%"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-30T09:31:44.000Z",
       "markets": {
@@ -4871,6 +4856,31 @@
           "status": "verified",
           "change": "changed",
           "signature": "348:林嘉藍 想和姐姐流一整晚的汗嗎?♥ 3582 490"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-10-26T04:39:00.392Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "1:신아영 \"제발 멈춰줘요... 남들이 보면 어쩌려고... 하아, 시키는 대로 다 할게요...\" 626만 18만"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "new",
+          "signature": "256:飯村香澄 クソッ、いったい私が何したっていうのよ！ 2449万 1.5万"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "139:嚴安雅 「明明只解開了兩顆釦子... 難道是我睡著的時候…他來過…嗎…？」 3.1萬 1101"
         }
       }
     }
