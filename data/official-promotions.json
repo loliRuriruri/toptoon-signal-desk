@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-04T14:24:34.358Z",
+  "generated_at": "2026-11-04T21:16:24.277Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,12 +7,12 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-11-04T14:24:34.358Z",
+      "observed_at": "2026-11-04T21:16:24.277Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
-      "status": "verified",
+      "status": "partial",
       "change": "changed",
-      "signature": "522:3.7만 6.2천 SALE 금보라 일진 티를 못 벗은 반전 매력의 간호사. #나는 뱀파이어다 #뱀파이어 #능력물",
+      "signature": "522:price_promotion",
       "homepage_error": null,
       "items": [
         {
@@ -20,21 +20,21 @@
           "character_name": "금보라",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.com/detail/character/522",
-          "headline": "3.7만 6.2천 SALE 금보라 일진 티를 못 벗은 반전 매력의 간호사. #나는 뱀파이어다 #뱀파이어 #능력물",
-          "verification": "api-and-homepage",
-          "source_url": "https://chat.toptoon.com/"
+          "headline": null,
+          "verification": "api-badge-only",
+          "source_url": "https://chat.toptoon.com/api/characters"
         }
       ]
     },
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-11-04T14:24:34.358Z",
+      "observed_at": "2026-11-04T21:16:24.277Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
-      "change": "continuing",
-      "signature": "315:SALE # 嘘とセフレ # 年上 # 外剛内柔 佐々木由紀 ずいぶん大きくなったわね、もう遠慮なんかしないんだ？",
+      "change": "changed",
+      "signature": "315:8077 978 SALE 佐々木由紀 ずいぶん大きくなったわね、もう遠慮なんかしないんだ？ #嘘とセフレ #年上 #外剛内柔",
       "homepage_error": null,
       "items": [
         {
@@ -42,7 +42,7 @@
           "character_name": "佐々木由紀",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.jp/detail/character/315",
-          "headline": "SALE # 嘘とセフレ # 年上 # 外剛内柔 佐々木由紀 ずいぶん大きくなったわね、もう遠慮なんかしないんだ？",
+          "headline": "8077 978 SALE 佐々木由紀 ずいぶん大きくなったわね、もう遠慮なんかしないんだ？ #嘘とセフレ #年上 #外剛内柔",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.jp/"
         }
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-11-04T14:24:34.358Z",
+      "observed_at": "2026-11-04T21:16:24.277Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,12 +63,12 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-11-04T14:24:34.358Z",
+      "observed_at": "2026-11-04T21:16:24.277Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
-      "status": "verified",
+      "status": "partial",
       "change": "changed",
-      "signature": "505:5577 1117 SALE 鄭熙珍 追緝色狼的美貌女警 #癡漢成癮 #女警 #專業",
+      "signature": "505:price_promotion",
       "homepage_error": null,
       "items": [
         {
@@ -76,39 +76,14 @@
           "character_name": "鄭熙珍",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.net/detail/character/505",
-          "headline": "5577 1117 SALE 鄭熙珍 追緝色狼的美貌女警 #癡漢成癮 #女警 #專業",
-          "verification": "api-and-homepage",
-          "source_url": "https://chat.toptoon.net/"
+          "headline": null,
+          "verification": "api-badge-only",
+          "source_url": "https://chat.toptoon.net/api/characters"
         }
       ]
     }
   },
   "history": [
-    {
-      "captured_at": "2026-09-30T16:46:38.314Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "77:서미나 \"영광인 줄 알고 기회 줄 때 잘 해.\" 33만 1.6만"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "changed",
-          "signature": "131:エリス もしかして…私、女として魅力がないですか？ 3.9万 2733"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "verified",
-          "change": "changed",
-          "signature": "253:江玥璃 在完美的外表背後，隱藏著危險祕密帳號的企劃組組長 2萬 619"
-        }
-      }
-    },
     {
       "captured_at": "2026-09-30T17:01:59.501Z",
       "markets": {
@@ -4881,6 +4856,31 @@
           "status": "verified",
           "change": "changed",
           "signature": "505:5577 1117 SALE 鄭熙珍 追緝色狼的美貌女警 #癡漢成癮 #女警 #專業"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-11-04T21:16:24.277Z",
+      "markets": {
+        "kr": {
+          "status": "partial",
+          "change": "changed",
+          "signature": "522:price_promotion"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "315:8077 978 SALE 佐々木由紀 ずいぶん大きくなったわね、もう遠慮なんかしないんだ？ #嘘とセフレ #年上 #外剛内柔"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "partial",
+          "change": "changed",
+          "signature": "505:price_promotion"
         }
       }
     }
