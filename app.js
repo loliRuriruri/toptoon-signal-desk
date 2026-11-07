@@ -3859,39 +3859,114 @@ function computeDailyMetrics(market = "all") {
   return result;
 }
 
-function computeWeeklyMetrics(market = "all") {
-  const baseWeeks = [
-    { week: "W28", label: "07.06~07.12", views: 6850000, chats: 62400, event: "🇯🇵 일본 론칭" },
-    { week: "W29", label: "07.13~07.19", views: 7620000, chats: 69800, event: "" },
-    { week: "W30", label: "07.20~07.26", views: 8450000, chats: 77500, event: "" },
-    { week: "W31", label: "07.27~08.02", views: 9380000, chats: 86100, event: "🇹🇼 대만 론칭" },
-    { week: "W32", label: "08.03~08.09", views: 9950000, chats: 91400, event: "🌍 글로벌 론칭" },
-    { week: "W33", label: "08.10~08.16", views: 10420000, chats: 94800, event: "" },
-    { week: "W34", label: "08.17~08.23", views: 10650000, chats: 95500, event: "성장 정체 구간" },
-    { week: "W35", label: "08.24~08.30", views: 10230064, chats: 90808, event: "⚡ MULTI 론칭" },
-    { week: "W36", label: "08.31~09.06", views: 10040439, chats: 84727, event: "저점 형성" },
-    { week: "W37", label: "09.07~09.13", views: 10420000, chats: 96500, event: "🟢 반등 회복", isMTD: true, mtdDays: 1, mtdViews: 1489814, mtdChats: 14305, mtdWoWChats: 13.8 }
-  ];
+function formatDiffBadge(diff, rate, unit = "") {
+  const d = Number(diff || 0);
+  const r = Number(rate || 0);
+  const isUp = r >= 0;
+  const sign = isUp ? "+" : "";
+  const compactDiff = formatCompact(Math.abs(d));
+  const diffStr = d >= 0 ? `+${compactDiff}` : `-${compactDiff}`;
+  return `<span class="wow-tag ${isUp ? "is-up" : "is-down"}">${diffStr}${unit} (${sign}${r.toFixed(1)}%)</span>`;
+}
 
+const HISTORICAL_BASE_WEEKS = [
+  { week: "W28", label: "07.06~07.12", views: 6850000, chats: 62400, event: "🇯🇵 일본 론칭" },
+  { week: "W29", label: "07.13~07.19", views: 7620000, chats: 69800, event: "" },
+  { week: "W30", label: "07.20~07.26", views: 8450000, chats: 77500, event: "" },
+  { week: "W31", label: "07.27~08.02", views: 9380000, chats: 86100, event: "🇹🇼 대만 론칭" },
+  { week: "W32", label: "08.03~08.09", views: 9950000, chats: 91400, event: "🌍 글로벌 론칭" },
+  { week: "W33", label: "08.10~08.16", views: 10420000, chats: 94800, event: "" },
+  { week: "W34", label: "08.17~08.23", views: 10650000, chats: 95500, event: "성장 정체 구간" }
+];
+
+function computeWeeklyMetrics(market = "all") {
+  const daily = computeDailyMetrics(market);
   const marketRatios = { all: 1, kr: 0.44, jp: 0.38, tw: 0.12, global: 0.06 };
   const ratio = marketRatios[market] || 1;
 
-  const weeks = baseWeeks.map((w) => ({
+  const weeks = HISTORICAL_BASE_WEEKS.map((w) => ({
     ...w,
     views: Math.round(w.views * ratio),
     chats: Math.round(w.chats * ratio),
-    mtdViews: Math.round(w.mtdViews * ratio),
-    mtdChats: Math.round(w.mtdChats * ratio)
+    isMTD: false,
+    days: 7
   }));
+
+  if (daily.length > 0) {
+    let curMon = new Date("2026-08-24T00:00:00Z");
+    const lastDailyDate = new Date(`${daily[daily.length - 1].date}T00:00:00Z`);
+
+    let weekNum = 35;
+    while (curMon <= lastDailyDate) {
+      const monStr = curMon.toISOString().slice(0, 10);
+      const sunDate = new Date(curMon.getTime() + 6 * 86400000);
+      const sunStr = sunDate.toISOString().slice(0, 10);
+      const label = `${monStr.slice(5).replace("-", ".")}~${sunStr.slice(5).replace("-", ".")}`;
+
+      const rows = daily.filter((r) => r.date >= monStr && r.date <= sunStr);
+      if (rows.length > 0) {
+        const wViews = rows.reduce((s, r) => s + (r.views || 0), 0);
+        const wChats = rows.reduce((s, r) => s + (r.chats || 0), 0);
+        const isMTD = rows.length < 7 && sunDate > lastDailyDate;
+
+        let event = "정상 가동";
+        if (weekNum === 35) event = "⚡ MULTI 론칭";
+        else if (weekNum === 36) event = "저점 형성";
+        else if (weekNum === 37) event = "반등 회복";
+        else if (weekNum === 44) event = "안정 성장";
+        else if (isMTD) event = "🟢 진행 중 (MTD)";
+
+        weeks.push({
+          week: `W${weekNum}`,
+          label,
+          views: wViews,
+          chats: wChats,
+          event,
+          isMTD,
+          days: rows.length
+        });
+      }
+
+      weekNum++;
+      curMon = new Date(curMon.getTime() + 7 * 86400000);
+    }
+  }
 
   weeks.forEach((w, i) => {
     if (i > 0) {
       const prev = weeks[i - 1];
-      w.wowViews = (((w.views / prev.views) - 1) * 100).toFixed(1);
-      w.wowChats = (((w.chats / prev.chats) - 1) * 100).toFixed(1);
+      w.viewsDiff = w.views - prev.views;
+      w.chatsDiff = w.chats - prev.chats;
+      w.wowViews = (((w.views / Math.max(prev.views, 1)) - 1) * 100).toFixed(1);
+      w.wowChats = (((w.chats / Math.max(prev.chats, 1)) - 1) * 100).toFixed(1);
+
+      if (w.isMTD && prev) {
+        const curDailyAvgViews = w.views / Math.max(w.days, 1);
+        const prevDailyAvgViews = prev.views / Math.max(prev.days || 7, 1);
+        const curDailyAvgChats = w.chats / Math.max(w.days, 1);
+        const prevDailyAvgChats = prev.chats / Math.max(prev.days || 7, 1);
+
+        w.mtdWoWViews = (((curDailyAvgViews / Math.max(prevDailyAvgViews, 1)) - 1) * 100).toFixed(1);
+        w.mtdWoWChats = (((curDailyAvgChats / Math.max(prevDailyAvgChats, 1)) - 1) * 100).toFixed(1);
+        const proratedPrevViews = Math.round(prevDailyAvgViews * w.days);
+        const proratedPrevChats = Math.round(prevDailyAvgChats * w.days);
+        w.viewsDiffMtd = w.views - proratedPrevViews;
+        w.chatsDiffMtd = w.chats - proratedPrevChats;
+      } else {
+        w.mtdWoWViews = w.wowViews;
+        w.mtdWoWChats = w.wowChats;
+        w.viewsDiffMtd = w.viewsDiff;
+        w.chatsDiffMtd = w.chatsDiff;
+      }
     } else {
+      w.viewsDiff = 0;
+      w.chatsDiff = 0;
       w.wowViews = "+0.0";
       w.wowChats = "+0.0";
+      w.mtdWoWViews = "+0.0";
+      w.mtdWoWChats = "+0.0";
+      w.viewsDiffMtd = 0;
+      w.chatsDiffMtd = 0;
     }
     w.intensity = (w.views / Math.max(w.chats, 1)).toFixed(1);
   });
@@ -3899,68 +3974,237 @@ function computeWeeklyMetrics(market = "all") {
   return weeks;
 }
 
-function computeMonthlyMetrics(market = "all") {
-  const baseMonths = [
-    { month: "2026-03", days: 19, views: 12500000, chats: 120000, momViews: "+0.0", momChats: "+0.0", dailyAvg: 657895, note: "공식 론칭 (3/13)" },
-    { month: "2026-04", days: 30, views: 24800000, chats: 235000, momViews: "+98.4", momChats: "+95.8", dailyAvg: 826667, note: "한국 정규 가동" },
-    { month: "2026-05", days: 31, views: 34200000, chats: 320000, momViews: "+37.9", momChats: "+36.2", dailyAvg: 1103226, note: "라인업 확장" },
-    { month: "2026-06", days: 30, views: 33100000, chats: 305000, momViews: "-3.2", momChats: "-4.7", dailyAvg: 1103333, note: "탑툰 코인 연동 (6/18)" },
-    { month: "2026-07", days: 31, views: 39500000, chats: 362000, momViews: "+19.3", momChats: "+18.7", dailyAvg: 1274194, note: "일본(7/8)·대만(7/28)" },
-    { month: "2026-08", days: 31, views: 45800000, chats: 405000, momViews: "+15.9", momChats: "+11.9", dailyAvg: 1477419, note: "글로벌(8/5)·MULTI(8/28)" },
-    { month: "2026-09 MTD", days: 7, views: 10004310, chats: 87461, momViews: "-3.5", momChats: "+1.4", dailyAvg: 1429187, isMTD: true, note: "9/1~9/7 동기간 대비" }
-  ];
+const HISTORICAL_BASE_MONTHS = [
+  { month: "2026-03", days: 19, views: 12500000, chats: 120000, note: "공식 론칭 (3/13)" },
+  { month: "2026-04", days: 30, views: 24800000, chats: 235000, note: "한국 정규 가동" },
+  { month: "2026-05", days: 31, views: 34200000, chats: 320000, note: "라인업 확장" },
+  { month: "2026-06", days: 30, views: 33100000, chats: 305000, note: "탑툰 코인 연동 (6/18)" },
+  { month: "2026-07", days: 31, views: 39500000, chats: 362000, note: "일본(7/8)·대만(7/28)" }
+];
 
+function computeMonthlyMetrics(market = "all") {
+  const daily = computeDailyMetrics(market);
   const marketRatios = { all: 1, kr: 0.44, jp: 0.38, tw: 0.12, global: 0.06 };
   const ratio = marketRatios[market] || 1;
 
-  return baseMonths.map((m) => ({
+  const months = HISTORICAL_BASE_MONTHS.map((m) => ({
     ...m,
     views: Math.round(m.views * ratio),
     chats: Math.round(m.chats * ratio),
-    dailyAvg: Math.round(m.dailyAvg * ratio)
+    dailyAvg: Math.round((m.views * ratio) / m.days),
+    isMTD: false
   }));
+
+  const monthKeys = ["2026-08", "2026-09", "2026-10", "2026-11"];
+  const notes = {
+    "2026-08": "글로벌(8/5)·MULTI(8/28)",
+    "2026-09": "전 시장 안정 가동",
+    "2026-10": "글로벌 트랙션 확대",
+    "2026-11": "11월 진행 중 (MTD)"
+  };
+
+  monthKeys.forEach((mk) => {
+    const rows = daily.filter((r) => r.date.startsWith(mk));
+    if (rows.length > 0) {
+      let mViews = rows.reduce((s, r) => s + (r.views || 0), 0);
+      let mChats = rows.reduce((s, r) => s + (r.chats || 0), 0);
+      let days = rows.length;
+      let isMTD = false;
+
+      if (mk === "2026-08") {
+        mViews = Math.round((45800000 * ratio) * (21 / 31)) + mViews;
+        mChats = Math.round((405000 * ratio) * (21 / 31)) + mChats;
+        days = 31;
+      } else if (mk === "2026-11") {
+        isMTD = true;
+      }
+
+      months.push({
+        month: isMTD ? `${mk} MTD` : mk,
+        days,
+        views: mViews,
+        chats: mChats,
+        dailyAvg: Math.round(mViews / Math.max(days, 1)),
+        isMTD,
+        note: notes[mk] || "정규 가동"
+      });
+    }
+  });
+
+  months.forEach((m, i) => {
+    if (i > 0) {
+      const prev = months[i - 1];
+      m.viewsDiff = m.views - prev.views;
+      m.chatsDiff = m.chats - prev.chats;
+      m.momViews = (((m.views / Math.max(prev.views, 1)) - 1) * 100).toFixed(1);
+      m.momChats = (((m.chats / Math.max(prev.chats, 1)) - 1) * 100).toFixed(1);
+
+      if (m.isMTD && prev) {
+        const prevKey = monthKeys[monthKeys.indexOf("2026-11") - 1];
+        const prevRows = daily.filter((r) => r.date.startsWith(prevKey)).slice(0, m.days);
+        const prevViewsMtd = prevRows.reduce((s, r) => s + (r.views || 0), 0);
+        const prevChatsMtd = prevRows.reduce((s, r) => s + (r.chats || 0), 0);
+        if (prevViewsMtd > 0) {
+          m.viewsDiff = m.views - prevViewsMtd;
+          m.momViews = (((m.views / prevViewsMtd) - 1) * 100).toFixed(1);
+        }
+        if (prevChatsMtd > 0) {
+          m.chatsDiff = m.chats - prevChatsMtd;
+          m.momChats = (((m.chats / prevChatsMtd) - 1) * 100).toFixed(1);
+        }
+      }
+    } else {
+      m.viewsDiff = 0;
+      m.chatsDiff = 0;
+      m.momViews = "+0.0";
+      m.momChats = "+0.0";
+    }
+  });
+
+  return months;
+}
+
+function computeCountryWeeklyMetrics() {
+  const krDaily = computeDailyMetrics("kr");
+  const jpDaily = computeDailyMetrics("jp");
+  const twDaily = computeDailyMetrics("tw");
+  const glDaily = computeDailyMetrics("global");
+  const allDaily = computeDailyMetrics("all");
+
+  const baseCountryWeeks = [
+    { week: "W30", label: "07.20~07.26", kr: 4394000, jp: 3211000, tw: 845000, global: 0, total: 8450000, event: "정상 가동" },
+    { week: "W31", label: "07.27~08.02", kr: 4690000, jp: 3470000, tw: 1220000, global: 0, total: 9380000, event: "🇹🇼 대만 론칭" },
+    { week: "W32", label: "08.03~08.09", kr: 4776000, jp: 3681500, tw: 1094500, global: 398000, total: 9950000, event: "🌍 글로벌 론칭" },
+    { week: "W33", label: "08.10~08.16", kr: 4793200, jp: 3959600, tw: 1146200, global: 521000, total: 10420000, event: "정상 가동" },
+    { week: "W34", label: "08.17~08.23", kr: 4792500, jp: 4047000, tw: 1278000, global: 532500, total: 10650000, event: "성장 정체 구간" }
+  ];
+
+  const weeks = [...baseCountryWeeks];
+
+  if (allDaily.length > 0) {
+    let curMon = new Date("2026-08-24T00:00:00Z");
+    const lastDailyDate = new Date(`${allDaily[allDaily.length - 1].date}T00:00:00Z`);
+
+    let weekNum = 35;
+    while (curMon <= lastDailyDate) {
+      const monStr = curMon.toISOString().slice(0, 10);
+      const sunDate = new Date(curMon.getTime() + 6 * 86400000);
+      const sunStr = sunDate.toISOString().slice(0, 10);
+      const label = `${monStr.slice(5).replace("-", ".")}~${sunStr.slice(5).replace("-", ".")}`;
+
+      const rowsAll = allDaily.filter((r) => r.date >= monStr && r.date <= sunStr);
+      if (rowsAll.length > 0) {
+        const krSum = krDaily.filter((r) => r.date >= monStr && r.date <= sunStr).reduce((s, r) => s + (r.views || 0), 0);
+        const jpSum = jpDaily.filter((r) => r.date >= monStr && r.date <= sunStr).reduce((s, r) => s + (r.views || 0), 0);
+        const twSum = twDaily.filter((r) => r.date >= monStr && r.date <= sunStr).reduce((s, r) => s + (r.views || 0), 0);
+        const glSum = glDaily.filter((r) => r.date >= monStr && r.date <= sunStr).reduce((s, r) => s + (r.views || 0), 0);
+        const totSum = krSum + jpSum + twSum + glSum;
+
+        const isMTD = rowsAll.length < 7 && sunDate > lastDailyDate;
+        let event = "정상 가동";
+        if (weekNum === 35) event = "⚡ MULTI 론칭";
+        else if (weekNum === 36) event = "저점 형성";
+        else if (weekNum === 37) event = "🟢 반등 회복";
+        else if (weekNum === 44) event = "안정 성장";
+        else if (isMTD) event = "🟢 진행 중 (MTD)";
+
+        weeks.push({
+          week: `W${weekNum}`,
+          label,
+          kr: krSum,
+          jp: jpSum,
+          tw: twSum,
+          global: glSum,
+          total: totSum,
+          isMTD,
+          event,
+          days: rowsAll.length
+        });
+      }
+
+      weekNum++;
+      curMon = new Date(curMon.getTime() + 7 * 86400000);
+    }
+  }
+
+  // Calculate WoW deltas
+  weeks.forEach((w, i) => {
+    if (i > 0) {
+      const prev = weeks[i - 1];
+      w.totalDiff = w.total - prev.total;
+      w.wowTotal = (((w.total / Math.max(prev.total, 1)) - 1) * 100).toFixed(1);
+      w.krDiff = w.kr - prev.kr;
+      w.wowKr = (((w.kr / Math.max(prev.kr, 1)) - 1) * 100).toFixed(1);
+      w.jpDiff = w.jp - prev.jp;
+      w.wowJp = (((w.jp / Math.max(prev.jp, 1)) - 1) * 100).toFixed(1);
+      w.twDiff = w.tw - prev.tw;
+      w.wowTw = (((w.tw / Math.max(prev.tw, 1)) - 1) * 100).toFixed(1);
+      w.glDiff = w.global - prev.global;
+      w.wowGl = (((w.global / Math.max(prev.global, 1)) - 1) * 100).toFixed(1);
+
+      if (w.isMTD && prev) {
+        const curDailyAvg = w.total / Math.max(w.days, 1);
+        const prevDailyAvg = prev.total / Math.max(prev.days || 7, 1);
+        w.wowTotalMtd = (((curDailyAvg / Math.max(prevDailyAvg, 1)) - 1) * 100).toFixed(1);
+        w.totalDiffMtd = Math.round(w.total - prevDailyAvg * w.days);
+      } else {
+        w.wowTotalMtd = w.wowTotal;
+        w.totalDiffMtd = w.totalDiff;
+      }
+    } else {
+      w.totalDiff = 0;
+      w.wowTotal = "+0.0";
+      w.wowTotalMtd = "+0.0";
+      w.totalDiffMtd = 0;
+      w.krDiff = 0;
+      w.wowKr = "+0.0";
+      w.jpDiff = 0;
+      w.wowJp = "+0.0";
+      w.twDiff = 0;
+      w.wowTw = "+0.0";
+      w.glDiff = 0;
+      w.wowGl = "+0.0";
+    }
+  });
+
+  return weeks;
 }
 
 function computeGrowthStatus(weeklyMetrics, dailyMetrics) {
   const latestWeek = weeklyMetrics[weeklyMetrics.length - 1];
   const prevWeek = weeklyMetrics[weeklyMetrics.length - 2];
-  const wowChatsNum = Number(latestWeek.mtdWoWChats || latestWeek.wowChats || 0);
+  const wowChatsNum = Number(latestWeek?.mtdWoWChats || latestWeek?.wowChats || 0);
+  const wowChatsFormatted = `${wowChatsNum >= 0 ? "+" : ""}${wowChatsNum.toFixed(1)}%`;
 
   if (wowChatsNum > 10 && Number(prevWeek?.wowChats || 0) <= 0) {
     return {
       status: "🟢 회복",
       code: "recovery",
-      sub: "주간 대화 참여 +13.8% 반등 · 7D 상승 · MULTI 기여",
-      summary: "지난주 저점(-6.7%)을 통과한 뒤 이번 주 초입 대화 참여수가 전주 동요일 대비 +13.8% 급반등하며 명확한 턴어라운드 흐름을 보이고 있습니다."
+      sub: `주간 대화 참여 ${wowChatsFormatted} 반등 · 턴어라운드 흐름`,
+      summary: `이전 주간 대비 대화 참여수가 ${wowChatsFormatted} 반등하며 명확한 개선 흐름을 보이고 있습니다.`
     };
-  } else if (wowChatsNum > 10) {
+  } else if (wowChatsNum > 5) {
     return {
-      status: "🟢 강한 성장",
+      status: "🟢 성장",
       code: "strong-growth",
-      sub: "주간 WoW 10% 이상 연속 성장 가속",
-      summary: "국내외 전 시장에서 견고한 대화 참여량 증가세가 지속되고 있습니다."
+      sub: `주간 대화 참여 ${wowChatsFormatted} 견고한 증가세`,
+      summary: `국내외 전 시장에서 대화 참여량 증가세(${wowChatsFormatted})가 지속되고 있습니다.`
     };
   } else if (Math.abs(wowChatsNum) <= 5) {
     return {
       status: "🟡 정체",
       code: "stable",
-      sub: "최근 주간 활동 ±5% 이내 횡보 구간",
-      summary: "대화 활동량이 일정 범위 내에서 유지되며 차기 모멘텀을 모색 중입니다."
+      sub: `최근 주간 활동 ${wowChatsFormatted} (±5% 횡보)`,
+      summary: "대화 활동량이 안정적인 범위 내에서 유지되며 차기 모멘텀을 모색 중입니다."
     };
-  } else if (wowChatsNum < -5) {
+  } else {
     return {
       status: "🟠 둔화",
       code: "slowdown",
-      sub: "주간 활동 지표 일시적 조정",
-      summary: "이전 주간 대비 대화 참여수가 일시적으로 둔화된 구간입니다."
+      sub: `주간 활동 지표 ${wowChatsFormatted} 일시적 조정`,
+      summary: `이전 주간 대비 대화 참여수가 일시적으로 둔화(${wowChatsFormatted})된 구간입니다.`
     };
   }
-  return {
-    status: "🟢 안정",
-    code: "stable",
-    sub: "전반적 활동 흐름 안정 유지",
-    summary: "공개 카운터가 안정적인 추이를 지속하고 있습니다."
-  };
 }
 
 function renderLiveActivitySection(market) {
@@ -3970,14 +4214,26 @@ function renderLiveActivitySection(market) {
   const monthly = computeMonthlyMetrics(market);
   const status = computeGrowthStatus(weekly, daily);
 
-  const todayRow = daily[daily.length - 1] || { views: 1489814, chats: 14305 };
-  const yesterdayRow = daily[daily.length - 2] || { views: 1529002, chats: 15066 };
+  const todayRow = daily[daily.length - 1] || { views: 0, chats: 0 };
+  const yesterdayRow = daily[daily.length - 2] || { views: 0, chats: 0 };
 
-  const todayViewsChange = (((todayRow.views / Math.max(yesterdayRow.views, 1)) - 1) * 100).toFixed(1);
-  const todayChatsChange = (((todayRow.chats / Math.max(yesterdayRow.chats, 1)) - 1) * 100).toFixed(1);
+  const todayViewsDiff = todayRow.views - yesterdayRow.views;
+  const todayViewsChange = yesterdayRow.views > 0
+    ? (((todayRow.views / yesterdayRow.views) - 1) * 100).toFixed(1)
+    : "0.0";
+  const todayChatsDiff = todayRow.chats - yesterdayRow.chats;
+  const todayChatsChange = yesterdayRow.chats > 0
+    ? (((todayRow.chats / yesterdayRow.chats) - 1) * 100).toFixed(1)
+    : "0.0";
 
-  const thisWeek = weekly[weekly.length - 1];
-  const thisMonth = monthly[monthly.length - 1];
+  const thisWeek = weekly[weekly.length - 1] || { views: 0, chats: 0, week: "W45", label: "" };
+  const prevWeek = weekly[weekly.length - 2] || thisWeek;
+  const weekViewsDiff = thisWeek.viewsDiffMtd != null ? thisWeek.viewsDiffMtd : (thisWeek.views - prevWeek.views);
+  const weekViewsRate = thisWeek.mtdWoWViews != null ? thisWeek.mtdWoWViews : thisWeek.wowViews;
+  const weekChatsDiff = thisWeek.chatsDiffMtd != null ? thisWeek.chatsDiffMtd : (thisWeek.chats - prevWeek.chats);
+  const weekChatsRate = thisWeek.mtdWoWChats != null ? thisWeek.mtdWoWChats : thisWeek.wowChats;
+
+  const thisMonth = monthly[monthly.length - 1] || { views: 0, chats: 0, month: "11월 MTD", days: 7, dailyAvg: 0 };
   const intensity = (todayRow.views / Math.max(todayRow.chats, 1)).toFixed(1);
 
   return `
@@ -4004,44 +4260,44 @@ function renderLiveActivitySection(market) {
           <span class="tier-pill tier-partial" title="하루 24시간 중 현재 시점까지 수집된 실측 기준">Today · Partial</span>
         </div>
         <strong class="stat-value">+${formatNumber(todayRow.views)}</strong>
-        <p class="stat-help">전일 완성일 대비 ${todayViewsChange >= 0 ? "+" : ""}${todayViewsChange}%</p>
+        <p class="stat-help">전일 대비 ${formatDiffBadge(todayViewsDiff, todayViewsChange, "회")}</p>
         <div class="card-sub-metric">
-          <span>대화 참여 <b>+${formatNumber(todayRow.chats)}회</b> (${todayChatsChange >= 0 ? "+" : ""}${todayChatsChange}%)</span>
+          <span>대화 참여 <b>+${formatNumber(todayRow.chats)}회</b> (${formatDiffBadge(todayChatsDiff, todayChatsChange, "회")})</span>
         </div>
-        <div class="card-caption-tip" title="탑툰챗 공개 API의 viewCount 누적값 변화입니다. 웹페이지 조회수나 유료 메시지 수와 동일하다고 가정하지 않습니다.">
-          ℹ️ 대화 활동수 (viewCount delta)
+        <div class="card-caption-tip" title="탑툰챗 공개 API의 viewCount 누적값 변화입니다.">
+          ℹ️ ${todayRow.date || "Today"} 실측 (전일 대비 증감량 반영)
         </div>
       </article>
 
       <!-- Card 2: THIS WEEK -->
       <article class="stat-card tone-positive">
         <div class="card-head-row">
-          <span class="stat-label">이번 주 대화 활동 (THIS WEEK)</span>
+          <span class="stat-label">이번 주 대화 활동 (${escapeHtml(thisWeek.week)})</span>
           <span class="tier-pill tier-observed">OBSERVED</span>
         </div>
         <strong class="stat-value">+${formatCompact(thisWeek.views)}</strong>
-        <p class="stat-help">전주 동요일 대비 <b style="color:#34d399">+${thisWeek.mtdWoWChats}% WoW</b></p>
+        <p class="stat-help">전주 대비 ${formatDiffBadge(weekViewsDiff, weekViewsRate, "회")}</p>
         <div class="card-sub-metric">
-          <span>대화 참여 <b>+${formatCompact(thisWeek.chats)}회</b> (반등 회복)</span>
+          <span>대화 참여 <b>+${formatCompact(thisWeek.chats)}회</b> (${formatDiffBadge(weekChatsDiff, weekChatsRate, "회")})</span>
         </div>
-        <div class="card-caption-tip" title="동요일 동일 일수 기준(09.07 vs 08.31) 직전 주 비교 결과입니다.">
-          ℹ️ W37 진행 중 · 동일 일수 기준 비교
+        <div class="card-caption-tip" title="동일 일수 기준 직전 주 비교 결과입니다.">
+          ℹ️ ${escapeHtml(thisWeek.week)} ${thisWeek.isMTD ? "진행 중 (MTD)" : "집계"} · ${escapeHtml(thisWeek.label)}
         </div>
       </article>
 
       <!-- Card 3: THIS MONTH -->
       <article class="stat-card tone-signal">
         <div class="card-head-row">
-          <span class="stat-label">이번 달 대화 활동 (THIS MONTH)</span>
+          <span class="stat-label">이번 달 대화 활동 (${escapeHtml(thisMonth.month)})</span>
           <span class="tier-pill tier-observed">OBSERVED</span>
         </div>
         <strong class="stat-value">+${formatCompact(thisMonth.views)}</strong>
-        <p class="stat-help">9월 MTD · 전월 동기간 대비 <b style="color:#38bdf8">+${thisMonth.momChats}%</b></p>
+        <p class="stat-help">전월 대비 ${formatDiffBadge(thisMonth.viewsDiff, thisMonth.momViews, "회")}</p>
         <div class="card-sub-metric">
-          <span>대화 참여 <b>+${formatCompact(thisMonth.chats)}회</b> (일평균 ${formatCompact(thisMonth.dailyAvg)})</span>
+          <span>대화 참여 <b>+${formatCompact(thisMonth.chats)}회</b> (${formatDiffBadge(thisMonth.chatsDiff, thisMonth.momChats, "회")})</span>
         </div>
-        <div class="card-caption-tip" title="9월 1~7일 vs 8월 1~7일(또는 8월 하순) 동일 일수 기준 비교">
-          ℹ️ 9월 MTD (7일간 실측 집계)
+        <div class="card-caption-tip" title="전월 동기간 동일 일수 기준 실측 집계입니다.">
+          ℹ️ ${escapeHtml(thisMonth.month)} (${thisMonth.days}일간 실측 · 일평균 ${formatCompact(thisMonth.dailyAvg)})
         </div>
       </article>
 
@@ -4081,19 +4337,20 @@ function renderTrendSegmentSection(market) {
           <div class="chart-heading">
             <div>
               <h3>${escapeHtml(meta.label)} 주간 대화 활동 추이 (Weekly Conversation Activity)</h3>
-              <p class="stat-help">주간 단위 실측 증가량 추이 · 최근 10주간 성장 → 둔화 → 반등 흐름 관측</p>
+              <p class="stat-help">주간 단위 실측 증가량 추이 · 최근 ${weekly.length}주간 론칭 → 확장 → 안정 성장 흐름 관측</p>
             </div>
-            <span class="sample-badge">최근 10주</span>
+            <span class="sample-badge">최근 ${weekly.length}주</span>
           </div>
 
           <div class="weekly-bar-chart">
             ${weekly.map((w, idx) => {
               const height = Math.max(8, Math.round((w.views / maxVal) * 100));
               const isLatest = idx === weekly.length - 1;
-              const isUp = Number(w.wowChats) >= 0;
+              const wowChatsVal = w.mtdWoWChats != null ? w.mtdWoWChats : w.wowChats;
+              const isUp = Number(wowChatsVal) >= 0;
               return `
                 <div class="weekly-bar-col${isLatest ? " is-latest" : ""}">
-                  <span class="weekly-wow-badge ${isUp ? "is-up" : "is-down"}">${isUp ? "+" : ""}${w.wowChats}%</span>
+                  <span class="weekly-wow-badge ${isUp ? "is-up" : "is-down"}">${isUp ? "+" : ""}${wowChatsVal}%</span>
                   <div class="weekly-track">
                     <span class="weekly-fill" style="height:${height}%;background:${isLatest ? "#10b981" : "#3b82f6"}" title="${escapeAttr(`${w.week}: 활동 ${formatNumber(w.views)}회 / 참여 ${formatNumber(w.chats)}회`)}"></span>
                   </div>
@@ -4111,22 +4368,27 @@ function renderTrendSegmentSection(market) {
                   <th scope="col">주차</th>
                   <th scope="col">기간</th>
                   <th scope="col">대화 활동수 (Activity)</th>
+                  <th scope="col">WoW 증감 (활동)</th>
                   <th scope="col">대화 참여수 (Participants)</th>
-                  <th scope="col">WoW 증감</th>
+                  <th scope="col">WoW 증감 (참여)</th>
                   <th scope="col">참여당 활동 강도</th>
                   <th scope="col">핵심 이벤트 / 진단</th>
                 </tr>
               </thead>
               <tbody>
                 ${weekly.slice().reverse().map((w) => {
-                  const isUp = Number(w.wowChats) >= 0;
+                  const viewsDiffVal = w.viewsDiffMtd != null ? w.viewsDiffMtd : w.viewsDiff;
+                  const wowViewsVal = w.mtdWoWViews != null ? w.mtdWoWViews : w.wowViews;
+                  const chatsDiffVal = w.chatsDiffMtd != null ? w.chatsDiffMtd : w.chatsDiff;
+                  const wowChatsVal = w.mtdWoWChats != null ? w.mtdWoWChats : w.wowChats;
                   return `
                     <tr>
                       <td><strong>${escapeHtml(w.week)}${w.isMTD ? " (MTD)" : ""}</strong></td>
                       <td>${escapeHtml(w.label)}</td>
                       <td>+${formatNumber(w.views)}</td>
+                      <td>${formatDiffBadge(viewsDiffVal, wowViewsVal, "회")}</td>
                       <td>+${formatNumber(w.chats)}</td>
-                      <td><span class="wow-tag ${isUp ? "is-up" : "is-down"}">${isUp ? "+" : ""}${w.wowChats}%</span></td>
+                      <td>${formatDiffBadge(chatsDiffVal, wowChatsVal, "회")}</td>
                       <td>${escapeHtml(w.intensity)}회</td>
                       <td>${escapeHtml(w.event || "정상 가동")}</td>
                     </tr>
@@ -4182,9 +4444,10 @@ function renderTrendSegmentSection(market) {
                 <tr>
                   <th scope="col">일자</th>
                   <th scope="col">대화 활동수 (Views Delta)</th>
-                  <th scope="col">7D 이동평균 (활동)</th>
-                  <th scope="col">대화 참여수 (Chats Delta)</th>
                   <th scope="col">DoD 증감 (활동)</th>
+                  <th scope="col">대화 참여수 (Chats Delta)</th>
+                  <th scope="col">DoD 증감 (참여)</th>
+                  <th scope="col">7D 이동평균 (활동)</th>
                   <th scope="col">참여당 활동 강도</th>
                   <th scope="col">특이사항</th>
                 </tr>
@@ -4192,20 +4455,23 @@ function renderTrendSegmentSection(market) {
               <tbody>
                 ${daily.slice().reverse().map((d, idx, arr) => {
                   const prev = idx < arr.length - 1 ? arr[idx + 1] : null;
-                  const dodNum = prev ? (((d.views / Math.max(prev.views, 1)) - 1) * 100).toFixed(1) : "0.0";
-                  const isUp = Number(dodNum) >= 0;
+                  const viewsDiff = prev ? d.views - prev.views : 0;
+                  const dodViewsRate = prev ? (((d.views / Math.max(prev.views, 1)) - 1) * 100).toFixed(1) : "0.0";
+                  const chatsDiff = prev ? d.chats - prev.chats : 0;
+                  const dodChatsRate = prev ? (((d.chats / Math.max(prev.chats, 1)) - 1) * 100).toFixed(1) : "0.0";
                   const intensity = (d.views / Math.max(d.chats, 1)).toFixed(1);
                   let note = "정상 집계";
                   if (idx === 0) note = "🟢 Today 진행 중";
-                  else if (Number(dodNum) > 20) note = "⚡ 급상승 구간";
-                  else if (Number(dodNum) < -15) note = "주말/조정 구간";
+                  else if (Number(dodViewsRate) > 20) note = "⚡ 활동 급상승";
+                  else if (Number(dodViewsRate) < -15) note = "조정/주말 구간";
                   return `
                     <tr>
                       <td><strong>${escapeHtml(d.label)}</strong></td>
                       <td>+${formatNumber(d.views)}</td>
-                      <td>+${formatNumber(d.ma7Views)}</td>
+                      <td>${idx < arr.length - 1 ? formatDiffBadge(viewsDiff, dodViewsRate, "회") : `<span class="wow-tag is-up">기준일</span>`}</td>
                       <td>+${formatNumber(d.chats)}</td>
-                      <td><span class="wow-tag ${isUp ? "is-up" : "is-down"}">${isUp ? "+" : ""}${dodNum}%</span></td>
+                      <td>${idx < arr.length - 1 ? formatDiffBadge(chatsDiff, dodChatsRate, "회") : `<span class="wow-tag is-up">기준일</span>`}</td>
+                      <td>+${formatNumber(d.ma7Views)}</td>
                       <td>${intensity}회</td>
                       <td>${escapeHtml(note)}</td>
                     </tr>
@@ -4219,15 +4485,16 @@ function renderTrendSegmentSection(market) {
     `;
   } else if (currentSeg === "month") {
     const maxMonthlyViews = Math.max(...monthly.map((m) => m.views), 1);
+    const latestMonth = monthly[monthly.length - 1] || { month: "2026-11" };
     viewHtml = `
       <div class="trend-view-container">
         <div class="chart-card">
           <div class="chart-heading">
             <div>
               <h3>${escapeHtml(meta.label)} 월별 대화 활동 추이 (Monthly Conversation Activity)</h3>
-              <p class="stat-help">2026년 3월 공식 출시부터 9월 MTD까지 전체 월별 활동량 · 4월 급성장 이후 월 3,000만~4,500만 레벨 안착</p>
+              <p class="stat-help">2026년 3월 공식 출시부터 ${escapeHtml(latestMonth.month)}까지 전체 월별 활동량 추이</p>
             </div>
-            <span class="sample-badge">2026.03 ~ 09 MTD (7개월)</span>
+            <span class="sample-badge">2026.03 ~ ${escapeHtml(latestMonth.month)} (${monthly.length}개월)</span>
           </div>
 
           <div class="weekly-bar-chart monthly-styled-bar-chart">
@@ -4257,22 +4524,24 @@ function renderTrendSegmentSection(market) {
                   <th scope="col">월 (Month)</th>
                   <th scope="col">집계 일수</th>
                   <th scope="col">대화 활동수 (Activity)</th>
+                  <th scope="col">MoM 증감 (활동)</th>
                   <th scope="col">대화 참여수 (Participants)</th>
-                  <th scope="col">MoM 성장률</th>
+                  <th scope="col">MoM 증감 (참여)</th>
                   <th scope="col">일평균 활동</th>
                   <th scope="col">주요 마일스톤 및 특이사항</th>
                 </tr>
               </thead>
               <tbody>
                 ${monthly.slice().reverse().map((m, idx) => {
-                  const isUp = Number(m.momChats) >= 0;
+                  const isLaunch = m.month.endsWith("03");
                   return `
                     <tr>
                       <td><strong>${escapeHtml(m.month)}</strong></td>
                       <td>${m.days}일</td>
                       <td>+${formatNumber(m.views)}</td>
+                      <td>${isLaunch ? `<span class="wow-tag is-up">🚀 론칭</span>` : formatDiffBadge(m.viewsDiff, m.momViews, "회")}</td>
                       <td>+${formatNumber(m.chats)}</td>
-                      <td><span class="wow-tag ${isUp || m.month.endsWith("03") ? "is-up" : "is-down"}">${m.month.endsWith("03") ? "론칭" : `${isUp ? "+" : ""}${m.momChats}%`}</span></td>
+                      <td>${isLaunch ? `<span class="wow-tag is-up">🚀 론칭</span>` : formatDiffBadge(m.chatsDiff, m.momChats, "회")}</td>
                       <td>+${formatNumber(m.dailyAvg)}</td>
                       <td>${escapeHtml(m.note || "")}</td>
                     </tr>
@@ -4339,46 +4608,100 @@ function renderMarketsAndMultiSection(market) {
   const meta = MARKET_META[market] || MARKET_META.all;
   const currentMode = state.countryTrendMode || "absolute";
 
-  const countryWeeklyData = [
-    { week: "W30", label: "07.20~07.26", kr: 4394000, jp: 3211000, tw: 845000, global: 0, total: 8450000, event: "정상 가동" },
-    { week: "W31", label: "07.27~08.02", kr: 4690000, jp: 3470000, tw: 1220000, global: 0, total: 9380000, event: "🇹🇼 대만 론칭" },
-    { week: "W32", label: "08.03~08.09", kr: 4776000, jp: 3681500, tw: 1094500, global: 398000, total: 9950000, event: "🌍 글로벌 론칭" },
-    { week: "W33", label: "08.10~08.16", kr: 4793200, jp: 3959600, tw: 1146200, global: 521000, total: 10420000, event: "정상 가동" },
-    { week: "W34", label: "08.17~08.23", kr: 4792500, jp: 4047000, tw: 1278000, global: 532500, total: 10650000, event: "성장 정체 구간" },
-    { week: "W35", label: "08.24~08.30", kr: 4603528, jp: 3887424, tw: 1125307, global: 613805, total: 10230064, event: "⚡ MULTI 론칭" },
-    { week: "W36", label: "08.31~09.06", kr: 4417793, jp: 3815367, tw: 1204853, global: 602426, total: 10040439, event: "저점 형성" },
-    { week: "W37", label: "09.07~09.13", kr: 4584800, jp: 4011700, tw: 1208720, global: 614780, total: 10420000, isMTD: true, event: "🟢 반등 회복" }
-  ];
+  const countryWeeklyData = computeCountryWeeklyMetrics();
+  const latestWeek = countryWeeklyData[countryWeeklyData.length - 1] || countryWeeklyData[0];
+  const prevWeek = countryWeeklyData[countryWeeklyData.length - 2] || latestWeek;
 
-  const maxTotal = Math.max(...countryWeeklyData.map((w) => w.total), 1);
+  const latestOverseas = latestWeek.jp + latestWeek.tw + latestWeek.global;
+  const prevOverseas = prevWeek.jp + prevWeek.tw + prevWeek.global;
+  const overseasPct = ((latestOverseas / Math.max(latestWeek.total, 1)) * 100).toFixed(1);
+  const overseasWoW = (((latestOverseas / Math.max(prevOverseas, 1)) - 1) * 100).toFixed(1);
 
   const marketCards = currentMode === "absolute" ? [
-    { key: "kr", name: "한국", flag: "🇰🇷", val: "+4.58M / 주", sub: "WoW +13.8% · 본진 회복", color: "#38bdf8" },
-    { key: "jp", name: "日本", flag: "🇯🇵", val: "+4.01M / 주", sub: "WoW +15.2% · 최대 성장세", color: "#f43f5e" },
-    { key: "tw", name: "台灣", flag: "🇹🇼", val: "+1.21M / 주", sub: "WoW +2.1% · 견조한 유지", color: "#10b981" },
-    { key: "global", name: "Global", flag: "🌍", val: "+0.61M / 주", sub: "WoW +1.8% · 안정적 유입", color: "#a855f7" }
+    {
+      key: "kr",
+      name: "한국",
+      flag: "🇰🇷",
+      val: `+${formatCompact(latestWeek.kr)} / 주`,
+      sub: `WoW ${latestWeek.wowKr >= 0 ? "+" : ""}${latestWeek.wowKr}% · 본진 활동`,
+      color: "#38bdf8"
+    },
+    {
+      key: "jp",
+      name: "日本",
+      flag: "🇯🇵",
+      val: `+${formatCompact(latestWeek.jp)} / 주`,
+      sub: `WoW ${latestWeek.wowJp >= 0 ? "+" : ""}${latestWeek.wowJp}% · 해외 1위 주력 시장`,
+      color: "#f43f5e"
+    },
+    {
+      key: "tw",
+      name: "台灣",
+      flag: "🇹🇼",
+      val: `+${formatCompact(latestWeek.tw)} / 주`,
+      sub: `WoW ${latestWeek.wowTw >= 0 ? "+" : ""}${latestWeek.wowTw}% · 중화권 안정 기여`,
+      color: "#10b981"
+    },
+    {
+      key: "global",
+      name: "Global",
+      flag: "🌍",
+      val: `+${formatCompact(latestWeek.global)} / 주`,
+      sub: `WoW ${latestWeek.wowGl >= 0 ? "+" : ""}${latestWeek.wowGl}% · 영문권 트랙션`,
+      color: "#a855f7"
+    }
   ] : [
-    { key: "kr", name: "한국", flag: "🇰🇷", val: "44.0%", sub: "국내 점유 비중", color: "#38bdf8" },
-    { key: "jp", name: "日本", flag: "🇯🇵", val: "38.5%", sub: "해외 1위 주력 시장", color: "#f43f5e" },
-    { key: "tw", name: "台灣", flag: "🇹🇼", val: "11.6%", sub: "중화권 안정 기여", color: "#10b981" },
-    { key: "global", name: "Global", flag: "🌍", val: "5.9%", sub: "영문권 완만한 진입", color: "#a855f7" }
+    {
+      key: "kr",
+      name: "한국",
+      flag: "🇰🇷",
+      val: `${((latestWeek.kr / Math.max(latestWeek.total, 1)) * 100).toFixed(1)}%`,
+      sub: "국내 점유 비중",
+      color: "#38bdf8"
+    },
+    {
+      key: "jp",
+      name: "日本",
+      flag: "🇯🇵",
+      val: `${((latestWeek.jp / Math.max(latestWeek.total, 1)) * 100).toFixed(1)}%`,
+      sub: "해외 1위 주력 시장",
+      color: "#f43f5e"
+    },
+    {
+      key: "tw",
+      name: "台灣",
+      flag: "🇹🇼",
+      val: `${((latestWeek.tw / Math.max(latestWeek.total, 1)) * 100).toFixed(1)}%`,
+      sub: "중화권 안정 기여",
+      color: "#10b981"
+    },
+    {
+      key: "global",
+      name: "Global",
+      flag: "🌍",
+      val: `${((latestWeek.global / Math.max(latestWeek.total, 1)) * 100).toFixed(1)}%`,
+      sub: "영문권 완만한 진입",
+      color: "#a855f7"
+    }
   ];
 
   const overseasSummaryCard = currentMode === "absolute" ? {
     flag: "🌏",
     name: "해외 합산 활동량",
-    val: "+5.83M / 주",
-    sub: "해외가 국내(4.58M) 초과",
-    badge: "국내 초과",
+    val: `+${formatCompact(latestOverseas)} / 주`,
+    sub: `해외가 국내(${formatCompact(latestWeek.kr)}) ${latestOverseas > latestWeek.kr ? "초과" : "점유"} (WoW ${overseasWoW >= 0 ? "+" : ""}${overseasWoW}%)`,
+    badge: latestOverseas > latestWeek.kr ? "국내 초과" : "해외 비중",
     color: "#f59e0b"
   } : {
     flag: "🌏",
     name: "해외 합산 비중",
-    val: "56.3%",
-    sub: "최근 대화 활동 중 해외 비중",
-    badge: "과반 돌파",
+    val: `${overseasPct}%`,
+    sub: `${latestWeek.week} 기준 대화 활동 중 해외 비중`,
+    badge: Number(overseasPct) >= 50 ? "과반 돌파" : "해외 확장",
     color: "#f59e0b"
   };
+
+  const maxTotal = Math.max(...countryWeeklyData.map((w) => w.total), 1);
 
   const krBanners = officialHomeBannersData?.markets?.kr?.items || [];
   const jpBanners = officialHomeBannersData?.markets?.jp?.items || [];
@@ -4418,12 +4741,12 @@ function renderMarketsAndMultiSection(market) {
       </div>
     </div>
 
-    <!-- 8-Week Country Breakdown Chart -->
+    <!-- Country Breakdown Chart -->
     <div class="chart-card country-trend-chart-card" style="margin-top:14px;">
       <div class="chart-heading">
         <div>
           <h3>국가별 ${currentMode === "absolute" ? "주간 대화 활동 추이 (Weekly Activity by Market)" : "주간 점유율 비중 추이 (100% Stacked Share)"}</h3>
-          <p class="stat-help">${currentMode === "absolute" ? "최근 8주간 4개국별 활동량(Views Delta)의 주간 누적 기여 규모" : "최근 8주간 해외 시장(JP·TW·Global) 확장 및 점유율 과반(56.3%) 돌파 추이"}</p>
+          <p class="stat-help">${currentMode === "absolute" ? `최근 ${countryWeeklyData.length}주간 4개국별 활동량(Views Delta)의 주간 누적 기여 규모` : `최근 ${countryWeeklyData.length}주간 해외 시장(JP·TW·Global) 확장 및 점유율 추이 (최신 해외 ${overseasPct}%)`}</p>
         </div>
         <div class="country-legend">
           <span class="country-legend-item"><span class="country-legend-dot" style="background:#38bdf8"></span> 🇰🇷 한국</span>
@@ -4437,17 +4760,17 @@ function renderMarketsAndMultiSection(market) {
         ${countryWeeklyData.map((w, idx) => {
           const isLatest = idx === countryWeeklyData.length - 1;
           const overseasVal = w.jp + w.tw + w.global;
-          const overseasPct = ((overseasVal / w.total) * 100).toFixed(1);
+          const overseasW = ((overseasVal / Math.max(w.total, 1)) * 100).toFixed(1);
 
           let barHtml = "";
           let badgeHtml = "";
 
           if (currentMode === "absolute") {
             const heightPct = Math.max(10, Math.round((w.total / maxTotal) * 100));
-            const krHeight = ((w.kr / w.total) * 100).toFixed(1);
-            const jpHeight = ((w.jp / w.total) * 100).toFixed(1);
-            const twHeight = ((w.tw / w.total) * 100).toFixed(1);
-            const globalHeight = ((w.global / w.total) * 100).toFixed(1);
+            const krHeight = ((w.kr / Math.max(w.total, 1)) * 100).toFixed(1);
+            const jpHeight = ((w.jp / Math.max(w.total, 1)) * 100).toFixed(1);
+            const twHeight = ((w.tw / Math.max(w.total, 1)) * 100).toFixed(1);
+            const globalHeight = ((w.global / Math.max(w.total, 1)) * 100).toFixed(1);
 
             badgeHtml = `<span class="weekly-wow-badge is-up">+${formatCompact(w.total)}</span>`;
             barHtml = `
@@ -4459,12 +4782,12 @@ function renderMarketsAndMultiSection(market) {
               </div>
             `;
           } else {
-            const krHeight = ((w.kr / w.total) * 100).toFixed(1);
-            const jpHeight = ((w.jp / w.total) * 100).toFixed(1);
-            const twHeight = ((w.tw / w.total) * 100).toFixed(1);
-            const globalHeight = ((w.global / w.total) * 100).toFixed(1);
+            const krHeight = ((w.kr / Math.max(w.total, 1)) * 100).toFixed(1);
+            const jpHeight = ((w.jp / Math.max(w.total, 1)) * 100).toFixed(1);
+            const twHeight = ((w.tw / Math.max(w.total, 1)) * 100).toFixed(1);
+            const globalHeight = ((w.global / Math.max(w.total, 1)) * 100).toFixed(1);
 
-            badgeHtml = `<span class="weekly-wow-badge is-up" style="background:rgba(245,158,11,0.2);color:#fbbf24;">🌏 ${overseasPct}%</span>`;
+            badgeHtml = `<span class="weekly-wow-badge is-up" style="background:rgba(245,158,11,0.2);color:#fbbf24;">🌏 ${overseasW}%</span>`;
             barHtml = `
               <div class="country-stacked-track" style="height:100%">
                 <span class="country-stacked-seg seg-kr" style="height:${krHeight}%" title="${escapeAttr(`한국: ${krHeight}%`)}"></span>
@@ -4496,14 +4819,17 @@ function renderMarketsAndMultiSection(market) {
               <th scope="col">🇯🇵 日本 (JP)</th>
               <th scope="col">🇹🇼 台灣 (TW)</th>
               <th scope="col">🌍 Global</th>
-              <th scope="col">${currentMode === "absolute" ? "🌐 4개국 합계" : "🌏 해외 합산 비중"}</th>
+              <th scope="col">${currentMode === "absolute" ? "🌐 4개국 합계 (WoW 증감)" : "🌏 해외 합산 비중"}</th>
               <th scope="col">핵심 이벤트 / 진단</th>
             </tr>
           </thead>
           <tbody>
             ${countryWeeklyData.slice().reverse().map((w) => {
               const overseasVal = w.jp + w.tw + w.global;
-              const overseasPct = ((overseasVal / w.total) * 100).toFixed(1);
+              const overseasW = ((overseasVal / Math.max(w.total, 1)) * 100).toFixed(1);
+              const wowTotalVal = w.wowTotalMtd != null ? w.wowTotalMtd : w.wowTotal;
+              const totalDiffVal = w.totalDiffMtd != null ? w.totalDiffMtd : w.totalDiff;
+
               if (currentMode === "absolute") {
                 return `
                   <tr>
@@ -4513,8 +4839,8 @@ function renderMarketsAndMultiSection(market) {
                     <td style="color:#f43f5e">+${formatNumber(w.jp)}</td>
                     <td style="color:#10b981">+${formatNumber(w.tw)}</td>
                     <td style="color:#a855f7">+${formatNumber(w.global)}</td>
-                    <td><strong>+${formatNumber(w.total)}</strong></td>
-                    <td><span class="wow-tag is-up">해외 ${overseasPct}%</span></td>
+                    <td><strong>+${formatNumber(w.total)}</strong> ${formatDiffBadge(totalDiffVal, wowTotalVal, "회")}</td>
+                    <td><span class="wow-tag is-up">해외 ${overseasW}%</span> ${escapeHtml(w.event || "")}</td>
                   </tr>
                 `;
               } else {
@@ -4522,11 +4848,11 @@ function renderMarketsAndMultiSection(market) {
                   <tr>
                     <td><strong>${escapeHtml(w.week)}${w.isMTD ? " (MTD)" : ""}</strong></td>
                     <td>${escapeHtml(w.label)}</td>
-                    <td style="color:#38bdf8">${((w.kr / w.total) * 100).toFixed(1)}%</td>
-                    <td style="color:#f43f5e">${((w.jp / w.total) * 100).toFixed(1)}%</td>
-                    <td style="color:#10b981">${((w.tw / w.total) * 100).toFixed(1)}%</td>
-                    <td style="color:#a855f7">${((w.global / w.total) * 100).toFixed(1)}%</td>
-                    <td><strong style="color:#fbbf24">${overseasPct}%</strong></td>
+                    <td style="color:#38bdf8">${((w.kr / Math.max(w.total, 1)) * 100).toFixed(1)}%</td>
+                    <td style="color:#f43f5e">${((w.jp / Math.max(w.total, 1)) * 100).toFixed(1)}%</td>
+                    <td style="color:#10b981">${((w.tw / Math.max(w.total, 1)) * 100).toFixed(1)}%</td>
+                    <td style="color:#a855f7">${((w.global / Math.max(w.total, 1)) * 100).toFixed(1)}%</td>
+                    <td><strong style="color:#fbbf24">${overseasW}%</strong></td>
                     <td>${escapeHtml(w.event || "")}</td>
                   </tr>
                 `;
@@ -4562,6 +4888,30 @@ function renderMarketsAndMultiSection(market) {
 
 function renderAnalyticalSignalsSection(market) {
   const meta = MARKET_META[market] || MARKET_META.all;
+  const daily = computeDailyMetrics(market);
+
+  const last14 = daily.slice(-14);
+  const avg14Views = Math.round(last14.reduce((s, r) => s + r.views, 0) / Math.max(last14.length, 1));
+  const avg14Chats = Math.round(last14.reduce((s, r) => s + r.chats, 0) / Math.max(last14.length, 1));
+
+  const last7 = daily.slice(-7);
+  const prev7 = daily.slice(-14, -7);
+  const last7Views = last7.reduce((s, r) => s + r.views, 0);
+  const prev7Views = prev7.reduce((s, r) => s + r.views, 0);
+  const last7Chats = last7.reduce((s, r) => s + r.chats, 0);
+  const prev7Chats = prev7.reduce((s, r) => s + r.chats, 0);
+  const viewsDiff7 = last7Views - prev7Views;
+  const viewsRate7 = prev7Views > 0 ? (((last7Views / prev7Views) - 1) * 100).toFixed(1) : "0.0";
+  const chatsDiff7 = last7Chats - prev7Chats;
+  const chatsRate7 = prev7Chats > 0 ? (((last7Chats / prev7Chats) - 1) * 100).toFixed(1) : "0.0";
+
+  const midRecent14 = daily.slice(-14);
+  const midPrior14 = daily.slice(-28, -14);
+  const recent14Views = midRecent14.reduce((s, r) => s + r.views, 0);
+  const prior14Views = midPrior14.reduce((s, r) => s + r.views, 0);
+  const diff28 = recent14Views - prior14Views;
+  const rate28 = prior14Views > 0 ? (((recent14Views / prior14Views) - 1) * 100).toFixed(1) : "0.0";
+
   return `
     <div class="panel-heading compact-heading">
       <div>
@@ -4574,28 +4924,28 @@ function renderAnalyticalSignalsSection(market) {
     <div class="stats-grid analytical-signals-grid">
       <article class="stat-card tone-positive">
         <span class="stat-label">14D Current Rate (최근 14일 일평균)</span>
-        <strong class="stat-value">+1.47M / 일</strong>
-        <p class="stat-help">일평균 대화 참여 +12,305회</p>
+        <strong class="stat-value">+${formatCompact(avg14Views)} / 일</strong>
+        <p class="stat-help">일평균 대화 참여 +${formatNumber(avg14Chats)}회</p>
         <div class="signal-interpretation">
-          <span>💡 일일 140만 이상의 탄탄한 기본 트래픽 지속</span>
+          <span>💡 일일 ${formatCompact(avg14Views)} 이상의 탄탄한 기본 트래픽 지속</span>
         </div>
       </article>
 
       <article class="stat-card tone-positive">
         <span class="stat-label">7D Momentum (최근 7일 속도)</span>
-        <strong class="stat-value">+18.4%</strong>
-        <p class="stat-help">이전 7일 동요일 대비</p>
+        <strong class="stat-value">${viewsRate7 >= 0 ? "+" : ""}${viewsRate7}%</strong>
+        <p class="stat-help">이전 7일 동기간 대비 (${formatDiffBadge(viewsDiff7, viewsRate7, "회")})</p>
         <div class="signal-interpretation">
-          <span>💡 단기 활동 속도가 저점을 통과하여 다시 상승 중</span>
+          <span>💡 단기 대화 참여 ${formatDiffBadge(chatsDiff7, chatsRate7, "회")}</span>
         </div>
       </article>
 
       <article class="stat-card tone-signal">
         <span class="stat-label">28D Trend (중기 14일 vs 직전 14일)</span>
-        <strong class="stat-value">+4.2%</strong>
-        <p class="stat-help">중기 28일 추세 비교</p>
+        <strong class="stat-value">${rate28 >= 0 ? "+" : ""}${rate28}%</strong>
+        <p class="stat-help">중기 28일 추세 비교 (${formatDiffBadge(diff28, rate28, "회")})</p>
         <div class="signal-interpretation">
-          <span>💡 일시적 조정 후에도 중기 베이스라인 우상향 유지</span>
+          <span>💡 중기 베이스라인 ${rate28 >= 0 ? "우상향 성장세 유지" : "안정적 횡보 구간 지속"}</span>
         </div>
       </article>
     </div>
