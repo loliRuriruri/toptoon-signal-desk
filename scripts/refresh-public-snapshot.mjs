@@ -25,8 +25,7 @@ const statsEndpoints = {
   daily_chat_totals: "daily-chat-totals",
   characters: "characters",
   site_comparison: "site-comparison",
-  site_traction: "site-traction",
-  site_revenue: "site-revenue"
+  site_traction: "site-traction"
 };
 
 mkdirSync(dataDir, { recursive: true });
@@ -682,27 +681,82 @@ writeFileSync(path.join(dataDir, "official-promotions.js"), `window.TOPTOON_OFFI
 writeFileSync(path.join(dataDir, "official-home-banners.json"), `${JSON.stringify(homeBannersPayload, null, 2)}\n`, "utf8");
 writeFileSync(path.join(dataDir, "official-home-banners.js"), `window.TOPTOON_OFFICIAL_HOME_BANNERS=${JSON.stringify(homeBannersPayload)};\n`, "utf8");
 
+function computeSiteRevenue(siteTraction, revenueNowcast) {
+  const daily = siteTraction?.daily || [];
+  const last30 = daily.slice(-30);
+  const siteLabels = {
+    kr: "한국",
+    global: "Global(EN)",
+    jp: "일본",
+    tw: "대만"
+  };
+  const perSite = {};
+  const revPerSession = Number(revenueNowcast?.constants?.rev_per_session || 2354);
+  for (const site of ["kr", "global", "jp", "tw"]) {
+    const vals = last30.map((r) => r[`${site}_delta`]).filter((v) => v != null && Number.isFinite(Number(v)));
+    const avg = vals.length ? vals.reduce((a, b) => a + Number(b), 0) / vals.length : 0;
+    const revenue_mid = Math.round(avg * 30 * revPerSession);
+    perSite[site] = {
+      mode: "delta",
+      basis_note: "최근 30일 대화수 델타 평균 기반 런레이트",
+      revenue_mid
+    };
+  }
+  const overseas_total_mid = (perSite.jp?.revenue_mid || 0) + (perSite.global?.revenue_mid || 0) + (perSite.tw?.revenue_mid || 0);
+  const grand_total_mid = (perSite.kr?.revenue_mid || 0) + overseas_total_mid;
+  const overseas_contribution_pct = grand_total_mid > 0 ? (overseas_total_mid / grand_total_mid) * 100 : 0;
+
+  return {
+    per_site: perSite,
+    site_labels: siteLabels,
+    overseas_total_mid,
+    grand_total_mid,
+    overseas_contribution_pct,
+    assumption_note: `한국 세션당매출(₩${revPerSession.toLocaleString()}, IR 역산)을 해외에도 임시 동일 적용한 가정치 — 해외 실제 결제단가·ASP는 미검증.`
+  };
+}
+
 const workerBase = "https://toptoon-tracker.john6428.workers.dev";
+const previousStatsPath = path.join(dataDir, "stats.json");
+let previousStats = null;
+if (existsSync(previousStatsPath)) {
+  try {
+    previousStats = JSON.parse(readFileSync(previousStatsPath, "utf8"));
+  } catch (parseError) {
+    console.warn(`Previous stats snapshot could not be parsed: ${parseError.message}`);
+  }
+}
+
 let statsPayload = null;
 try {
-  const statsPairs = await Promise.all(Object.entries(statsEndpoints).map(async ([key, endpoint]) => [key, await fetchJson(`${workerBase}/api/${endpoint}`, `${workerBase}/`)]));
+  const settledEntries = await Promise.all(Object.entries(statsEndpoints).map(async ([key, endpoint]) => {
+    try {
+      const data = await fetchJson(`${workerBase}/api/${endpoint}`, `${workerBase}/`);
+      return [key, data];
+    } catch (endpointError) {
+      console.warn(`Tracker worker endpoint "${endpoint}" failed (${endpointError.message}). Using previous snapshot.`);
+      return [key, previousStats?.[key] ?? null];
+    }
+  }));
+
   statsPayload = {
     captured_at: new Date().toISOString(),
     source: workerBase,
     source_tier: "C",
     caveat: "Public third-party tracker snapshot. Revenue nowcasts, IR benchmarks and margin assumptions are not audited financial statements.",
-    ...Object.fromEntries(statsPairs)
+    ...Object.fromEntries(settledEntries)
   };
+  statsPayload.site_revenue = computeSiteRevenue(statsPayload.site_traction, statsPayload.revenue_nowcast) ?? previousStats?.site_revenue;
 } catch (error) {
   console.warn(`Tracker worker stats refresh failed (${error.message}). Falling back to existing stats snapshot.`);
-  const previousStatsPath = path.join(dataDir, "stats.json");
-  if (existsSync(previousStatsPath)) {
-    try {
-      statsPayload = JSON.parse(readFileSync(previousStatsPath, "utf8"));
-      statsPayload.captured_at = new Date().toISOString();
-      statsPayload.source_fallback = true;
-    } catch (parseError) {
-      console.warn(`Previous stats snapshot could not be parsed: ${parseError.message}`);
+  if (previousStats) {
+    statsPayload = {
+      ...previousStats,
+      captured_at: new Date().toISOString(),
+      source_fallback: true
+    };
+    if (!statsPayload.site_revenue) {
+      statsPayload.site_revenue = computeSiteRevenue(statsPayload.site_traction, statsPayload.revenue_nowcast);
     }
   }
 }

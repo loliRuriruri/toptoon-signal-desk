@@ -97,9 +97,9 @@ if (live) {
   }
 }
 
-const statsTotals = stats.site_comparison?.overall?.totals || {};
+const statsTotals = stats.site_comparison?.overall?.per_site || stats.site_comparison?.overall?.totals || {};
 for (const key of Object.keys(marketConfig)) {
-  const trackerTotal = Number(statsTotals[key] || 0);
+  const trackerTotal = Number(statsTotals[key]?.chats ?? statsTotals[key] ?? 0);
   const localTotal = localCatalogs[key].chats;
   const driftPct = localTotal ? ((localTotal - trackerTotal) / localTotal) * 100 : 0;
   addCheck(`worker-catalog-${key}`, `${marketConfig[key].label} Worker↔직접 관측`, nearlyEqual(localTotal, trackerTotal) ? "pass" : "warn", trackerTotal, localTotal, `서로 다른 수집 파이프라인의 누적 채팅 차이 ${driftPct.toFixed(3)}%`, nearlyEqual(localTotal, trackerTotal) ? "none" : "medium");
@@ -110,11 +110,12 @@ const constants = stats.revenue_nowcast?.constants || {};
 const recentWindow = dailyChatRows.slice(-30);
 const meanDelta = recentWindow.length ? sum(recentWindow, "delta") / recentWindow.length : 0;
 const recomputedRevenue = meanDelta * 30 * Number(constants.rev_per_session || 0);
-const reportedRevenue = Number(stats.revenue_nowcast?.latest?.revenue_mid || 0);
+const reportedRevenue = Number((stats.revenue_nowcast?.latest?.revenue_char_only ?? stats.revenue_nowcast?.latest?.revenue_mid) || 0);
 addCheck("revenue-nowcast-formula", "한국 월매출 런레이트 재계산", nearlyEqual(recomputedRevenue, reportedRevenue, 1) ? "pass" : "block", Math.round(recomputedRevenue), reportedRevenue, "최근 30일 일간 채팅 증가 평균×30일×세션당매출 가정", nearlyEqual(recomputedRevenue, reportedRevenue, 1) ? "none" : "critical");
 
 const margin = Number(constants.net_margin || 0);
-const recomputedProfit = reportedRevenue * margin;
+const headlineRevenue = Number(stats.revenue_nowcast?.latest?.revenue_mid || reportedRevenue);
+const recomputedProfit = headlineRevenue * margin;
 const reportedProfit = Number(stats.revenue_nowcast?.latest?.profit_mid || 0);
 addCheck("profit-nowcast-formula", "순이익 런레이트 재계산", nearlyEqual(recomputedProfit, reportedProfit, 1) ? "pass" : "block", Math.round(recomputedProfit), reportedProfit, "매출 런레이트×회사 주장 기반 마진 가정", nearlyEqual(recomputedProfit, reportedProfit, 1) ? "none" : "critical");
 
