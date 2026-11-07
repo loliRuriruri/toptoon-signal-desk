@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-07T05:32:16.749Z",
+  "generated_at": "2026-11-07T05:33:58.622Z",
   "mode": "live-crosscheck",
   "overall_status": "share-with-caveats",
   "summary": {
@@ -18,45 +18,45 @@
     "kr": {
       "label": "한국",
       "count": 121,
-      "chats": 2052814,
-      "views": 71788958,
+      "chats": 2052873,
+      "views": 71793310,
       "live": {
         "count": 121,
-        "chats": 2052868,
-        "views": 71793022
+        "chats": 2052876,
+        "views": 71793390
       }
     },
     "jp": {
       "label": "일본",
       "count": 112,
-      "chats": 497323,
-      "views": 128924335,
+      "chats": 497410,
+      "views": 128957006,
       "live": {
         "count": 112,
-        "chats": 497403,
-        "views": 128954849
+        "chats": 497411,
+        "views": 128957697
       }
     },
     "global": {
       "label": "글로벌",
       "count": 111,
-      "chats": 33010,
-      "views": 434772,
+      "chats": 33015,
+      "views": 434793,
       "live": {
         "count": 111,
         "chats": 33015,
-        "views": 434792
+        "views": 434793
       }
     },
     "tw": {
       "label": "대만",
       "count": 109,
-      "chats": 167024,
-      "views": 5461288,
+      "chats": 167038,
+      "views": 5462229,
       "live": {
         "count": 109,
-        "chats": 167035,
-        "views": 5462187
+        "chats": 167039,
+        "views": 5462261
       }
     }
   },
@@ -110,9 +110,9 @@
       "id": "live-chats-kr",
       "label": "한국 누적 채팅 시차",
       "status": "pass",
-      "observed": 2052814,
-      "expected": 2052868,
-      "note": "수집 이후 변동 0.003% (누적 수치는 실시간 증가 가능)",
+      "observed": 2052873,
+      "expected": 2052876,
+      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -128,9 +128,9 @@
       "id": "live-chats-jp",
       "label": "일본 누적 채팅 시차",
       "status": "pass",
-      "observed": 497323,
-      "expected": 497403,
-      "note": "수집 이후 변동 0.016% (누적 수치는 실시간 증가 가능)",
+      "observed": 497410,
+      "expected": 497411,
+      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -146,9 +146,9 @@
       "id": "live-chats-global",
       "label": "글로벌 누적 채팅 시차",
       "status": "pass",
-      "observed": 33010,
+      "observed": 33015,
       "expected": 33015,
-      "note": "수집 이후 변동 0.015% (누적 수치는 실시간 증가 가능)",
+      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -164,9 +164,9 @@
       "id": "live-chats-tw",
       "label": "대만 누적 채팅 시차",
       "status": "pass",
-      "observed": 167024,
-      "expected": 167035,
-      "note": "수집 이후 변동 0.007% (누적 수치는 실시간 증가 가능)",
+      "observed": 167038,
+      "expected": 167039,
+      "note": "수집 이후 변동 0.001% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -174,8 +174,8 @@
       "label": "한국 Worker↔직접 관측",
       "status": "warn",
       "observed": 2070406,
-      "expected": 2052814,
-      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 -0.857%",
+      "expected": 2052873,
+      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 -0.854%",
       "severity": "medium"
     },
     {
@@ -183,8 +183,8 @@
       "label": "일본 Worker↔직접 관측",
       "status": "warn",
       "observed": 509018,
-      "expected": 497323,
-      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 -2.352%",
+      "expected": 497410,
+      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 -2.334%",
       "severity": "medium"
     },
     {
@@ -192,8 +192,8 @@
       "label": "글로벌 Worker↔직접 관측",
       "status": "warn",
       "observed": 34139,
-      "expected": 33010,
-      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 -3.420%",
+      "expected": 33015,
+      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 -3.405%",
       "severity": "medium"
     },
     {
@@ -201,8 +201,8 @@
       "label": "대만 Worker↔직접 관측",
       "status": "warn",
       "observed": 169811,
-      "expected": 167024,
-      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 -1.669%",
+      "expected": 167038,
+      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 -1.660%",
       "severity": "medium"
     },
     {
