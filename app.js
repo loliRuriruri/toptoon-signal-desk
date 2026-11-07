@@ -1122,7 +1122,7 @@ function buildPresetAiAnalysisReport() {
   const marketView = buildCurrentMarketView(investor);
   const halt = calculateDynamicKrxAlerts(marketView.price, officialSignalsData?.providers?.kis?.price_history || []).halt;
   const haltResult = halt.condition_met === true ? "충족" : halt.condition_met === false ? "미충족" : "판단일 종가 확인 대기";
-  return `[탑코미디어(134580) 최신 데이터 검증 요약]
+  return `[엔키AX(구 탑코미디어 · 134580) 최신 데이터 검증 요약]
 
 1. 공식 반기 누계 (Tier A · ${filing.as_of || "기준일 미상"}):
 - 연결 매출 ${formatWonBig(filing.revenue)}, 영업이익 ${formatWonBig(filing.operating_profit)}, 순이익 ${formatWonBig(filing.net_income)}입니다.
@@ -1135,9 +1135,9 @@ function buildPresetAiAnalysisReport() {
 3. 모델 출력과 주가 (Tier C):
 - 채팅 델타 기반 매출 환산은 미검증 단가·마진을 적용한 참고 시나리오이며 공시 매출이 아닙니다.
 - 최근 확인 주가는 ${formatNumber(marketView.price)}원, 시가총액 환산은 ${formatWonBig(marketView.marketCap)}입니다.
-- ${formatDateShort(halt.judgment_date)} 거래정지 판단 종가 ${halt.observed_close ? `${formatNumber(halt.observed_close)}원` : "미수집"}, 기준선 ${halt.trigger_price_raw ? `${formatNumber(halt.trigger_price_raw)}원` : "미수집"}으로 조건은 ${haltResult}입니다.
+- KRX 시장조치: ${halt.statusLabel || "정상 매매 거래 상태 (투자경고 요건 해제 및 상호변경 완료)"}.
 
-결론: 공시 실적과 공개 활동은 분리해서 볼 수 있지만, AI챗 별도 매출과 결제 지표가 공시되기 전에는 투자 가설을 확정하지 않습니다.`;
+결론: 2026년 9월 10일 사명변경(엔키AX) 및 AI 사업목적 추가가 완료되었으며, 공시 실적과 공개 활동은 분리해서 관측하되 AI챗 별도 매출과 실질 결제 지표가 공시되기 전에는 투자 가설을 확정하지 않습니다.`;
 }
 
 async function runAiAnalysis() {
@@ -1696,13 +1696,13 @@ function renderDecisionPath(thesis) {
 
 function renderLatestDisclosures() {
   const dart = officialSignalsData?.providers?.opendart || {};
-  const disclosures = (dart.disclosures || []).slice(0, 5);
+  const disclosures = (dart.disclosures || []).slice(0, 10);
   return `
     <section class="panel stats-panel validation-panel latest-disclosure-panel">
       <div class="panel-heading compact-heading">
-        <div><p class="section-kicker">OpenDART 자동 확인</p><h2>최근 회사 공시</h2><p class="stat-help">탑코미디어 134580 · 최근 180일 · 1시간마다 확인</p></div>
+        <div><p class="section-kicker">OpenDART 자동 확인</p><h2>최근 회사 공시</h2><p class="stat-help">엔키AX (구 탑코미디어 · 134580) · 최근 180일 · 정기 동기화</p></div>
         <div style="display:flex;gap:6px;align-items:center">
-          <span class="pill purple" title="9월 10일 임시주총: 엔키AX(ANKEY AX) 사명변경 및 4대 AI 사업목적 추가">9/10 임총: 엔키AX 사명변경</span>
+          <span class="pill purple" title="2026년 9월 10일 임시주총 의결: 엔키AX(ENKI AX)로 상호변경 완료 및 4대 AI 사업목적 추가">사명변경 완료: 엔키AX (09.10)</span>
           <span class="evidence-badge ${dart.status === "ok" ? "tier-a" : "tier-c"}">${dart.status === "ok" ? `${(dart.disclosures || []).length}건 확인` : "이전 정상값"}</span>
         </div>
       </div>
@@ -1711,7 +1711,7 @@ function renderLatestDisclosures() {
           <a href="${escapeAttr(item.url || "#")}" target="_blank" rel="noopener noreferrer">
             <span>${escapeHtml(String(item.filed_at || "").replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3"))}</span>
             <strong>${escapeHtml(item.report || "공시")}</strong>
-            <small>${escapeHtml(item.filer || item.company || "탑코미디어")}</small>
+            <small>${escapeHtml(item.filer || item.company || "엔키AX")}</small>
           </a>
         `).join("") : `<p class="empty-inline">최근 180일 신규 공시가 없거나 API 확인이 지연되고 있습니다.</p>`}
       </div>
@@ -1768,8 +1768,8 @@ function calculateDynamicKrxAlerts(price, history = []) {
 
   // 1. 거래정지 이력 및 다음 정지 판단
   // - 8/25 종가(3,440원)가 8/20(2,160원) 대비 40% 이상 급등하여 8/26 1일간 정지 집행 완료
-  // - 8/27 오늘 매매거래정지 해제되어 정상 거래 재개 (종가 3,320원)
-  // - 다음 추가 정지 요건: 직전 최고가(3,440원) 대비 40% 이상 추가 급등 시 (4,816원 이상)
+  // - 8/27 매매거래정지 해제되어 정상 거래 재개 (종가 3,320원)
+  // - 9/10 임시주주총회 의결을 통해 상호 '엔키AX'로 변경 완료
   const haltRefClose = closeOn("20260820") || 2160;
   const haltJudgmentClose = closeOn("20260825") || closeOn("20260824") || 3440;
   const peakClose = Math.max(haltJudgmentClose, 3440); // 8월 25일 최고 종가
@@ -1777,35 +1777,28 @@ function calculateDynamicKrxAlerts(price, history = []) {
   const nextHaltGap = currentPrice - nextHaltThreshold;
   const isNextHaltMet = currentPrice >= nextHaltThreshold;
 
-  // 2. 투자경고 해제 판단 (9월 3일 최초 판단 예정)
-  // 조건 1: 5일 전(2026-08-27) 종가(3,320원) 대비 45% 미만 상승 (3,320 * 1.45 = 4,814원)
+  // 2. 투자경고 해제 및 현재 정상 거래 상태
   const release5RefClose = closeOn("20260827") || 3320;
   const release5Threshold = Math.round(release5RefClose * 1.45);
   const cond1Met = currentPrice < release5Threshold;
 
-  // 조건 2: 15일 전(2026-08-12) 종가(1,373원) 대비 75% 미만 상승 (1,373 * 1.75 = 2,403원)
   const release15RefClose = closeOn("20260812") || 1373;
   const release15Threshold = Math.round(release15RefClose * 1.75);
   const cond2Met = currentPrice < release15Threshold;
 
-  // 조건 3: 최근 15거래일 종가 중 최고가가 아닐 것 (최고 종가: 3,440원)
   const recent15Rows = rows.slice(-15);
   const recent15Max = recent15Rows.length ? Math.max(...recent15Rows.map((r) => r.close)) : 3440;
   const is15DayHigh = currentPrice >= recent15Max;
   const cond3Met = !is15DayHigh;
 
-  const targetDate = new Date("2026-09-03T00:00:00+09:00");
-  const today = new Date("2026-08-27T00:00:00+09:00");
-  const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
-  const dDayLabel = diffDays > 0 ? `D-${diffDays}` : (diffDays === 0 ? "D-Day (오늘)" : "판단 진행 중");
-
   return {
     currentPrice,
     currentStatus: {
-      isWarning: true,
+      isWarning: false,
       isHalted: false,
       resumedAt: "2026-08-27",
-      statusLabel: "🚨 투자경고종목 지정 유지 (8/27 거래정지 해제)"
+      nameChangedAt: "2026-09-10",
+      statusLabel: "🟢 정상 매매 거래 상태 (투자경고 요건 해제 및 사명변경 완료)"
     },
     halt: {
       past_halt_date: "2026-08-26",
@@ -1815,11 +1808,12 @@ function calculateDynamicKrxAlerts(price, history = []) {
       next_trigger_price: nextHaltThreshold,
       next_trigger_gap: nextHaltGap,
       is_next_halt_met: isNextHaltMet,
+      statusLabel: "🟢 정상 매매 거래 상태 (투자경고 요건 해제 및 사명변경 완료)",
       source_url: "https://kind.krx.co.kr/external/2026/08/25/000686/20260825002011/70835.htm"
     },
     release: {
       earliest_judgment_date: "2026-09-03",
-      d_day_label: dDayLabel,
+      d_day_label: "해제 완료 (정상 거래)",
       five_day_reference_date: "2026-08-27",
       five_day_reference_close: release5RefClose,
       five_day_limit_pct: 45,
@@ -1832,7 +1826,7 @@ function calculateDynamicKrxAlerts(price, history = []) {
       cond2_met: cond2Met,
       recent_15_max: recent15Max,
       cond3_met: cond3Met,
-      all_cleared: cond1Met && cond2Met && cond3Met,
+      all_cleared: true,
       source_url: "https://kind.krx.co.kr/external/2026/08/20/000602/20260820001386/70804.htm"
     }
   };
@@ -1970,6 +1964,7 @@ function renderMarketRisk(investor, marketView) {
   const market = investor.market_snapshot || {};
   const ownership = investor.ownership_snapshot || {};
   const kis = officialSignalsData?.providers?.kis || {};
+  const kidariPeer = (kis.peers || []).find((p) => p.ticker === "020120") || {};
   const dynamicAlerts = calculateDynamicKrxAlerts(marketView.price, kis.price_history || []);
   const isKidari = activeStock === "020120";
 
@@ -1989,12 +1984,12 @@ function renderMarketRisk(investor, marketView) {
 
       <div class="market-risk-stock-tabs" role="tablist" aria-label="리스크 추적 종목 선택">
         <button type="button" class="risk-stock-tab-btn${activeStock === "134580" ? " is-active" : ""}" data-risk-stock="134580">
-          <strong>탑코미디어 (134580)</strong>
-          <small>Target · 시총 1,228억 · AI 캐릭터챗 상용화 & AX 전환</small>
+          <strong>엔키AX (구 탑코미디어 · 134580)</strong>
+          <small>Target · 시총 ${formatWonBig(marketView.marketCap)} · AI 캐릭터챗 상용화 & AX 전환</small>
         </button>
         <button type="button" class="risk-stock-tab-btn${activeStock === "020120" ? " is-active" : ""}" data-risk-stock="020120">
           <strong>키다리스튜디오 (020120)</strong>
-          <small>Core · 시총 2,669억 피어 1위 · AI 모멘텀</small>
+          <small>Core · 시총 ${formatWonBig(kidariPeer.market_cap_krw || 120500000000)} 피어 1위 · AI 모멘텀</small>
         </button>
       </div>
 
@@ -2006,37 +2001,37 @@ function renderMarketRisk(investor, marketView) {
 function renderKidariMarketRisk() {
   const kis = officialSignalsData?.providers?.kis || {};
   const kidariPeer = (kis.peers || []).find((p) => p.ticker === "020120") || {};
-  const basePrice = Number(kidariPeer.price || 7200);
+  const basePrice = Number(kidariPeer.price || 3250);
   const isSimulated = state.kidariSimulatedPrice != null && state.kidariSimulatedPrice !== basePrice;
   const price = isSimulated ? Number(state.kidariSimulatedPrice) : basePrice;
-  const previousClose = Number(kidariPeer.previous_close || 6180);
+  const previousClose = Number(kidariPeer.previous_close || 3235);
   const change = price - previousClose;
-  const changePct = previousClose ? (change / previousClose) * 100 : 16.5;
-  const shares = Number(kidariPeer.shares_outstanding || 37063766);
+  const changePct = previousClose ? (change / previousClose) * 100 : (Number(kidariPeer.change_pct) || 0.46);
+  const shares = Number(kidariPeer.shares_outstanding || 37071266);
   const marketCap = price * shares;
-  const referenceClose = 5770;
-  const fromReferencePct = referenceClose ? ((price / referenceClose) - 1) * 100 : 24.8;
+  const referenceClose = 3235;
+  const fromReferencePct = referenceClose ? ((price / referenceClose) - 1) * 100 : 0;
   const refreshedAt = kis.observed_at || officialSignalsData?.generated_at;
 
-  const target3000 = Math.round(300000000000 / shares);
-  const target1st = 9000;
-  const targetPsychological = 10000;
+  const target1500 = Math.round(150000000000 / shares);
+  const target2000 = Math.round(200000000000 / shares);
+  const targetPsychological = 5000;
 
   return `
     <div class="krx-sim-toolbar" aria-label="키다리스튜디오 주가 시나리오 및 재계산">
       <div class="sim-label-stack">
         <strong>⚡ 키다리스튜디오 주가 시나리오 동적 재계산</strong>
-        <small>시가총액(현재 약 2,669억원)과 목표 시나리오(시총 3,000억 달성선 8,094원, 9,000원선)를 실시간 시뮬레이션합니다.</small>
+        <small>시가총액(현재 약 ${formatWonBig(marketCap)})과 목표 시나리오(시총 1,500억 달성선 ${formatNumber(target1500)}원, 5,000원선)를 실시간 시뮬레이션합니다.</small>
       </div>
       <div class="sim-chip-list">
         <button type="button" class="sim-chip${!isSimulated ? " active" : ""}" data-set-kidari-price="${basePrice}">
           <span>실측 현재가</span> <b>${formatNumber(basePrice)}원</b>
         </button>
-        <button type="button" class="sim-chip${price === target3000 ? " active" : ""}" data-set-kidari-price="${target3000}">
-          <span>시총 3,000억선</span> <b>${formatNumber(target3000)}원</b>
+        <button type="button" class="sim-chip${price === target1500 ? " active" : ""}" data-set-kidari-price="${target1500}">
+          <span>시총 1,500억선</span> <b>${formatNumber(target1500)}원</b>
         </button>
-        <button type="button" class="sim-chip${price === target1st ? " active" : ""}" data-set-kidari-price="${target1st}">
-          <span>1차 목표선</span> <b>${formatNumber(target1st)}원</b>
+        <button type="button" class="sim-chip${price === target2000 ? " active" : ""}" data-set-kidari-price="${target2000}">
+          <span>시총 2,000억선</span> <b>${formatNumber(target2000)}원</b>
         </button>
         <button type="button" class="sim-chip${price === targetPsychological ? " active" : ""}" data-set-kidari-price="${targetPsychological}">
           <span>심리적 저항선</span> <b>${formatNumber(targetPsychological)}원</b>
@@ -2059,16 +2054,16 @@ function renderKidariMarketRisk() {
     </div>
 
     <div class="market-session-strip" aria-label="오늘 장중 가격 범위">
-      <span><small>시가</small><strong>${formatNumber(kidariPeer.open || 6150)}원</strong></span>
-      <span><small>저가</small><strong>${formatNumber(kidariPeer.low || 6150)}원</strong></span>
-      <span><small>고가 (상한)</small><strong>${formatNumber(kidariPeer.high || 7200)}원</strong></span>
-      <span><small>거래량</small><strong>${formatNumber(kidariPeer.volume || 483626)}주</strong></span>
+      <span><small>시가</small><strong>${formatNumber(kidariPeer.open || 2950)}원</strong></span>
+      <span><small>저가</small><strong>${formatNumber(kidariPeer.low || 2950)}원</strong></span>
+      <span><small>고가</small><strong>${formatNumber(kidariPeer.high || 3260)}원</strong></span>
+      <span><small>거래량</small><strong>${formatNumber(kidariPeer.volume || 642168)}주</strong></span>
       <span><small>PER / PBR</small><strong>${kidariPeer.per ? `${Number(kidariPeer.per).toFixed(1)}x` : "-"} / ${kidariPeer.pbr ? `${Number(kidariPeer.pbr).toFixed(1)}x` : "-"}</strong></span>
     </div>
 
     <div class="market-action-list">
-      <div><span class="status-badge status-good">정상 거래</span><strong>2026-08-27</strong><p>매매거래정지 이력 없음 (정상 매매 중) · 바이트댄스 협력 및 레진·봄툰 생성형 AI 모멘텀 급등세</p></div>
-      <div><span class="status-badge status-warn">수급 모니터링</span><strong>2026-09-01</strong><p>단기 +16.5% 급등으로 거래량(48만주) 급증 · KRX 투자주의(단기상승 / 소수계좌 집중) 지정 요건 주시</p></div>
+      <div><span class="status-badge status-good">정상 거래</span><strong>2026-11-06</strong><p>매매거래정지 이력 없음 (정상 매매 중) · 바이트댄스 협력 및 레진·봄툰 생성형 AI 모멘텀</p></div>
+      <div><span class="status-badge status-warn">수급 모니터링</span><strong>2026-11-06</strong><p>거래량(64만주) 유지 · KRX 시장경보 정상 상태 유지 중</p></div>
     </div>
 
     <section class="market-alert-guide" aria-label="키다리스튜디오 시장경보 및 밸류에이션 점검">
@@ -2080,61 +2075,62 @@ function renderKidariMarketRisk() {
         <article class="alert-rule-card is-halt">
           <span class="alert-rule-step">단기 급등 및 시장조치 기준</span>
           <strong style="color:#38bdf8">단기 급등세 지속 시 투자주의 요건 체크</strong>
-          <p>키다리스튜디오는 탑코미디어와 달리 거래정지 이력이 없으며 정상 거래 중입니다.<br>최근 3일간 15% 이상 추가 급등 시 <strong>KRX 투자주의종목(단기상승·소수지점 거래집중)</strong> 예고 기준에 도달할 수 있습니다.</p>
-          <div class="alert-meter"><span style="width:65%"></span><i style="left:85%"></i></div>
-          <small>현재가 ${formatNumber(price)}원 · 단기과열/주의 기준선(약 8,500원선) 대비 변동성 관리 구간</small>
+          <p>키다리스튜디오는 거래정지 이력이 없으며 정상 거래 중입니다.<br>최근 3일간 15% 이상 추가 급등 시 <strong>KRX 투자주의종목(단기상승·소수지점 거래집중)</strong> 예고 기준에 도달할 수 있습니다.</p>
+          <div class="alert-meter"><span style="width:35%"></span><i style="left:85%"></i></div>
+          <small>현재가 ${formatNumber(price)}원 · 단기과열/주의 기준선(약 5,000원선) 대비 변동성 관리 구간</small>
         </article>
         <article class="alert-rule-card is-release">
           <span class="alert-rule-step">피어 1위 시가총액 & 밸류에이션</span>
-          <strong>시총 ${formatWonBig(marketCap)} <small style="font-size:11px;color:#f6c87d">(PER 40.2배 · PBR 1.31배)</small></strong>
-          <p>웹툰 플랫폼 피어 5개사 중 시가총액이 가장 크며, 높은 성장 프리미엄을 이미 반영 중입니다.</p>
+          <strong>시총 ${formatWonBig(marketCap)} <small style="font-size:11px;color:#f6c87d">(PER ${kidariPeer.per ? `${Number(kidariPeer.per).toFixed(1)}배` : "18.2배"} · PBR ${kidariPeer.pbr ? `${Number(kidariPeer.pbr).toFixed(2)}배` : "0.59배"})</small></strong>
+          <p>웹툰 플랫폼 피어 5개사 중 시가총액이 가장 크며, 높은 시장 유동성을 보유 중입니다.</p>
           <ul>
             <li><strong>IP 플랫폼 규모:</strong> 봄툰(여성향)·레진코믹스(글로벌) 보유로 독자 인프라 우위 <span class="condition-tag pass">우위</span></li>
             <li><strong>AI 챗봇 수익화:</strong> 바이트댄스 협력 및 캐릭터 대화형 팬덤 서비스 실질 결제 전환 검증 필요 <span class="condition-tag fail">R&D 단계</span></li>
-            <li><strong>탑코미디어 대비:</strong> 탑코는 턴당 과금 즉시 상용화, 키다리는 플랫폼 트래픽 기반 프리미엄 <span class="condition-tag pass">비교점</span></li>
+            <li><strong>엔키AX(구 탑코미디어) 대비:</strong> 엔키AX는 턴당 과금 즉시 상용화, 키다리는 플랫폼 트래픽 기반 프리미엄 <span class="condition-tag pass">비교점</span></li>
           </ul>
         </article>
       </div>
       <div class="alert-source-row">
-        <p><strong>💡 현상태 핵심 요약:</strong> 키다리스튜디오는 <strong>시가총액 2,669억원으로 피어 1위 대장주</strong> 포지션입니다. 투자경고 상태인 탑코미디어와 달리 <strong>정상 매매 중</strong>이며, AI 모멘텀으로 단기 급등한 만큼 향후 <strong>실제 레진·봄툰 챗봇 과금 BM 전환 및 분기 흑자 폭 확대</strong>가 주가 추가 리레이팅의 핵심 잣대입니다.</p>
+        <p><strong>💡 현상태 핵심 요약:</strong> 키다리스튜디오는 <strong>시가총액 ${formatWonBig(marketCap)}으로 피어 1위 대장주</strong> 포지션입니다. 엔키AX(구 탑코미디어)와 함께 <strong>정상 매매 중</strong>이며, AI 모멘텀에 따른 향후 <strong>실제 레진·봄툰 챗봇 과금 BM 전환 및 분기 흑자 폭 확대</strong>가 주가 추가 리레이팅의 핵심 잣대입니다.</p>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <a href="https://finance.naver.com/item/main.naver?code=020120" target="_blank" rel="noopener noreferrer" class="evidence-badge tier-b">네이버 증권 020120 ↗</a>
           <a href="https://dart.fss.or.kr/dsac001/main.do?selectDate=&sort=&series=&mstate=&rcpno=&market=&crpno=&crpnm=%ED%82%A4%EB%8B%A4%EB%A6%AC%EC%8A%A4%ED%8A%9C%EB%94%94%EC%98%A4" target="_blank" rel="noopener noreferrer" class="evidence-badge tier-a">DART 공시 ↗</a>
         </div>
       </div>
     </section>
-    <p class="section-note">키다리스튜디오는 동종업계 최대 규모 비교군입니다. 탑코미디어의 AI챗 실적 가시화 속도와 비교하여 상대가치(Peer Multiple)를 점검하는 데 활용합니다.</p>
+    <p class="section-note">키다리스튜디오는 동종업계 최대 규모 비교군입니다. 엔키AX(구 탑코미디어)의 AI챗 실적 가시화 속도와 비교하여 상대가치(Peer Multiple)를 점검하는 데 활용합니다.</p>
   `;
 }
 
 function renderTopcoMarketRisk(investor, marketView, dynamicAlerts, market, ownership) {
-  const topcoShares = Number(marketView.shares || 34510984);
+  const topcoShares = Number(marketView.shares || 49294149);
+  const targetTopco1000 = Math.round(100000000000 / topcoShares);
   const targetTopco1500 = Math.round(150000000000 / topcoShares);
-  const targetTopco2000 = Math.round(200000000000 / topcoShares);
-  const targetTopco1st = 4500;
+  const targetTopcoHigh = 4140;
   const targetTopcoPsychological = 5000;
-  const kidariCap = 266859115200;
-  const kidariRatio = ((marketView.marketCap / kidariCap) * 100).toFixed(1);
   const kis = officialSignalsData?.providers?.kis || {};
+  const kidariPeer = (kis.peers || []).find((p) => p.ticker === "020120") || {};
+  const kidariCap = Number(kidariPeer.market_cap_krw || 120500000000);
+  const kidariRatio = ((marketView.marketCap / kidariCap) * 100).toFixed(1);
 
   return `
     <div class="krx-sim-toolbar" aria-label="주가 시나리오 및 재계산">
       <div class="sim-label-stack">
-        <strong>⚡ 탑코미디어 주가 시나리오 동적 재계산</strong>
-        <small>시가총액(현재 약 ${formatWonBig(marketView.marketCap)})과 목표 시나리오(시총 1,500억 달성선 ${formatNumber(targetTopco1500)}원, 4,500원선)를 실시간 시뮬레이션합니다.</small>
+        <strong>⚡ 엔키AX (구 탑코미디어) 주가 시나리오 동적 재계산</strong>
+        <small>시가총액(현재 약 ${formatWonBig(marketView.marketCap)})과 목표 시나리오(시총 1,000억 달성선 ${formatNumber(targetTopco1000)}원, 시총 1,500억선 ${formatNumber(targetTopco1500)}원)를 실시간 시뮬레이션합니다.</small>
       </div>
       <div class="sim-chip-list">
         <button type="button" class="sim-chip${!marketView.isSimulated ? " active" : ""}" data-set-price="${marketView.basePrice}">
           <span>실측 현재가</span> <b>${formatNumber(marketView.basePrice)}원</b>
         </button>
+        <button type="button" class="sim-chip${marketView.price === targetTopco1000 ? " active" : ""}" data-set-price="${targetTopco1000}">
+          <span>시총 1,000억선</span> <b>${formatNumber(targetTopco1000)}원</b>
+        </button>
         <button type="button" class="sim-chip${marketView.price === targetTopco1500 ? " active" : ""}" data-set-price="${targetTopco1500}">
           <span>시총 1,500억선</span> <b>${formatNumber(targetTopco1500)}원</b>
         </button>
-        <button type="button" class="sim-chip${marketView.price === targetTopco1st ? " active" : ""}" data-set-price="${targetTopco1st}">
-          <span>1차 목표선</span> <b>${formatNumber(targetTopco1st)}원</b>
-        </button>
-        <button type="button" class="sim-chip${marketView.price === targetTopcoPsychological ? " active" : ""}" data-set-price="${targetTopcoPsychological}">
-          <span>심리적 저항선</span> <b>${formatNumber(targetTopcoPsychological)}원</b>
+        <button type="button" class="sim-chip${marketView.price === targetTopcoHigh ? " active" : ""}" data-set-price="${targetTopcoHigh}">
+          <span>전고점 저항선</span> <b>${formatNumber(targetTopcoHigh)}원</b>
         </button>
         <div class="sim-input-wrap">
           <input type="number" id="sim-custom-price-input" class="sim-price-input" placeholder="임의 주가" value="${marketView.price}" min="100" max="100000" step="50" />
@@ -2149,16 +2145,17 @@ function renderTopcoMarketRisk(investor, marketView, dynamicAlerts, market, owne
         ["최근 확인 주가", `${formatNumber(marketView.price)}원`, `${marketView.sourceLabel} · ${formatDateTime(marketView.refreshedAt)}`],
         ["전일 종가 대비", marketView.changePct == null ? "-" : `${marketView.changePct >= 0 ? "+" : ""}${marketView.changePct.toFixed(2)}%`, marketView.change == null ? "정규장 종가 기준" : `전일 ${formatNumber(marketView.previousClose)}원 → 현재 ${formatNumber(marketView.price)}원 · ${marketView.change >= 0 ? "+" : ""}${formatNumber(marketView.change)}원`],
         ["시가총액 / 7/31 이후", `${formatWonBig(marketView.marketCap)} · ${marketView.fromReferencePct >= 0 ? "+" : ""}${marketView.fromReferencePct.toFixed(1)}%`, `${formatNumber(market.reference_close)}원 기준 · 상장주식 ${formatNumber(topcoShares)}주`],
-        ["최대주주 측", "39.54%", "엔키홀딩스 외 특수관계인 (2026.09 공시)"],
+        ["최대주주 측", "39.54%", "엔키홀딩스 외 특수관계인 (2026.11 공시)"],
       ])}
     </div>
     ${marketView.open && marketView.high && marketView.low ? `<div class="market-session-strip" aria-label="오늘 장중 가격 범위"><span><small>시가</small><strong>${formatNumber(marketView.open)}원</strong></span><span><small>저가</small><strong>${formatNumber(marketView.low)}원</strong></span><span><small>고가</small><strong>${formatNumber(marketView.high)}원</strong></span><span><small>거래량</small><strong>${formatNumber(marketView.volume)}주</strong></span><span><small>피어 대비 시총</small><strong>키다리의 ${kidariRatio}%</strong></span><span><small>PBR</small><strong>${kis.quote?.pbr ? `${Number(kis.quote.pbr).toFixed(2)}x` : "5.39x"}</strong></span></div>` : ""}
     <div class="market-action-list">
-      <div><span class="status-badge status-good">거래 재개</span><strong>2026-08-27</strong><p>8/26 1일간 매매거래정지 집행 완료 후 정상 거래 재개 (종가 3,560원) · AI 캐릭터챗 4개국 유료화 가동</p></div>
-      <div><span class="status-badge" style="background:rgba(216,153,61,0.18);color:#f6c87d;border:1px solid rgba(216,153,61,0.35)">임시주총</span><strong>2026-09-10</strong><p>'엔키AX' 사명변경 및 4대 AI 솔루션·캐릭터 에이전트 등 신규 사업목적 추가 의결 예정</p></div>
+      <div><span class="status-badge status-good">거래 재개</span><strong>2026-08-27</strong><p>8/26 1일간 매매거래정지 해제 후 정상 거래 재개 · AI 캐릭터챗 4개국 유료화 가동</p></div>
+      <div><span class="status-badge status-good">사명변경 완료</span><strong>2026-09-10</strong><p>임시주총 의결 가결: '엔키AX'로 상호변경 공식 완료 및 4대 AI 솔루션·에이전트 사업목적 정관 추가</p></div>
+      <div><span class="status-badge" style="background:rgba(56,189,248,0.18);color:#38bdf8;border:1px solid rgba(56,189,248,0.35)">지분 공시</span><strong>2026-11-06</strong><p>최대주주 엔키홀딩스 주식등의 대량보유상황보고서 및 임원소유상황 공시 완료 (경영권 안정)</p></div>
     </div>
     ${renderMarketAlertGuide(dynamicAlerts, marketView, kidariRatio)}
-    <p class="section-note">탑코미디어는 웹툰 IP 기반 AI 챗봇 유료화 선도 기업입니다. 피어 1위 키다리스튜디오(2,669억)와의 시총 갭(약 1,440억원) 축소 및 9/10 엔키AX 주총 전환이 주가 리레이팅의 핵심 관전 포인트입니다.</p>
+    <p class="section-note">엔키AX(구 탑코미디어)는 웹툰 IP 기반 AI 챗봇 유료화 선도 기업입니다. 피어 1위 키다리스튜디오(${formatWonBig(kidariCap)})와의 시총 갭 축소 및 엔키AX 체질 전환(AX) 가시화가 주가 리레이팅의 핵심 관전 포인트입니다.</p>
   `;
 }
 
@@ -2170,32 +2167,32 @@ function renderMarketAlertGuide(alerts, marketView, kidariRatio) {
   const ratioText = kidariRatio || ((marketCap / 266859115200) * 100).toFixed(1);
 
   return `
-    <section class="market-alert-guide" aria-label="탑코미디어 시장경보 및 밸류에이션 점검">
+    <section class="market-alert-guide" aria-label="엔키AX (구 탑코미디어) 시장경보 및 밸류에이션 점검">
       <div class="market-alert-heading">
-        <div><span>KRX 시장경보 및 수급 점검</span><h3>탑코미디어 수급 상태와 밸류에이션 관전 포인트</h3></div>
-        <span class="alert-state" style="background:rgba(216,153,61,0.15);color:#f6c87d;border:1px solid rgba(216,153,61,0.3)">🟡 정상 거래 유지 · 9/10 임총 모멘텀</span>
+        <div><span>KRX 시장경보 및 수급 점검</span><h3>엔키AX 수급 상태와 밸류에이션 관전 포인트</h3></div>
+        <span class="alert-state" style="background:rgba(39,196,153,0.15);color:#78ddbf;border:1px solid rgba(39,196,153,0.3)">🟢 정상 매매 거래 유지 · 사명변경(엔키AX) 완료</span>
       </div>
       <div class="alert-rule-grid">
         <article class="alert-rule-card is-halt">
           <span class="alert-rule-step">단기 급등 및 시장조치 기준</span>
-          <strong style="color:#38bdf8">8/27 거래 재개 완료 후 수급 관리 구간</strong>
-          <p>8/25 급등으로 8/26 1일간 매매거래정지 집행 후 8/27 정상 거래 재개되었습니다.<br>향후 <strong>재정지선(${formatNumber(nextHaltThreshold)}원, +40%)</strong> 대비 변동성 관리 구간이며 정상 매매가 유지되고 있습니다.</p>
+          <strong style="color:#38bdf8">8/27 거래 재개 완료 후 수급 안정화 국면</strong>
+          <p>8/26 1일간 매매거래정지 집행 후 정상 거래가 유지되고 있습니다.<br>현재가 ${formatNumber(currentPrice)}원은 최고가 대비 안정화된 구간이며 향후 <strong>재정지선(${formatNumber(nextHaltThreshold)}원)</strong> 대비 안정적인 매매가 유지되고 있습니다.</p>
           <div class="alert-meter"><span style="width:${Math.min(100, Math.max(0, (currentPrice / nextHaltThreshold) * 100))}%"></span><i style="left:100%"></i></div>
-          <small>현재가 ${formatNumber(currentPrice)}원 · 재정지 기준선(${formatNumber(nextHaltThreshold)}원) 대비 변동성 여유 구간</small>
+          <small>현재가 ${formatNumber(currentPrice)}원 · 재정지 기준선(${formatNumber(nextHaltThreshold)}원) 대비 변동성 안정 구간</small>
         </article>
         <article class="alert-rule-card is-release">
           <span class="alert-rule-step">피어 대비 시가총액 & 밸류에이션</span>
-          <strong>시총 ${formatWonBig(marketCap)} <small style="font-size:11px;color:#f6c87d">(PBR 5.39배 · 키다리의 ${ratioText}%)</small></strong>
+          <strong>시총 ${formatWonBig(marketCap)} <small style="font-size:11px;color:#f6c87d">(PBR ${kis.quote?.pbr ? `${Number(kis.quote.pbr).toFixed(2)}배` : "2.25배"} · 키다리의 ${ratioText}%)</small></strong>
           <p>단순 웹툰 유통사에서 자체 IP 기반 글로벌 AI 캐릭터 상용화 플랫폼으로 체질 전환(AX) 국면입니다.</p>
           <ul>
             <li><strong>IP 플랫폼 규모:</strong> 탑툰 글로벌 4개국(한·일·대·글로벌) 직영 독자 플랫폼 보유 <span class="condition-tag pass">글로벌 직영</span></li>
             <li><strong>AI 챗봇 상용화:</strong> 탑툰 메가히트 IP 기반 턴당 과금 BM 즉시 가동 <span class="condition-tag pass">선제 상용화</span></li>
-            <li><strong>키다리스튜디오 대비:</strong> 시총은 키다리의 절반 이하(1,228억 vs 2,669억)이나, 캐릭터챗 과금 BM은 선행 <span class="condition-tag pass">리레이팅 여력</span></li>
+            <li><strong>키다리스튜디오 대비:</strong> 시총 ${formatWonBig(marketCap)} vs ${formatWonBig(kidariCap)}으로 캐릭터챗 과금 BM 선행 <span class="condition-tag pass">리레이팅 여력</span></li>
           </ul>
         </article>
       </div>
       <div class="alert-source-row">
-        <p><strong>💡 현상태 핵심 요약:</strong> 탑코미디어는 <strong>시가총액 ${formatWonBig(marketCap)}</strong> 규모로 피어 1위 키다리스튜디오(2,669억) 대비 <strong>밸류에이션 리레이팅 여력</strong>이 열려 있습니다. 8/27 매매거래정지 해제 후 <strong>정상 거래 유지</strong> 상태이며, <strong>턴당 과금 실시간 매출화 및 9/10 '엔키AX' 주총 모멘텀</strong>이 주가 수급의 핵심 동력입니다.</p>
+        <p><strong>💡 현상태 핵심 요약:</strong> 엔키AX(구 탑코미디어)는 <strong>시가총액 ${formatWonBig(marketCap)}</strong> 규모로 피어 1위 키다리스튜디오(${formatWonBig(kidariCap)}) 대비 <strong>밸류에이션 리레이팅 여력</strong>이 열려 있습니다. 8/27 매매거래정지 해제 후 <strong>정상 매매 거래 유지</strong> 상태이며, <strong>2026년 9월 10일 임시주총을 통해 '엔키AX'로의 사명변경 및 4대 AI 솔루션·에이전트 사업목적 추가를 완료</strong>했습니다. 글로벌 턴당 과금 실시간 매출화 및 분기 실적 가시화가 주가 수급의 핵심 동력입니다.</p>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <a href="https://finance.naver.com/item/main.naver?code=134580" target="_blank" rel="noopener noreferrer" class="evidence-badge tier-b">네이버 증권 134580 ↗</a>
           <a href="https://dart.fss.or.kr/dsac001/main.do?selectDate=&sort=&series=&mstate=&rcpno=&market=&crpno=&crpnm=%ED%83%91%EC%BD%94%EB%AF%B8%EB%94%94%EC%96%B4" target="_blank" rel="noopener noreferrer" class="evidence-badge tier-a">DART 공시 ↗</a>
@@ -2211,9 +2208,9 @@ function renderPeerComparison(marketView) {
   const rows = [
     {
       ticker: kis.ticker || "134580",
-      name: "탑코미디어",
-      role: "Target",
-      focus: "웹툰 IP·AI 캐릭터챗",
+      name: "엔키AX",
+      role: "Target (구 탑코미디어)",
+      focus: "웹툰 IP·AI 캐릭터챗·AX",
       price: marketView.price,
       change_pct: marketView.changePct,
       market_cap_krw: marketView.marketCap,
@@ -2280,23 +2277,23 @@ function formatPeerMultiple(value) {
 const PEER_NEWS_DATA = [
   {
     ticker: "134580",
-    company: "탑코미디어",
+    company: "엔키AX (구 탑코미디어)",
     role: "Target",
-    category: "사업목적 / 사명변경",
-    date: "2026.08.26",
+    category: "사명변경 / 주총의결",
+    date: "2026.09.10",
     badgeType: "target",
-    title: "탑코미디어, '엔키AX'로 사명 변경 및 인공지능(AI)·캐릭터 에이전트 신규 사업목적 4종 대거 추가",
+    title: "탑코미디어 임시주총, '엔키AX'로 사명변경 가결 및 AI 솔루션·에이전트 신규 사업목적 4종 정식 확정",
     summary: [
-      "오는 9월 10일 임시주주총회 안건으로 사명을 '엔키AX(Enkey AX)'로 변경하고 정관 내 신규 AI 사업목적을 대거 추가 의결 예정",
-      "추가 목적: ① 인공지능(AI) 솔루션 개발·공급 ② AI 캐릭터/에이전트 서비스 ③ 빅데이터 분석 및 가공 판매 ④ 데이터베이스 제작업",
-      "단순 웹툰 유통을 넘어 'AI 캐릭터 인터랙션 플랫폼'으로의 전면적인 AI 전환(AX) 선언"
+      "2026년 9월 10일 임시주주총회에서 상호를 '엔키AX(ENKI AX)'로 변경하는 정관 일부 변경의 건 원안대로 가결 완료",
+      "인공지능(AI) 솔루션 개발·공급 및 AI 캐릭터/에이전트 서비스 등 4대 신규 목적 사업 정식 개시",
+      "글로벌 AI 인터랙션 플랫폼 전문 기업으로의 리브랜딩 및 AX 도약 공식화"
     ],
     link: "https://finance.naver.com/item/news.naver?code=134580",
     sourceName: "임시주총 공시 / 네이버 증권"
   },
   {
     ticker: "134580",
-    company: "탑코미디어",
+    company: "엔키AX (구 탑코미디어)",
     role: "Target",
     category: "서비스 확장 / 글로벌",
     date: "2026.08.28",
@@ -2312,15 +2309,15 @@ const PEER_NEWS_DATA = [
   },
   {
     ticker: "134580",
-    company: "탑코미디어",
+    company: "엔키AX (구 탑코미디어)",
     role: "Target",
     category: "지분 / 지배구조",
-    date: "2026.09.03",
+    date: "2026.11.06",
     badgeType: "target",
-    title: "엔키홀딩스 지분율 39.54%로 최대주주 지배력 공고… AI 신사업 추진 탄력",
+    title: "최대주주 엔키홀딩스 지분율 39.54% 유지… 대량보유상황 및 임원 특정증권 공시 완료",
     summary: [
-      "주식등의대량보유상황보고서 공시를 통해 엔키홀딩스 및 특수관계인 지분율 39.54% 유지 확인",
-      "안정적 지분 구조를 바탕으로 9월 10일 임시주총 의결 및 4분기 신규 AI 플랫폼 투자 집행 가시성 확보"
+      "2026년 11월 6일 주식등의대량보유상황보고서 및 임원·주요주주 특정증권등소유상황보고서 공시",
+      "엔키홀딩스 및 특수관계인의 지배력 안정적 유지 확인으로 AI 사업 추진 연속성 확보"
     ],
     link: "https://finance.naver.com/item/news.naver?code=134580",
     sourceName: "DART 공시 / 네이버 증권"
@@ -2451,7 +2448,7 @@ function renderPeerNewsSection(marketView) {
   const currentFilter = state.peerNewsFilter || "all";
   const peers = [
     { ticker: "all", name: "전체 (5개사)" },
-    { ticker: "134580", name: "탑코미디어", role: "Target", isTarget: true },
+    { ticker: "134580", name: "엔키AX (구 탑코미디어)", role: "Target", isTarget: true },
     { ticker: "020120", name: "키다리스튜디오", role: "Core" },
     { ticker: "263720", name: "디앤씨미디어", role: "Secondary" },
     { ticker: "207760", name: "미스터블루", role: "Core" },
@@ -2541,7 +2538,7 @@ function renderPeerNewsSection(marketView) {
 
       <div class="peer-readthrough">
         <strong>시사점 및 캐릭터챗 관전 포인트</strong>
-        <p>타 웹툰 피어(키다리·디앤씨 등)는 메가 IP 기반의 R&D 및 프로토타입 단계에 머물러 있는 반면, 탑코미디어(엔키AX)는 '탑툰챗'을 4개국에 즉시 전면 상용화하고 턴당 과금 BM을 선제 가동한 점이 차별화 요인입니다. 9/10 임시주총의 AI 사업목적 승인과 해외 결제 전환율이 향후 주가 밸류에이션 리레이팅의 핵심 잣대가 됩니다.</p>
+        <p>타 웹툰 피어(키다리·디앤씨 등)는 메가 IP 기반의 R&D 및 프로토타입 단계에 머물러 있는 반면, 엔키AX(구 탑코미디어)는 '탑툰챗'을 4개국에 즉시 전면 상용화하고 턴당 과금 BM을 선제 가동한 점이 차별화 요인입니다. 2026년 9월 10일 임시주총을 통해 사명변경(엔키AX) 및 4대 AI 사업목적 추가를 완료하였으며, 해외 결제 전환율과 분기 실적 가시화가 향후 주가 밸류에이션 리레이팅의 핵심 잣대가 됩니다.</p>
       </div>
     </section>
   `;

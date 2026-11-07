@@ -1,7 +1,9 @@
 {
   "schema_version": 1,
   "issuer": {
-    "name": "탑코미디어",
+    "name": "엔키AX",
+    "former_name": "탑코미디어",
+    "name_changed_at": "2026-09-10",
     "ticker": "134580",
     "market": "KOSDAQ"
   },
@@ -45,15 +47,27 @@
   "market_actions": [
     {
       "date": "2026-08-20",
-      "label": "투자경고 공시 · 8월 21일 지정",
+      "label": "투자경고 공시 · 8월 21일 지정 (단기 급등)",
       "status": "confirmed",
       "source_id": "SRC-KRX-WARNING"
     },
     {
-      "date": "2026-08-21",
-      "label": "8월 24일 종가 기준 거래정지 조건 판정",
+      "date": "2026-08-27",
+      "label": "1일간 매매거래정지 해제 후 정상 거래 재개 (안정화 국면 진입)",
       "status": "confirmed",
       "source_id": "SRC-KRX-SUSPENSION-PRENOTICE"
+    },
+    {
+      "date": "2026-09-10",
+      "label": "임시주주총회 의결 완료 · 상호 '엔키AX'로 공식 변경 및 AI 신사업 목적 4종 정식 추가",
+      "status": "confirmed",
+      "source_id": "SRC-DART-NAME-CHANGE"
+    },
+    {
+      "date": "2026-11-06",
+      "label": "최대주주 엔키홀딩스 주식등의 대량보유상황보고서 및 임원소유상황 공시",
+      "status": "confirmed",
+      "source_id": "SRC-DART-HOLDINGS-20261106"
     }
   ],
   "thesis": {
@@ -96,11 +110,27 @@
       "url": "https://kind.krx.co.kr/external/2026/08/21/000686/20260821001992/70835.htm"
     },
     {
+      "id": "SRC-DART-NAME-CHANGE",
+      "tier": "A",
+      "type": "공식 공시",
+      "label": "상호변경안내 ('엔키AX')",
+      "as_of": "2026-09-10",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260910000300"
+    },
+    {
+      "id": "SRC-DART-HOLDINGS-20261106",
+      "tier": "A",
+      "type": "공식 공시",
+      "label": "주식등의 대량보유상황보고서",
+      "as_of": "2026-11-06",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20261106000447"
+    },
+    {
       "id": "SRC-PRICE-2026-08-24",
       "tier": "C",
       "type": "2차 시장데이터",
-      "label": "탑코미디어 과거 가격",
-      "as_of": "2026-08-24 close",
+      "label": "엔키AX (구 탑코미디어) 시세 데이터",
+      "as_of": "2026-11-06 close",
       "url": "https://kr.investing.com/equities/digital-multimedia-technology-co-lt-historical-data"
     },
     {
