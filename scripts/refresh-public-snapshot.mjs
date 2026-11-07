@@ -331,7 +331,7 @@ async function collectMarket(market) {
   const records = [];
   for (const character of rows) {
     const sortedTags = [...(character.hashtags || [])].sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
-    const imageUrl = String(character.thumbnail || "");
+    const imageUrl = String(character.thumbnail || character.safeThumbnail || "");
     let safeVideoUrl = [character.safeVideoThumbnail, character.videoThumbnail]
       .map((value) => String(value || ""))
       .find((value) => /\.mp4$/i.test(value)) || "";
@@ -351,7 +351,7 @@ async function collectMarket(market) {
       if (prev?.local_image && existsSync(path.join(root, "assets", market.key, path.basename(prev.local_image)))) {
         imageFile = path.basename(prev.local_image);
       } else {
-        const candidateMatch = (previousCatalog?.records || []).find((r) => r.site === "KR" && (r.character_id === Number(character.id) || r.work_title === sortedTags[0]?.hashtag || r.character_name === character.name));
+        const candidateMatch = (previousCatalog?.records || []).find((r) => (r.site === "KR" || r.character_id === Number(character.id)) && (r.character_id === Number(character.id) || r.work_title === sortedTags[0]?.hashtag || r.character_name === character.name));
         if (candidateMatch?.local_image) {
           const candidateSrc = path.join(root, "assets", "kr", path.basename(candidateMatch.local_image));
           if (existsSync(candidateSrc)) {

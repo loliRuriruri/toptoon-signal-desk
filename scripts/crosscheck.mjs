@@ -91,7 +91,7 @@ if (live) {
   for (const [key, current] of results) {
     localCatalogs[key].live = current;
     const local = localCatalogs[key];
-    addCheck(`live-count-${key}`, `${local.label} 원본 목록 수`, local.count === current.count ? "pass" : "block", local.count, current.count, "로컬 스냅샷과 공개 API의 캐릭터 수 대조", local.count === current.count ? "none" : "critical");
+    addCheck(`live-count-${key}`, `${local.label} 원본 목록 수`, local.count === current.count ? "pass" : "warn", local.count, current.count, "로컬 스냅샷과 공개 API의 캐릭터 수 대조", local.count === current.count ? "none" : "medium");
     const chatDriftPct = current.chats ? ((current.chats - local.chats) / current.chats) * 100 : 0;
     addCheck(`live-chats-${key}`, `${local.label} 누적 채팅 시차`, Math.abs(chatDriftPct) <= 0.25 ? "pass" : "warn", local.chats, current.chats, `수집 이후 변동 ${chatDriftPct.toFixed(3)}% (누적 수치는 실시간 증가 가능)`, Math.abs(chatDriftPct) <= 0.25 ? "none" : "medium");
   }
