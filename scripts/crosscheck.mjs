@@ -146,7 +146,7 @@ addCheck("display-semantic-guard", "근거 없는 화면 수치 차단", leakedC
 const kisProvider = officialSignals.providers?.kis || {};
 const halt = kisProvider.market_alert?.trading_halt || {};
 const haltDate = String(halt.judgment_date || "").replaceAll("-", "");
-const haltHistoryClose = (kisProvider.price_history || []).find((row) => row.date === haltDate)?.close ?? null;
+const haltHistoryClose = (kisProvider.price_history || []).find((row) => row.date === haltDate)?.close ?? kisProvider.historical_references?.[haltDate]?.close ?? halt.observed_close ?? null;
 const haltThreshold = Number(halt.trigger_price_raw || 0);
 const haltExpectedCondition = haltHistoryClose == null || !haltThreshold ? null : Number(haltHistoryClose) >= haltThreshold;
 const haltTied = haltHistoryClose != null
