@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-10T11:03:13.090Z",
+  "generated_at": "2026-11-10T15:11:30.083Z",
   "mode": "live-crosscheck",
   "overall_status": "share-with-caveats",
   "summary": {
-    "pass": 17,
-    "warn": 9,
+    "pass": 14,
+    "warn": 12,
     "block": 0
   },
   "definitions": {
@@ -21,9 +21,9 @@
       "chats": 2068228,
       "views": 72487956,
       "live": {
-        "count": 122,
-        "chats": 2068228,
-        "views": 72487996
+        "count": 123,
+        "chats": 2070001,
+        "views": 72543281
       }
     },
     "jp": {
@@ -33,8 +33,8 @@
       "views": 135888357,
       "live": {
         "count": 114,
-        "chats": 513942,
-        "views": 135888794
+        "chats": 515240,
+        "views": 136459951
       }
     },
     "global": {
@@ -44,8 +44,8 @@
       "views": 438685,
       "live": {
         "count": 112,
-        "chats": 33612,
-        "views": 438685
+        "chats": 33632,
+        "views": 438871
       }
     },
     "tw": {
@@ -54,9 +54,9 @@
       "chats": 170666,
       "views": 5622451,
       "live": {
-        "count": 110,
-        "chats": 170666,
-        "views": 5622463
+        "count": 111,
+        "chats": 170921,
+        "views": 5632435
       }
     }
   },
@@ -100,19 +100,19 @@
     {
       "id": "live-count-kr",
       "label": "한국 원본 목록 수",
-      "status": "pass",
+      "status": "warn",
       "observed": 122,
-      "expected": 122,
+      "expected": 123,
       "note": "로컬 스냅샷과 공개 API의 캐릭터 수 대조",
-      "severity": "none"
+      "severity": "medium"
     },
     {
       "id": "live-chats-kr",
       "label": "한국 누적 채팅 시차",
       "status": "pass",
       "observed": 2068228,
-      "expected": 2068228,
-      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
+      "expected": 2070001,
+      "note": "수집 이후 변동 0.086% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -127,11 +127,11 @@
     {
       "id": "live-chats-jp",
       "label": "일본 누적 채팅 시차",
-      "status": "pass",
+      "status": "warn",
       "observed": 513940,
-      "expected": 513942,
-      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
-      "severity": "none"
+      "expected": 515240,
+      "note": "수집 이후 변동 0.252% (누적 수치는 실시간 증가 가능)",
+      "severity": "medium"
     },
     {
       "id": "live-count-global",
@@ -147,26 +147,26 @@
       "label": "글로벌 누적 채팅 시차",
       "status": "pass",
       "observed": 33612,
-      "expected": 33612,
-      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
+      "expected": 33632,
+      "note": "수집 이후 변동 0.059% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
       "id": "live-count-tw",
       "label": "대만 원본 목록 수",
-      "status": "pass",
+      "status": "warn",
       "observed": 110,
-      "expected": 110,
+      "expected": 111,
       "note": "로컬 스냅샷과 공개 API의 캐릭터 수 대조",
-      "severity": "none"
+      "severity": "medium"
     },
     {
       "id": "live-chats-tw",
       "label": "대만 누적 채팅 시차",
       "status": "pass",
       "observed": 170666,
-      "expected": 170666,
-      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
+      "expected": 170921,
+      "note": "수집 이후 변동 0.149% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
