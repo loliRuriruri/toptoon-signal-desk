@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-23T23:43:54.211Z",
+  "generated_at": "2026-11-23T23:46:07.511Z",
   "providers": {
     "opendart": {
       "status": "ok",
@@ -88,8 +88,8 @@
           "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260903000328"
         }
       ],
-      "observed_at": "2026-11-23T23:43:53.706Z",
-      "attempted_at": "2026-11-23T23:43:53.706Z"
+      "observed_at": "2026-11-23T23:46:00.157Z",
+      "attempted_at": "2026-11-23T23:46:00.157Z"
     },
     "kis": {
       "status": "cached",
@@ -521,15 +521,10 @@
       "note": "이전 정상 스냅샷 유지 (스케줄 분리)"
     },
     "fred": {
-      "status": "ok",
-      "source": "FRED DEXKOUS",
-      "observation": {
-        "date": "2026-11-20",
-        "value": 1342.41,
-        "unit": "KRW per USD"
-      },
-      "observed_at": "2026-11-23T23:43:53.792Z",
-      "attempted_at": "2026-11-23T23:43:53.792Z"
+      "status": "skipped",
+      "note": "FRED_API_KEY 필요",
+      "observed_at": null,
+      "attempted_at": "2026-11-23T23:46:07.511Z"
     }
   }
 }
