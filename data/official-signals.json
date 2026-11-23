@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-11T19:33:05.567Z",
+  "generated_at": "2026-11-23T23:43:54.211Z",
   "providers": {
     "opendart": {
       "status": "ok",
@@ -7,6 +7,14 @@
       "note": "종목코드 134580의 회사 고유번호를 자동 확인해 최근 180일 조회",
       "corp_code": "00608699",
       "disclosures": [
+        {
+          "company": "엔키AX",
+          "report": "분기보고서 (2026.09)",
+          "receipt_no": "20261113001701",
+          "filed_at": "20261116",
+          "filer": "엔키AX",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20261113001701"
+        },
         {
           "company": "엔키AX",
           "report": "[기재정정]주식등의대량보유상황보고서(일반)",
@@ -78,18 +86,10 @@
           "filed_at": "20260903",
           "filer": "엔키홀딩스",
           "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260903000328"
-        },
-        {
-          "company": "엔키AX",
-          "report": "교환청구권행사              ",
-          "receipt_no": "20260903900567",
-          "filed_at": "20260903",
-          "filer": "엔키AX",
-          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260903900567"
         }
       ],
-      "observed_at": "2026-11-11T19:32:57.912Z",
-      "attempted_at": "2026-11-11T19:32:57.912Z"
+      "observed_at": "2026-11-23T23:43:53.706Z",
+      "attempted_at": "2026-11-23T23:43:53.706Z"
     },
     "kis": {
       "status": "cached",
@@ -521,10 +521,15 @@
       "note": "이전 정상 스냅샷 유지 (스케줄 분리)"
     },
     "fred": {
-      "status": "skipped",
-      "note": "FRED_API_KEY 필요",
-      "observed_at": null,
-      "attempted_at": "2026-11-11T19:33:05.567Z"
+      "status": "ok",
+      "source": "FRED DEXKOUS",
+      "observation": {
+        "date": "2026-11-20",
+        "value": 1342.41,
+        "unit": "KRW per USD"
+      },
+      "observed_at": "2026-11-23T23:43:53.792Z",
+      "attempted_at": "2026-11-23T23:43:53.792Z"
     }
   }
 }

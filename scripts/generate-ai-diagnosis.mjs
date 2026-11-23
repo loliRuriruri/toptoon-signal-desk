@@ -40,7 +40,7 @@ if (!process.env.OPENROUTER_API_KEY) {
   process.exit(0);
 }
 
-if (!force && previous?.status === "ok" && previous.generated_at) {
+if (!force && previous?.status === "ok" && previous.generated_at && typeof previous.analysis === "string" && previous.analysis.trim().length >= 100) {
   const ageHours = (Date.now() - Date.parse(previous.generated_at)) / 3_600_000;
   if (Number.isFinite(ageHours) && ageHours < minHours) {
     console.log(`AI diagnosis skipped: previous result is ${ageHours.toFixed(2)}h old (minimum ${minHours}h)`);
@@ -159,9 +159,9 @@ async function requestDiagnosis() {
       if (payload.error) throw new Error(`OpenRouter API error ${payload.error.code || "unknown"}: ${payload.error.message || "unknown"}`);
       const choice = payload.choices?.[0] || {};
       const analysis = choice.message?.content;
-      if (typeof analysis !== "string" || !analysis.trim()) {
+      if (typeof analysis !== "string" || analysis.trim().length < 100) {
         const usage = payload.usage || {};
-        throw new Error(`OpenRouter returned no analysis (finish=${choice.finish_reason || "unknown"}, completion_tokens=${usage.completion_tokens ?? "unknown"})`);
+        throw new Error(`OpenRouter returned invalid/short analysis (length=${analysis ? analysis.length : 0}, finish=${choice.finish_reason || "unknown"}, completion_tokens=${usage.completion_tokens ?? "unknown"})`);
       }
       return { payload, analysis };
     } catch (error) {
