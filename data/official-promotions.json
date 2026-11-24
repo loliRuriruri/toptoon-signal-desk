@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-24T02:10:20.041Z",
+  "generated_at": "2026-11-24T13:34:39.698Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,20 +7,20 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-11-24T02:10:20.041Z",
+      "observed_at": "2026-11-24T13:34:39.698Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
-      "change": "continuing",
-      "signature": "508:VOICE 25만 1.5만 SALE 최아영",
+      "change": "changed",
+      "signature": "133:572만 4.9만 SALE 김고은",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 508,
-          "character_name": "최아영",
+          "character_id": 133,
+          "character_name": "김고은",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.com/detail/character/508",
-          "headline": "VOICE 25만 1.5만 SALE 최아영",
+          "detail_url": "https://chat.toptoon.com/detail/character/133",
+          "headline": "572만 4.9만 SALE 김고은",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.com/"
         }
@@ -29,20 +29,20 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-11-24T02:10:20.041Z",
+      "observed_at": "2026-11-24T13:34:39.698Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
       "change": "changed",
-      "signature": "170:8.7万 3527 SALE 曾川麗奈 私、曾川麗奈なのに……こんな扱い受けたことないのに…… #逆転大学性活 #学科の女神 #高慢",
+      "signature": "77:39万 8475 SALE 西沢みな 光栄に思いなさい。チャンスをあげる時にうまくやりな #ふしだらアタック #西沢みな #バレーボール選手",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 170,
-          "character_name": "曾川麗奈",
+          "character_id": 77,
+          "character_name": "西沢みな",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.jp/detail/character/170",
-          "headline": "8.7万 3527 SALE 曾川麗奈 私、曾川麗奈なのに……こんな扱い受けたことないのに…… #逆転大学性活 #学科の女神 #高慢",
+          "detail_url": "https://chat.toptoon.jp/detail/character/77",
+          "headline": "39万 8475 SALE 西沢みな 光栄に思いなさい。チャンスをあげる時にうまくやりな #ふしだらアタック #西沢みな #バレーボール選手",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.jp/"
         }
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-11-24T02:10:20.041Z",
+      "observed_at": "2026-11-24T13:34:39.698Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,52 +63,27 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-11-24T02:10:20.041Z",
+      "observed_at": "2026-11-24T13:34:39.698Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
-      "status": "verified",
-      "change": "continuing",
-      "signature": "81:1.5萬 310 SALE 塞西莉亞 「我會努力…請你不要拋下我…主人…」 #人妻獵人 #異世界 #貓獸人",
+      "status": "partial",
+      "change": "changed",
+      "signature": "130:price_promotion",
       "homepage_error": null,
       "items": [
         {
-          "character_id": 81,
-          "character_name": "塞西莉亞",
+          "character_id": 130,
+          "character_name": "蕾依",
           "api_badge": "price_promotion",
-          "detail_url": "https://chat.toptoon.net/detail/character/81",
-          "headline": "1.5萬 310 SALE 塞西莉亞 「我會努力…請你不要拋下我…主人…」 #人妻獵人 #異世界 #貓獸人",
-          "verification": "api-and-homepage",
-          "source_url": "https://chat.toptoon.net/"
+          "detail_url": "https://chat.toptoon.net/detail/character/130",
+          "headline": null,
+          "verification": "api-badge-only",
+          "source_url": "https://chat.toptoon.net/api/characters"
         }
       ]
     }
   },
   "history": [
-    {
-      "captured_at": "2026-10-01T01:17:25.442Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "77:서미나 \"영광인 줄 알고 기회 줄 때 잘 해.\" 33만 1.6만"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "changed",
-          "signature": "131:エリス もしかして…私、女として魅力がないですか？ 3.9万 2795"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "partial",
-          "change": "continuing",
-          "signature": "253:price_promotion"
-        }
-      }
-    },
     {
       "captured_at": "2026-10-01T01:31:46.571Z",
       "markets": {
@@ -4881,6 +4856,31 @@
           "status": "verified",
           "change": "continuing",
           "signature": "81:1.5萬 310 SALE 塞西莉亞 「我會努力…請你不要拋下我…主人…」 #人妻獵人 #異世界 #貓獸人"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-11-24T13:34:39.698Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "133:572만 4.9만 SALE 김고은"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "77:39万 8475 SALE 西沢みな 光栄に思いなさい。チャンスをあげる時にうまくやりな #ふしだらアタック #西沢みな #バレーボール選手"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "partial",
+          "change": "changed",
+          "signature": "130:price_promotion"
         }
       }
     }
