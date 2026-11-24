@@ -4754,7 +4754,11 @@ function renderGrowthSinceLaunch() {
     { date: "2026.07.08", title: "일본(JP) 서비스 오픈", desc: "탑툰 재팬 독자 직영 플랫폼 론칭 · 해외 진출 시동" },
     { date: "2026.07.28", title: "대만(TW) 서비스 오픈", desc: "중화권 직영 플랫폼 현지화 서비스 개시" },
     { date: "2026.08.05", title: "글로벌(Global/NA) 오픈", desc: "영문권 직영 서비스 론칭으로 글로벌 4개 시장 완비" },
-    { date: "2026.08.28", title: "MULTI 인터랙티브 론칭", desc: "다자간 대화 및 특화 모드 론칭으로 활동성 견인" }
+    { date: "2026.08.28", title: "MULTI 인터랙티브 론칭", desc: "다자간 대화 및 특화 모드 론칭으로 활동성 견인" },
+    { date: "2026.09.10", title: "상호변경 '엔키AX' 및 AI 사업목적 추가", desc: "임시주총 의결 · '탑코미디어'에서 '엔키AX'로 사명 변경 및 AI 신사업 목적 4종 정식 추가" },
+    { date: "2026.10.15", title: "대만 MULTI 확장 및 480종 라인업", desc: "대만 시장 다자간 모드 론칭 및 4개국 전체 캐릭터 라인업 480종 돌파" },
+    { date: "2026.11.06", title: "해외 활동 비중 50% 과반 돌파", desc: "일본·대만·글로벌 해외 합산 주간 활동량이 국내 본진을 넘어서며 글로벌 확장 입증" },
+    { date: "2026.11.24 (현재)", title: "누적 2.4억 조회 · 293만 대화 도달", desc: "4개 시장 통합 누적 2.4억 조회 달성 및 주간 1,000만 회 순항", isLatest: true }
   ];
 
   return `
@@ -4763,13 +4767,13 @@ function renderGrowthSinceLaunch() {
         <p class="section-kicker">03 · GROWTH SINCE LAUNCH</p>
         <h2>론칭 이후 전체 성장 곡선 및 핵심 이벤트</h2>
       </div>
-      <span class="sample-badge">2026.03 ~ 현재</span>
+      <span class="sample-badge">2026.03 ~ 2026.11 (현재 최신)</span>
     </div>
-    <p class="section-note">2026년 3월 공식 출시부터 4개국 확장 및 신기능 론칭까지 검증된 마일스톤 이벤트를 기록합니다.</p>
+    <p class="section-note">2026년 3월 공식 출시부터 4개국 확장, 상호변경(엔키AX), 다자간 MULTI 확대 및 11월 현재 지표까지 검증된 마일스톤 이벤트를 기록합니다.</p>
 
     <div class="milestone-timeline">
       ${milestones.map((m) => `
-        <div class="milestone-card">
+        <div class="milestone-card${m.isLatest ? " is-latest" : ""}">
           <span class="milestone-date">📅 ${escapeHtml(m.date)}</span>
           <strong class="milestone-title">${escapeHtml(m.title)}</strong>
           <p class="milestone-desc">${escapeHtml(m.desc)}</p>
