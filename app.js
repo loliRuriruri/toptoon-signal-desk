@@ -431,8 +431,17 @@ function bindEvents() {
       const sliderVal = Number(event.target.value);
       const midInput = document.querySelector("#revenue-unit-mid");
       const sliderDisplay = document.querySelector("#revenue-slider-val");
+      const summaryDisplay = document.querySelector(".revenue-assumption-summary strong");
       if (midInput) midInput.value = sliderVal;
       if (sliderDisplay) sliderDisplay.textContent = `${formatNumber(sliderVal)}원`;
+      if (summaryDisplay) summaryDisplay.textContent = `${formatNumber(sliderVal)}원`;
+    }
+  });
+
+  document.addEventListener("change", (event) => {
+    if (event.target && event.target.id === "revenue-unit-slider") {
+      const applyBtn = document.querySelector("[data-revenue-assumptions-apply]");
+      if (applyBtn) applyBtn.click();
     }
   });
 
@@ -609,11 +618,33 @@ function bindEvents() {
       return;
     }
 
+    const presetBtn = event.target.closest("[data-preset-val]");
+    if (presetBtn) {
+      const val = Number(presetBtn.dataset.presetVal);
+      const midInput = document.querySelector("#revenue-unit-mid");
+      const slider = document.querySelector("#revenue-unit-slider");
+      if (midInput) midInput.value = val;
+      if (slider) slider.value = val;
+      const applyBtn = document.querySelector("[data-revenue-assumptions-apply]");
+      if (applyBtn) applyBtn.click();
+      return;
+    }
+
     const revenueApplyButton = event.target.closest("[data-revenue-assumptions-apply]");
     if (revenueApplyButton) {
-      const unitLow = Number(document.querySelector("#revenue-unit-low")?.value || 0);
+      let unitLow = Number(document.querySelector("#revenue-unit-low")?.value || 0);
       const unitMid = Number(document.querySelector("#revenue-unit-mid")?.value || 0);
-      const unitHigh = Number(document.querySelector("#revenue-unit-high")?.value || 0);
+      let unitHigh = Number(document.querySelector("#revenue-unit-high")?.value || 0);
+      if (unitLow > unitMid) {
+        unitLow = Math.round(unitMid * 0.85);
+        const lowInput = document.querySelector("#revenue-unit-low");
+        if (lowInput) lowInput.value = unitLow;
+      }
+      if (unitHigh < unitMid) {
+        unitHigh = Math.round(unitMid * 1.13);
+        const highInput = document.querySelector("#revenue-unit-high");
+        if (highInput) highInput.value = unitHigh;
+      }
       const candidate = { unitLow, unitMid, unitHigh };
       const valid = [unitLow, unitMid, unitHigh].every((unit) => Number.isFinite(unit) && unit > 0 && unit <= 1000000) &&
         unitLow <= unitMid && unitMid <= unitHigh;
@@ -2709,25 +2740,93 @@ function renderRevenueAssumptionControls() {
   const assumptions = revenueAssumptions();
   return `
     <div class="revenue-assumption-toolbar" aria-label="활동 환산 단가 설정">
-      <div class="revenue-assumption-summary">
-        <span>시나리오 단가</span>
-        <strong>${formatNumber(assumptions.unitMid)}원</strong>
-        <small>외부 트래커 참고 기본값 · 이 브라우저에만 저장</small>
+      <div class="revenue-assumption-top-bar">
+        <div class="revenue-assumption-summary">
+          <span>시나리오 단가</span>
+          <strong>${formatNumber(assumptions.unitMid)}원</strong>
+          <small>외부 트래커 참고 기본값 · 이 브라우저에만 저장</small>
+        </div>
+        <div class="scenario-preset-group">
+          <span class="preset-label">단가 퀵 프리셋:</span>
+          <div class="scenario-preset-chips">
+            <button type="button" class="preset-chip${assumptions.unitMid === assumptions.unitLow ? " is-active" : ""}" data-preset-val="${assumptions.unitLow}" title="하단 단가 적용">하단 ${formatNumber(assumptions.unitLow)}원</button>
+            <button type="button" class="preset-chip${assumptions.unitMid === 2498 ? " is-active" : ""}" data-preset-val="2498" title="기준 기본 단가 적용">기준 ${formatNumber(2498)}원 (기본)</button>
+            <button type="button" class="preset-chip${assumptions.unitMid === assumptions.unitHigh ? " is-active" : ""}" data-preset-val="${assumptions.unitHigh}" title="상단 단가 적용">상단 ${formatNumber(assumptions.unitHigh)}원</button>
+          </div>
+        </div>
       </div>
-      <div class="revenue-slider-row" style="display:flex;align-items:center;gap:10px;flex:1;min-width:200px;">
-        <span style="font-size:11px;color:var(--text-sub,#94a3b8);white-space:nowrap;">슬라이더 (#062)</span>
-        <input type="range" class="mp-range-slider" id="revenue-unit-slider" min="50" max="300" step="5" value="${assumptions.unitMid}" aria-label="환산 기준 단가 슬라이더" style="flex:1;">
-        <strong id="revenue-slider-val" class="slider-display-val" style="color:#38bdf8;font-size:13px;min-width:55px;text-align:right;">${formatNumber(assumptions.unitMid)}원</strong>
+
+      <div class="revenue-slider-row">
+        <div class="slider-label-row">
+          <label for="revenue-unit-slider" class="slider-title">
+            <span class="slider-icon">⚡</span>
+            <strong>단가 슬라이더 조절</strong>
+            <span class="slider-hint">(1,000원 ~ 5,000원 실시간 연동)</span>
+          </label>
+          <div class="slider-live-badge">
+            <span class="live-dot"></span>
+            <strong id="revenue-slider-val">${formatNumber(assumptions.unitMid)}원</strong>
+          </div>
+        </div>
+        <div class="slider-interactive-track">
+          <input type="range" class="mp-range-slider styled-scenario-slider" id="revenue-unit-slider" min="1000" max="5000" step="10" value="${assumptions.unitMid}" aria-label="환산 기준 단가 조절 슬라이더" />
+          <div class="slider-scale-ticks">
+            <span>1,000원</span>
+            <span class="tick-preset">▲ 기준 2,498원</span>
+            <span>5,000원</span>
+          </div>
+        </div>
       </div>
-      <label><span>하단</span><input id="revenue-unit-low" type="number" inputmode="numeric" min="1" max="1000000" step="1" value="${assumptions.unitLow}" aria-label="환산 단가 하단" /></label>
-      <label><span>기준</span><input id="revenue-unit-mid" type="number" inputmode="numeric" min="1" max="1000000" step="1" value="${assumptions.unitMid}" aria-label="환산 기준 단가" /></label>
-      <label><span>상단</span><input id="revenue-unit-high" type="number" inputmode="numeric" min="1" max="1000000" step="1" value="${assumptions.unitHigh}" aria-label="환산 단가 상단" /></label>
-      <div class="revenue-assumption-actions">
-        <button type="button" class="primary-button mp-ripple" data-revenue-assumptions-apply>전체 적용</button>
-        <button type="button" class="ghost-button mp-ripple" data-revenue-assumptions-reset>기본값</button>
+
+      <div class="revenue-inputs-actions-row">
+        <div class="revenue-inputs-group">
+          <label><span>하단</span><input id="revenue-unit-low" type="number" inputmode="numeric" min="1" max="1000000" step="1" value="${assumptions.unitLow}" aria-label="환산 단가 하단" /></label>
+          <label><span>기준</span><input id="revenue-unit-mid" type="number" inputmode="numeric" min="1" max="1000000" step="1" value="${assumptions.unitMid}" aria-label="환산 기준 단가" /></label>
+          <label><span>상단</span><input id="revenue-unit-high" type="number" inputmode="numeric" min="1" max="1000000" step="1" value="${assumptions.unitHigh}" aria-label="환산 단가 상단" /></label>
+        </div>
+        <div class="revenue-assumption-actions">
+          <button type="button" class="primary-button mp-ripple" data-revenue-assumptions-apply>전체 적용</button>
+          <button type="button" class="ghost-button mp-ripple" data-revenue-assumptions-reset>기본값</button>
+        </div>
       </div>
       <p id="revenue-assumption-status" role="status" aria-live="polite">${escapeHtml(state.revenueAssumptionMessage || "대화 증가량 × 30일 × 선택 단가로 모든 환산액을 계산합니다.")}</p>
     </div>
+  `;
+}
+
+function renderIrCoinMixReference(coinMix) {
+  const checkpoints = coinMix?.ir_checkpoints || [];
+  return `
+    <details class="ir-reference-collapse">
+      <summary class="ir-reference-summary">
+        <div class="ir-summary-left">
+          <span class="ir-badge">IR 공시 참고자료</span>
+          <strong>탑코미디어 유료 코인 결제 비중 추이 (8월 IR 발표값)</strong>
+          <span class="ir-why-tag">왜 8월까지인가요?</span>
+        </div>
+        <span class="ir-toggle-pill">3개 시점 데이터 펼치기 ▾</span>
+      </summary>
+      <div class="ir-reference-content">
+        <div class="ir-reference-meta-row">
+          <p class="ir-note-desc">
+            📌 <strong>지표 성격 안내:</strong> 본 지표는 지속적 실시간 API 수집 대상이 아닌, 탑코미디어가 2026년 8월 공식 IR 자료를 통해 1회성으로 발표한 분기별 지표(3월 9.6% → 6월 24.1% → 8월 28.0%)입니다. 정기 모니터링 수치와 혼동되지 않도록 참고자료로 분리 배치되었습니다. 향후 회사의 신규 IR 공시가 배포될 때 최신화됩니다.
+          </p>
+        </div>
+        <div class="ir-checkpoints-mini-grid">
+          ${checkpoints.map((item) => `
+            <div class="ir-checkpoint-item">
+              <div class="ir-cp-header">
+                <span class="ir-cp-label">${escapeHtml(item.label || item.month)}</span>
+                <strong class="ir-cp-val">${Number(item.pct || 0).toFixed(1)}%</strong>
+              </div>
+              <div class="ir-cp-track">
+                <div class="ir-cp-bar" style="width:${Math.min(100, Math.round((Number(item.pct || 0) / 35) * 100))}%;"></div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </details>
   `;
 }
 
@@ -2755,18 +2854,14 @@ function renderRevenuePanel() {
         ${renderCharacterLeaderboard(byCharacter)}
       </div>
       <div class="chart-grid chart-grid-secondary">
-        ${renderBarChart("유료 코인 결제 비중 · 회사 전체", "시장별 분리 불가 · 회사 IR 제시값 · 외부 검증 전", (coinMix.ir_checkpoints || []).map((item) => ({
-          label: `${String(item.month || "").slice(5)}월`,
-          value: item.pct,
-          sub: item.label || item.month
-        })), (value) => `${Number(value || 0).toFixed(1)}%`, "#f5a742")}
-        ${renderColumnChart(`공개 월별 현재 반응 · ${marketLabel}`, "해당 월 공개 캐릭터의 현재 평균 누적 대화수 · 4개 시장 동일 공식", cohortRows, (value) => `${formatNumber(Math.round(value))}회`, "#62a8ff", "", {
+        ${renderColumnChart(`공개 월별 현재 반응 · ${marketLabel}`, "해당 월 공개 캐릭터의 현재 평균 누적 대화수 · 4개 시장 동일 공식", cohortRows, (value) => `${formatNumber(Math.round(value))}회`, "#62a8ff", "full-span", {
           chartId: `cohort-month-${market}`,
           latestLabel: "최근 공개월 코호트",
           highLabel: "현재 평균 대화 최고",
           contextNote: "현재 시점 누적 대화수의 코호트 평균입니다. 먼저 공개된 월은 누적 기간이 길어 직접적인 성장률 비교가 아닙니다."
         })}
       </div>
+      ${renderIrCoinMixReference(coinMix)}
     </section>
   `;
 }
