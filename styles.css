@@ -8231,6 +8231,140 @@ button,
   color: #f1f5f9;
 }
 
+/* Motion Prompt (#001~#085) Expanded Micro-interactions · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/ */
+
+/* Validation View Enhancements: Decision KPIs, KPI Watch, Business Flow */
+.decision-kpi {
+  transition: transform 0.28s var(--mp-ease-out), box-shadow 0.28s var(--mp-ease-out), border-color 0.28s var(--mp-ease-out);
+  animation: mp-stagger-col 0.45s var(--mp-ease-out) both;
+  animation-delay: calc(var(--stagger-idx, 0) * 70ms);
+}
+.decision-kpi:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(56, 189, 248, 0.35);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.watch {
+  transition: transform 0.25s var(--mp-ease-out), box-shadow 0.25s var(--mp-ease-out), border-color 0.25s var(--mp-ease-out);
+  animation: mp-stagger-col 0.4s var(--mp-ease-out) both;
+  animation-delay: calc(var(--stagger-idx, 0) * 40ms);
+}
+.watch:hover {
+  transform: translateY(-3px);
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.4);
+}
+
+.flow .node {
+  transition: transform 0.25s var(--mp-ease-out), background 0.25s var(--mp-ease-out), border-color 0.25s var(--mp-ease-out), box-shadow 0.25s var(--mp-ease-out);
+}
+.flow .node:hover {
+  transform: translateY(-3px) scale(1.02);
+  border-color: rgba(56, 189, 248, 0.55);
+  background: rgba(56, 189, 248, 0.12);
+  box-shadow: 0 8px 18px -4px rgba(56, 189, 248, 0.25);
+}
+
+.decision-path-step {
+  transition: transform 0.25s var(--mp-ease-out), border-color 0.25s var(--mp-ease-out);
+}
+.decision-path-step:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+/* Navigation & Subnav Hover Lift (#081) */
+.tab-button,
+.subnav-link,
+.scope-btn,
+.segment-btn {
+  transition: transform 0.22s var(--mp-ease-out), background 0.22s var(--mp-ease-out), color 0.22s var(--mp-ease-out), box-shadow 0.22s var(--mp-ease-out), border-color 0.22s var(--mp-ease-out);
+}
+.tab-button:hover,
+.subnav-link:hover,
+.scope-btn:hover {
+  transform: translateY(-2px);
+  color: #fff;
+}
+.tab-button.is-active,
+.subnav-link.is-active {
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
+}
+
+/* Character View Enhancements: Thumbnail Zoom & Row Hover Glow */
+.thumb img {
+  transition: transform 0.35s var(--mp-ease-out);
+}
+.character-card:hover .thumb img,
+.character-cell:hover .thumb img {
+  transform: scale(1.1);
+}
+.character-card {
+  animation: mp-stagger-col 0.4s var(--mp-ease-out) both;
+  animation-delay: calc(var(--stagger-idx, 0) * 20ms);
+}
+.character-table tbody tr {
+  transition: background 0.2s var(--mp-ease-out), transform 0.2s var(--mp-ease-out);
+}
+.character-table tbody tr:hover {
+  background: rgba(56, 189, 248, 0.07);
+}
+
+/* Trends & Comparisons Charts (Weekly & Stacked Bar Charts #004, #009, #081) */
+.weekly-bar-col {
+  transition: transform 0.25s var(--mp-ease-out);
+}
+.weekly-bar-col:hover {
+  transform: translateY(-5px);
+}
+.weekly-bar-col:hover .weekly-fill {
+  filter: brightness(1.22) drop-shadow(0 4px 14px rgba(59, 130, 246, 0.5));
+}
+.country-bar-col {
+  transition: transform 0.25s var(--mp-ease-out);
+}
+.country-bar-col:hover {
+  transform: translateY(-5px);
+}
+.country-bar-col:hover .country-stacked-track {
+  transform: scaleY(1.03);
+  filter: drop-shadow(0 4px 14px rgba(56, 189, 248, 0.35));
+}
+.country-stacked-seg {
+  border-top: 1px solid rgba(15, 23, 42, 0.5);
+  transition: height 300ms ease, filter 0.2s;
+}
+.country-stacked-seg:hover {
+  filter: brightness(1.25);
+}
+
+/* Trend Data Tables Hover Glow */
+.trend-data-table tbody tr {
+  transition: background 0.2s var(--mp-ease-out), transform 0.2s var(--mp-ease-out);
+  animation: mp-stagger-col 0.35s var(--mp-ease-out) both;
+  animation-delay: calc(var(--stagger-idx, 0) * 25ms);
+}
+.trend-data-table tbody tr:hover {
+  background: rgba(56, 189, 248, 0.08);
+  transform: translateX(4px);
+}
+
+/* Revenue Controls & Slider (#062) */
+.revenue-slider-row {
+  background: rgba(15, 23, 42, 0.6);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.slider-display-val {
+  font-family: var(--font-mono, monospace);
+  background: rgba(56, 189, 248, 0.12);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
 /* Accessibility: Prefers Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {

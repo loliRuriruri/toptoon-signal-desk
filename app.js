@@ -426,6 +426,16 @@ function bindEvents() {
     writeHash();
   });
 
+  document.addEventListener("input", (event) => {
+    if (event.target && event.target.id === "revenue-unit-slider") {
+      const sliderVal = Number(event.target.value);
+      const midInput = document.querySelector("#revenue-unit-mid");
+      const sliderDisplay = document.querySelector("#revenue-slider-val");
+      if (midInput) midInput.value = sliderVal;
+      if (sliderDisplay) sliderDisplay.textContent = `${formatNumber(sliderVal)}원`;
+    }
+  });
+
   els.workFilter.addEventListener("change", () => {
     state.work = els.workFilter.value;
     renderCharacterView();
@@ -1575,6 +1585,7 @@ function renderValidationDashboard() {
   els.validationKpiGrid.innerHTML = renderDecisionKpis(summary, statusLabel, thesis, marketView);
 
   els.validationDashboard.innerHTML = [
+    renderSyncPipelineStepper(),
     renderDecisionPath(thesis),
     renderFreshnessStrip(validationData, investor, marketView),
     renderLatestDisclosures(),
@@ -1624,14 +1635,40 @@ function renderStrategicCrosscheck() {
         </div>
         <span class="evidence-badge tier-c">C · 미공시 점검표</span>
       </div>
-      <div class="card" style="margin-bottom:12px">
-        <h3>탑툰 ↔ 탑툰챗 '한 지갑' 크로스셀 퍼널</h3>
-        <div class="flow">
-          <div class="node"><div class="n">STEP 1</div><div class="t">웹툰 IP</div><div class="d">캐릭터 인지</div></div>
-          <div class="node"><div class="n">STEP 2</div><div class="t">기존 결제자</div><div class="d">결제 이력 보유</div></div>
-          <div class="node"><div class="n">STEP 3</div><div class="t">코인 통합 (5/22)</div><div class="d">결제 장벽 해소</div></div>
-          <div class="node"><div class="n">STEP 4</div><div class="t">대화·에셋 해금</div><div class="d">일러스트·시나리오</div></div>
-          <div class="node"><div class="n">STEP 5</div><div class="t">관계성 재방문</div><div class="d">반복 지출 형성</div></div>
+      <div class="mp-flip-card" id="crosscheck-flip-card" style="margin-bottom:12px">
+        <div class="mp-flip-card-inner">
+          <div class="mp-flip-card-front">
+            <div class="card" style="margin-bottom:0;position:relative;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <h3 style="margin:0">탑툰 ↔ 탑툰챗 '한 지갑' 크로스셀 퍼널</h3>
+                <button type="button" class="mp-flip-toggle mp-ripple" data-flip-target="#crosscheck-flip-card" aria-label="점검 기준 뒤집기" style="font-size:11px;padding:4px 10px;border-radius:6px;background:rgba(56,189,248,0.15);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);cursor:pointer;font-weight:700;">
+                  점검 기준 뒤집기 ↻ (#021)
+                </button>
+              </div>
+              <div class="flow">
+                <div class="node"><div class="n">STEP 1</div><div class="t">웹툰 IP</div><div class="d">캐릭터 인지</div></div>
+                <div class="node"><div class="n">STEP 2</div><div class="t">기존 결제자</div><div class="d">결제 이력 보유</div></div>
+                <div class="node"><div class="n">STEP 3</div><div class="t">코인 통합 (5/22)</div><div class="d">결제 장벽 해소</div></div>
+                <div class="node"><div class="n">STEP 4</div><div class="t">대화·에셋 해금</div><div class="d">일러스트·시나리오</div></div>
+                <div class="node"><div class="n">STEP 5</div><div class="t">관계성 재방문</div><div class="d">반복 지출 형성</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="mp-flip-card-back">
+            <div class="card" style="margin-bottom:0;position:relative;background:rgba(15,23,42,0.96);border:1px solid rgba(56,189,248,0.3);">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <h3 style="margin:0;color:#38bdf8;">퍼널 밸류에이션 3대 핵심 가설</h3>
+                <button type="button" class="mp-flip-toggle mp-ripple" data-flip-target="#crosscheck-flip-card" aria-label="퍼널 보기" style="font-size:11px;padding:4px 10px;border-radius:6px;background:rgba(56,189,248,0.15);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);cursor:pointer;font-weight:700;">
+                  퍼널 구조 보기 ↻ (#021)
+                </button>
+              </div>
+              <ul style="margin:0;padding-left:18px;font-size:12px;line-height:1.6;color:var(--text-sub,#94a3b8);">
+                <li><strong style="color:#e2e8f0">전환율 레버리지</strong>: 상반기 영업이익률 29.8% 달성 기업으로서, 추가 마케팅비 없이 기존 유료 회원이 코인을 챗으로 소진할 때 영업 레버리지 극대화.</li>
+                <li><strong style="color:#e2e8f0">과금 한계</strong>: 웹툰 대비 AI 캐릭터챗의 건당 결제 단가(ARPPU)가 고정되지 않고 누적 과금 구조를 가지므로, 잔존율(D30) 유지가 핵심.</li>
+                <li><strong style="color:#e2e8f0">글로벌 확장</strong>: 일본·대만·북미 현지화 시 국내 대비 3~5배의 결제 단가 잠재력 확인 필요.</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
       <div class="card">
@@ -1644,8 +1681,8 @@ function renderStrategicCrosscheck() {
         </div>
         <div class="kpi-watch">
           ${kpiWatchItems
-            .map((item) => `
-            <div class="watch tone-neutral">
+            .map((item, idx) => `
+            <div class="watch tone-neutral" style="--stagger-idx: ${idx};">
               <div class="watch-top">
                 <div class="watch-header">
                   <span class="num">${item.num}</span>
@@ -1673,23 +1710,23 @@ function renderDecisionKpis(summary, statusLabel, thesis, marketView) {
   const companyValue = thesis.company_status === "strengthening" ? "실적 개선 흐름" : "추가 확인 필요";
   const stockValue = thesis.security_readiness === "conditional" ? "관찰 유지" : escapeHtml(thesis.security_readiness || "판단 대기");
   return `
-    <article class="decision-kpi tone-${blocks ? "danger" : warnings ? "warning" : "positive"}">
+    <article class="decision-kpi tone-${blocks ? "danger" : warnings ? "warning" : "positive"}" style="--stagger-idx: 0;">
       <span class="decision-kpi-step">01 · 데이터</span><strong>${escapeHtml(dataValue)}</strong>
       <p>${escapeHtml(statusLabel)} · 차단 ${blocks}건 · 통과 ${Number(summary.pass || 0)}건</p>
       <small>${blocks ? "차단 원인을 해결하기 전 투자 화면 사용 중지" : "공식 공시와 직접 관측은 사용 가능, 추정치는 보수적으로 해석"}</small>
     </article>
-    <article class="decision-kpi tone-positive">
+    <article class="decision-kpi tone-positive" style="--stagger-idx: 1;">
       <span class="decision-kpi-step">02 · 사업</span><strong>${escapeHtml(companyValue)}</strong>
       <p>공시 매출·영업이익·현금흐름 기준</p>
       <small>캐릭터챗 별도 매출은 아직 공시되지 않아 사업 전체와 분리해서 봅니다.</small>
     </article>
-    <article class="decision-kpi tone-signal">
+    <article class="decision-kpi tone-signal" style="--stagger-idx: 2;">
       <span class="decision-kpi-step">03 · 투자 판단</span><strong>${stockValue}</strong>
       <p>${thesis.action === "wait for proof" ? "AI챗 유료매출 증거 대기" : escapeHtml(thesis.action || "다음 증거 대기")}</p>
       <small>좋은 사업 흐름과 지금 주가가 싼지는 다른 질문입니다.</small>
     </article>
-    <article class="decision-kpi tone-neutral">
-      <span class="decision-kpi-step">04 · 현재 기업가치</span><strong>${formatWonBig(marketView.marketCap)}</strong>
+    <article class="decision-kpi tone-neutral" style="--stagger-idx: 3;">
+      <span class="decision-kpi-step">04 · 현재 기업가치</span><strong data-count-val="${marketView.marketCap || 0}">${formatWonBig(marketView.marketCap)}</strong>
       <p>${formatNumber(marketView.price)}원 × ${formatNumber(marketView.shares)}주</p>
       <small>${escapeHtml(marketView.sourceLabel)} · ${marketView.shareCountChanged ? "과거 스냅샷 대신 현재 상장주식수 반영" : "동종기업과 아래에서 비교"}</small>
     </article>
@@ -2674,12 +2711,17 @@ function renderRevenueAssumptionControls() {
         <strong>${formatNumber(assumptions.unitMid)}원</strong>
         <small>외부 트래커 참고 기본값 · 이 브라우저에만 저장</small>
       </div>
+      <div class="revenue-slider-row" style="display:flex;align-items:center;gap:10px;flex:1;min-width:200px;">
+        <span style="font-size:11px;color:var(--text-sub,#94a3b8);white-space:nowrap;">슬라이더 (#062)</span>
+        <input type="range" class="mp-range-slider" id="revenue-unit-slider" min="50" max="300" step="5" value="${assumptions.unitMid}" aria-label="환산 기준 단가 슬라이더" style="flex:1;">
+        <strong id="revenue-slider-val" class="slider-display-val" style="color:#38bdf8;font-size:13px;min-width:55px;text-align:right;">${formatNumber(assumptions.unitMid)}원</strong>
+      </div>
       <label><span>하단</span><input id="revenue-unit-low" type="number" inputmode="numeric" min="1" max="1000000" step="1" value="${assumptions.unitLow}" aria-label="환산 단가 하단" /></label>
       <label><span>기준</span><input id="revenue-unit-mid" type="number" inputmode="numeric" min="1" max="1000000" step="1" value="${assumptions.unitMid}" aria-label="환산 기준 단가" /></label>
       <label><span>상단</span><input id="revenue-unit-high" type="number" inputmode="numeric" min="1" max="1000000" step="1" value="${assumptions.unitHigh}" aria-label="환산 단가 상단" /></label>
       <div class="revenue-assumption-actions">
-        <button type="button" class="primary-button" data-revenue-assumptions-apply>전체 적용</button>
-        <button type="button" class="ghost-button" data-revenue-assumptions-reset>기본값</button>
+        <button type="button" class="primary-button mp-ripple" data-revenue-assumptions-apply>전체 적용</button>
+        <button type="button" class="ghost-button mp-ripple" data-revenue-assumptions-reset>기본값</button>
       </div>
       <p id="revenue-assumption-status" role="status" aria-live="polite">${escapeHtml(state.revenueAssumptionMessage || "대화 증가량 × 30일 × 선택 단가로 모든 환산액을 계산합니다.")}</p>
     </div>
@@ -2993,8 +3035,8 @@ function renderCharacterView() {
     : `${formatNumber(sourceTotal)}명 중 ${formatNumber(filtered.length)}명 표시`;
   els.toolbarReset.hidden = !state.q && !state.work && state.sort === "views-desc";
   els.emptyState.hidden = filtered.length > 0;
-  els.tbody.innerHTML = filtered.map(renderTableRow).join("");
-  els.cardList.innerHTML = filtered.map(renderCard).join("");
+  els.tbody.innerHTML = filtered.map((item, idx) => renderTableRow(item, idx)).join("");
+  els.cardList.innerHTML = filtered.map((item, idx) => renderCard(item, idx)).join("");
   bindResultButtons();
 }
 
@@ -3069,12 +3111,12 @@ function renderDualDeltaBadge(liveDelta, dailyDelta, emptyLabel) {
   `;
 }
 
-function renderTableRow(item) {
+function renderTableRow(item, idx = 0) {
   const model = viewModel(item);
   const activity = characterActivity(item);
   const daily = dailyActivityForItem(item, model.id);
   return `
-    <tr>
+    <tr style="--stagger-idx: ${Math.min(idx || 0, 30)};">
       <td class="character-cell">
         <button class="row-button" type="button" data-character-id="${model.id}">
           <span class="character-identity">
@@ -3097,12 +3139,12 @@ function renderTableRow(item) {
   `;
 }
 
-function renderCard(item) {
+function renderCard(item, idx = 0) {
   const model = viewModel(item);
   const activity = characterActivity(item);
   const daily = dailyActivityForItem(item, model.id);
   return `
-    <article class="character-card">
+    <article class="character-card" style="--stagger-idx: ${Math.min(idx || 0, 30)};">
       <button class="card-button" type="button" data-character-id="${model.id}">
         <span class="card-main">
           ${renderThumb(model)}
@@ -4939,27 +4981,27 @@ function renderAnalyticalSignalsSection(market) {
     </div>
 
     <div class="stats-grid analytical-signals-grid">
-      <article class="stat-card tone-positive">
+      <article class="stat-card tone-positive" style="--stagger-idx: 0;">
         <span class="stat-label">14D Current Rate (최근 14일 일평균)</span>
-        <strong class="stat-value">+${formatCompact(avg14Views)} / 일</strong>
+        <strong class="stat-value" data-count-val="${avg14Views}">+${formatCompact(avg14Views)} / 일</strong>
         <p class="stat-help">일평균 대화 참여 +${formatNumber(avg14Chats)}회</p>
         <div class="signal-interpretation">
           <span>💡 일일 ${formatCompact(avg14Views)} 이상의 탄탄한 기본 트래픽 지속</span>
         </div>
       </article>
 
-      <article class="stat-card tone-positive">
+      <article class="stat-card tone-positive" style="--stagger-idx: 1;">
         <span class="stat-label">7D Momentum (최근 7일 속도)</span>
-        <strong class="stat-value">${viewsRate7 >= 0 ? "+" : ""}${viewsRate7}%</strong>
+        <strong class="stat-value" data-count-val="${parseFloat(viewsRate7) || 0}">${viewsRate7 >= 0 ? "+" : ""}${viewsRate7}%</strong>
         <p class="stat-help">이전 7일 동기간 대비 (${formatDiffBadge(viewsDiff7, viewsRate7, "회")})</p>
         <div class="signal-interpretation">
           <span>💡 단기 대화 참여 ${formatDiffBadge(chatsDiff7, chatsRate7, "회")}</span>
         </div>
       </article>
 
-      <article class="stat-card tone-signal">
+      <article class="stat-card tone-signal" style="--stagger-idx: 2;">
         <span class="stat-label">28D Trend (중기 14일 vs 직전 14일)</span>
-        <strong class="stat-value">${rate28 >= 0 ? "+" : ""}${rate28}%</strong>
+        <strong class="stat-value" data-count-val="${parseFloat(rate28) || 0}">${rate28 >= 0 ? "+" : ""}${rate28}%</strong>
         <p class="stat-help">중기 28일 추세 비교 (${formatDiffBadge(diff28, rate28, "회")})</p>
         <div class="signal-interpretation">
           <span>💡 중기 베이스라인 ${rate28 >= 0 ? "우상향 성장세 유지" : "안정적 횡보 구간 지속"}</span>
@@ -5768,14 +5810,19 @@ function renderLocaleItem(record, market, activeMarket) {
 function renderStatCards(cards) {
   return cards
     .map(
-      ([label, value, help, tone = "neutral", popover = null]) => `
-        <article class="stat-card tone-${escapeAttr(tone)}${popover ? " has-popover" : ""}">
+      ([label, value, help, tone = "neutral", popover = null], idx) => {
+        const rawStr = String(value ?? "");
+        const numVal = parseFloat(rawStr.replace(/[^0-9.-]/g, ""));
+        const hasNum = !isNaN(numVal) && !rawStr.includes("<");
+        return `
+        <article class="stat-card tone-${escapeAttr(tone)}${popover ? " has-popover" : ""}" style="--stagger-idx: ${idx};">
           <span class="stat-label">${escapeHtml(label)}</span>
-          <strong class="stat-value">${String(value ?? "-").includes("<") ? String(value ?? "-") : escapeHtml(value ?? "-")}</strong>
+          <strong class="stat-value"${hasNum ? ` data-count-val="${numVal}"` : ""}>${rawStr.includes("<") ? rawStr : escapeHtml(value ?? "-")}</strong>
           <p class="stat-help">${escapeHtml(help ?? "")}</p>
           ${popover ? `<div class="stat-card-popover">${popover}</div>` : ""}
         </article>
-      `
+      `;
+      }
     )
     .join("");
 }
