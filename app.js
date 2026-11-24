@@ -3689,6 +3689,10 @@ function renderOfficialHomeBannerCard(market) {
     const videoSrc = proxiedMediaUrl(item.asset_url);
     return `
       <a class="official-home-banner-item" data-hover-preview href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer" aria-label="${escapeAttr(`${meta.label} 공식 홈 배너 ${index + 1}: ${title}`)}">
+        <div class="official-home-banner-media-wrap">
+          <img class="official-home-banner-thumb" src="${escapeAttr(item.image_url)}" alt="${escapeAttr(title)}" loading="lazy" onerror="if(this.dataset.src){this.src=this.dataset.src;}" data-src="${escapeAttr(item.source_image_url || '')}" />
+          ${videoSrc ? `<video class="official-home-banner-video" src="${escapeAttr(videoSrc)}" muted loop playsinline autoplay></video>` : ""}
+        </div>
         <span class="official-home-banner-caption">
           <span class="official-home-banner-badges">${badges}</span>
           <strong>${escapeHtml(title)}</strong>
@@ -3740,12 +3744,28 @@ function renderOfficialPromotionCard(market) {
     const verificationHint = item.verification === "api-and-homepage"
       ? "카탈로그 배지와 공식 홈페이지 링크를 함께 확인"
       : "카탈로그 API 배지만 확인";
-    const previewMedia = renderHoverPreviewMedia(promotionPreviewSources(market, item));
+    const preview = promotionPreviewSources(market, item);
+    const previewMedia = renderHoverPreviewMedia(preview);
+    const thumbSrc = preview?.imageSrc || "";
     return `
-      <div class="promotion-item${previewMedia ? " has-hover-preview" : ""}"${previewMedia ? " data-hover-preview" : ""}>
-        <strong class="promotion-item-title" title="${escapeAttr(verificationHint)}">${escapeHtml(title)}</strong>
+      <div class="promotion-item has-visual${previewMedia ? " has-hover-preview" : ""}"${previewMedia ? " data-hover-preview" : ""}>
+        <div class="promotion-item-thumb-box">
+          ${thumbSrc
+            ? `<img class="promotion-thumb-img" src="${escapeAttr(thumbSrc)}" alt="${escapeAttr(item.character_name || title)}" loading="lazy" />`
+            : `<span class="promotion-thumb-fallback">${meta.flag}</span>`}
+        </div>
+        <div class="promotion-item-body">
+          <div class="promotion-item-headline-row">
+            <span class="promo-badge-sale">🔥 SALE 프로모션</span>
+            ${item.character_name ? `<span class="promo-badge-char">${escapeHtml(item.character_name)}</span>` : ""}
+            <span class="promo-badge-verify" title="${escapeAttr(verificationHint)}">✓ ${escapeHtml(item.verification === "api-and-homepage" ? "홈페이지 연동 확인" : "API 감지")}</span>
+          </div>
+          <strong class="promotion-item-title" title="${escapeAttr(verificationHint)}">${escapeHtml(title)}</strong>
+          <div class="promotion-item-actions">
+            <a class="promotion-link-btn is-primary" href="${escapeAttr(item.detail_url)}" target="_blank" rel="noopener noreferrer">공식 캐릭터 페이지 ↗</a>
+          </div>
+        </div>
         ${previewMedia}
-        <a class="promotion-link-btn" href="${escapeAttr(item.detail_url)}" target="_blank" rel="noopener noreferrer">공식 캐릭터 페이지 ↗</a>
       </div>
     `;
   }).join("");
@@ -4763,9 +4783,10 @@ function renderMarketsAndMultiSection(market) {
 
   const maxTotal = Math.max(...countryWeeklyData.map((w) => w.total), 1);
 
-  const krBanners = officialHomeBannersData?.markets?.kr?.items || [];
-  const jpBanners = officialHomeBannersData?.markets?.jp?.items || [];
-  const multiBanners = [...krBanners, ...jpBanners].filter((b) => (b.badges || []).includes("multi"));
+  const multiBanners = ["kr", "jp", "tw", "global"].flatMap((m) => {
+    const items = officialHomeBannersData?.markets?.[m]?.items || [];
+    return items.map((b) => ({ ...b, marketKey: m }));
+  }).filter((b) => (b.badges || []).includes("multi"));
 
   return `
     <div class="panel-heading compact-heading">
@@ -4930,21 +4951,54 @@ function renderMarketsAndMultiSection(market) {
     <!-- MULTI Section -->
     <div class="multi-impact-box">
       <div class="multi-impact-header">
-        <span class="tier-pill tier-observed">MULTI IMPACT</span>
-        <strong>⚡ MULTI 콘텐츠 론칭 효과 분석 (8/28 론칭)</strong>
+        <div class="multi-impact-title-group">
+          <span class="tier-pill tier-observed">MULTI IMPACT</span>
+          <strong>⚡ MULTI 다자간 대화 콘텐츠 라인업 & 효과 분석 (11월 최신)</strong>
+        </div>
+        <span class="multi-count-tag">총 ${multiBanners.length}개 라인업 가동</span>
       </div>
-      <p class="section-note" style="margin:4px 0 10px;">다자간 대화 모드가 지원되는 MULTI 전용 콘텐츠가 한국 및 일본 플랫폼에 배치되었습니다.</p>
+      <p class="section-note" style="margin:4px 0 12px;">한국·일본에 이어 대만(TW)까지 확장된 다자간 대화 모드(MULTI) 전용 콘텐츠(총 ${multiBanners.length}개) 및 유저 참여 효과 분석입니다.</p>
+
+      <div class="multi-kpi-summary-grid">
+        <div class="multi-kpi-pill">
+          <span class="multi-kpi-lbl">활성 라인업</span>
+          <strong class="multi-kpi-val">${multiBanners.length}개 작품</strong>
+          <small class="multi-kpi-sub">KR 3 · JP 2 · TW 1</small>
+        </div>
+        <div class="multi-kpi-pill">
+          <span class="multi-kpi-lbl">주간 대화량 유지</span>
+          <strong class="multi-kpi-val">+1,000만 회 / 주</strong>
+          <small class="multi-kpi-sub">도입 후 베이스라인 유지</small>
+        </div>
+        <div class="multi-kpi-pill">
+          <span class="multi-kpi-lbl">참여당 활동 강도</span>
+          <strong class="multi-kpi-val">108.0회 / 참여자</strong>
+          <small class="multi-kpi-sub">고몰입 다자간 세션</small>
+        </div>
+        <div class="multi-kpi-pill">
+          <span class="multi-kpi-lbl">지원 마켓</span>
+          <strong class="multi-kpi-val">3개국 확장</strong>
+          <small class="multi-kpi-sub">KR · JP · TW</small>
+        </div>
+      </div>
+
       <div class="multi-banner-list">
-        ${multiBanners.map((b) => `
-          <a class="multi-banner-item" href="${escapeAttr(b.detail_url)}" target="_blank" rel="noopener noreferrer">
-            <img src="${escapeAttr(b.image_url)}" alt="${escapeAttr(b.title)}" class="multi-thumb" />
-            <div class="multi-info">
-              <span class="multi-badge">MULTI 모드</span>
-              <strong>${escapeHtml(b.title)}</strong>
-              <small>${escapeHtml(b.info_text || "")}</small>
-            </div>
-          </a>
-        `).join("")}
+        ${multiBanners.map((b) => {
+          const mMeta = MARKET_META[b.marketKey] || { flag: "🌐", label: b.marketKey };
+          return `
+            <a class="multi-banner-item" href="${escapeAttr(b.detail_url)}" target="_blank" rel="noopener noreferrer">
+              <div class="multi-thumb-wrap">
+                <img src="${escapeAttr(b.image_url)}" alt="${escapeAttr(b.title)}" class="multi-thumb" loading="lazy" onerror="if(this.dataset.src){this.src=this.dataset.src;}" data-src="${escapeAttr(b.source_image_url || '')}" />
+                <span class="multi-market-flag-tag">${mMeta.flag} ${escapeHtml(mMeta.label)}</span>
+              </div>
+              <div class="multi-info">
+                <span class="multi-badge">MULTI 모드</span>
+                <strong>${escapeHtml(b.title)}</strong>
+                <small>${escapeHtml(b.info_text || "")}</small>
+              </div>
+            </a>
+          `;
+        }).join("")}
       </div>
     </div>
   `;
@@ -5964,6 +6018,99 @@ function renderSnapshotJourney(title, subtitle, rows, key, color) {
   const changePct = first ? (change / first) * 100 : 0;
   const firstDate = formatCollectionPoint(rows[0]?.captured_at || rows[0]?.date);
   const latestDate = formatCollectionPoint(rows.at(-1)?.captured_at || rows.at(-1)?.date);
+
+  // 5 key trajectory checkpoints sampled across the collection timeline
+  const stepCount = 5;
+  const sampledIndices = [];
+  if (rows.length <= stepCount) {
+    rows.forEach((_, i) => sampledIndices.push(i));
+  } else {
+    for (let i = 0; i < stepCount; i++) {
+      sampledIndices.push(Math.round((i * (rows.length - 1)) / (stepCount - 1)));
+    }
+  }
+  const checkpoints = sampledIndices.map((idx) => ({
+    index: idx,
+    row: rows[idx],
+    isFirst: idx === 0,
+    isLatest: idx === rows.length - 1
+  }));
+
+  // Recent 5 captures for immediate micro-trend
+  const recentCaptures = rows.slice(-5);
+
+  const checkpointsHtml = `
+    <div class="snapshot-trajectory-section">
+      <div class="trajectory-head">
+        <span class="trajectory-title">주요 시점 누적 궤적 (Trajectory Milestones)</span>
+        <small class="trajectory-sub">전체 ${rows.length}회 수집 중 5개 핵심 시점 추이</small>
+      </div>
+      <div class="snapshot-checkpoints-track" style="--journey-color:${color}">
+        ${checkpoints.map((cp) => {
+          const val = Number(cp.row[key] || 0);
+          const cpDate = formatCollectionPoint(cp.row.captured_at || cp.row.date);
+          const pct = first ? (((val - first) / Math.max(change, 1)) * 100).toFixed(0) : 0;
+          return `
+            <div class="checkpoint-node${cp.isLatest ? " is-latest" : ""}${cp.isFirst ? " is-first" : ""}">
+              <div class="checkpoint-dot"></div>
+              <span class="checkpoint-date">${escapeHtml(cpDate)}</span>
+              <strong class="checkpoint-value">${formatCompact(val)}</strong>
+              ${!cp.isFirst ? `<small class="checkpoint-pct">+${pct}%</small>` : `<small class="checkpoint-pct">기준점</small>`}
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+
+  const recentHtml = `
+    <div class="snapshot-recent-strip">
+      <div class="recent-strip-head">
+        <span>최근 5회 관측 흐름</span>
+        <small>직전 수집 대비 즉각 변동</small>
+      </div>
+      <div class="recent-strip-grid">
+        ${recentCaptures.map((r, idx, arr) => {
+          const val = Number(r[key] || 0);
+          const prevVal = idx > 0 ? Number(arr[idx - 1][key] || 0) : null;
+          const delta = prevVal != null ? val - prevVal : 0;
+          const rDate = formatCollectionPoint(r.captured_at || r.date);
+          const isLatest = idx === arr.length - 1;
+          return `
+            <div class="recent-snap-card${isLatest ? " is-latest" : ""}">
+              <span class="recent-snap-date">${escapeHtml(rDate)}</span>
+              <strong class="recent-snap-val">${formatCompact(val)}</strong>
+              <small class="recent-snap-delta ${delta >= 0 ? "is-up" : "is-down"}">${delta >= 0 ? `+${formatCompact(delta)}` : `-${formatCompact(Math.abs(delta))}`}</small>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+
+  const historyDetailsHtml = `
+    <details class="snapshot-history-details">
+      <summary class="snapshot-history-summary">
+        <span class="history-summary-left">
+          <span class="history-toggle-icon">▸</span>
+          <strong>전체 ${rows.length}회 수집 기록 상세 (접기/펼치기)</strong>
+        </span>
+        <span class="history-badge">총 ${rows.length}개 스냅샷</span>
+      </summary>
+      <div class="snapshot-history-body">
+        <p class="history-body-note">선택한 API 로컬 저장 시점별 전수 기록입니다. 마우스 스크롤 또는 스와이프로 전체 내역을 탐색할 수 있습니다.</p>
+        <div class="snapshot-milestones snapshot-history-scroll" style="--journey-color:${color}">
+          ${rows.map((row, index) => `
+            <div class="snapshot-milestone ${index === rows.length - 1 ? "is-latest" : ""}">
+              <span>${escapeHtml(formatCollectionPoint(row.captured_at || row.date))}</span>
+              <strong>${formatCompact(Number(row[key] || 0))}</strong>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </details>
+  `;
+
   return `
     <article class="chart-card snapshot-journey-card">
       <div class="chart-heading">
@@ -5985,14 +6132,9 @@ function renderSnapshotJourney(title, subtitle, rows, key, color) {
           <strong>${formatCompact(latest)}</strong>
         </div>
       </div>
-      <div class="snapshot-milestones" style="--journey-color:${color}">
-        ${rows.map((row, index) => `
-          <div class="snapshot-milestone ${index === rows.length - 1 ? "is-latest" : ""}">
-            <span>${escapeHtml(formatCollectionPoint(row.captured_at || row.date))}</span>
-            <strong>${formatCompact(Number(row[key] || 0))}</strong>
-          </div>
-        `).join("")}
-      </div>
+      ${checkpointsHtml}
+      ${recentHtml}
+      ${historyDetailsHtml}
       <p class="chart-tail">${formatNumber(rows.length)}회 수집값은 참고용이며, 핵심 비교는 첫 수집값과 현재값의 절대 증가량입니다.</p>
     </article>
   `;
