@@ -2212,6 +2212,9 @@ function renderTopcoMarketRisk(investor, marketView, dynamicAlerts, market, owne
 }
 
 function renderMarketAlertGuide(alerts, marketView, kidariRatio) {
+  const kis = officialSignalsData?.providers?.kis || {};
+  const kidariPeer = (kis.peers || []).find((p) => p.ticker === "020120") || {};
+  const kidariCap = Number(kidariPeer.market_cap_krw || 120500000000);
   const halt = alerts.halt || {};
   const nextHaltThreshold = Number(halt.next_trigger_price || 4816);
   const currentPrice = Number(marketView?.price || alerts.currentPrice || 3560);
@@ -3093,7 +3096,9 @@ function sortItems(items) {
 }
 
 function recordsForMarket(market) {
-  const site = MARKET_META[market].site;
+  if (!market || market === "all") return records;
+  const site = MARKET_META[market]?.site;
+  if (!site) return records;
   return records.filter((record) => record.site === site);
 }
 

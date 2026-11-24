@@ -357,6 +357,62 @@ const syntax = spawnSync(process.execPath, ["--check", "app.js"], {
 });
 assert(syntax.status === 0, `node --check app.js failed: ${syntax.stderr || syntax.stdout}`);
 
+// Runtime simulation test: ensure render(), renderValidationDashboard(), and renderCharacterView() execute without ReferenceErrors
+try {
+  const { default: vm } = await import("node:vm");
+  function createMockElement() {
+    return {
+      innerHTML: "",
+      textContent: "",
+      hidden: false,
+      classList: { add: () => {}, remove: () => {}, toggle: () => {}, contains: () => false },
+      style: {},
+      dataset: { market: "all", statsMarket: "all" },
+      setAttribute: () => {},
+      getAttribute: () => "",
+      addEventListener: () => {},
+      querySelector: () => createMockElement(),
+      querySelectorAll: () => [createMockElement()],
+      closest: () => createMockElement(),
+      remove: () => {}
+    };
+  }
+  const vmContext = {
+    console: { log: () => {}, error: () => {}, warn: () => {} },
+    URLSearchParams,
+    requestAnimationFrame: (cb) => cb(),
+    document: {
+      documentElement: createMockElement(),
+      querySelector: () => createMockElement(),
+      querySelectorAll: () => [createMockElement()],
+      addEventListener: () => {}
+    },
+    window: {
+      location: { hash: "", search: "", pathname: "/" },
+      addEventListener: () => {},
+      TOPTOON_DATA: data,
+      TOPTOON_STATS: stats,
+      TOPTOON_VALIDATION: validation,
+      TOPTOON_OFFICIAL_SIGNALS: officialSignals,
+      TOPTOON_CHARACTER_ACTIVITY: characterActivity,
+      TOPTOON_AI_DIAGNOSIS: aiDiagnosis,
+      TOPTOON_OFFICIAL_HOME_BANNERS: officialHomeBanners,
+      TOPTOON_OFFICIAL_PROMOTIONS: officialPromotions
+    },
+    localStorage: { getItem: () => null, setItem: () => {} },
+    integrationsData: { providers: [] }
+  };
+  vm.createContext(vmContext);
+  vm.runInContext(js, vmContext);
+  vm.runInContext("bindElements()", vmContext);
+  vm.runInContext("dataset = mergeDatasets([window.TOPTOON_DATA]); validationData = window.TOPTOON_VALIDATION; officialSignalsData = window.TOPTOON_OFFICIAL_SIGNALS; statsData = window.TOPTOON_STATS; catalogActivityData = window.TOPTOON_CHARACTER_ACTIVITY; aiDiagnosisData = window.TOPTOON_AI_DIAGNOSIS; officialHomeBannersData = window.TOPTOON_OFFICIAL_HOME_BANNERS; officialPromotionsData = window.TOPTOON_OFFICIAL_PROMOTIONS; records = dataset.records.map(normalizeRecord); groups = buildGroups(records);", vmContext);
+  vm.runInContext("renderValidationDashboard()", vmContext);
+  vm.runInContext("renderCharacterView()", vmContext);
+  vm.runInContext("render()", vmContext);
+} catch (renderErr) {
+  fail(`app.js runtime render validation failed: ${renderErr.stack || renderErr.message}`);
+}
+
 const serverSyntax = spawnSync(process.execPath, ["--check", "scripts/serve.mjs"], {
   cwd: root,
   encoding: "utf8"
