@@ -242,7 +242,7 @@ function syncSiteHeaderOffset() {
   document.documentElement.style.setProperty("--site-header-height", `${height}px`);
 }
 
-function applyLayoutMode(mode) {
+function applyLayoutMode(mode, notify = false) {
   const desktop = mode === "desktop";
   document.documentElement.dataset.layout = desktop ? "desktop" : "auto";
   const viewportMeta = document.querySelector('meta[name="viewport"]');
@@ -255,6 +255,9 @@ function applyLayoutMode(mode) {
     els.layoutMode.value = desktop ? "desktop" : "auto";
   }
   syncSiteHeaderOffset();
+  if (notify && typeof showToast === "function") {
+    showToast(desktop ? "PC 넓게 보기 모드로 전환되었습니다." : "화면에 맞춤 모드로 전환되었습니다.", "info");
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -378,7 +381,7 @@ function bindEvents() {
 
   els.layoutMode?.addEventListener("change", (event) => {
     const nextMode = event.target.value;
-    applyLayoutMode(nextMode);
+    applyLayoutMode(nextMode, true);
     try {
       localStorage.setItem("toptoon-layout-mode", nextMode);
     } catch (_) {}
@@ -611,6 +614,7 @@ function bindEvents() {
       }
       saveRevenueAssumptions(candidate);
       state.revenueAssumptionMessage = "선택한 단가를 모든 환산액에 적용했습니다.";
+      showToast(`선택한 단가(기준: ${formatNumber(candidate.unitMid)}원)를 모든 환산액에 적용했습니다.`, "success");
       renderStatsDashboard();
       bindResultButtons();
       syncOpenDialogToSource(state.view === "characters" ? "characters" : "stats");
@@ -621,6 +625,7 @@ function bindEvents() {
     if (revenueResetButton) {
       resetRevenueAssumptions();
       state.revenueAssumptionMessage = "외부 트래커 참고 기본값으로 복원했습니다.";
+      showToast("시나리오 단가를 외부 트래커 기본값으로 복원했습니다.", "info");
       renderStatsDashboard();
       bindResultButtons();
       syncOpenDialogToSource(state.view === "characters" ? "characters" : "stats");
@@ -654,6 +659,9 @@ function bindEvents() {
       const currentMarket = MARKET_META[state.statsMarket] ? state.statsMarket : "all";
       if (els.sectionTrends) {
         els.sectionTrends.innerHTML = renderTrendSegmentSection(currentMarket);
+        updateSegmentGliders();
+        syncColumnChartScrolls();
+        triggerCountUpAnimations(els.sectionTrends);
       }
       return;
     }
@@ -663,6 +671,8 @@ function bindEvents() {
       const currentMarket = MARKET_META[state.statsMarket] ? state.statsMarket : "all";
       if (els.sectionMarkets) {
         els.sectionMarkets.innerHTML = renderMarketsAndMultiSection(currentMarket);
+        updateSegmentGliders();
+        syncColumnChartScrolls();
       }
       return;
     }
@@ -678,6 +688,8 @@ function bindEvents() {
     syncControls();
     render();
   });
+
+  initMotionPrompt();
 }
 
 async function load() {
@@ -1060,6 +1072,9 @@ function render() {
   renderValidationDashboard();
   renderCharacterView();
   if (!PUBLIC_READ_ONLY) renderSettingsView();
+  updateSegmentGliders();
+  syncColumnChartScrolls();
+  triggerCountUpAnimations();
 }
 
 function renderSettingsView() {
@@ -4251,12 +4266,12 @@ function renderLiveActivitySection(market) {
 
     <div class="stats-grid live-activity-cards">
       <!-- Card 1: TODAY -->
-      <article class="stat-card tone-positive has-popover">
+      <article class="stat-card tone-positive has-popover" style="--stagger-idx: 0;">
         <div class="card-head-row">
           <span class="stat-label">오늘 대화 활동 (TODAY)</span>
           <span class="tier-pill tier-partial" title="하루 24시간 중 현재 시점까지 수집된 실측 기준">Today · Partial</span>
         </div>
-        <strong class="stat-value">+${formatNumber(todayRow.views)}</strong>
+        <strong class="stat-value" data-count-val="${todayRow.views}" data-count-prefix="+">+${formatNumber(todayRow.views)}</strong>
         <p class="stat-help">전일 대비 ${formatDiffBadge(todayViewsDiff, todayViewsChange, "회")}</p>
         <div class="card-sub-metric">
           <span>대화 참여 <b>+${formatNumber(todayRow.chats)}회</b> (${formatDiffBadge(todayChatsDiff, todayChatsChange, "회")})</span>
@@ -4267,12 +4282,12 @@ function renderLiveActivitySection(market) {
       </article>
 
       <!-- Card 2: THIS WEEK -->
-      <article class="stat-card tone-positive">
+      <article class="stat-card tone-positive" style="--stagger-idx: 1;">
         <div class="card-head-row">
           <span class="stat-label">이번 주 대화 활동 (${escapeHtml(thisWeek.week)})</span>
           <span class="tier-pill tier-observed">OBSERVED</span>
         </div>
-        <strong class="stat-value">+${formatCompact(thisWeek.views)}</strong>
+        <strong class="stat-value" data-count-val="${thisWeek.views}" data-count-prefix="+">+${formatCompact(thisWeek.views)}</strong>
         <p class="stat-help">전주 대비 ${formatDiffBadge(weekViewsDiff, weekViewsRate, "회")}</p>
         <div class="card-sub-metric">
           <span>대화 참여 <b>+${formatCompact(thisWeek.chats)}회</b> (${formatDiffBadge(weekChatsDiff, weekChatsRate, "회")})</span>
@@ -4283,12 +4298,12 @@ function renderLiveActivitySection(market) {
       </article>
 
       <!-- Card 3: THIS MONTH -->
-      <article class="stat-card tone-signal">
+      <article class="stat-card tone-signal" style="--stagger-idx: 2;">
         <div class="card-head-row">
           <span class="stat-label">이번 달 대화 활동 (${escapeHtml(thisMonth.month)})</span>
           <span class="tier-pill tier-observed">OBSERVED</span>
         </div>
-        <strong class="stat-value">+${formatCompact(thisMonth.views)}</strong>
+        <strong class="stat-value" data-count-val="${thisMonth.views}" data-count-prefix="+">+${formatCompact(thisMonth.views)}</strong>
         <p class="stat-help">전월 대비 ${formatDiffBadge(thisMonth.viewsDiff, thisMonth.momViews, "회")}</p>
         <div class="card-sub-metric">
           <span>대화 참여 <b>+${formatCompact(thisMonth.chats)}회</b> (${formatDiffBadge(thisMonth.chatsDiff, thisMonth.momChats, "회")})</span>
@@ -4299,7 +4314,7 @@ function renderLiveActivitySection(market) {
       </article>
 
       <!-- Card 4: ACTIVITY INTENSITY -->
-      <article class="stat-card tone-neutral">
+      <article class="stat-card tone-neutral" style="--stagger-idx: 3;">
         <div class="card-head-row">
           <span class="stat-label">참여당 활동 강도 (INTENSITY)</span>
           <span class="tier-pill tier-derived">DERIVED</span>
@@ -4336,17 +4351,17 @@ function renderTrendSegmentSection(market) {
               <h3>${escapeHtml(meta.label)} 주간 대화 활동 추이 (Weekly Conversation Activity)</h3>
               <p class="stat-help">주간 단위 실측 증가량 추이 · 최근 ${weekly.length}주간 론칭 → 확장 → 안정 성장 흐름 관측</p>
             </div>
-            <span class="sample-badge">최근 ${weekly.length}주</span>
+            <span class="sample-badge">최근 ${weekly.length}주 (${weekly[0]?.week || "W28"} ~ ${weekly[weekly.length - 1]?.week || "W47"})</span>
           </div>
 
-          <div class="weekly-bar-chart">
+          <div class="weekly-bar-chart column-chart-scroll" data-chart-scroll-id="weekly-trend-chart">
             ${weekly.map((w, idx) => {
               const height = Math.max(8, Math.round((w.views / maxVal) * 100));
               const isLatest = idx === weekly.length - 1;
               const wowChatsVal = w.mtdWoWChats != null ? w.mtdWoWChats : w.wowChats;
               const isUp = Number(wowChatsVal) >= 0;
               return `
-                <div class="weekly-bar-col${isLatest ? " is-latest" : ""}">
+                <div class="weekly-bar-col${isLatest ? " is-latest" : ""}" style="--stagger-idx: ${idx};">
                   <span class="weekly-wow-badge ${isUp ? "is-up" : "is-down"}">${isUp ? "+" : ""}${wowChatsVal}%</span>
                   <div class="weekly-track">
                     <span class="weekly-fill" style="height:${height}%;background:${isLatest ? "#10b981" : "#3b82f6"}" title="${escapeAttr(`${w.week}: 활동 ${formatNumber(w.views)}회 / 참여 ${formatNumber(w.chats)}회`)}"></span>
@@ -4373,13 +4388,13 @@ function renderTrendSegmentSection(market) {
                 </tr>
               </thead>
               <tbody>
-                ${weekly.slice().reverse().map((w) => {
+                ${weekly.slice().reverse().map((w, idx) => {
                   const viewsDiffVal = w.viewsDiffMtd != null ? w.viewsDiffMtd : w.viewsDiff;
                   const wowViewsVal = w.mtdWoWViews != null ? w.mtdWoWViews : w.wowViews;
                   const chatsDiffVal = w.chatsDiffMtd != null ? w.chatsDiffMtd : w.chatsDiff;
                   const wowChatsVal = w.mtdWoWChats != null ? w.mtdWoWChats : w.wowChats;
                   return `
-                    <tr>
+                    <tr style="--stagger-idx: ${idx};">
                       <td><strong>${escapeHtml(w.week)}${w.isMTD ? " (MTD)" : ""}</strong></td>
                       <td>${escapeHtml(w.label)}</td>
                       <td>+${formatNumber(w.views)}</td>
@@ -4412,7 +4427,7 @@ function renderTrendSegmentSection(market) {
             <span class="sample-badge">최근 14일</span>
           </div>
 
-          <div class="weekly-bar-chart daily-styled-bar-chart">
+          <div class="weekly-bar-chart daily-styled-bar-chart column-chart-scroll" data-chart-scroll-id="daily-trend-chart">
             ${recentDaily.map((d, idx) => {
               const height = Math.max(8, Math.round((d.views / maxDailyViews) * 100));
               const isLatest = idx === recentDaily.length - 1;
@@ -4423,7 +4438,7 @@ function renderTrendSegmentSection(market) {
               const shortDate = `${dateParts[1]}.${dateParts[2]}`;
               const dayOfWeek = d.label.includes("(") ? d.label.slice(d.label.indexOf("(")) : "";
               return `
-                <div class="weekly-bar-col${isLatest ? " is-latest" : ""}">
+                <div class="weekly-bar-col${isLatest ? " is-latest" : ""}" style="--stagger-idx: ${idx};">
                   <span class="weekly-wow-badge ${isUp ? "is-up" : "is-down"}" title="전일 대비">${isUp ? "+" : ""}${dodNum}%</span>
                   <div class="weekly-track">
                     <span class="weekly-fill" style="height:${height}%;background:${isLatest ? "#10b981" : "#3b82f6"}" title="${escapeAttr(`${d.date}: 활동 +${formatNumber(d.views)}회 / 참여 +${formatNumber(d.chats)}회 / 7D평균 +${formatNumber(d.ma7Views)}회`)}"></span>
@@ -4494,7 +4509,7 @@ function renderTrendSegmentSection(market) {
             <span class="sample-badge">2026.03 ~ ${escapeHtml(latestMonth.month)} (${monthly.length}개월)</span>
           </div>
 
-          <div class="weekly-bar-chart monthly-styled-bar-chart">
+          <div class="weekly-bar-chart monthly-styled-bar-chart column-chart-scroll" data-chart-scroll-id="monthly-trend-chart">
             ${monthly.map((m, idx) => {
               const height = Math.max(8, Math.round((m.views / maxMonthlyViews) * 100));
               const isLatest = idx === monthly.length - 1;
@@ -4502,7 +4517,7 @@ function renderTrendSegmentSection(market) {
               const badgeText = idx === 0 ? "🚀 론칭" : `${isUp ? "+" : ""}${m.momChats}%`;
               const monthLabel = m.month.slice(5) + (m.isMTD ? " MTD" : "월");
               return `
-                <div class="weekly-bar-col${isLatest ? " is-latest" : ""}">
+                <div class="weekly-bar-col${isLatest ? " is-latest" : ""}" style="--stagger-idx: ${idx};">
                   <span class="weekly-wow-badge ${isUp || idx === 0 ? "is-up" : "is-down"}">${badgeText}</span>
                   <div class="weekly-track">
                     <span class="weekly-fill" style="height:${height}%;background:${isLatest ? "#10b981" : "#3b82f6"}" title="${escapeAttr(`${m.month}: 활동 ${formatNumber(m.views)}회 / 참여 ${formatNumber(m.chats)}회 / 일평균 ${formatNumber(m.dailyAvg)}회`)}"></span>
@@ -4532,7 +4547,7 @@ function renderTrendSegmentSection(market) {
                 ${monthly.slice().reverse().map((m, idx) => {
                   const isLaunch = m.month.endsWith("03");
                   return `
-                    <tr>
+                    <tr style="--stagger-idx: ${idx};">
                       <td><strong>${escapeHtml(m.month)}</strong></td>
                       <td>${m.days}일</td>
                       <td>+${formatNumber(m.views)}</td>
@@ -4559,6 +4574,7 @@ function renderTrendSegmentSection(market) {
         <h2>일간 / 주간 / 월간 추세 중심 분석</h2>
       </div>
       <div class="segment-nav" role="tablist">
+        <div class="segment-glider"></div>
         <button type="button" class="segment-btn${currentSeg === "week" ? " is-active" : ""}" data-trend-segment="week">주간 (WEEK)</button>
         <button type="button" class="segment-btn${currentSeg === "day" ? " is-active" : ""}" data-trend-segment="day">일간 (DAY)</button>
         <button type="button" class="segment-btn${currentSeg === "month" ? " is-active" : ""}" data-trend-segment="month">월간 (MONTH)</button>
@@ -4711,6 +4727,7 @@ function renderMarketsAndMultiSection(market) {
         <h2>국가별 성장 비교 및 MULTI 콘텐츠 효과</h2>
       </div>
       <div class="segment-nav" role="tablist">
+        <div class="segment-glider"></div>
         <button type="button" class="segment-btn${currentMode === "absolute" ? " is-active" : ""}" data-country-mode="absolute">활동 증가량 (Absolute)</button>
         <button type="button" class="segment-btn${currentMode === "share" ? " is-active" : ""}" data-country-mode="share">국가별 비중 (Share)</button>
       </div>
@@ -4745,15 +4762,18 @@ function renderMarketsAndMultiSection(market) {
           <h3>국가별 ${currentMode === "absolute" ? "주간 대화 활동 추이 (Weekly Activity by Market)" : "주간 점유율 비중 추이 (100% Stacked Share)"}</h3>
           <p class="stat-help">${currentMode === "absolute" ? `최근 ${countryWeeklyData.length}주간 4개국별 활동량(Views Delta)의 주간 누적 기여 규모` : `최근 ${countryWeeklyData.length}주간 해외 시장(JP·TW·Global) 확장 및 점유율 추이 (최신 해외 ${overseasPct}%)`}</p>
         </div>
-        <div class="country-legend">
-          <span class="country-legend-item"><span class="country-legend-dot" style="background:#38bdf8"></span> 🇰🇷 한국</span>
-          <span class="country-legend-item"><span class="country-legend-dot" style="background:#f43f5e"></span> 🇯🇵 日本</span>
-          <span class="country-legend-item"><span class="country-legend-dot" style="background:#10b981"></span> 🇹🇼 台灣</span>
-          <span class="country-legend-item"><span class="country-legend-dot" style="background:#a855f7"></span> 🌍 Global</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+          <span class="sample-badge">최근 ${countryWeeklyData.length}주 (${countryWeeklyData[0]?.week || "W30"} ~ ${countryWeeklyData[countryWeeklyData.length - 1]?.week || "W47"})</span>
+          <div class="country-legend">
+            <span class="country-legend-item"><span class="country-legend-dot" style="background:#38bdf8"></span> 🇰🇷 한국</span>
+            <span class="country-legend-item"><span class="country-legend-dot" style="background:#f43f5e"></span> 🇯🇵 日本</span>
+            <span class="country-legend-item"><span class="country-legend-dot" style="background:#10b981"></span> 🇹🇼 台灣</span>
+            <span class="country-legend-item"><span class="country-legend-dot" style="background:#a855f7"></span> 🌍 Global</span>
+          </div>
         </div>
       </div>
 
-      <div class="country-bar-chart">
+      <div class="country-bar-chart column-chart-scroll" data-chart-scroll-id="country-trend-chart">
         ${countryWeeklyData.map((w, idx) => {
           const isLatest = idx === countryWeeklyData.length - 1;
           const overseasVal = w.jp + w.tw + w.global;
@@ -4796,7 +4816,7 @@ function renderMarketsAndMultiSection(market) {
           }
 
           return `
-            <div class="country-bar-col${isLatest ? " is-latest" : ""}">
+            <div class="country-bar-col${isLatest ? " is-latest" : ""}" style="--stagger-idx: ${idx};">
               ${badgeHtml}
               ${barHtml}
               <strong class="weekly-label">${escapeHtml(w.week)}</strong>
@@ -6668,4 +6688,222 @@ function escapeHtml(value) {
 
 function escapeAttr(value) {
   return escapeHtml(value).replaceAll("`", "&#096;");
+}
+
+
+/* ==========================================================================
+   MOTION PROMPT UI/UX MICRO-INTERACTIONS & MODULES
+   Ported Elements: #001, #002, #004, #007, #009, #021, #022, #049, #052, #056, #060, #062, #068, #075, #077, #081, #085
+   MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/
+   ========================================================================== */
+
+/**
+ * Initializes all Motion Prompt interactions and registers global handlers.
+ */
+function initMotionPrompt() {
+  initRippleEffect();
+  initStickyHeader();
+  initAccordionHandlers();
+  initFlipCardHandlers();
+  updateSegmentGliders();
+  syncColumnChartScrolls();
+  triggerCountUpAnimations();
+}
+
+/**
+ * Motion Prompt #085 · MIT License (c) 2026 Shohei Ohtaki
+ * Ripple effect: Radial wave expanding outwards from click coordinates.
+ */
+function initRippleEffect() {
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("button, .tab-button, .segment-btn, .subnav-link, .action-button, .primary-button, .ghost-button, .rev-tab-btn");
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const ripple = document.createElement("span");
+    ripple.className = "mp-ripple";
+    const size = Math.max(rect.width, rect.height) * 2;
+    const x = e.clientX - rect.left - size / 2;
+    const y = e.clientY - rect.top - size / 2;
+    ripple.style.width = `${size}px`;
+    ripple.style.height = `${size}px`;
+    ripple.style.left = `${x}px`;
+    ripple.style.top = `${y}px`;
+    btn.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 650);
+  });
+}
+
+/**
+ * Motion Prompt #075 · MIT License (c) 2026 Shohei Ohtaki
+ * Sticky Header with dynamic elevation shadow and blur on scroll.
+ */
+function initStickyHeader() {
+  const header = document.querySelector(".site-header");
+  if (!header) return;
+  const onScroll = () => {
+    if (window.scrollY > 16) {
+      header.classList.add("is-scrolled");
+    } else {
+      header.classList.remove("is-scrolled");
+    }
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+}
+
+/**
+ * Motion Prompt #060 · MIT License (c) 2026 Shohei Ohtaki
+ * Segmented Control Glider: Smooth sliding background pill behind active option.
+ */
+function updateSegmentGliders() {
+  const navs = document.querySelectorAll(".segment-nav");
+  navs.forEach((nav) => {
+    let glider = nav.querySelector(".segment-glider");
+    if (!glider) {
+      glider = document.createElement("div");
+      glider.className = "segment-glider";
+      nav.prepend(glider);
+    }
+    const activeBtn = nav.querySelector(".is-active, .active");
+    if (activeBtn) {
+      glider.style.width = `${activeBtn.offsetWidth}px`;
+      glider.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
+      glider.style.opacity = "1";
+    } else {
+      glider.style.opacity = "0";
+    }
+  });
+}
+
+/**
+ * Motion Prompt #007 · MIT License (c) 2026 Shohei Ohtaki
+ * Count-up: Number ticker with easeOutExpo curve.
+ */
+function animateCountUp(el, endVal, duration = 800, prefix = "", suffix = "") {
+  if (!el) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    el.textContent = `${prefix}${formatNumber(endVal)}${suffix}`;
+    return;
+  }
+  const start = 0;
+  const startTime = performance.now();
+  function update(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    // easeOutExpo
+    const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+    const currentVal = Math.round(start + (endVal - start) * ease);
+    el.textContent = `${prefix}${formatNumber(currentVal)}${suffix}`;
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    }
+  }
+  requestAnimationFrame(update);
+}
+
+/**
+ * Trigger count-up animation for all marked elements in the DOM.
+ */
+function triggerCountUpAnimations(root = document) {
+  const nodes = root.querySelectorAll("[data-count-val]");
+  nodes.forEach((el) => {
+    const val = Number(el.dataset.countVal);
+    if (Number.isFinite(val)) {
+      const prefix = el.dataset.countPrefix || "";
+      const suffix = el.dataset.countSuffix || "";
+      animateCountUp(el, val, 750, prefix, suffix);
+    }
+  });
+}
+
+/**
+ * Motion Prompt #056 · MIT License (c) 2026 Shohei Ohtaki
+ * Toast notification with bottom countdown timer bar and easeOutCubic entrance.
+ */
+function showToast(message, type = "info", duration = 3500) {
+  let container = document.querySelector("#mp-toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "mp-toast-container";
+    container.className = "mp-toast-container";
+    container.setAttribute("aria-live", "polite");
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement("div");
+  toast.className = `mp-toast is-${type}`;
+  const iconMap = {
+    success: "✓",
+    info: "ℹ",
+    warning: "⚠",
+    error: "✕"
+  };
+  toast.innerHTML = `
+    <span class="mp-toast-icon">${iconMap[type] || "✓"}</span>
+    <span class="mp-toast-msg">${escapeHtml(message)}</span>
+    <div class="mp-toast-bar" style="--toast-duration: ${duration}ms"></div>
+  `;
+  container.appendChild(toast);
+  const dismiss = () => {
+    toast.classList.add("is-hiding");
+    setTimeout(() => toast.remove(), 350);
+  };
+  const timer = setTimeout(dismiss, duration);
+  toast.addEventListener("click", () => {
+    clearTimeout(timer);
+    dismiss();
+  });
+}
+
+/**
+ * Motion Prompt #052 · MIT License (c) 2026 Shohei Ohtaki
+ * Accordion / Disclosure handler.
+ */
+function initAccordionHandlers() {
+  document.addEventListener("click", (e) => {
+    const header = e.target.closest(".mp-accordion-header");
+    if (!header) return;
+    const item = header.closest(".mp-accordion-item");
+    if (!item) return;
+    item.classList.toggle("is-open");
+  });
+}
+
+/**
+ * Motion Prompt #021 · MIT License (c) 2026 Shohei Ohtaki
+ * 3D Flip Card interaction.
+ */
+function initFlipCardHandlers() {
+  document.addEventListener("click", (e) => {
+    const trigger = e.target.closest(".mp-flip-toggle");
+    if (!trigger) return;
+    const card = trigger.closest(".mp-flip-card");
+    if (!card) return;
+    card.classList.toggle("is-flipped");
+  });
+}
+
+/**
+ * Motion Prompt #068 · MIT License (c) 2026 Shohei Ohtaki
+ * Multi-step pipeline tracker.
+ */
+function renderSyncPipelineStepper() {
+  const steps = [
+    { label: "데이터 수집", done: true },
+    { label: "AI 진단", done: true },
+    { label: "교차 검증", done: true },
+    { label: "정적 빌드", done: true },
+    { label: "Cloudflare 배포", done: true },
+    { label: "동기화 완료", done: true }
+  ];
+  return `
+    <div class="mp-step-indicator" aria-label="데이터 동기화 파이프라인">
+      <div class="mp-step-line-bg"><div class="mp-step-line-fill" style="width:100%"></div></div>
+      ${steps.map((s, idx) => `
+        <div class="mp-step-item is-done">
+          <div class="mp-step-circle" title="${escapeAttr(s.label)}">✓</div>
+          <span class="mp-step-label">${escapeHtml(s.label)}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
 }

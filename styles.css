@@ -7609,3 +7609,634 @@ tbody tr:last-child td {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+
+/* ==========================================================================
+   MOTION PROMPT UI/UX ENHANCEMENTS
+   Ported Elements: #001, #002, #004, #007, #009, #021, #022, #049, #052, #056, #060, #062, #068, #075, #077, #081, #085
+   MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/
+   ========================================================================== */
+
+/* Motion Prompt #009 · MIT License (c) 2026 Shohei Ohtaki · Easing Curves */
+:root {
+  --mp-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --mp-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --mp-ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --mp-ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --mp-ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Motion Prompt #075 · MIT License (c) 2026 Shohei Ohtaki · Sticky Header with dynamic elevation */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: rgba(10, 15, 29, 0.88);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: box-shadow 0.3s var(--mp-ease-out), background 0.3s var(--mp-ease-out), border-color 0.3s var(--mp-ease-out);
+}
+.site-header.is-scrolled {
+  background: rgba(10, 15, 29, 0.96);
+  box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.65), 0 1px 0 rgba(255, 255, 255, 0.12);
+  border-bottom-color: rgba(56, 189, 248, 0.2);
+}
+
+/* Motion Prompt #081 · MIT License (c) 2026 Shohei Ohtaki · Hover Lift */
+.stat-card,
+.character-card,
+.chart-card,
+.milestone-card,
+.country-wow-card,
+.validation-card {
+  transition: transform 0.3s var(--mp-ease-out), box-shadow 0.3s var(--mp-ease-out), border-color 0.3s var(--mp-ease-out);
+}
+.stat-card:hover,
+.character-card:hover,
+.chart-card:hover,
+.milestone-card:hover,
+.country-wow-card:hover,
+.validation-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.48), 0 0 0 1px rgba(56, 189, 248, 0.25);
+}
+
+/* Motion Prompt #001 · MIT License (c) 2026 Shohei Ohtaki · Pop-in & Bounce */
+@keyframes mp-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+  85% {
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes mp-pop-in-badge {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  70% {
+    transform: scale(1.25);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.status-badge,
+.sample-badge,
+.scope-live-badge,
+.hero-chip,
+.weekly-wow-badge {
+  animation: mp-pop-in 0.45s var(--mp-ease-spring) both;
+}
+.tier-pill,
+.wow-tag {
+  animation: mp-pop-in-badge 0.4s var(--mp-ease-spring) both;
+  animation-delay: 0.12s;
+}
+
+/* Motion Prompt #002 · MIT License (c) 2026 Shohei Ohtaki · Staggered Entrance */
+@keyframes mp-stagger-rise {
+  0% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  65% {
+    opacity: 1;
+    transform: scaleY(1.08);
+  }
+  85% {
+    transform: scaleY(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+@keyframes mp-stagger-col {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.weekly-bar-col {
+  animation: mp-stagger-col 0.5s var(--mp-ease-back) both;
+  animation-delay: calc(var(--stagger-idx, 0) * 35ms);
+}
+.weekly-fill {
+  transform-origin: bottom;
+  animation: mp-stagger-rise 0.6s var(--mp-ease-back) both;
+  animation-delay: calc(var(--stagger-idx, 0) * 35ms + 60ms);
+}
+.country-bar-col {
+  animation: mp-stagger-col 0.5s var(--mp-ease-back) both;
+  animation-delay: calc(var(--stagger-idx, 0) * 35ms);
+}
+.country-stacked-track {
+  transform-origin: bottom;
+  animation: mp-stagger-rise 0.6s var(--mp-ease-back) both;
+  animation-delay: calc(var(--stagger-idx, 0) * 35ms + 60ms);
+}
+.live-activity-cards .stat-card {
+  animation: mp-stagger-col 0.45s var(--mp-ease-out) both;
+  animation-delay: calc(var(--stagger-idx, 0) * 60ms);
+}
+.character-table tbody tr {
+  animation: mp-stagger-col 0.35s var(--mp-ease-out) both;
+  animation-delay: calc(var(--stagger-idx, 0) * 20ms);
+}
+.milestone-card {
+  animation: mp-stagger-col 0.45s var(--mp-ease-out) both;
+  animation-delay: calc(var(--stagger-idx, 0) * 50ms);
+}
+
+/* Motion Prompt #004 · MIT License (c) 2026 Shohei Ohtaki · Line Draw */
+@keyframes mp-line-draw {
+  from {
+    stroke-dashoffset: var(--path-length, 600);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.brand-mark svg path,
+.mp-animated-path {
+  stroke-dasharray: var(--path-length, 600);
+  stroke-dashoffset: var(--path-length, 600);
+  animation: mp-line-draw 1.4s var(--mp-ease-out) forwards;
+}
+
+/* Motion Prompt #022 · MIT License (c) 2026 Shohei Ohtaki · Light Sweep */
+@keyframes mp-light-sweep {
+  0% {
+    transform: translateX(-160%) rotate(25deg);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 0.65;
+  }
+  100% {
+    transform: translateX(260%) rotate(25deg);
+    opacity: 0;
+  }
+}
+.action-button.primary,
+.primary-button,
+.scope-live-badge,
+.stat-card.tone-positive {
+  position: relative;
+  overflow: hidden;
+}
+.action-button.primary::after,
+.primary-button::after,
+.scope-live-badge::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  left: -60%;
+  width: 220%;
+  height: 220%;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.15) 45%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0.15) 55%,
+    transparent 70%
+  );
+  transform: translateX(-160%) rotate(25deg);
+  pointer-events: none;
+  animation: mp-light-sweep 5.5s infinite var(--mp-ease-in-out);
+}
+
+/* Motion Prompt #085 · MIT License (c) 2026 Shohei Ohtaki · Ripple Effect */
+button,
+.tab-button,
+.segment-btn,
+.subnav-link,
+.action-button,
+.primary-button,
+.ghost-button,
+.rev-tab-btn {
+  position: relative;
+  overflow: hidden;
+}
+.mp-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.15) 50%, transparent 75%);
+  transform: scale(0);
+  pointer-events: none;
+  animation: mp-ripple-expand 0.6s var(--mp-ease-out) forwards;
+}
+@keyframes mp-ripple-expand {
+  0% {
+    transform: scale(0);
+    opacity: 0.65;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* Motion Prompt #077 · MIT License (c) 2026 Shohei Ohtaki · Horizontal Scroll */
+.weekly-bar-chart,
+.country-bar-chart,
+.daily-styled-bar-chart,
+.table-wrap {
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.35) rgba(15, 23, 42, 0.7);
+}
+.weekly-bar-chart::-webkit-scrollbar,
+.country-bar-chart::-webkit-scrollbar,
+.daily-styled-bar-chart::-webkit-scrollbar,
+.table-wrap::-webkit-scrollbar {
+  height: 6px;
+}
+.weekly-bar-chart::-webkit-scrollbar-track,
+.country-bar-chart::-webkit-scrollbar-track,
+.daily-styled-bar-chart::-webkit-scrollbar-track,
+.table-wrap::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 999px;
+}
+.weekly-bar-chart::-webkit-scrollbar-thumb,
+.country-bar-chart::-webkit-scrollbar-thumb,
+.daily-styled-bar-chart::-webkit-scrollbar-thumb,
+.table-wrap::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.35);
+  border-radius: 999px;
+  transition: background 0.2s var(--mp-ease-out);
+}
+.weekly-bar-chart::-webkit-scrollbar-thumb:hover,
+.country-bar-chart::-webkit-scrollbar-thumb:hover,
+.daily-styled-bar-chart::-webkit-scrollbar-thumb:hover,
+.table-wrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.75);
+}
+
+/* Motion Prompt #060 · MIT License (c) 2026 Shohei Ohtaki · Segmented Control Glider */
+.segment-nav {
+  position: relative;
+  display: flex;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.75);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: max-content;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.segment-glider {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+  transition: transform 0.32s var(--mp-ease-out), width 0.32s var(--mp-ease-out), opacity 0.2s;
+  pointer-events: none;
+  z-index: 1;
+}
+.segment-btn {
+  position: relative;
+  z-index: 2;
+  transition: color 0.25s var(--mp-ease-out);
+}
+
+/* Motion Prompt #049 · MIT License (c) 2026 Shohei Ohtaki · Modal Dialog */
+.character-dialog[open] {
+  animation: mp-modal-scale-in 0.32s var(--mp-ease-out) forwards;
+}
+.character-dialog[open]::backdrop {
+  background: rgba(18, 20, 28, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: mp-scrim-in 0.32s var(--mp-ease-out) forwards;
+}
+@keyframes mp-scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes mp-modal-scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Motion Prompt #056 · MIT License (c) 2026 Shohei Ohtaki · Toast Notification */
+.mp-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+.mp-toast {
+  position: relative;
+  min-width: 250px;
+  max-width: 400px;
+  background: #1e293b;
+  color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.12);
+  padding: 14px 18px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+  pointer-events: auto;
+  animation: mp-toast-slide-in 0.35s var(--mp-ease-out) forwards;
+}
+.mp-toast.is-hiding {
+  animation: mp-toast-slide-out 0.35s var(--mp-ease-in-out) forwards;
+}
+.mp-toast-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.mp-toast.is-success .mp-toast-icon {
+  background: #10b981;
+  color: #fff;
+}
+.mp-toast.is-info .mp-toast-icon {
+  background: #3b82f6;
+  color: #fff;
+}
+.mp-toast.is-warning .mp-toast-icon {
+  background: #f59e0b;
+  color: #fff;
+}
+.mp-toast-msg {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #f8fafc;
+}
+.mp-toast-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: #38bdf8;
+  width: 100%;
+  animation: mp-toast-progress var(--toast-duration, 3.5s) linear forwards;
+}
+@keyframes mp-toast-slide-in {
+  from {
+    transform: translateX(260px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes mp-toast-slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(260px);
+    opacity: 0;
+  }
+}
+@keyframes mp-toast-progress {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+/* Motion Prompt #052 · MIT License (c) 2026 Shohei Ohtaki · Accordion */
+.mp-accordion-item {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: rgba(15, 23, 42, 0.5);
+  transition: border-color 0.35s var(--mp-ease-in-out);
+  overflow: hidden;
+}
+.mp-accordion-item.is-open {
+  border-color: rgba(56, 189, 248, 0.4);
+}
+.mp-accordion-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: #e2e8f0;
+  font-size: 13.5px;
+  font-weight: 650;
+  cursor: pointer;
+  text-align: left;
+}
+.mp-accordion-chevron {
+  display: inline-block;
+  font-size: 11px;
+  transition: transform 0.35s var(--mp-ease-in-out), color 0.35s;
+  color: #94a3b8;
+}
+.mp-accordion-item.is-open .mp-accordion-chevron {
+  transform: rotate(180deg);
+  color: #38bdf8;
+}
+.mp-accordion-content {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0 16px;
+  transition: max-height 0.38s var(--mp-ease-in-out), opacity 0.32s var(--mp-ease-in-out), padding 0.38s var(--mp-ease-in-out);
+}
+.mp-accordion-item.is-open .mp-accordion-content {
+  max-height: 800px;
+  opacity: 1;
+  padding: 8px 16px 16px;
+}
+
+/* Motion Prompt #021 · MIT License (c) 2026 Shohei Ohtaki · 3D Flip */
+.mp-flip-card {
+  perspective: 1000px;
+}
+.mp-flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.65s var(--mp-ease-in-out);
+  transform-style: preserve-3d;
+}
+.mp-flip-card.is-flipped .mp-flip-card-inner {
+  transform: rotateY(180deg);
+}
+.mp-flip-card-front,
+.mp-flip-card-back {
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.mp-flip-card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotateY(180deg);
+  background: rgba(15, 23, 42, 0.96);
+  border-radius: 10px;
+  padding: 16px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+/* Motion Prompt #062 · MIT License (c) 2026 Shohei Ohtaki · Range Slider */
+.mp-range-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+}
+.mp-range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.mp-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #38bdf8;
+  border: 3px solid #0f172a;
+  box-shadow: 0 0 0 2px #38bdf8, 0 4px 10px rgba(0, 0, 0, 0.5);
+  cursor: grab;
+  transition: transform 0.2s var(--mp-ease-back), box-shadow 0.2s;
+}
+.mp-range-slider:active::-webkit-slider-thumb {
+  cursor: grabbing;
+  transform: scale(1.22);
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.4), 0 6px 14px rgba(0, 0, 0, 0.6);
+}
+
+/* Motion Prompt #068 · MIT License (c) 2026 Shohei Ohtaki · Step Indicator */
+.mp-step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin: 16px 0 24px;
+  padding: 0 10px;
+}
+.mp-step-line-bg {
+  position: absolute;
+  top: 18px;
+  left: 30px;
+  right: 30px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  z-index: 1;
+}
+.mp-step-line-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #10b981);
+  border-radius: 2px;
+  transition: width 0.45s var(--mp-ease-in-out);
+}
+.mp-step-item {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.mp-step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #0f172a;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #94a3b8;
+  transition: all 0.35s var(--mp-ease-out);
+}
+.mp-step-item.is-done .mp-step-circle {
+  background: #10b981;
+  border-color: #10b981;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+.mp-step-item.is-active .mp-step-circle {
+  background: #3b82f6;
+  border-color: #38bdf8;
+  color: #fff;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.6);
+  transform: scale(1.1);
+}
+.mp-step-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+.mp-step-item.is-done .mp-step-label,
+.mp-step-item.is-active .mp-step-label {
+  color: #f1f5f9;
+}
+
+/* Accessibility: Prefers Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
