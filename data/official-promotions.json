@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-27T12:06:31.737Z",
+  "generated_at": "2026-11-27T21:09:29.065Z",
   "source_tier": "A",
   "definition": "Official promotion items require a price_promotion badge from the market catalog API. A headline is shown only when the same character link is also present on that market's official homepage.",
   "caveat": "Promotion observations do not explain viewCount or chatCount changes. Traffic-source attribution requires a separate official announcement or referrer dataset.",
@@ -7,12 +7,12 @@
     "kr": {
       "market": "kr",
       "label": "KR",
-      "observed_at": "2026-11-27T12:06:31.737Z",
+      "observed_at": "2026-11-27T21:09:29.065Z",
       "homepage_url": "https://chat.toptoon.com/",
       "api_url": "https://chat.toptoon.com/api/characters",
       "status": "verified",
       "change": "changed",
-      "signature": "10000014:5.9만 8.3천 SALE 정인하",
+      "signature": "10000014:6.1만 8.7천 SALE 정인하",
       "homepage_error": null,
       "items": [
         {
@@ -20,7 +20,7 @@
           "character_name": "정인하",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.com/detail/character/10000014",
-          "headline": "5.9만 8.3천 SALE 정인하",
+          "headline": "6.1만 8.7천 SALE 정인하",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.com/"
         }
@@ -29,12 +29,12 @@
     "jp": {
       "market": "jp",
       "label": "JP",
-      "observed_at": "2026-11-27T12:06:31.737Z",
+      "observed_at": "2026-11-27T21:09:29.065Z",
       "homepage_url": "https://chat.toptoon.jp/",
       "api_url": "https://chat.toptoon.jp/api/characters",
       "status": "verified",
       "change": "changed",
-      "signature": "8:51万 8230 SALE 近藤結花 今日安全な日だから… 早く来て、ぎゅっとしてくれませんか？ #リモートラブホール #オナホ #現代ファンタジー",
+      "signature": "8:51万 8539 SALE 近藤結花 今日安全な日だから… 早く来て、ぎゅっとしてくれませんか？ #リモートラブホール #オナホ #現代ファンタジー",
       "homepage_error": null,
       "items": [
         {
@@ -42,7 +42,7 @@
           "character_name": "近藤結花",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.jp/detail/character/8",
-          "headline": "51万 8230 SALE 近藤結花 今日安全な日だから… 早く来て、ぎゅっとしてくれませんか？ #リモートラブホール #オナホ #現代ファンタジー",
+          "headline": "51万 8539 SALE 近藤結花 今日安全な日だから… 早く来て、ぎゅっとしてくれませんか？ #リモートラブホール #オナホ #現代ファンタジー",
           "verification": "api-and-homepage",
           "source_url": "https://chat.toptoon.jp/"
         }
@@ -51,7 +51,7 @@
     "global": {
       "market": "global",
       "label": "GLOBAL",
-      "observed_at": "2026-11-27T12:06:31.737Z",
+      "observed_at": "2026-11-27T21:09:29.065Z",
       "homepage_url": "https://chat.global.toptoon.com/",
       "api_url": "https://chat.global.toptoon.com/api/characters",
       "status": "none",
@@ -63,12 +63,12 @@
     "tw": {
       "market": "tw",
       "label": "TW",
-      "observed_at": "2026-11-27T12:06:31.737Z",
+      "observed_at": "2026-11-27T21:09:29.065Z",
       "homepage_url": "https://chat.toptoon.net/",
       "api_url": "https://chat.toptoon.net/api/characters",
-      "status": "verified",
+      "status": "partial",
       "change": "changed",
-      "signature": "273:1.6萬 951 SALE 潘惠媛 你現在是打算把這個用在我身上嗎？ #性運刮刮樂 #上司 #課長",
+      "signature": "273:price_promotion",
       "homepage_error": null,
       "items": [
         {
@@ -76,39 +76,14 @@
           "character_name": "潘惠媛",
           "api_badge": "price_promotion",
           "detail_url": "https://chat.toptoon.net/detail/character/273",
-          "headline": "1.6萬 951 SALE 潘惠媛 你現在是打算把這個用在我身上嗎？ #性運刮刮樂 #上司 #課長",
-          "verification": "api-and-homepage",
-          "source_url": "https://chat.toptoon.net/"
+          "headline": null,
+          "verification": "api-badge-only",
+          "source_url": "https://chat.toptoon.net/api/characters"
         }
       ]
     }
   },
   "history": [
-    {
-      "captured_at": "2026-10-01T03:16:55.248Z",
-      "markets": {
-        "kr": {
-          "status": "verified",
-          "change": "continuing",
-          "signature": "154:곽도임 \"나리, 정녕...이 과부의 외로움을 달랠 수 있는 것이옵니까?\" 53만 1.5만"
-        },
-        "jp": {
-          "status": "verified",
-          "change": "changed",
-          "signature": "293:高橋夕里 私たち、こんなことしちゃダメじゃなのに…！ 251万 7963"
-        },
-        "global": {
-          "status": "none",
-          "change": "none",
-          "signature": ""
-        },
-        "tw": {
-          "status": "partial",
-          "change": "continuing",
-          "signature": "253:price_promotion"
-        }
-      }
-    },
     {
       "captured_at": "2026-10-01T03:31:55.331Z",
       "markets": {
@@ -4881,6 +4856,31 @@
           "status": "verified",
           "change": "changed",
           "signature": "273:1.6萬 951 SALE 潘惠媛 你現在是打算把這個用在我身上嗎？ #性運刮刮樂 #上司 #課長"
+        }
+      }
+    },
+    {
+      "captured_at": "2026-11-27T21:09:29.065Z",
+      "markets": {
+        "kr": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "10000014:6.1만 8.7천 SALE 정인하"
+        },
+        "jp": {
+          "status": "verified",
+          "change": "changed",
+          "signature": "8:51万 8539 SALE 近藤結花 今日安全な日だから… 早く来て、ぎゅっとしてくれませんか？ #リモートラブホール #オナホ #現代ファンタジー"
+        },
+        "global": {
+          "status": "none",
+          "change": "none",
+          "signature": ""
+        },
+        "tw": {
+          "status": "partial",
+          "change": "changed",
+          "signature": "273:price_promotion"
         }
       }
     }
