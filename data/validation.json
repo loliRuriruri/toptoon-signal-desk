@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-27T09:12:54.797Z",
+  "generated_at": "2026-11-27T12:06:49.509Z",
   "mode": "live-crosscheck",
   "overall_status": "share-with-caveats",
   "summary": {
@@ -18,45 +18,45 @@
     "kr": {
       "label": "한국",
       "count": 132,
-      "chats": 2158206,
-      "views": 75282138,
+      "chats": 2160898,
+      "views": 75327297,
       "live": {
         "count": 132,
-        "chats": 2160029,
-        "views": 75314035
+        "chats": 2160903,
+        "views": 75327317
       }
     },
     "jp": {
       "label": "일본",
       "count": 121,
-      "chats": 582971,
-      "views": 164916628,
+      "chats": 584611,
+      "views": 165537213,
       "live": {
         "count": 121,
-        "chats": 584095,
-        "views": 165318983
+        "chats": 584611,
+        "views": 165537569
       }
     },
     "global": {
       "label": "글로벌",
       "count": 122,
-      "chats": 36416,
-      "views": 460068,
+      "chats": 36499,
+      "views": 460702,
       "live": {
         "count": 122,
-        "chats": 36483,
-        "views": 460603
+        "chats": 36499,
+        "views": 460702
       }
     },
     "tw": {
       "label": "대만",
       "count": 118,
-      "chats": 185246,
-      "views": 6615357,
+      "chats": 185556,
+      "views": 6639500,
       "live": {
         "count": 118,
-        "chats": 185465,
-        "views": 6633299
+        "chats": 185556,
+        "views": 6639513
       }
     }
   },
@@ -110,9 +110,9 @@
       "id": "live-chats-kr",
       "label": "한국 누적 채팅 시차",
       "status": "pass",
-      "observed": 2158206,
-      "expected": 2160029,
-      "note": "수집 이후 변동 0.084% (누적 수치는 실시간 증가 가능)",
+      "observed": 2160898,
+      "expected": 2160903,
+      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -128,9 +128,9 @@
       "id": "live-chats-jp",
       "label": "일본 누적 채팅 시차",
       "status": "pass",
-      "observed": 582971,
-      "expected": 584095,
-      "note": "수집 이후 변동 0.192% (누적 수치는 실시간 증가 가능)",
+      "observed": 584611,
+      "expected": 584611,
+      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -146,9 +146,9 @@
       "id": "live-chats-global",
       "label": "글로벌 누적 채팅 시차",
       "status": "pass",
-      "observed": 36416,
-      "expected": 36483,
-      "note": "수집 이후 변동 0.184% (누적 수치는 실시간 증가 가능)",
+      "observed": 36499,
+      "expected": 36499,
+      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -164,9 +164,9 @@
       "id": "live-chats-tw",
       "label": "대만 누적 채팅 시차",
       "status": "pass",
-      "observed": 185246,
-      "expected": 185465,
-      "note": "수집 이후 변동 0.118% (누적 수치는 실시간 증가 가능)",
+      "observed": 185556,
+      "expected": 185556,
+      "note": "수집 이후 변동 0.000% (누적 수치는 실시간 증가 가능)",
       "severity": "none"
     },
     {
@@ -174,8 +174,8 @@
       "label": "한국 Worker↔직접 관측",
       "status": "warn",
       "observed": 2135435,
-      "expected": 2158206,
-      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 1.055%",
+      "expected": 2160898,
+      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 1.178%",
       "severity": "medium"
     },
     {
@@ -183,8 +183,8 @@
       "label": "일본 Worker↔직접 관측",
       "status": "warn",
       "observed": 564027,
-      "expected": 582971,
-      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 3.250%",
+      "expected": 584611,
+      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 3.521%",
       "severity": "medium"
     },
     {
@@ -192,8 +192,8 @@
       "label": "글로벌 Worker↔직접 관측",
       "status": "warn",
       "observed": 36375,
-      "expected": 36416,
-      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 0.113%",
+      "expected": 36499,
+      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 0.340%",
       "severity": "medium"
     },
     {
@@ -201,8 +201,8 @@
       "label": "대만 Worker↔직접 관측",
       "status": "warn",
       "observed": 181496,
-      "expected": 185246,
-      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 2.024%",
+      "expected": 185556,
+      "note": "서로 다른 수집 파이프라인의 누적 채팅 차이 2.188%",
       "severity": "medium"
     },
     {
